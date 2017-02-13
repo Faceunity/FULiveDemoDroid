@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/blur_level_item_unselected"/>
+    <item
+        android:drawable="@mipmap/ic_delete_all"/>
+</layer-list>
