@@ -135,7 +135,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                     MainHandler.HANDLE_CAMERA_START_PREVIEW,
                     mCameraSurfaceTexture));
 
-            faceunity.disableBoostWithEGLImage();
+            //faceunity.disableBoostWithEGLImage();
         }
 
         @Override
