@@ -400,6 +400,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             case 5:
                 mFacebeautyBlurLevel = 5.0f;
                 break;
+            case 6:
+                mFacebeautyBlurLevel = 6.0f;
+                break;
         }
     }
 

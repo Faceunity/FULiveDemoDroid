@@ -42,7 +42,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
     private TextView[] mBlurLevels;
     private int[] BLUR_LEVEL_TV_ID = {R.id.blur_level0, R.id.blur_level1, R.id.blur_level2,
-        R.id.blur_level3, R.id.blur_level4, R.id.blur_level5};
+        R.id.blur_level3, R.id.blur_level4, R.id.blur_level5, R.id.blur_level6};
 
     protected ImageView mFaceTrackingStatusImageView;
 
