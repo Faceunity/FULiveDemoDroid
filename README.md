@@ -74,11 +74,11 @@ import com.faceunity.wrapper.faceunity
 
 #### 道具绘制
 
-Android平台上不同的绘制接口有很大的性能差异，目前性能最优的接口是 fuDualInputToTexture ，其中要求输入的图像分别以内存数组 byte[] 以及 openGL 纹理的方式输入，所需要的数据传输代价最小。这2个参数的获取根据Android Camera的SDK，分别得到对应的texture和byte[]数组，具体实现可以参考Google的Grafika项目。
+Android平台上不同的绘制接口有很大的性能差异，目前性能最优的接口是 fuDualInputToTexture ，其中要求输入的图像分别以内存数组 byte[] 以及 OpenGL 纹理的方式输入，所需要的数据传输代价最小。这2个参数的获取根据Android SDK Camera的API，分别得到对应的texture和byte[]数组。
 
-fuDualInputTexture参数里的flags为0是代表`TEXTURE_2D`,为1时代表`TEXTURE_EXTERNAL_OES`。Android Camera默认的类型是`TEXTURE_EXTERNAL_OES`。
+fuDualInputTexture参数里的flags为0是代表`TEXTURE_2D`,为1时代表`TEXTURE_EXTERNAL_OES`。需要注意，Android Camera默认的类型是`TEXTURE_EXTERNAL_OES`。
 
-在GLSurfaceView的Renderer的回调函数onDrawFrame中，使用fuDualInputToTexture后会得到新的texture，返回的texture类型为TEXTURE_2D。将生成的新的texture进行绘制显示即可实现虚拟道具工具的集成预览，绘制的texture的具体实现可参考Google的Grafika项目，建议额外注意texture的类型。此外，在onDrawFrame中，可以调用fuIsTracking来判断实时人脸跟踪识别状态。
+以GLSurfaceView对接为例，的Renderer的回调函数onDrawFrame中，使用fuDualInputToTexture后会得到新的texture，返回的texture类型为TEXTURE_2D。将生成的新的texture进行绘制显示即可实现虚拟道具工具的集成预览，建议额外注意texture的类型。同时，在onDrawFrame中，可以调用fuIsTracking来判断实时人脸跟踪识别状态。
 
 fuDualInputTexture调用例程如
 ```Java
@@ -151,9 +151,9 @@ faceunity.fuItemSetParam(m_items[1], "eye_enlarging", 1.0);
 
 ## 注意
 
-注意所有Faceunity的函数都需要在有OpenGL context的同一线程中运行。
+所有Faceunity的函数都需要在有OpenGL context的同一线程中运行。
 
-Activity的onPause生命周期时，进行资源的回收及对应GLSurfaceView的pause并主动调用faceunity的onDeviceLost函数。
+建议在GL context lost相关的事件里释放掉所有道具，到了绘制的时候再通过判断重新创建出来。如Activity的onPause生命周期时，进行资源的回收及并主动调用fuOnDeviceLost。
 
 ## 鉴权
 
@@ -209,10 +209,7 @@ public class authpack {
 
 ## FAQ
 ### 为什么过了一段时间人脸识别失效了？
-检查证书。
-
-### 为什么软编不显示道具？
-七牛的推流SDK软编的时候需要联网认证有推流地址才会回调。软编效果和硬编预览一致。
+检查证书。如证书是否正确使用，是否过期。
 
 
 
@@ -249,6 +246,10 @@ void fuDestroyItem(int item);
 \create a OpenGL ES 2.0 context
 */
 void fuCreateEGLContext();
+
+/**
+void fuReleaseEGLContext();
+*/
 
 /**
 \brief Render a list of items on top of an NV21 image.
@@ -311,8 +312,3 @@ int fuItemSetParam(int item,String name,String value);
 */
 int fuIsTracking();
 ```
-
-## 已知问题
-目前的 PLDroidMediaStreaming 中的例子程序，在前置后置摄像头切换时会重新创建 GL context，目前没有办法在其老的 context 破坏之前对已加载的道具绘制数据进行重置。因此在每次切换摄像头时，会有一定的内存泄漏。
-
-在最后应用中建议在GL context lost相关的事件里（比如Android.onPause）释放掉所有道具，到了绘制的时候再通过判断重新创建出来。
