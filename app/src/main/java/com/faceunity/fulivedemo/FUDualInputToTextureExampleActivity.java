@@ -287,7 +287,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
             int fuTex = faceunity.fuDualInputToTexture(mCameraNV21Byte, mCameraTextureId, flags,
                     cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
-
+            //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
+              //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
         }
