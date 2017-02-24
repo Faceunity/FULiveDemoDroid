@@ -68,6 +68,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     int mCurrentCameraType;
 
+    boolean mUseBeauty = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
@@ -171,6 +173,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         mCamera.startPreview();
     }
 
+    long lastOneHundredFrameTimeStamp = 0;
+    int currentFrameCnt = 0;
+
     class GLRenderer implements GLSurfaceView.Renderer {
 
         FullFrameRect mFullScreenFUDisplay;
@@ -206,11 +211,13 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 faceunity.fuSetMaxFaces(1);
                 Log.e(TAG, "fuSetup");
 
-                is = getAssets().open("face_beautification.mp3");
-                byte[] itemData = new byte[is.available()];
-                is.read(itemData);
-                is.close();
-                mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
+                if (mUseBeauty) {
+                    is = getAssets().open("face_beautification.mp3");
+                    byte[] itemData = new byte[is.available()];
+                    is.read(itemData);
+                    is.close();
+                    mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -233,6 +240,13 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 //第一次onDrawFrame并不是由camera内容驱动的
                 isFirstOnDrawFrame = false;
                 return;
+            }
+
+            if (++currentFrameCnt == 100) {
+                currentFrameCnt = 0;
+                long tmp = System.currentTimeMillis();
+                Log.e(TAG, "dualInput FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                lastOneHundredFrameTimeStamp = tmp;
             }
 
             /**
