@@ -57,7 +57,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     boolean isFirstOnFrameAvailable;
     long frameAvailableTimeStamp;
 
-    boolean VERBOSE_LOG = true;
+    boolean VERBOSE_LOG = false;
 
     float mFacebeautyColorLevel = 0.5f;
     float mFacebeautyBlurLevel = 5.0f;
@@ -139,8 +139,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (VERBOSE_LOG) {
             Log.d(TAG, "onPreviewFrame");
+            Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         }
-        Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         mCameraNV21Byte = data;
     }
 

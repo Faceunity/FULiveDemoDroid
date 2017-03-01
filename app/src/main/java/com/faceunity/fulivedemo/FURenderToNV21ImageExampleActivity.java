@@ -51,7 +51,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     int mFrameId;
 
-    boolean VERBOSE_LOG = true;
+    boolean VERBOSE_LOG = false;
 
     byte[] mCameraNV21Byte;
 
@@ -303,10 +303,12 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        Log.d(TAG, "onPreviewFrame");
-        int isTracking = faceunity.fuIsTracking();
-        if (true) {
-            Log.e(TAG, "isTracking " + isTracking);
+        if (VERBOSE_LOG) {
+            Log.d(TAG, "onPreviewFrame");
+            int isTracking = faceunity.fuIsTracking();
+            if (true) {
+                Log.e(TAG, "isTracking " + isTracking);
+            }
         }
         mCameraNV21Byte = data;
         glSf.requestRender();
@@ -325,7 +327,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @SuppressWarnings("deprecation")
     private void openCamera(int cameraType, int desiredWidth, int desiredHeight) {
-        Log.d(TAG, "openCamera");
+        if (VERBOSE_LOG) {
+            Log.d(TAG, "openCamera");
+        }
         if (mCamera != null) {
             throw new RuntimeException("camera already initialized");
         }
