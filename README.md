@@ -1,6 +1,6 @@
 # FULiveDemoDroid
 
-FULiveDemoDroid 是 Faceunity 的面部跟踪和虚拟道具功能在Android SDK中的集成，作为一款集成示例。
+FULiveDemoDroid 是集成了 Faceunity 面部跟踪和虚拟道具功能的 Android Demo。
 
 ## v3.2 爱心手势识别
 在v3.2中加入了爱心手势识别，用户比出爱心手势，可以触发特定的道具动效。目前线上提供了一个简单的演示用手势道具，自定义手势道具的流程和2D道具制作一致，具体打包的细节可以联系我司技术支持。
