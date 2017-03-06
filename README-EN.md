@@ -1,23 +1,6 @@
 # FULiveDemoDroid
 
-FULiveDemoDroid 是集成了 Faceunity 面部跟踪和虚拟道具功能的 Android Demo。
-
-## v3.2 爱心手势识别
-在v3.2中加入了爱心手势识别，用户比出爱心手势，可以触发特定的道具动效。目前线上提供了一个简单的演示用手势道具，自定义手势道具的流程和2D道具制作一致，具体打包的细节可以联系我司技术支持。
-
-手势识别的技术细节参见[这里](https://github.com/Faceunity/FULiveDemoDroid#手势识别)。
-
-## v3.1 美颜更新
-在v3.1中，全面更新了美颜的功能和效果。改进了磨皮算法，使得在细腻皮肤的同时充分保持皮肤的细节，减少涂抹感。增加智能美型功能，可以自然地实现瘦脸和大眼效果，并可根据需要进行调节。具体细节可以参见[这里](https://github.com/Faceunity/FULiveDemoDroid#视频美颜)。
-
-## v3.0 重要更新
-在v3.0中，全面升级了底层人脸数据库，数据库大小从原来的 10M 缩小到 3M ，同时取消了之前的 ar.mp3 数据。新的数据库可以支持稳定的全头模型，从而支持更好的道具定位、面部纹理；同时新的数据库强化了跟踪模块，从而提升虚拟化身道具的表情响应度和精度。
-
-由于升级了底层数据表达，v2.0 版本下的道具将全面不兼容。我司制作的道具请联系我司获取升级之后的道具包。自行制作的道具请联系我司获取道具升级工具和技术支持。
-
-v2.0 版本的系统仍然保留在 v2 分支中，但不再进行更新。
-
-## Libraries
+## Library Files
   - nama.jar function call interfaces
   - libnama.so core library of face tracking and items rendering
   
