@@ -56,7 +56,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     byte[] mCameraNV21Byte;
 
     float mFacebeautyColorLevel = 0.5f;
-    float mFacebeautyBlurLevel = 5.0f;
+    float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
     float mFacebeautyEnlargeEye = 1.0f;
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
@@ -252,6 +252,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             @Override
             public void run() {
                 //Note: 切忌使用一个已经destroy的item
+                //faceunity.fuDestroyAllItems();
                 faceunity.fuDestroyItem(mEffectItem);
                 mEffectItem = 0;
                 faceunity.fuDestroyItem(mFacebeautyItem);

@@ -129,7 +129,7 @@
                         android:textSize="22sp"
                         android:layout_gravity="center"
                         android:gravity="center"
-                        android:background="@drawable/blur_level_item_selected"
+                        android:background="@drawable/blur_level_item_unselected"
                         android:onClick="onClick"/>
                     <TextView
                         android:id="@+id/blur_level6"
@@ -141,7 +141,7 @@
                         android:textSize="22sp"
                         android:layout_gravity="center"
                         android:gravity="center"
-                        android:background="@drawable/blur_level_item_unselected"
+                        android:background="@drawable/blur_level_item_selected"
                         android:onClick="onClick"/>
                 </LinearLayout>
                 <!--color level select-->
@@ -162,7 +162,7 @@
                         app:dsb_thumbSize="16dp"
                         app:dsb_min="0"
                         app:dsb_max="100"
-                        app:dsb_value="100"/>
+                        app:dsb_value="50"/>
                 </LinearLayout>
                 <!--cheek thin select-->
                 <LinearLayout

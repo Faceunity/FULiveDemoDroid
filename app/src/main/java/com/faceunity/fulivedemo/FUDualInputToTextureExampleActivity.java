@@ -60,7 +60,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     boolean VERBOSE_LOG = false;
 
     float mFacebeautyColorLevel = 0.5f;
-    float mFacebeautyBlurLevel = 5.0f;
+    float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
     float mFacebeautyEnlargeEye = 1.0f;
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
