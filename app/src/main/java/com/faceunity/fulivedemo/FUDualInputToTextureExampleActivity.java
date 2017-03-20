@@ -70,6 +70,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean mUseBeauty = true;
 
+    boolean inCameraChange = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
@@ -242,6 +244,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 return;
             }
 
+            if (inCameraChange) {
+                return;
+            }
+
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
                 long tmp = System.currentTimeMillis();
@@ -293,6 +299,11 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "filter_name", mFilterName);
             faceunity.fuItemSetParam(mFacebeautyItem, "cheek_thinning", mFacebeautyCheeckThin);
             faceunity.fuItemSetParam(mFacebeautyItem, "eye_enlarging", mFacebeautyEnlargeEye);
+
+            if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
+                Log.e(TAG, "camera nv21 bytes null");
+                return;
+            }
 
             /**
              * 这里拿到fu处理过后的texture，可以对这个texture做后续操作，如硬编、预览。
@@ -458,12 +469,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
+        inCameraChange = true;
+        faceunity.fuOnCameraChange();
         releaseCamera();
+        mCameraNV21Byte = null;
+        mFrameId = 0;
         if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
         } else {
             openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
         }
         handleCameraStartPreview(glRenderer.mCameraSurfaceTexture);
+        inCameraChange = false;
     }
 }

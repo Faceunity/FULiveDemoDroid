@@ -459,6 +459,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
         releaseCamera();
+        faceunity.fuOnCameraChange();
         if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
         } else {
