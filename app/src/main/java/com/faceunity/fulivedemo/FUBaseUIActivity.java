@@ -46,6 +46,9 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
     protected ImageView mFaceTrackingStatusImageView;
 
+    private Button mRecordingBtn;
+    private int mRecordStatus = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,6 +163,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         });
 
         mFaceTrackingStatusImageView = (ImageView) findViewById(R.id.iv_face_detect);
+        mRecordingBtn = (Button) findViewById(R.id.btn_recording);
     }
 
     @Override
@@ -191,6 +195,15 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
                 break;
             case R.id.btn_choose_camera:
                 onCameraChange();
+                break;
+            case R.id.btn_recording:
+                if (mRecordStatus == 0) {
+                    mRecordingBtn.setText("停止录制");
+                    mRecordStatus ^= 1;
+                } else {
+                    mRecordingBtn.setText("开始录制");
+                    mRecordStatus ^= 1;
+                }
                 break;
         }
     }
@@ -270,4 +283,14 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
      * 相机切换
      */
     abstract protected void onCameraChange();
+
+    /**
+     * 开始录制
+     */
+    abstract protected void onStartRecording();
+
+    /**
+     * 停止录制
+     */
+    abstract protected void onStopRecording();
 }

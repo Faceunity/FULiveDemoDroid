@@ -2,6 +2,7 @@ package com.faceunity.fulivedemo;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,8 +12,10 @@ import android.view.View;
 
 import com.faceunity.fulivedemo.gles.FullFrameRect;
 import com.faceunity.fulivedemo.gles.Texture2dProgram;
+import com.faceunity.fulivedemo.gles.TextureMovieEncoder;
 import com.faceunity.wrapper.faceunity;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -71,6 +74,13 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     boolean mUseBeauty = true;
 
     boolean inCameraChange = false;
+
+    final int IN_RECORDING = 1;
+    final int START_RECORDING = 2;
+    final int END_RECORDING = 3;
+    final int NONE_RECORDING = 4;
+
+    int mRecordingStatus = NONE_RECORDING;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,6 +200,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         int faceTrackingStatus = 0;
 
+        TextureMovieEncoder mTexureMovieEncoder;
+
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.e(TAG, "onSurfaceCreated");
@@ -225,6 +237,13 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             isFirstOnDrawFrame = true;
+
+            mTexureMovieEncoder = new TextureMovieEncoder();
+            File outFile = new File(MiscUtil.createFileName() + "_camera.mp4");
+            mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                    outFile, 1080, 1920,
+                    1000000, EGL14.eglGetCurrentContext()
+            ));
         }
 
         @Override
@@ -481,5 +500,15 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         }
         handleCameraStartPreview(glRenderer.mCameraSurfaceTexture);
         inCameraChange = false;
+    }
+
+    @Override
+    protected void onStartRecording() {
+
+    }
+
+    @Override
+    protected void onStopRecording() {
+
     }
 }

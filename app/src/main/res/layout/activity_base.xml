@@ -301,5 +301,15 @@
             android:layout_gravity="right|top"
             android:background="@mipmap/camera_front"
             android:layout_margin="@dimen/max_space"/>
+
+        <Button
+            android:id="@+id/btn_recording"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:background="@color/faceunityYellow"
+            android:text="开始录制"
+            android:textColor="@color/colorWhite"
+            android:layout_margin="10dp"
+            android:onClick="onClick"/>
     </com.faceunity.fulivedemo.AspectFrameLayout>
 </RelativeLayout>
