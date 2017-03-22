@@ -2,17 +2,21 @@ package com.faceunity.fulivedemo;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import com.faceunity.fulivedemo.encoder.TextureMovieEncoder;
 import com.faceunity.fulivedemo.gles.FullFrameRect;
 import com.faceunity.fulivedemo.gles.Texture2dProgram;
 import com.faceunity.wrapper.faceunity;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -42,6 +46,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     Camera mCamera;
 
     GLSurfaceView glSf;
+    GLRenderer glRenderer;
 
     int cameraWidth;
     int cameraHeight;
@@ -68,13 +73,20 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     MainHandler mainHandler;
 
+    final int IN_RECORDING = 1;
+    final int START_RECORDING = 2;
+    final int STOP_RECORDING = 3;
+    final int NONE_RECORDING = 4;
+    int mRecordingStatus = NONE_RECORDING;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         glSf = (GLSurfaceView) findViewById(R.id.glsv);
         glSf.setEGLContextClientVersion(2);
-        glSf.setRenderer(new FURenderToNV21ImageExampleActivity.GLRenderer());
+        glRenderer = new FURenderToNV21ImageExampleActivity.GLRenderer();
+        glSf.setRenderer(glRenderer);
         glSf.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         mainHandler = new MainHandler(this);
@@ -85,10 +97,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         FullFrameRect mFullScreenFUDisplay;
         FullFrameRect mFullScreenCamera;
 
-        /**
-         * 测试表明，有些手机无相关surface的话onPreviewFrame会造成无法正确回调，所以这里设置了一下
-         * 但是本Activity目的只是演示如果通过只输入nv21 byte数组来实现对应的效果
-         */
         int mCameraTextureId;
         SurfaceTexture mCameraSurfaceTexture;
 
@@ -99,12 +107,19 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         float[] mtxCameraBack = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         int faceTrackingStatus = 0;
 
+        TextureMovieEncoder mTexureMovieEncoder;
+        String videoFileName;
+
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.e(TAG, "onSurfaceCreated");
 
             mFullScreenFUDisplay = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_2D));
+            mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
+                    Texture2dProgram.ProgramType.TEXTURE_EXT));
+            mCameraTextureId = mFullScreenCamera.createTextureObject();
+            mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
 
             try {
                 InputStream is = getAssets().open("v3.mp3");
@@ -124,17 +139,10 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 e.printStackTrace();
             }
 
-            isFirstOnDrawFrame = true;
-
-            mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
-                    Texture2dProgram.ProgramType.TEXTURE_EXT));
-            mCameraTextureId = mFullScreenCamera.createTextureObject();
-            mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
-
             mainHandler.sendMessage(mainHandler.obtainMessage(
                     MainHandler.HANDLE_CAMERA_START_PREVIEW,
                     mCameraSurfaceTexture));
-
+            isFirstOnDrawFrame = true;
             //faceunity.disableBoostWithEGLImage();
         }
 
@@ -148,6 +156,13 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             if (VERBOSE_LOG) {
                 Log.e(TAG, "onDrawFrame");
             }
+
+            /**
+             * 获取camera数据, 更新到texture
+             */
+            float[] mtx = new float[16];
+            mCameraSurfaceTexture.updateTexImage();
+            mCameraSurfaceTexture.getTransformMatrix(mtx);
 
             final int isTracking = faceunity.fuIsTracking();
             if (isTracking != faceTrackingStatus) {
@@ -209,7 +224,55 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 //mFullScreenFUDisplay.drawFrame(loadNV21ByteTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
                   //      mtxCameraFront : mtxCameraBack);
             }
+
+            if (mRecordingStatus == START_RECORDING) {
+                mTexureMovieEncoder = new TextureMovieEncoder();
+                videoFileName = MiscUtil.createFileName() + "_camera.mp4";
+                File outFile = new File(videoFileName);
+                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                        outFile,cameraHeight, cameraWidth,
+                        1000000, EGL14.eglGetCurrentContext()
+                ));
+                mRecordingStatus = IN_RECORDING;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(FURenderToNV21ImageExampleActivity.this, "video file saved to "
+                                + videoFileName, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            if (mRecordingStatus == IN_RECORDING) {
+                mTexureMovieEncoder.setTextureId(fuTex);
+                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
+            }
+
+            if (mRecordingStatus == STOP_RECORDING) {
+                mTexureMovieEncoder.stopRecording();
+                mRecordingStatus = NONE_RECORDING;
+            }
             mFrameId++;
+        }
+
+        public void notifyPause() {
+            if (mRecordingStatus == IN_RECORDING) {
+                mTexureMovieEncoder.stopRecording();
+                mRecordingStatus = NONE_RECORDING;
+            }
+
+            faceTrackingStatus = 0;
+            if (mFullScreenFUDisplay != null) {
+                mFullScreenFUDisplay.release(false);
+            }
+
+            if (mFullScreenCamera != null) {
+                mFullScreenCamera.release(false);
+            }
+
+            if (mCameraSurfaceTexture != null) {
+                mCameraSurfaceTexture.release();
+            }
         }
     }
 
@@ -261,6 +324,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
         });
 
+        glRenderer.notifyPause();
     }
 
     /**
@@ -323,8 +387,18 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         } catch (IOException e) {
             e.printStackTrace();
         }
+        /*st.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+            @Override
+            public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                Log.e(TAG, "onFrameAvailable");
+                //
+                //glSf.requestRender();
+            }
+        });*/
         mCamera.startPreview();
     }
+
+
 
     @SuppressWarnings("deprecation")
     private void openCamera(int cameraType, int desiredWidth, int desiredHeight) {
@@ -466,5 +540,17 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
         }
         handleCameraStartPreview(null);
+    }
+
+    @Override
+    protected void onStartRecording() {
+        MiscUtil.Logger(TAG, "start recording", false);
+        mRecordingStatus = START_RECORDING;
+    }
+
+    @Override
+    protected void onStopRecording() {
+        MiscUtil.Logger(TAG, "stop recording", false);
+        mRecordingStatus = STOP_RECORDING;
     }
 }

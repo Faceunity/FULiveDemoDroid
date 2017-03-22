@@ -199,9 +199,11 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
             case R.id.btn_recording:
                 if (mRecordStatus == 0) {
                     mRecordingBtn.setText("停止录制");
+                    onStartRecording();
                     mRecordStatus ^= 1;
                 } else {
                     mRecordingBtn.setText("开始录制");
+                    onStopRecording();
                     mRecordStatus ^= 1;
                 }
                 break;

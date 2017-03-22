@@ -119,6 +119,10 @@ public class MiscUtil {
             + File.separator + "FaceUnity" + File.separator + "FULiveDemo" + File.separator;
 
     public static String createFileName() {
+        File dir = new File(filePath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
         return filePath + getCurrentDate() +
                 "_" + System.currentTimeMillis();
     }

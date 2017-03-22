@@ -9,10 +9,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.faceunity.fulivedemo.gles.FullFrameRect;
 import com.faceunity.fulivedemo.gles.Texture2dProgram;
-import com.faceunity.fulivedemo.gles.TextureMovieEncoder;
+import com.faceunity.fulivedemo.encoder.TextureMovieEncoder;
 import com.faceunity.wrapper.faceunity;
 
 import java.io.File;
@@ -77,9 +78,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     final int IN_RECORDING = 1;
     final int START_RECORDING = 2;
-    final int END_RECORDING = 3;
+    final int STOP_RECORDING = 3;
     final int NONE_RECORDING = 4;
-
     int mRecordingStatus = NONE_RECORDING;
 
     @Override
@@ -201,20 +201,18 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         int faceTrackingStatus = 0;
 
         TextureMovieEncoder mTexureMovieEncoder;
+        String videoFileName;
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.e(TAG, "onSurfaceCreated");
+
+            mFullScreenFUDisplay = new FullFrameRect(new Texture2dProgram(
+                    Texture2dProgram.ProgramType.TEXTURE_2D));
             mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_EXT));
             mCameraTextureId = mFullScreenCamera.createTextureObject();
             mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
-            mMainHandler.sendMessage(mMainHandler.obtainMessage(
-                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
-                    mCameraSurfaceTexture));
-
-            mFullScreenFUDisplay = new FullFrameRect(new Texture2dProgram(
-                    Texture2dProgram.ProgramType.TEXTURE_2D));
 
             try {
                 InputStream is = getAssets().open("v3.mp3");
@@ -222,7 +220,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 is.read(v3data);
                 is.close();
                 faceunity.fuSetup(v3data, null, authpack.A());
-                faceunity.fuSetMaxFaces(1);
+                //faceunity.fuSetMaxFaces(1);
                 Log.e(TAG, "fuSetup");
 
                 if (mUseBeauty) {
@@ -236,14 +234,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 e.printStackTrace();
             }
 
+            mMainHandler.sendMessage(mMainHandler.obtainMessage(
+                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
+                    mCameraSurfaceTexture));
             isFirstOnDrawFrame = true;
-
-            mTexureMovieEncoder = new TextureMovieEncoder();
-            File outFile = new File(MiscUtil.createFileName() + "_camera.mp4");
-            mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
-                    outFile, 1080, 1920,
-                    1000000, EGL14.eglGetCurrentContext()
-            ));
         }
 
         @Override
@@ -335,9 +329,42 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
               //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
+
+            if (mRecordingStatus == START_RECORDING) {
+                mTexureMovieEncoder = new TextureMovieEncoder();
+                videoFileName = MiscUtil.createFileName() + "_camera.mp4";
+                File outFile = new File(videoFileName);
+                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                        outFile,cameraHeight, cameraWidth,
+                        1000000, EGL14.eglGetCurrentContext()
+                ));
+                mRecordingStatus = IN_RECORDING;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(FUDualInputToTextureExampleActivity.this, "video file saved to "
+                                + videoFileName, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            if (mRecordingStatus == IN_RECORDING) {
+                mTexureMovieEncoder.setTextureId(fuTex);
+                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
+            }
+
+            if (mRecordingStatus == STOP_RECORDING) {
+                mTexureMovieEncoder.stopRecording();
+                mRecordingStatus = NONE_RECORDING;
+            }
         }
 
         public void notifyPause() {
+            if (mRecordingStatus == IN_RECORDING) {
+                mTexureMovieEncoder.stopRecording();
+                mRecordingStatus = NONE_RECORDING;
+            }
+
             faceTrackingStatus = 0;
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
@@ -504,11 +531,19 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onStartRecording() {
-
+        MiscUtil.Logger(TAG, "start recording", false);
+        mRecordingStatus = START_RECORDING;
     }
 
     @Override
     protected void onStopRecording() {
+        MiscUtil.Logger(TAG, "stop recording", false);
+        mRecordingStatus = STOP_RECORDING;
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy");
     }
 }

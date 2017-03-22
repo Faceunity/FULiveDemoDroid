@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-package com.faceunity.fulivedemo.gles;
+package com.faceunity.fulivedemo.encoder;
 
 import android.graphics.SurfaceTexture;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.opengl.EGLContext;
-import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+
+import com.faceunity.fulivedemo.gles.EglCore;
+import com.faceunity.fulivedemo.gles.FullFrameRect;
+import com.faceunity.fulivedemo.gles.Texture2dProgram;
+import com.faceunity.fulivedemo.gles.WindowSurface;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 
 /**
- * Encode a movie from frames rendered from an external texture image.
+ * Encode a movie from frames rendered from an texture.
  * <p>
  * The object wraps an encoder running on a dedicated thread.  The various control messages
  * may be sent from arbitrary threads (typically the app UI thread).  The encoder thread
@@ -52,9 +61,9 @@ import java.lang.ref.WeakReference;
  *
  * TODO: tweak the API (esp. textureId) so it's less awkward for simple use cases.
  */
-public class TextureMovieEncoder implements Runnable {
+public class TextureMovieEncoder {
     private static final String TAG = "TextureMovieEncoder";
-    private static final boolean VERBOSE = false;
+    private static final boolean VERBOSE = true;
 
     private static final int MSG_START_RECORDING = 0;
     private static final int MSG_STOP_RECORDING = 1;
@@ -70,9 +79,11 @@ public class TextureMovieEncoder implements Runnable {
     private int mTextureId;
     private int mFrameNum;
     private VideoEncoderCore mVideoEncoder;
+    private AudioEncoderCore mAudioEncoder;
+    private MediaMuxerWrapper mMuxer;
 
     // ----- accessed by multiple threads -----
-    private volatile EncoderHandler mHandler;
+    private volatile VideoEncoderHandler mHandler;
 
     private Object mReadyFence = new Object();      // guards ready/running
     private boolean mReady;
@@ -128,7 +139,8 @@ public class TextureMovieEncoder implements Runnable {
                 return;
             }
             mRunning = true;
-            new Thread(this, "TextureMovieEncoder").start();
+            new VideoThread("TextureMovieVideoEncoder").start();
+            new AudioThread().start();
             while (!mReady) {
                 try {
                     mReadyFence.wait();
@@ -225,37 +237,41 @@ public class TextureMovieEncoder implements Runnable {
         mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TEXTURE_ID, id, 0, null));
     }
 
-    /**
-     * Encoder thread entry point.  Establishes Looper/Handler and waits for messages.
-     * <p>
-     * @see Thread#run()
-     */
-    @Override
-    public void run() {
-        // Establish a Looper for this thread, and define a Handler for it.
-        Looper.prepare();
-        synchronized (mReadyFence) {
-            mHandler = new EncoderHandler(this);
-            mReady = true;
-            mReadyFence.notify();
+    private class VideoThread extends Thread {
+        public VideoThread(String name) {
+            super(name);
         }
-        Looper.loop();
+        /**
+         * Encoder thread entry point.  Establishes Looper/Handler and waits for messages.
+         * <p>
+         * @see Thread#run()
+         */
+        @Override
+        public void run() {
+            // Establish a Looper for this thread, and define a Handler for it.
+            Looper.prepare();
+            synchronized (mReadyFence) {
+                mHandler = new VideoEncoderHandler(TextureMovieEncoder.this);
+                mReady = true;
+                mReadyFence.notify();
+            }
+            Looper.loop();
 
-        Log.d(TAG, "Encoder thread exiting");
-        synchronized (mReadyFence) {
-            mReady = mRunning = false;
-            mHandler = null;
+            Log.d(TAG, "Encoder thread exiting");
+            synchronized (mReadyFence) {
+                mReady = mRunning = false;
+                mHandler = null;
+            }
         }
     }
-
 
     /**
      * Handles encoder state change requests.  The handler is created on the encoder thread.
      */
-    private static class EncoderHandler extends Handler {
+    private static class VideoEncoderHandler extends Handler {
         private WeakReference<TextureMovieEncoder> mWeakEncoder;
 
-        public EncoderHandler(TextureMovieEncoder encoder) {
+        public VideoEncoderHandler(TextureMovieEncoder encoder) {
             mWeakEncoder = new WeakReference<TextureMovieEncoder>(encoder);
         }
 
@@ -266,7 +282,7 @@ public class TextureMovieEncoder implements Runnable {
 
             TextureMovieEncoder encoder = mWeakEncoder.get();
             if (encoder == null) {
-                Log.w(TAG, "EncoderHandler.handleMessage: encoder is null");
+                Log.w(TAG, "VideoEncoderHandler.handleMessage: encoder is null");
                 return;
             }
 
@@ -305,19 +321,19 @@ public class TextureMovieEncoder implements Runnable {
         mFrameNum = 0;
         prepareEncoder(config.mEglContext, config.mWidth, config.mHeight, config.mBitRate,
                 config.mOutputFile);
+        mRequestStop = false;
     }
 
     /**
      * Handles notification of an available frame.
      * <p>
-     * The texture is rendered onto the encoder's input surface, along with a moving
-     * box (just because we can).
+     * The texture is rendered onto the encoder's input surface.
      * <p>
      * @param transform The texture transform, from SurfaceTexture.
      * @param timestampNanos The frame's timestamp, from SurfaceTexture.
      */
     private void handleFrameAvailable(float[] transform, long timestampNanos) {
-        Log.e(TAG, "shot handleFrameAvailable " + timestampNanos);
+        Log.e(TAG, "handleFrameAvailable " + timestampNanos);
         if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
         mVideoEncoder.drainEncoder(false);
 
@@ -338,6 +354,8 @@ public class TextureMovieEncoder implements Runnable {
     private void handleStopRecording() {
         Log.d(TAG, "handleStopRecording");
         mVideoEncoder.drainEncoder(true);
+        mRequestStop = true;
+        //mAudioEncoder.drainEncoder(true);
         releaseEncoder();
     }
 
@@ -374,10 +392,35 @@ public class TextureMovieEncoder implements Runnable {
                 new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_2D));
     }
 
+    Object prepareEncoderFence = new Object();
+    boolean prepareEncoderReady = false;
+
+    /**
+     * For drawing texture to hw encode, init egl related.
+     * @param sharedContext
+     * @param width
+     * @param height
+     * @param bitRate
+     * @param outputFile
+     */
     private void prepareEncoder(EGLContext sharedContext, int width, int height, int bitRate,
             File outputFile) {
         try {
-            mVideoEncoder = new VideoEncoderCore(width, height, bitRate, outputFile);
+            // Create a MediaMuxer.  We can't add the video track and start() the muxer here,
+            // because our MediaFormat doesn't have the Magic Goodies.  These can only be
+            // obtained from the encoder after it has started processing data.
+            //
+            // We're not actually interested in multiplexing audio.  We just want to convert
+            // the raw H.264 elementary stream we get from MediaCodec into a .mp4 file.
+            //mMuxer = new MediaMuxer(outputFile.toString(),
+              //      MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            mMuxer = new MediaMuxerWrapper(outputFile.toString());
+            mVideoEncoder = new VideoEncoderCore(width, height, bitRate, mMuxer);
+            mAudioEncoder = new AudioEncoderCore(mMuxer);
+            synchronized (prepareEncoderFence) {
+                prepareEncoderReady = true;
+                prepareEncoderFence.notify();
+            }
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
@@ -403,18 +446,127 @@ public class TextureMovieEncoder implements Runnable {
             mEglCore.release();
             mEglCore = null;
         }
+
+        //mAudioEncoder.release();
+    }
+
+    private boolean mRequestStop = false;
+
+    private static final int[] AUDIO_SOURCES = new int[] {
+            MediaRecorder.AudioSource.MIC,
+            MediaRecorder.AudioSource.DEFAULT,
+            MediaRecorder.AudioSource.CAMCORDER,
+            MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+            MediaRecorder.AudioSource.VOICE_RECOGNITION,
+    };
+
+
+    /**
+     * Thread to capture audio data from internal mic as uncompressed 16bit PCM data
+     * and write them to the MediaCodec encoder
+     */
+    private class AudioThread extends Thread {
+        @Override
+        public void run() {
+            if (VERBOSE) {
+                Log.e(TAG, "AudioThread run");
+            }
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+
+            int SAMPLE_RATE = 44100;
+            int SAMPLES_PER_FRAME = 1024;
+            int FRAMES_PER_BUFFER = 25;
+
+            synchronized (prepareEncoderFence) {
+                while (!prepareEncoderReady) {
+                    try {
+                        prepareEncoderFence.wait();
+                    } catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+            prepareEncoderReady = false;
+
+            try {
+                final int min_buffer_size = AudioRecord.getMinBufferSize(
+                        SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_PCM_16BIT);
+                int buffer_size = SAMPLES_PER_FRAME * FRAMES_PER_BUFFER;
+                if (buffer_size < min_buffer_size)
+                    buffer_size = ((min_buffer_size / SAMPLES_PER_FRAME) + 1) * SAMPLES_PER_FRAME * 2;
+
+                AudioRecord audioRecord = null;
+                for (final int source : AUDIO_SOURCES) {
+                    try {
+                        audioRecord = new AudioRecord(
+                                source, SAMPLE_RATE,
+                                AudioFormat.CHANNEL_IN_MONO,
+                                AudioFormat.ENCODING_PCM_16BIT, buffer_size);
+                        if (audioRecord.getState() != AudioRecord.STATE_INITIALIZED)
+                            audioRecord = null;
+                    } catch (final Exception e) {
+                        audioRecord = null;
+                    }
+                    if (audioRecord != null) break;
+                }
+
+                if (audioRecord != null) {
+                    try {
+                        if (VERBOSE) {
+                            Log.v(TAG, "AudioThread:start audio recording");
+                        }
+                        final ByteBuffer buf = ByteBuffer.allocateDirect(SAMPLES_PER_FRAME);
+                        int readBytes;
+                        audioRecord.startRecording();
+                        try {
+                            while(!mRequestStop) {
+                                // read audio data from internal mic
+                                buf.clear();
+                                readBytes = audioRecord.read(buf, SAMPLES_PER_FRAME);
+                                if (readBytes > 0) {
+                                    // set audio data to encoder
+                                    buf.position(readBytes);
+                                    buf.flip();
+                                    mAudioEncoder.encode(buf, readBytes, getPTSUs());
+                                    mAudioEncoder.drainEncoder(false);
+                                }
+                            }
+                            mAudioEncoder.encode(null, 0, getPTSUs());
+                            mAudioEncoder.drainEncoder(true);
+                        } finally {
+                            audioRecord.stop();
+                        }
+                    } finally {
+                        audioRecord.release();
+                        mAudioEncoder.release();
+                    }
+                } else {
+                    Log.e(TAG, "failed to initialize AudioRecord");
+                }
+            } catch (final Exception e) {
+                Log.e(TAG, "AudioThread#run", e);
+            }
+            if (VERBOSE) {
+                Log.v(TAG, "AudioThread:finished");
+            }
+        }
     }
 
     /**
-     * Draws a box, with position offset.
+     * previous presentationTimeUs for writing
      */
-    private void drawBox(int posn) {
-        final int width = mInputWindowSurface.getWidth();
-        int xpos = (posn * 4) % (width - 50);
-        GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-        GLES20.glScissor(xpos, 0, 100, 100);
-        GLES20.glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+    private long prevOutputPTSUs = 0;
+    /**
+     * get next encoding presentationTimeUs
+     * @return
+     */
+    protected long getPTSUs() {
+        long result = System.nanoTime() / 1000L;
+        // presentationTimeUs should be monotonic
+        // otherwise muxer fail to write
+        if (result < prevOutputPTSUs)
+            result = (prevOutputPTSUs - result) + result;
+        return result;
     }
 }
