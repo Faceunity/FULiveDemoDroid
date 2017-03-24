@@ -67,6 +67,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
     float mFacebeautyEnlargeEye = 1.0f;
+    int mFaceShape = 0;
+    float mFaceShapeLevel = 1.0f;
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
     String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
 
@@ -81,6 +83,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     final int STOP_RECORDING = 3;
     final int NONE_RECORDING = 4;
     int mRecordingStatus = NONE_RECORDING;
+
+    boolean mUseGesture = true;
+    int mGestureItem = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,6 +235,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     is.close();
                     mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
                 }
+
+                if (mUseGesture) {
+                    is = getAssets().open("");
+                    byte[] itemData = new byte[is.available()];
+                    is.read(itemData);
+                    is.close();
+                    mGestureItem = faceunity.fuCreateItemFromPackage(itemData);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -312,6 +325,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "filter_name", mFilterName);
             faceunity.fuItemSetParam(mFacebeautyItem, "cheek_thinning", mFacebeautyCheeckThin);
             faceunity.fuItemSetParam(mFacebeautyItem, "eye_enlarging", mFacebeautyEnlargeEye);
+            faceunity.fuItemSetParam(mFacebeautyItem, "face_shape", mFaceShape);
+            faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
@@ -539,6 +554,16 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     protected void onStopRecording() {
         MiscUtil.Logger(TAG, "stop recording", false);
         mRecordingStatus = STOP_RECORDING;
+    }
+
+    @Override
+    protected void onFaceShapeLevelSelected(int progress, int max) {
+        mFaceShapeLevel = (1.0f * progress) / max;
+    }
+
+    @Override
+    protected void onFaceShapeSelected(int faceShape) {
+        mFaceShape = faceShape;
     }
 
     @Override

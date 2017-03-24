@@ -64,6 +64,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
     float mFacebeautyEnlargeEye = 1.0f;
+    int mFaceShape = 0;
+    float mFaceShapeLevel = 1.0f;
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
     String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
 
@@ -203,6 +205,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "filter_name", mFilterName);
             faceunity.fuItemSetParam(mFacebeautyItem, "cheek_thinning", mFacebeautyCheeckThin);
             faceunity.fuItemSetParam(mFacebeautyItem, "eye_enlarging", mFacebeautyEnlargeEye);
+            faceunity.fuItemSetParam(mFacebeautyItem, "face_shape", mFaceShape);
+            faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
@@ -540,6 +544,18 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
         }
         handleCameraStartPreview(null);
+    }
+
+    @Override
+    protected void onFaceShapeLevelSelected(int progress, int max) {
+        mFaceShapeLevel = (1.0f * progress) / max;
+        Log.e(TAG, "faceshape level " + mFaceShapeLevel);
+    }
+
+    @Override
+    protected void onFaceShapeSelected(int faceShape) {
+        mFaceShape = faceShape;
+        Log.e(TAG, "faceshape " + mFaceShape);
     }
 
     @Override

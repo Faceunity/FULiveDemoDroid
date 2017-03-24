@@ -39,19 +39,20 @@
             <FrameLayout
                 android:id="@+id/effect_beauty_select"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom">
                 <!--effect select-->
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/effect_recycle_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"/>
+                    android:layout_gravity="bottom" />
                 <!--filter select-->
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/filter_recycle_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
+                    android:layout_gravity="bottom"
                     android:visibility="gone"/>
                 <!--blur level select-->
                 <LinearLayout
@@ -60,7 +61,8 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:visibility="gone"
-                    android:gravity="center_horizontal">
+                    android:gravity="center_horizontal"
+                    android:layout_gravity="bottom">
                     <TextView
                         android:id="@+id/blur_level0"
                         android:layout_width="@dimen/blur_circle_size"
@@ -151,7 +153,8 @@
                     android:layout_height="58dp"
                     android:gravity="center"
                     android:visibility="gone"
-                    android:padding="@dimen/normal_space">
+                    android:padding="@dimen/normal_space"
+                    android:layout_gravity="bottom">
                     <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
                         android:id="@+id/color_level_seekbar"
                         android:layout_width="match_parent"
@@ -164,45 +167,147 @@
                         app:dsb_max="100"
                         app:dsb_value="50"/>
                 </LinearLayout>
-                <!--cheek thin select-->
+
                 <LinearLayout
-                    android:id="@+id/cheekthin_level_select_block"
+                    android:id="@+id/lin_face_shape"
                     android:layout_width="match_parent"
-                    android:layout_height="58dp"
-                    android:gravity="center"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:visibility="gone"
-                    android:padding="@dimen/normal_space">
-                    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-                        android:id="@+id/cheekthin_level_seekbar"
+                    android:layout_gravity="bottom">
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:dsb_progressColor="@color/faceunityYellow"
-                        app:dsb_indicatorColor="@color/faceunityYellow"
-                        app:dsb_scrubberHeight="2dp"
-                        app:dsb_thumbSize="16dp"
-                        app:dsb_min="0"
-                        app:dsb_max="100"
-                        app:dsb_value="50"/>
-                </LinearLayout>
-                <!--enlarge eye select-->
-                <LinearLayout
-                    android:id="@+id/enlarge_eye_level_select_block"
-                    android:layout_width="match_parent"
-                    android:layout_height="58dp"
-                    android:gravity="center"
-                    android:visibility="gone"
-                    android:padding="@dimen/normal_space">
-                    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
-                        android:id="@+id/enlarge_eye_level_seekbar"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/normal_space">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="脸型"
+                            android:textColor="@color/faceunityYellow"
+                            android:layout_marginRight="16dp"
+                            android:textSize="17sp"/>
+                        <TextView
+                            android:id="@+id/face_shape_0"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/faceunityYellow"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:text="女神"
+                            android:layout_marginRight="15dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="8dp"
+                            android:onClick="onClick"/>
+                        <TextView
+                            android:id="@+id/face_shape_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/unselect_gray"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:text="网红"
+                            android:layout_marginRight="15dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="8dp"
+                            android:onClick="onClick"/>
+                        <TextView
+                            android:id="@+id/face_shape_2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/unselect_gray"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:text="自然"
+                            android:layout_marginRight="15dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp"
+                            android:paddingLeft="8dp"
+                            android:paddingRight="8dp"
+                            android:onClick="onClick"/>
+                    </LinearLayout>
+                    <!--face shape select-->
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:dsb_progressColor="@color/faceunityYellow"
-                        app:dsb_indicatorColor="@color/faceunityYellow"
-                        app:dsb_scrubberHeight="2dp"
-                        app:dsb_thumbSize="16dp"
-                        app:dsb_min="0"
-                        app:dsb_max="100"
-                        app:dsb_value="25"/>
+                        android:layout_height="58dp"
+                        android:gravity="center"
+                        android:padding="@dimen/normal_space">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/faceunityYellow"
+                            android:text="程度"
+                            android:layout_marginRight="8dp"
+                            android:textSize="17sp"/>
+                        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                            android:id="@+id/face_shape_seekbar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:dsb_progressColor="@color/faceunityYellow"
+                            app:dsb_indicatorColor="@color/faceunityYellow"
+                            app:dsb_scrubberHeight="2dp"
+                            app:dsb_thumbSize="16dp"
+                            app:dsb_min="0"
+                            app:dsb_max="100"
+                            app:dsb_value="100"/>
+                    </LinearLayout>
+                    <!--enlarge eye select-->
+                    <LinearLayout
+                        android:id="@+id/enlarge_eye_level_select_block"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:gravity="center"
+                        android:padding="@dimen/normal_space">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/faceunityYellow"
+                            android:text="大眼"
+                            android:layout_marginRight="8dp"
+                            android:textSize="17sp"/>
+                        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                            android:id="@+id/enlarge_eye_level_seekbar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:dsb_progressColor="@color/faceunityYellow"
+                            app:dsb_indicatorColor="@color/faceunityYellow"
+                            app:dsb_scrubberHeight="2dp"
+                            app:dsb_thumbSize="16dp"
+                            app:dsb_min="0"
+                            app:dsb_max="100"
+                            app:dsb_value="25"/>
+                    </LinearLayout>
+                    <!--cheek thin select-->
+                    <LinearLayout
+                        android:id="@+id/cheekthin_level_select_block"
+                        android:layout_width="match_parent"
+                        android:layout_height="58dp"
+                        android:gravity="center"
+                        android:padding="@dimen/normal_space"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/faceunityYellow"
+                            android:text="瘦脸"
+                            android:layout_marginRight="8dp"
+                            android:textSize="17sp"/>
+                        <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                            android:id="@+id/cheekthin_level_seekbar"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:dsb_progressColor="@color/faceunityYellow"
+                            app:dsb_indicatorColor="@color/faceunityYellow"
+                            app:dsb_scrubberHeight="2dp"
+                            app:dsb_thumbSize="16dp"
+                            app:dsb_min="0"
+                            app:dsb_max="100"
+                            app:dsb_value="50"/>
+                    </LinearLayout>
                 </LinearLayout>
             </FrameLayout> <!--end of effect select-->
             <!--start of button select-->
@@ -260,23 +365,11 @@
                     android:textStyle="bold"
                     android:padding="@dimen/min_space"/>
                 <Button
-                    android:id="@+id/btn_choose_cheekthin_level"
+                    android:id="@+id/btn_choose_face_shape"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="瘦脸"
-                    android:background="@color/colorTranslucent"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorWhite"
-                    android:onClick="onClick"
-                    android:textStyle="bold"
-                    android:padding="@dimen/min_space"/>
-                <Button
-                    android:id="@+id/btn_choose_enlarge_eye_level"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="大眼"
+                    android:text="美型"
                     android:background="@color/colorTranslucent"
                     android:textSize="16sp"
                     android:textColor="@color/colorWhite"

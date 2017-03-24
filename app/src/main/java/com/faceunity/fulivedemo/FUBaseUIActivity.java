@@ -30,19 +30,25 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
     private LinearLayout mBlurLevelSelect;
     private LinearLayout mColorLevelSelect;
-    private LinearLayout mCheekThinSelect;
-    private LinearLayout mEnlargeEyeSelect;
+    //private LinearLayout mCheekThinSelect;
+    //private LinearLayout mEnlargeEyeSelect;
+    private LinearLayout mFaceShapeLin;
 
     private Button mChooseEffectBtn;
     private Button mChooseFilterBtn;
     private Button mChooseBlurLevelBtn;
     private Button mChooseColorLevelBtn;
-    private Button mChooseCheekThinBtn;
-    private Button mChooseEnlargeEyeBtn;
+    //private Button mChooseCheekThinBtn;
+    //private Button mChooseEnlargeEyeBtn;
+    private Button mFaceShapeBtn;
 
     private TextView[] mBlurLevels;
     private int[] BLUR_LEVEL_TV_ID = {R.id.blur_level0, R.id.blur_level1, R.id.blur_level2,
         R.id.blur_level3, R.id.blur_level4, R.id.blur_level5, R.id.blur_level6};
+
+    private TextView mFaceShape0;
+    private TextView mFaceShape1;
+    private TextView mFaceShape2;
 
     protected ImageView mFaceTrackingStatusImageView;
 
@@ -87,13 +93,19 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         mChooseFilterBtn = (Button) findViewById(R.id.btn_choose_filter);
         mChooseBlurLevelBtn = (Button) findViewById(R.id.btn_choose_blur_level);
         mChooseColorLevelBtn = (Button) findViewById(R.id.btn_choose_color_level);
-        mChooseCheekThinBtn = (Button) findViewById(R.id.btn_choose_cheekthin_level);
-        mChooseEnlargeEyeBtn = (Button) findViewById(R.id.btn_choose_enlarge_eye_level);
+        //mChooseCheekThinBtn = (Button) findViewById(R.id.btn_choose_cheekthin_level);
+        //mChooseEnlargeEyeBtn = (Button) findViewById(R.id.btn_choose_enlarge_eye_level);
+        mFaceShapeBtn = (Button) findViewById(R.id.btn_choose_face_shape);
+
+        mFaceShape0 = (TextView) findViewById(R.id.face_shape_0);
+        mFaceShape1 = (TextView) findViewById(R.id.face_shape_1);
+        mFaceShape2 = (TextView) findViewById(R.id.face_shape_2);
 
         mBlurLevelSelect = (LinearLayout) findViewById(R.id.blur_level_select_block);
         mColorLevelSelect = (LinearLayout) findViewById(R.id.color_level_select_block);
-        mCheekThinSelect = (LinearLayout) findViewById(R.id.cheekthin_level_select_block);
-        mEnlargeEyeSelect = (LinearLayout) findViewById(R.id.enlarge_eye_level_select_block);
+        //mCheekThinSelect = (LinearLayout) findViewById(R.id.cheekthin_level_select_block);
+        //mEnlargeEyeSelect = (LinearLayout) findViewById(R.id.enlarge_eye_level_select_block);
+        mFaceShapeLin = (LinearLayout) findViewById(R.id.lin_face_shape);
 
         mBlurLevels = new TextView[BLUR_LEVEL_TV_ID.length];
         for (int i = 0; i < BLUR_LEVEL_TV_ID.length; i++) {
@@ -162,6 +174,24 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
             }
         });
 
+        DiscreteSeekBar faceShapeLevelSeekbar = (DiscreteSeekBar) findViewById(R.id.face_shape_seekbar);
+        faceShapeLevelSeekbar.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+            @Override
+            public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+                onFaceShapeLevelSelected(value, 100);
+            }
+
+            @Override
+            public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
+
+            }
+        });
+
         mFaceTrackingStatusImageView = (ImageView) findViewById(R.id.iv_face_detect);
         mRecordingBtn = (Button) findViewById(R.id.btn_recording);
     }
@@ -185,13 +215,17 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
                 setEffectFilterBeautyChooseBtnTextColor(mChooseColorLevelBtn);
                 setEffectFilterBeautyChooseBlock(mColorLevelSelect);
                 break;
-            case R.id.btn_choose_cheekthin_level:
-                setEffectFilterBeautyChooseBtnTextColor(mChooseCheekThinBtn);
-                setEffectFilterBeautyChooseBlock(mCheekThinSelect);
-                break;
-            case R.id.btn_choose_enlarge_eye_level:
-                setEffectFilterBeautyChooseBtnTextColor(mChooseEnlargeEyeBtn);
-                setEffectFilterBeautyChooseBlock(mEnlargeEyeSelect);
+            //case R.id.btn_choose_cheekthin_level:
+              //  setEffectFilterBeautyChooseBtnTextColor(mChooseCheekThinBtn);
+               // setEffectFilterBeautyChooseBlock(mCheekThinSelect);
+                //break;
+            //case R.id.btn_choose_enlarge_eye_level:
+              //  setEffectFilterBeautyChooseBtnTextColor(mChooseEnlargeEyeBtn);
+                //setEffectFilterBeautyChooseBlock(mEnlargeEyeSelect);
+                //break;
+            case R.id.btn_choose_face_shape:
+                setEffectFilterBeautyChooseBtnTextColor(mFaceShapeBtn);
+                setEffectFilterBeautyChooseBlock(mFaceShapeLin);
                 break;
             case R.id.btn_choose_camera:
                 onCameraChange();
@@ -206,6 +240,18 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
                     onStopRecording();
                     mRecordStatus ^= 1;
                 }
+                break;
+            case R.id.face_shape_0:
+                setFaceShapeBackground(mFaceShape0);
+                onFaceShapeSelected(0);
+                break;
+            case R.id.face_shape_1:
+                setFaceShapeBackground(mFaceShape1);
+                onFaceShapeSelected(1);
+                break;
+            case R.id.face_shape_2:
+                setFaceShapeBackground(mFaceShape2);
+                onFaceShapeSelected(2);
                 break;
         }
     }
@@ -222,11 +268,19 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         }
     }
 
+    private void setFaceShapeBackground(TextView tv) {
+        mFaceShape0.setBackground(getResources().getDrawable(R.color.unselect_gray));
+        mFaceShape1.setBackground(getResources().getDrawable(R.color.unselect_gray));
+        mFaceShape2.setBackground(getResources().getDrawable(R.color.unselect_gray));
+        tv.setBackground(getResources().getDrawable(R.color.faceunityYellow));
+    }
+
     private void setEffectFilterBeautyChooseBlock(View v) {
         mEffectRecyclerView.setVisibility(View.INVISIBLE);
         mFilterRecyclerView.setVisibility(View.INVISIBLE);
-        mCheekThinSelect.setVisibility(View.INVISIBLE);
-        mEnlargeEyeSelect.setVisibility(View.INVISIBLE);
+        //mCheekThinSelect.setVisibility(View.INVISIBLE);
+        //mEnlargeEyeSelect.setVisibility(View.INVISIBLE);
+        mFaceShapeLin.setVisibility(View.INVISIBLE);
         mBlurLevelSelect.setVisibility(View.INVISIBLE);
         mColorLevelSelect.setVisibility(View.INVISIBLE);
         v.setVisibility(View.VISIBLE);
@@ -236,9 +290,10 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         mChooseEffectBtn.setTextColor(getResources().getColor(R.color.colorWhite));
         mChooseColorLevelBtn.setTextColor(getResources().getColor(R.color.colorWhite));
         mChooseBlurLevelBtn.setTextColor(getResources().getColor(R.color.colorWhite));
-        mChooseCheekThinBtn.setTextColor(getResources().getColor(R.color.colorWhite));
+        //mChooseCheekThinBtn.setTextColor(getResources().getColor(R.color.colorWhite));
         mChooseFilterBtn.setTextColor(getResources().getColor(R.color.colorWhite));
-        mChooseEnlargeEyeBtn.setTextColor(getResources().getColor(R.color.colorWhite));
+        //mChooseEnlargeEyeBtn.setTextColor(getResources().getColor(R.color.colorWhite));
+        mFaceShapeBtn.setTextColor(getResources().getColor(R.color.colorWhite));
         selectedBtn.setTextColor(getResources().getColor(R.color.faceunityYellow));
     }
 
@@ -295,4 +350,14 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
      * 停止录制
      */
     abstract protected void onStopRecording();
+
+    /**
+     * 脸型选择
+     */
+    abstract protected void onFaceShapeSelected(int faceShape);
+
+    /**
+     * 美型程度选择
+     */
+    abstract protected void onFaceShapeLevelSelected(int progress, int max);
 }
