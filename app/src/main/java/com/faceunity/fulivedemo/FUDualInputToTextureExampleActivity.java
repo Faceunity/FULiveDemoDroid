@@ -84,7 +84,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     final int NONE_RECORDING = 4;
     int mRecordingStatus = NONE_RECORDING;
 
-    boolean mUseGesture = true;
+    boolean mUseGesture = false;
     int mGestureItem = 0;
 
     @Override
@@ -237,7 +237,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 }
 
                 if (mUseGesture) {
-                    is = getAssets().open("");
+                    is = getAssets().open("heart.mp3");
                     byte[] itemData = new byte[is.available()];
                     is.read(itemData);
                     is.close();
@@ -339,7 +339,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             boolean isOESTexture = true; //camera默认的是OES的
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
             int fuTex = faceunity.fuDualInputToTexture(mCameraNV21Byte, mCameraTextureId, flags,
-                    cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
+                    cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem, mGestureItem});
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
               //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
