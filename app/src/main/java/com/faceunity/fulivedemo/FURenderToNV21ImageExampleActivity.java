@@ -65,7 +65,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     float mFacebeautyCheeckThin = 1.0f;
     float mFacebeautyEnlargeEye = 1.0f;
     int mFaceShape = 0;
-    float mFaceShapeLevel = 1.0f;
+    float mFaceShapeLevel = 0.5f;
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
     String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
 

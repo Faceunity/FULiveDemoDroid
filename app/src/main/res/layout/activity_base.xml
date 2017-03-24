@@ -253,7 +253,7 @@
                             app:dsb_thumbSize="16dp"
                             app:dsb_min="0"
                             app:dsb_max="100"
-                            app:dsb_value="100"/>
+                            app:dsb_value="50"/>
                     </LinearLayout>
                     <!--enlarge eye select-->
                     <LinearLayout
