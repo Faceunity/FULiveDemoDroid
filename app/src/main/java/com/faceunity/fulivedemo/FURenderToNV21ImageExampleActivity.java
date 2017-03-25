@@ -81,6 +81,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     final int NONE_RECORDING = 4;
     int mRecordingStatus = NONE_RECORDING;
 
+    int currentFrameCnt = 0;
+    long lastOneHundredFrameTimeStamp = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -184,6 +187,13 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
             if (VERBOSE_LOG) {
                 Log.e(TAG, "isTracking " + isTracking);
+            }
+
+            if (++currentFrameCnt == 100) {
+                currentFrameCnt = 0;
+                long tmp = System.currentTimeMillis();
+                Log.e(TAG, "renderToNV21Image FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                lastOneHundredFrameTimeStamp = tmp;
             }
 
             if (mEffectItem == 0) {
