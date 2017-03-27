@@ -3,10 +3,10 @@
 FULiveDemoDroid 是 Faceunity 的面部跟踪和虚拟道具功能在Android SDK中的集成，作为一款集成示例。
 
 ## v3.3 美颜模块升级
-在v3.3中我们升级了美颜模块。保留老版磨皮算法的同时，默认提供了效果更好的新磨皮算法，进一步减少涂抹感。另外，我们改进了美白效果，并新增了可调节的红润效果，进一步改善肤色。在美型模块中，我们新增了三个脸型调整模板，以进一步满足不同的美型需要。具体细节可以参见[这里](https://github.com/Faceunity/FULiveDemoDroid#视频美颜)。
+在v3.3中我们升级了美颜模块。保留老版磨皮算法的同时，默认提供了效果更好的新磨皮算法，进一步减少涂抹感。另外，我们改进了美白效果，并新增了可调节的红润效果，进一步改善肤色。在美型模块中，我们新增了三个脸型调整模板，以进一步满足不同的美型需要。具体细节可以参见[这里](https://github.com/Faceunity/FULiveDemoDroid/tree/dev#视频美颜)。
 
 另外，我们改进了手势识别模块，引入了移动端深度神经网络，提高了手势检出率，同时降低了误检率。
-具体细节可以参见[这里](https://github.com/Faceunity/FULiveDemoDroid#手势识别)。
+具体细节可以参见[这里](https://github.com/Faceunity/FULiveDemoDroid/tree/dev#手势识别)。
 
 ## 库文件
   - nama.jar 函数调用接口
