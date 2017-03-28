@@ -64,6 +64,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
     float mFacebeautyEnlargeEye = 1.0f;
+    float mFacebeautyRedLevel = 0.5f;
     int mFaceShape = 3;
     float mFaceShapeLevel = 0.5f;
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
@@ -217,6 +218,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "eye_enlarging", mFacebeautyEnlargeEye);
             faceunity.fuItemSetParam(mFacebeautyItem, "face_shape", mFaceShape);
             faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
+            faceunity.fuItemSetParam(mFacebeautyItem, "red_level", mFacebeautyRedLevel);
+
 
             //faceunity.fuItemSetParam(mFacebeautyItem, "is_beauty_on", 0);
 
@@ -543,6 +546,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     @Override
     protected void onFilterSelected(String filterName) {
         mFilterName = filterName;
+    }
+
+    @Override
+    protected void onRedLevelSelected(int progress, int max) {
+        mFacebeautyRedLevel = 1.0f * progress / max;
     }
 
     @Override

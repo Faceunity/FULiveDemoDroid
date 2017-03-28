@@ -167,6 +167,27 @@
                         app:dsb_max="100"
                         app:dsb_value="50"/>
                 </LinearLayout>
+                <!--red level select-->
+                <LinearLayout
+                    android:id="@+id/red_level_select_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="58dp"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:padding="@dimen/normal_space"
+                    android:layout_gravity="bottom">
+                    <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+                        android:id="@+id/red_level_seekbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:dsb_progressColor="@color/faceunityYellow"
+                        app:dsb_indicatorColor="@color/faceunityYellow"
+                        app:dsb_scrubberHeight="2dp"
+                        app:dsb_thumbSize="16dp"
+                        app:dsb_min="0"
+                        app:dsb_max="100"
+                        app:dsb_value="50"/>
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/lin_face_shape"
@@ -364,6 +385,18 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="美白"
+                    android:background="@color/colorTranslucent"
+                    android:textSize="16sp"
+                    android:textColor="@color/colorWhite"
+                    android:onClick="onClick"
+                    android:textStyle="bold"
+                    android:padding="@dimen/min_space"/>
+                <Button
+                    android:id="@+id/btn_choose_red_level"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="红润"
                     android:background="@color/colorTranslucent"
                     android:textSize="16sp"
                     android:textColor="@color/colorWhite"
