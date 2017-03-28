@@ -218,6 +218,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     Texture2dProgram.ProgramType.TEXTURE_EXT));
             mCameraTextureId = mFullScreenCamera.createTextureObject();
             mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
+            mMainHandler.sendMessage(mMainHandler.obtainMessage(
+                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
+                    mCameraSurfaceTexture));
 
             try {
                 InputStream is = getAssets().open("v3.mp3");
@@ -247,9 +250,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 e.printStackTrace();
             }
 
-            mMainHandler.sendMessage(mMainHandler.obtainMessage(
-                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
-                    mCameraSurfaceTexture));
             isFirstOnDrawFrame = true;
         }
 
@@ -327,6 +327,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "eye_enlarging", mFacebeautyEnlargeEye);
             faceunity.fuItemSetParam(mFacebeautyItem, "face_shape", mFaceShape);
             faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
+
+            //faceunity.fuItemSetParam(mFacebeautyItem, "use_old_blur", 1);
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
