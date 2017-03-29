@@ -126,6 +126,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                     Texture2dProgram.ProgramType.TEXTURE_EXT));
             mCameraTextureId = mFullScreenCamera.createTextureObject();
             mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
+            mainHandler.sendMessage(mainHandler.obtainMessage(
+                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
+                    mCameraSurfaceTexture));
 
             try {
                 InputStream is = getAssets().open("v3.mp3");
@@ -145,9 +148,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 e.printStackTrace();
             }
 
-            mainHandler.sendMessage(mainHandler.obtainMessage(
-                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
-                    mCameraSurfaceTexture));
             isFirstOnDrawFrame = true;
             //faceunity.disableBoostWithEGLImage();
         }
