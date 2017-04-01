@@ -60,10 +60,10 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     byte[] mCameraNV21Byte;
 
-    float mFacebeautyColorLevel = 0.5f;
+    float mFacebeautyColorLevel = 0.2f;
     float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
-    float mFacebeautyEnlargeEye = 1.0f;
+    float mFacebeautyEnlargeEye = 0.5f;
     float mFacebeautyRedLevel = 0.5f;
     int mFaceShape = 3;
     float mFaceShapeLevel = 0.5f;
@@ -540,7 +540,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onEnlargeEyeSelected(int progress, int max) {
-        mFacebeautyEnlargeEye = 4.0f * progress / max;
+        mFacebeautyEnlargeEye = 1.0f * progress / max;
     }
 
     @Override

@@ -165,7 +165,9 @@
                         app:dsb_thumbSize="16dp"
                         app:dsb_min="0"
                         app:dsb_max="100"
-                        app:dsb_value="50"/>
+                        app:dsb_value="20"
+                        app:dsb_indicatorPopupEnabled="true"
+                        app:dsb_indicatorElevation="0dp"/>
                 </LinearLayout>
                 <!--red level select-->
                 <LinearLayout
@@ -186,7 +188,9 @@
                         app:dsb_thumbSize="16dp"
                         app:dsb_min="0"
                         app:dsb_max="100"
-                        app:dsb_value="50"/>
+                        app:dsb_value="50"
+                        app:dsb_indicatorPopupEnabled="true"
+                        app:dsb_indicatorElevation="0dp"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -280,7 +284,9 @@
                             app:dsb_thumbSize="16dp"
                             app:dsb_min="0"
                             app:dsb_max="100"
-                            app:dsb_value="50"/>
+                            app:dsb_value="50"
+                            app:dsb_indicatorPopupEnabled="true"
+                            app:dsb_indicatorElevation="0dp"/>
                     </LinearLayout>
                     <!--enlarge eye select-->
                     <LinearLayout
@@ -306,7 +312,9 @@
                             app:dsb_thumbSize="16dp"
                             app:dsb_min="0"
                             app:dsb_max="100"
-                            app:dsb_value="25"/>
+                            app:dsb_value="50"
+                            app:dsb_indicatorPopupEnabled="true"
+                            app:dsb_indicatorElevation="0dp"/>
                     </LinearLayout>
                     <!--cheek thin select-->
                     <LinearLayout
@@ -333,7 +341,9 @@
                             app:dsb_thumbSize="16dp"
                             app:dsb_min="0"
                             app:dsb_max="100"
-                            app:dsb_value="50"/>
+                            app:dsb_value="50"
+                            app:dsb_indicatorPopupEnabled="true"
+                            app:dsb_indicatorElevation="0dp"/>
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout> <!--end of effect select-->
