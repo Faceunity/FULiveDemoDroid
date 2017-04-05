@@ -266,9 +266,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             if (isFirstOnDrawFrame) {
-                //第一次onDrawFrame并不是由camera内容驱动的
                 isFirstOnDrawFrame = false;
-                return;
+                //return;
             }
 
             if (inCameraChange) {
@@ -499,7 +498,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onCheekThinSelected(int progress, int max) {
-        mFacebeautyCheeckThin = 2.0f * progress / max;
+        mFacebeautyCheeckThin = 1.0f * progress / max;
     }
 
     @Override

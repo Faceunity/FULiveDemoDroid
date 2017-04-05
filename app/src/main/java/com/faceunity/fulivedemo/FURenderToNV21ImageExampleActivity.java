@@ -516,7 +516,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onCheekThinSelected(int progress, int max) {
-        mFacebeautyCheeckThin = 2.0f * progress / max;
+        mFacebeautyCheeckThin = 1.0f * progress / max;
     }
 
     @Override
