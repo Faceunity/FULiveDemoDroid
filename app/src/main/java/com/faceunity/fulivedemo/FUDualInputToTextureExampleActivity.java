@@ -55,7 +55,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     int mFrameId = 0;
 
     int mFacebeautyItem = 0; //美颜道具
-    int mEffectItem = 0; //道具
+    int mEffectItem = 0; //贴纸道具
+    int mGestureItem = 0; //手势道具
+    int[] itemsArray = {mFacebeautyItem, mEffectItem, mGestureItem};
 
     long resumeTimeStamp;
     boolean isFirstOnFrameAvailable;
@@ -86,7 +88,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     int mRecordingStatus = NONE_RECORDING;
 
     boolean mUseGesture = false;
-    int mGestureItem = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,6 +239,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     is.read(itemData);
                     is.close();
                     mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
+                    itemsArray[0] = mFacebeautyItem;
                 }
 
                 if (mUseGesture) {
@@ -246,6 +248,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     is.read(itemData);
                     is.close();
                     mGestureItem = faceunity.fuCreateItemFromPackage(itemData);
+                    itemsArray[2] = mGestureItem;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -313,6 +316,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     is.read(itemData);
                     is.close();
                     mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
+                    itemsArray[1] = mEffectItem;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -342,7 +346,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             boolean isOESTexture = true; //camera默认的是OES的
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
             int fuTex = faceunity.fuDualInputToTexture(mCameraNV21Byte, mCameraTextureId, flags,
-                    cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem, mGestureItem});
+                    cameraWidth, cameraHeight, mFrameId++, itemsArray);
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
               //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
@@ -354,7 +358,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 File outFile = new File(videoFileName);
                 mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
                         outFile,cameraHeight, cameraWidth,
-                        1000000, EGL14.eglGetCurrentContext()
+                        2000000, EGL14.eglGetCurrentContext()
                 ));
                 mRecordingStatus = IN_RECORDING;
                 runOnUiThread(new Runnable() {

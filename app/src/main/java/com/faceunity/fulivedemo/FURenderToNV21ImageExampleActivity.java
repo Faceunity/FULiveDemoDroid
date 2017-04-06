@@ -53,6 +53,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     int mFacebeautyItem = 0;
     int mEffectItem = 0;
+    int[] itemsArray = {mFacebeautyItem, mEffectItem};
 
     int mFrameId;
 
@@ -144,6 +145,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 is.read(itemData);
                 is.close();
                 mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
+                itemsArray[0] = mFacebeautyItem;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -204,6 +206,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                     is.read(itemData);
                     is.close();
                     mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
+                    itemsArray[1] = mEffectItem;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -231,7 +234,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
              * 这个函数执行完成后，入参的nv21 byte数组会被改变
              */
             int fuTex = faceunity.fuRenderToNV21Image(mCameraNV21Byte,
-                    cameraWidth, cameraHeight, mFrameId, new int[] {mEffectItem, mFacebeautyItem});
+                    cameraWidth, cameraHeight, mFrameId, itemsArray);
 
             if (DRAW_RETURNED_TEXTURE) {
                 mFullScreenFUDisplay.drawFrame(fuTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
@@ -250,7 +253,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 File outFile = new File(videoFileName);
                 mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
                         outFile,cameraHeight, cameraWidth,
-                        1000000, EGL14.eglGetCurrentContext()
+                        2000000, EGL14.eglGetCurrentContext()
                 ));
                 mRecordingStatus = IN_RECORDING;
                 runOnUiThread(new Runnable() {
