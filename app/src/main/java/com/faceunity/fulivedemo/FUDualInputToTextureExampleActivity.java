@@ -345,6 +345,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
              */
             boolean isOESTexture = true; //camera默认的是OES的
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
+            boolean isNeedReadBack = false; //是否需要写回，如果是，则入参的byte[]会被修改为带有fu特效的
+            flags = isNeedReadBack ? flags | faceunity.FU_ADM_FLAG_ENABLE_READBACK : flags;
             int fuTex = faceunity.fuDualInputToTexture(mCameraNV21Byte, mCameraTextureId, flags,
                     cameraWidth, cameraHeight, mFrameId++, itemsArray);
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
