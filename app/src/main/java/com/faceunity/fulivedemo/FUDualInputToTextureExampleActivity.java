@@ -57,16 +57,18 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     boolean isFirstOnFrameAvailable;
     long frameAvailableTimeStamp;
 
-    boolean VERBOSE_LOG = true;
+    boolean VERBOSE_LOG = false;
 
     float mFacebeautyColorLevel = 0.5f;
-    float mFacebeautyBlurLevel = 5.0f;
+    float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
     float mFacebeautyEnlargeEye = 1.0f;
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
     String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
 
     int mCurrentCameraType;
+
+    boolean mUseBeauty = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,8 +139,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (VERBOSE_LOG) {
             Log.d(TAG, "onPreviewFrame");
+            Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         }
-        Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         mCameraNV21Byte = data;
     }
 
@@ -170,6 +172,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         surfaceTexture.setOnFrameAvailableListener(this);
         mCamera.startPreview();
     }
+
+    long lastOneHundredFrameTimeStamp = 0;
+    int currentFrameCnt = 0;
 
     class GLRenderer implements GLSurfaceView.Renderer {
 
@@ -206,11 +211,13 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 faceunity.fuSetMaxFaces(1);
                 Log.e(TAG, "fuSetup");
 
-                is = getAssets().open("face_beautification.mp3");
-                byte[] itemData = new byte[is.available()];
-                is.read(itemData);
-                is.close();
-                mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
+                if (mUseBeauty) {
+                    is = getAssets().open("face_beautification.mp3");
+                    byte[] itemData = new byte[is.available()];
+                    is.read(itemData);
+                    is.close();
+                    mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -233,6 +240,13 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 //第一次onDrawFrame并不是由camera内容驱动的
                 isFirstOnDrawFrame = false;
                 return;
+            }
+
+            if (++currentFrameCnt == 100) {
+                currentFrameCnt = 0;
+                long tmp = System.currentTimeMillis();
+                Log.e(TAG, "dualInput FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                lastOneHundredFrameTimeStamp = tmp;
             }
 
             /**
@@ -287,7 +301,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
             int fuTex = faceunity.fuDualInputToTexture(mCameraNV21Byte, mCameraTextureId, flags,
                     cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
-
+            //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
+              //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
         }

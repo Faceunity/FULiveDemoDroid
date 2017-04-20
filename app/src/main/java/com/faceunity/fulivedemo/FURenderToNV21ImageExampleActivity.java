@@ -51,12 +51,12 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     int mFrameId;
 
-    boolean VERBOSE_LOG = true;
+    boolean VERBOSE_LOG = false;
 
     byte[] mCameraNV21Byte;
 
     float mFacebeautyColorLevel = 0.5f;
-    float mFacebeautyBlurLevel = 5.0f;
+    float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
     float mFacebeautyEnlargeEye = 1.0f;
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
@@ -252,6 +252,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             @Override
             public void run() {
                 //Note: 切忌使用一个已经destroy的item
+                //faceunity.fuDestroyAllItems();
                 faceunity.fuDestroyItem(mEffectItem);
                 mEffectItem = 0;
                 faceunity.fuDestroyItem(mFacebeautyItem);
@@ -303,10 +304,12 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        Log.d(TAG, "onPreviewFrame");
-        int isTracking = faceunity.fuIsTracking();
-        if (true) {
-            Log.e(TAG, "isTracking " + isTracking);
+        if (VERBOSE_LOG) {
+            Log.d(TAG, "onPreviewFrame");
+            int isTracking = faceunity.fuIsTracking();
+            if (true) {
+                Log.e(TAG, "isTracking " + isTracking);
+            }
         }
         mCameraNV21Byte = data;
         glSf.requestRender();
@@ -325,7 +328,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @SuppressWarnings("deprecation")
     private void openCamera(int cameraType, int desiredWidth, int desiredHeight) {
-        Log.d(TAG, "openCamera");
+        if (VERBOSE_LOG) {
+            Log.d(TAG, "openCamera");
+        }
         if (mCamera != null) {
             throw new RuntimeException("camera already initialized");
         }
