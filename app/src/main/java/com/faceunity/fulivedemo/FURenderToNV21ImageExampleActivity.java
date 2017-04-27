@@ -201,12 +201,15 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
             if (mEffectItem == 0) {
                 try {
-                    InputStream is = getAssets().open(mEffectFileName);
-                    byte[] itemData = new byte[is.available()];
-                    is.read(itemData);
-                    is.close();
-                    mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
-                    itemsArray[1] = mEffectItem;
+                    if (mEffectFileName.equals("none")) {
+                        itemsArray[1] = mEffectItem = 0;
+                    } else {
+                        InputStream is = getAssets().open(mEffectFileName);
+                        byte[] itemData = new byte[is.available()];
+                        is.read(itemData);
+                        is.close();
+                        itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
