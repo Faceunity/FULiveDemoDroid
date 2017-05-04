@@ -1,11 +1,14 @@
 package com.faceunity.fulivedemo;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -54,10 +57,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     byte[] mCameraNV21Byte;
     int mFrameId = 0;
 
-    int mFacebeautyItem = 0; //美颜道具
-    int mEffectItem = 0; //贴纸道具
-    int mGestureItem = 0; //手势道具
-    int[] itemsArray = {mFacebeautyItem, mEffectItem, mGestureItem};
+    static int mFacebeautyItem = 0; //美颜道具
+    static int mEffectItem = 0; //贴纸道具
+    static int mGestureItem = 0; //手势道具
+    static int[] itemsArray = {mFacebeautyItem, mEffectItem, mGestureItem};
 
     long resumeTimeStamp;
     boolean isFirstOnFrameAvailable;
@@ -72,8 +75,11 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     float mFacebeautyRedLevel = 0.5f;
     int mFaceShape = 3;
     float mFaceShapeLevel = 0.5f;
+
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
-    String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
+
+    boolean isNeedEffectItem = true;
+    static String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
 
     int mCurrentCameraType;
 
@@ -89,10 +95,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean mUseGesture = false;
 
+    HandlerThread mCreateItemThread;
+    Handler mCreateItemHandler;
+
+    Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        mContext = this;
 
         mMainHandler = new MainHandler(this);
 
@@ -101,6 +114,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         glRenderer = new GLRenderer();
         glSf.setRenderer(glRenderer);
         glSf.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        mCreateItemThread = new HandlerThread("CreateItemThread");
+        mCreateItemThread.start();
+        mCreateItemHandler = new CreateItemHandler(mCreateItemThread.getLooper(), mContext);
     }
 
     @Override
@@ -139,15 +156,18 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         mFrameId = 0;
 
+        mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
+
         glSf.queueEvent(new Runnable() {
             @Override
             public void run() {
                 //Note: 切忌使用一个已经destroy的item
                 faceunity.fuDestroyItem(mEffectItem);
-                mEffectItem = 0;
+                itemsArray[1] = mEffectItem = 0;
                 faceunity.fuDestroyItem(mFacebeautyItem);
-                mFacebeautyItem = 0;
+                itemsArray[0] = mFacebeautyItem = 0;
                 faceunity.fuOnDeviceLost();
+                isNeedEffectItem = true;
             }
         });
         glRenderer.notifyPause();
@@ -309,23 +329,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 Log.d(TAG, "isTracking " + isTracking);
             }
 
-            if (mEffectItem == 0) {
-                try {
-                    if (mEffectFileName.equals("none")) {
-                        itemsArray[1] = mEffectItem = 0;
-                    } else {
-                        InputStream is = getAssets().open(mEffectFileName);
-                        byte[] itemData = new byte[is.available()];
-                        is.read(itemData);
-                        is.close();
-                        itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (isNeedEffectItem) {
+                isNeedEffectItem = false;
+                mCreateItemHandler.sendEmptyMessage(CreateItemHandler.HANDLE_CREATE_ITEM);
             }
-
-            faceunity.fuItemSetParam(mEffectItem, "isAndroid", 1.0);
 
             faceunity.fuItemSetParam(mFacebeautyItem, "color_level", mFacebeautyColorLevel);
             faceunity.fuItemSetParam(mFacebeautyItem, "blur_level", mFacebeautyBlurLevel);
@@ -429,6 +436,45 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         }
     }
 
+    static class CreateItemHandler extends Handler {
+
+        static final int HANDLE_CREATE_ITEM = 1;
+
+        Context mContext;
+
+        CreateItemHandler(Looper looper, Context context) {
+            super(looper);
+            mContext = context;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case HANDLE_CREATE_ITEM:
+                    try {
+                        if (mEffectFileName.equals("none")) {
+                            itemsArray[1] = mEffectItem = 0;
+                        } else {
+                            InputStream is = mContext.getAssets().open(mEffectFileName);
+                            byte[] itemData = new byte[is.available()];
+                            is.read(itemData);
+                            is.close();
+                            int tmp = itemsArray[1];
+                            itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
+                            faceunity.fuItemSetParam(mEffectItem, "isAndroid", 1.0);
+                            if (tmp != 0) {
+                                faceunity.fuDestroyItem(tmp);
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    }
+
     @SuppressWarnings("deprecation")
     private void openCamera(int cameraType, int desiredWidth, int desiredHeight) {
         Log.d(TAG, "openCamera");
@@ -517,16 +563,12 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onEffectItemSelected(String effectItemName) {
-        mEffectFileName = effectItemName;
-        if (mEffectItem != 0) {
-            glSf.queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    faceunity.fuDestroyItem(mEffectItem);
-                }
-            });
+        if (effectItemName.equals(mEffectFileName)) {
+            return;
         }
-        mEffectItem = 0;
+        mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
+        mEffectFileName = effectItemName;
+        isNeedEffectItem = true;
     }
 
     @Override
