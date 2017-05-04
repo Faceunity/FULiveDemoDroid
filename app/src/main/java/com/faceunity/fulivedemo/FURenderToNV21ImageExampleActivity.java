@@ -241,7 +241,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
              * 这个函数执行完成后，入参的nv21 byte数组会被改变
              */
             int fuTex = faceunity.fuRenderToNV21Image(mCameraNV21Byte,
-                    cameraWidth, cameraHeight, mFrameId, itemsArray);
+                    cameraWidth, cameraHeight, mFrameId, itemsArray, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X);
 
             if (DRAW_RETURNED_TEXTURE) {
                 mFullScreenFUDisplay.drawFrame(fuTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
