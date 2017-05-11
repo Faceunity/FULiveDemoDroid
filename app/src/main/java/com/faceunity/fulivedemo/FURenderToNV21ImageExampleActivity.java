@@ -376,15 +376,16 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         try {
             InputStream is = getAssets().open("v3.mp3");
             byte[] v3data = new byte[is.available()];
-            is.read(v3data);
+            int len = is.read(v3data);
             is.close();
             faceunity.fuSetup(v3data, null, authpack.A());
             faceunity.fuSetMaxFaces(1);
-            Log.e(TAG, "fuSetup");
+            Log.e(TAG, "fuSetup v3 len " + len);
 
             is = getAssets().open("face_beautification.mp3");
             byte[] itemData = new byte[is.available()];
-            is.read(itemData);
+            len = is.read(itemData);
+            Log.e(TAG, "beautification len " + len);
             is.close();
             mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
 
@@ -636,5 +637,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     protected void onStopRecording() {
         MiscUtil.Logger(TAG, "stop recording", false);
         mRecordingStatus = STOP_RECORDING;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
     }
 }

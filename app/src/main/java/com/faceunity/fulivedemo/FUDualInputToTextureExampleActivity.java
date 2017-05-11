@@ -66,7 +66,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     boolean isFirstOnFrameAvailable;
     long frameAvailableTimeStamp;
 
-    boolean VERBOSE_LOG = false;
+    boolean VERBOSE_LOG = true;
 
     float mFacebeautyColorLevel = 0.2f;
     float mFacebeautyBlurLevel = 6.0f;
@@ -177,7 +177,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (VERBOSE_LOG) {
-            Log.d(TAG, "onPreviewFrame");
+            Log.e(TAG, "onPreviewFrame len " + data.length);
             Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         }
         mCameraNV21Byte = data;
@@ -247,16 +247,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             try {
                 InputStream is = getAssets().open("v3.mp3");
                 byte[] v3data = new byte[is.available()];
-                is.read(v3data);
+                int len = is.read(v3data);
                 is.close();
                 faceunity.fuSetup(v3data, null, authpack.A());
                 //faceunity.fuSetMaxFaces(1);
-                Log.e(TAG, "fuSetup");
+                Log.e(TAG, "fuSetup v3 len " + len);
 
                 if (mUseBeauty) {
                     is = getAssets().open("face_beautification.mp3");
                     byte[] itemData = new byte[is.available()];
-                    is.read(itemData);
+                    len = is.read(itemData);
+                    Log.e(TAG, "beautification len " + len);
                     is.close();
                     mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
                     itemsArray[0] = mFacebeautyItem;
@@ -265,7 +266,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 if (mUseGesture) {
                     is = getAssets().open("heart.mp3");
                     byte[] itemData = new byte[is.available()];
-                    is.read(itemData);
+                    len = is.read(itemData);
+                    Log.e(TAG, "heart len " + len);
                     is.close();
                     mGestureItem = faceunity.fuCreateItemFromPackage(itemData);
                     itemsArray[2] = mGestureItem;
@@ -459,7 +461,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                         } else {
                             InputStream is = mContext.getAssets().open(mEffectFileName);
                             byte[] itemData = new byte[is.available()];
-                            is.read(itemData);
+                            int len = is.read(itemData);
+                            Log.e("FU", "effect len " + len);
                             is.close();
                             int tmp = itemsArray[1];
                             itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
@@ -630,5 +633,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     protected void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "onDestroy");
+        mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
     }
 }
