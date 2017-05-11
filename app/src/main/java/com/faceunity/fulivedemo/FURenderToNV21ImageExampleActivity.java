@@ -505,11 +505,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
         static final int HANDLE_CREATE_ITEM = 1;
 
-        Context mContext;
+        WeakReference<Context> mContext;
 
         CreateItemHandler(Looper looper, Context context) {
             super(looper);
-            mContext = context;
+            mContext = new WeakReference<Context>(context);
         }
 
         @Override
@@ -521,7 +521,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                         if (mEffectFileName.equals("none")) {
                             itemsArray[1] = mEffectItem = 0;
                         } else {
-                            InputStream is = mContext.getAssets().open(mEffectFileName);
+                            InputStream is = mContext.get().getAssets().open(mEffectFileName);
                             byte[] itemData = new byte[is.available()];
                             is.read(itemData);
                             is.close();

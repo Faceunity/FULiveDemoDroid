@@ -443,15 +443,16 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         static final int HANDLE_CREATE_ITEM = 1;
 
-        Context mContext;
+        WeakReference<Context> mContext;
 
         CreateItemHandler(Looper looper, Context context) {
             super(looper);
-            mContext = context;
+            mContext = new WeakReference<Context>(context);
         }
 
         @Override
         public void handleMessage(Message msg) {
+            Context context = mContext.get();
             super.handleMessage(msg);
             switch (msg.what) {
                 case HANDLE_CREATE_ITEM:
@@ -459,7 +460,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                         if (mEffectFileName.equals("none")) {
                             itemsArray[1] = mEffectItem = 0;
                         } else {
-                            InputStream is = mContext.getAssets().open(mEffectFileName);
+                            InputStream is = context.getAssets().open(mEffectFileName);
                             byte[] itemData = new byte[is.available()];
                             int len = is.read(itemData);
                             Log.e("FU", "effect len " + len);
