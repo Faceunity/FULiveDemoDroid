@@ -91,6 +91,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     int currentFrameCnt = 0;
     long lastOneHundredFrameTimeStamp = 0;
+    long oneHundredFrameFUTime = 0;
 
     Context mContext;
 
@@ -214,6 +215,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 long tmp = System.currentTimeMillis();
                 Log.e(TAG, "renderToNV21Image FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
+                Log.e(TAG, "renderToNV21Image cost time avg : " + oneHundredFrameFUTime / 100.f);
+                oneHundredFrameFUTime = 0;
             }
 
             if (isNeedEffectItem) {
@@ -240,8 +243,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             /**
              * 这个函数执行完成后，入参的nv21 byte数组会被改变
              */
+            long fuStartTime = System.currentTimeMillis();
             int fuTex = faceunity.fuRenderToNV21Image(mCameraNV21Byte,
                     cameraWidth, cameraHeight, mFrameId, itemsArray, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X);
+            long fuEndTime = System.currentTimeMillis();
+            oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
             if (DRAW_RETURNED_TEXTURE) {
                 mFullScreenFUDisplay.drawFrame(fuTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
@@ -357,6 +363,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         });
 
         glRenderer.notifyPause();
+
+        lastOneHundredFrameTimeStamp = 0;
+        oneHundredFrameFUTime = 0;
     }
 
     /**
