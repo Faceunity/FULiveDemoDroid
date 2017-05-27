@@ -243,10 +243,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_EXT));
             mCameraTextureId = mFullScreenCamera.createTextureObject();
-            mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
-            mMainHandler.sendMessage(mMainHandler.obtainMessage(
-                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
-                    mCameraSurfaceTexture));
+            switchCameraSurfaceTexture();
 
             try {
                 InputStream is = getAssets().open("v3.mp3");
@@ -281,6 +278,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             isFirstOnDrawFrame = true;
+        }
+
+        public void switchCameraSurfaceTexture() {
+            if (mCameraSurfaceTexture != null) {
+                faceunity.fuOnCameraChange();
+                mCameraSurfaceTexture.release();
+            }
+            mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
+            mMainHandler.sendMessage(mMainHandler.obtainMessage(
+                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
+                    mCameraSurfaceTexture));
         }
 
         @Override
@@ -605,7 +613,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
         inCameraChange = true;
-        faceunity.fuOnCameraChange();
         releaseCamera();
         mCameraNV21Byte = null;
         mFrameId = 0;
@@ -614,7 +621,12 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         } else {
             openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
         }
-        handleCameraStartPreview(glRenderer.mCameraSurfaceTexture);
+        glSf.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                glRenderer.switchCameraSurfaceTexture();
+            }
+        });
         inCameraChange = false;
     }
 

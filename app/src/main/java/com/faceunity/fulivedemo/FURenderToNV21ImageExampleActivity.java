@@ -81,7 +81,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     final boolean DRAW_RETURNED_TEXTURE = true; //直接绘制fuRenderToNV21Image返回的texture或者将返回的nv21 bytes数组load到texture再绘制
 
-    MainHandler mainHandler;
+    MainHandler mMainHandler;
 
     final int IN_RECORDING = 1;
     final int START_RECORDING = 2;
@@ -110,7 +110,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         glSf.setRenderer(glRenderer);
         glSf.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
-        mainHandler = new MainHandler(this);
+        mMainHandler = new MainHandler(this);
 
         mCreateItemThread = new HandlerThread("CreateItemThread");
         mCreateItemThread.start();
@@ -144,10 +144,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_EXT));
             mCameraTextureId = mFullScreenCamera.createTextureObject();
-            mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
-            mainHandler.sendMessage(mainHandler.obtainMessage(
-                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
-                    mCameraSurfaceTexture));
+            switchCameraSurfaceTexture();
 
             try {
                 InputStream is = getAssets().open("v3.mp3");
@@ -288,6 +285,17 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 mRecordingStatus = NONE_RECORDING;
             }
             mFrameId++;
+        }
+
+        public void switchCameraSurfaceTexture() {
+            if (mCameraSurfaceTexture != null) {
+                faceunity.fuOnCameraChange();
+                mCameraSurfaceTexture.release();
+            }
+            mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
+            mMainHandler.sendMessage(mMainHandler.obtainMessage(
+                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
+                    mCameraSurfaceTexture));
         }
 
         public void notifyPause() {
@@ -615,13 +623,17 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
         releaseCamera();
-        faceunity.fuOnCameraChange();
         if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
         } else {
             openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
         }
-        handleCameraStartPreview(null);
+        glSf.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                glRenderer.switchCameraSurfaceTexture();
+            }
+        });
     }
 
     @Override
