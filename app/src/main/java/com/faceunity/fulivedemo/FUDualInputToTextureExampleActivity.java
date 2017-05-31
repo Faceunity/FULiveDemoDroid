@@ -324,8 +324,12 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
              * 获取camera数据, 更新到texture
              */
             float[] mtx = new float[16];
-            mCameraSurfaceTexture.updateTexImage();
-            mCameraSurfaceTexture.getTransformMatrix(mtx);
+            try {
+                mCameraSurfaceTexture.updateTexImage();
+                mCameraSurfaceTexture.getTransformMatrix(mtx);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             final int isTracking = faceunity.fuIsTracking();
             if (isTracking != faceTrackingStatus) {
