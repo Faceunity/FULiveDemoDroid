@@ -388,42 +388,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
               //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
-
-            if (mRecordingStatus == START_RECORDING) {
-                mTexureMovieEncoder = new TextureMovieEncoder();
-                videoFileName = MiscUtil.createFileName() + "_camera.mp4";
-                File outFile = new File(videoFileName);
-                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
-                        outFile,cameraHeight, cameraWidth,
-                        2000000, EGL14.eglGetCurrentContext()
-                ));
-                mRecordingStatus = IN_RECORDING;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(FUDualInputToTextureExampleActivity.this, "video file saved to "
-                                + videoFileName, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            if (mRecordingStatus == IN_RECORDING) {
-                mTexureMovieEncoder.setTextureId(fuTex);
-                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
-            }
-
-            if (mRecordingStatus == STOP_RECORDING) {
-                mTexureMovieEncoder.stopRecording();
-                mRecordingStatus = NONE_RECORDING;
-            }
         }
 
         public void notifyPause() {
-            if (mRecordingStatus == IN_RECORDING) {
-                mTexureMovieEncoder.stopRecording();
-                mRecordingStatus = NONE_RECORDING;
-            }
-
             faceTrackingStatus = 0;
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);

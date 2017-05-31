@@ -260,34 +260,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 //mFullScreenFUDisplay.drawFrame(loadNV21ByteTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
                   //      mtxCameraFront : mtxCameraBack);
             }
-
-            if (mRecordingStatus == START_RECORDING) {
-                mTexureMovieEncoder = new TextureMovieEncoder();
-                videoFileName = MiscUtil.createFileName() + "_camera.mp4";
-                File outFile = new File(videoFileName);
-                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
-                        outFile,cameraHeight, cameraWidth,
-                        2000000, EGL14.eglGetCurrentContext()
-                ));
-                mRecordingStatus = IN_RECORDING;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(FURenderToNV21ImageExampleActivity.this, "video file saved to "
-                                + videoFileName, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            if (mRecordingStatus == IN_RECORDING) {
-                mTexureMovieEncoder.setTextureId(fuTex);
-                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
-            }
-
-            if (mRecordingStatus == STOP_RECORDING) {
-                mTexureMovieEncoder.stopRecording();
-                mRecordingStatus = NONE_RECORDING;
-            }
             mFrameId++;
         }
 
@@ -303,11 +275,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         }
 
         public void notifyPause() {
-            if (mRecordingStatus == IN_RECORDING) {
-                mTexureMovieEncoder.stopRecording();
-                mRecordingStatus = NONE_RECORDING;
-            }
-
             faceTrackingStatus = 0;
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
