@@ -3,7 +3,6 @@ package com.faceunity.fulivedemo;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,14 +11,12 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.faceunity.fulivedemo.gles.FullFrameRect;
 import com.faceunity.fulivedemo.gles.Texture2dProgram;
 import com.faceunity.fulivedemo.encoder.TextureMovieEncoder;
 import com.faceunity.wrapper.faceunity;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -87,7 +84,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean mUseBeauty = true;
 
-    boolean inCameraChange = false;
+    boolean isInCameraChange = false;
+    final Object inCameraChangeLock = new Object();
 
     final int IN_RECORDING = 1;
     final int START_RECORDING = 2;
@@ -115,7 +113,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         glSf.setEGLContextClientVersion(2);
         glRenderer = new GLRenderer();
         glSf.setRenderer(glRenderer);
-        glSf.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        glSf.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         mCreateItemThread = new HandlerThread("CreateItemThread");
         mCreateItemThread.start();
@@ -186,6 +184,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         }
         mCameraNV21Byte = data;
+        synchronized (inCameraChangeLock) {
+            isInCameraChange = false;
+            inCameraChangeLock.notify();
+        }
     }
 
     @Override
@@ -304,12 +306,26 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 Log.d(TAG, "onDrawFrame");
             }
 
+            synchronized (inCameraChangeLock) {
+                if (isInCameraChange) {
+                    switchCameraSurfaceTexture();
+                    //block until new camera frame comes.
+                    while (isInCameraChange) {
+                        try {
+                            inCameraChangeLock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
             if (isFirstOnDrawFrame) {
                 isFirstOnDrawFrame = false;
                 //return;
             }
 
-            if (inCameraChange) {
+            if (isInCameraChange) {
                 return;
             }
 
@@ -369,6 +385,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
+                glSf.requestRender();
                 return;
             }
 
@@ -399,6 +416,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
               //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
+
+            glSf.requestRender();
         }
 
         public void notifyPause() {
@@ -594,22 +613,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
-        inCameraChange = true;
-        releaseCamera();
-        mCameraNV21Byte = null;
-        mFrameId = 0;
-        if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
-        } else {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
-        }
-        glSf.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                glRenderer.switchCameraSurfaceTexture();
+        synchronized (inCameraChangeLock) {
+            isInCameraChange = true;
+            releaseCamera();
+            mCameraNV21Byte = null;
+            mFrameId = 0;
+            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
+            } else {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
             }
-        });
-        inCameraChange = false;
+        }
     }
 
     @Override
@@ -639,5 +653,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         super.onDestroy();
         Log.e(TAG, "onDestroy");
         mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
+
+        mCreateItemThread.quit();
+        mCreateItemThread = null;
+        mCreateItemHandler = null;
     }
 }

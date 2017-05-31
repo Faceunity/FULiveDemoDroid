@@ -99,6 +99,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     HandlerThread mCreateItemThread;
     Handler mCreateItemHandler;
 
+    boolean isInCameraChange = false;
+    final Object inCameraChangeLock = new Object();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,7 +112,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         glSf.setEGLContextClientVersion(2);
         glRenderer = new FURenderToNV21ImageExampleActivity.GLRenderer();
         glSf.setRenderer(glRenderer);
-        glSf.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        glSf.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         mMainHandler = new MainHandler(this);
 
@@ -181,6 +184,20 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 Log.e(TAG, "onDrawFrame");
             }
 
+            synchronized (inCameraChangeLock) {
+                if (isInCameraChange) {
+                    switchCameraSurfaceTexture();
+                    //block until new camera frame comes.
+                    while (isInCameraChange) {
+                        try {
+                            inCameraChangeLock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
             /**
              * 获取camera数据, 更新到texture
              */
@@ -240,6 +257,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
+                glSf.requestRender();
                 return;
             }
 
@@ -271,6 +289,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                   //      mtxCameraFront : mtxCameraBack);
             }
             mFrameId++;
+
+            glSf.requestRender();
         }
 
         public void switchCameraSurfaceTexture() {
@@ -321,7 +341,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         aspectFrameLayout.setAspectRatio(1.0f * cameraHeight / cameraWidth);
 
         glSf.onResume();
-
     }
 
     @Override
@@ -405,7 +424,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
         }
         mCameraNV21Byte = data;
-        //glSf.requestRender();
+
+        synchronized (inCameraChangeLock) {
+            isInCameraChange = false;
+            inCameraChangeLock.notify();
+        }
     }
 
     private void handleCameraStartPreview(SurfaceTexture st) {
@@ -593,18 +616,16 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
-        releaseCamera();
-        if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
-        } else {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
-        }
-        glSf.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                glRenderer.switchCameraSurfaceTexture();
+        synchronized (inCameraChangeLock) {
+            isInCameraChange = true;
+            mFrameId = 0;
+            releaseCamera();
+            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
+            } else {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
             }
-        });
+        }
     }
 
     @Override
@@ -635,5 +656,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     protected void onDestroy() {
         super.onDestroy();
         mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
+
+        mCreateItemThread.quit();
+        mCreateItemThread = null;
+        mCreateItemHandler = null;
     }
 }
