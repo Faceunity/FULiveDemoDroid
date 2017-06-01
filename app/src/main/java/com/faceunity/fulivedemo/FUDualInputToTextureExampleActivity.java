@@ -525,10 +525,23 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         CameraUtils.setCameraDisplayOrientation(this, cameraId, mCamera);
 
         Camera.Parameters parameters = mCamera.getParameters();
+
+        /**
+         * 设置对焦，会影响camera吞吐速率
+         */
         List<String> focusModes = parameters.getSupportedFocusModes();
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+
+        /**
+         * 设置fps
+         * */
+        int[] closetFramerate = CameraUtils.closetFramerate(parameters, 30);
+        Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
+        parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
+
         mCamera.setDisplayOrientation(90);
+
         CameraUtils.choosePreviewSize(parameters, desiredWidth, desiredHeight);
         mCamera.setParameters(parameters);
     }
