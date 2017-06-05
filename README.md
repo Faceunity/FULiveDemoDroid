@@ -18,7 +18,7 @@ FULiveDemoDroid 是 Faceunity 的面部跟踪和虚拟道具功能在Android SDK
 其中 v3.mp3 是所有道具共用的数据文件，缺少该文件会导致系统初始化失败。其他每一个文件对应一个道具。自定义道具制作的文档和工具请联系我司获取。
   
 ## 集成方法
-我们的系统需要EGL context的环境进行GPU绘制，并且所有API需要在同一线程调用。如果接入环境中没有OpenGL环境无法提供EGL context,可以调用 `fuCreateEGLContext` 进行创建，并且只需要在初始化时创建一次。
+我们的系统需要EGL context的环境进行GPU绘制，并且所有API需要在同一线程调用。如果接入环境中没有OpenGL环境无法提供EGL context,可以调用 `fuCreateEGLContext` 进行创建，并且只需要在初始化时创建一次，并且请注意在退出需要销毁时调用`fuReleaseEGLContext`。
 
 将 nama.jar 放在工程的 app/libs/ 文件夹下。将对应平台的 libnama.so 拷贝至 app/src/main/jniLibs/ 对应文件夹下。
 之后在代码中加入
@@ -27,7 +27,7 @@ import com.faceunity.wrapper.faceunity
 ```
 即可调用人脸跟踪及虚拟道具相关函数。
 
-下面以使用GLSurfaceView搭配Camera为例，集成步骤主要分三步，另外全部API请参考`函数接口及参数说明`一节。
+下面以使用GLSurfaceView搭配SDK Camera API为例，集成步骤主要分三步，另外全部API请参考`函数接口及参数说明`一节。
 
 #### 环境初始化
 
@@ -53,6 +53,8 @@ import com.faceunity.wrapper.faceunity
     is.close();
     m_items[0] = faceunity.fuCreateItemFromPackage(item_data);
 ```
+
+`v3.3.8`之后已经支持道具异步加载，详细代码示例请参考demo的`CreateItemHandler`相关。
 
 美颜加载：
 ```Java
@@ -231,14 +233,33 @@ public class authpack {
 任何其他关于授权问题，请email：support@faceunity.com
 
 ## FAQ
+
+### 为什么人脸无法识别
+
+* 检查图像自身正确性
+* 检查图像自身格式
+* 检查传参图像宽高
+* 检查库文件是否配套完全更新，如v3.mp3有无更新
+
 ### 为什么过了一段时间人脸识别失效了？
-检查证书。如证书是否正确使用，是否过期。
+* 检查证书。如证书是否正确使用，是否过期。
 
+### 后置摄像头道具镜像
 
+参考demo使用`fuDualInputToTexture`或`fuRenderToNV21Image`时传参的`flag`，需要镜像道具时请设置上`faceunity.FU_ADM_FLAG_FLIP_X`。
 
 ## 函数接口及参数说明
 
 ```java
+public static final int FU_ADM_FLAG_EXTERNAL_OES_TEXTURE = 1;
+public static final int FU_ADM_FLAG_ENABLE_READBACK = 2;//<set this to additionally readback the rendering result to `img`
+public static final int FU_ADM_FLAG_NV21_TEXTURE = 4;
+public static final int FU_ADM_FLAG_I420_TEXTURE = 8;
+public static final int FU_ADM_FLAG_I420_BUFFER = 16;
+public static final int FU_ADM_FLAG_FLIP_X = 32;
+public static final int FU_ADM_FLAG_FLIP_Y = 64;
+public static final int FU_ADM_FLAG_RGBA_BUFFER = 128;
+    
 /**
 \brief Initialization, must be called exactly once before all other functions.
   Unlike the native version, you CAN discard the buffers after `fuInit` returns.
@@ -275,20 +296,28 @@ void fuReleaseEGLContext();
 */
 
 /**
-\brief Render a list of items on top of an NV21 image.
-  This function needs a GLES 2.0+ context.
-\param img specifies the NV21 img. Its content will be **overwritten** by the rendered image when fuRenderToNV21Image returns
-\param w specifies the image width
-\param h specifies the image height
-\param frameid specifies the current frame id. 
-  To get animated effects, please increase frame_id by 1 whenever you call this.
-\param items contains the list of items
-\return a GLES texture containing a copy of the rendered image
-*/
-int fuRenderToNV21Image(byte[] img,int w,int h,int frame_id, int[] items);
+ \brief Render a list of items on top of an NV21 image.
+ This function needs a GLES 2.0+ context.
+ \param img specifies the NV21 img. Its content will be overwritten by the rendered image when fuRenderToNV21Image returns
+ \param w specifies the image width
+ \param h specifies the image height
+ \param frameid specifies the current frame id.
+ To get animated effects, please increase frame_id by 1 whenever you call this.
+ \param items contains the list of items
+ \return a GLES texture containing a copy of the rendered image
+ */
+public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame_id, int[] items);
+public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame_id, int[] items, int flags);
+public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame_id, int[] items, int flags, int readback_w, int readback_h, byte[] readback_img);
 
-public static final int FU_ADM_FLAG_EXTERNAL_OES_TEXTURE=1;
-public static final int FU_ADM_FLAG_ENABLE_READBACK=2;//<set this to additionally readback the rendering result to `img`
+public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame_id, int[] items);
+public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame_id, int[] items, int flags);
+public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame_id, int[] items, int flags, int readback_w, int readback_h, byte[] readback_img);
+
+public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame_id, int[] items);
+public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame_id, int[] items, int flags);
+public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame_id, int[] items, int flags, int readback_w, int readback_h, byte[] readback_img);
+
 /**
 \brief The fastest Android interface
   This function needs a GLES 2.0+ context.
@@ -304,6 +333,8 @@ public static final int FU_ADM_FLAG_ENABLE_READBACK=2;//<set this to additionall
 \return a new GLES texture containing the rendered image
 */
 int fuDualInputToTexture(byte[] img,int tex_in,int flags,int w,int h,int frame_id, int[] items);
+int fuDualInputToTexture(byte[] img, int tex_in, int flags, int w, int h, int frame_id, int[] items, int readback_w, int readback_h, byte[] readback_img);
+
 
 /**
 \brief Release resources allocated by the Java version of fuInit and destroy all created items.
