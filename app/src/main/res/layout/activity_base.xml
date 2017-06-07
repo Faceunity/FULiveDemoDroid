@@ -452,7 +452,6 @@
             android:text="开始录制"
             android:textColor="@color/colorWhite"
             android:layout_margin="10dp"
-            android:onClick="onClick"
-            android:visibility="gone"/>
+            android:onClick="onClick"/>
     </com.faceunity.fulivedemo.AspectFrameLayout>
 </RelativeLayout>

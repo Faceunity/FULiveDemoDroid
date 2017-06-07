@@ -28,6 +28,9 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.IN_RECORDING;
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.START_RECORDING;
+
 /**
  * 这个Activity演示了如何通过fuRenderToNV21Image
  * 实现在无GL Context的情况下输入nv21的人脸图像，输出添加道具及美颜后的nv21图像
@@ -84,12 +87,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     MainHandler mMainHandler;
 
-    final int IN_RECORDING = 1;
-    final int START_RECORDING = 2;
-    final int STOP_RECORDING = 3;
-    final int NONE_RECORDING = 4;
-    int mRecordingStatus = NONE_RECORDING;
-
     int currentFrameCnt = 0;
     long lastOneHundredFrameTimeStamp = 0;
     long oneHundredFrameFUTime = 0;
@@ -101,6 +98,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     boolean isInCameraChange = false;
     final Object inCameraChangeLock = new Object();
+
+    TextureMovieEncoder mTexureMovieEncoder;
+    String videoFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,9 +135,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         float[] mtxCameraFront = {0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
         float[] mtxCameraBack = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         int faceTrackingStatus = 0;
-
-        TextureMovieEncoder mTexureMovieEncoder;
-        String videoFileName;
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -264,7 +261,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             long beforeCopy = System.nanoTime();
             System.arraycopy(mCameraNV21Byte, 0, fuImgNV21Bytes, 0, mCameraNV21Byte.length);
             long afterCopy = System.nanoTime();
-            Log.e(TAG, "array len " + mCameraNV21Byte.length + " time " + (afterCopy - beforeCopy) / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
+            if (VERBOSE_LOG) {
+                Log.e(TAG, "array len " + mCameraNV21Byte.length + " time " + (afterCopy - beforeCopy) / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
+            }
 
             /**
              * 这个函数执行完成后，入参的nv21 byte数组会被改变
@@ -286,6 +285,28 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                   //      mtxCameraFront : mtxCameraBack);
             }
             mFrameId++;
+
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
+                videoFileName = MiscUtil.createFileName() + "_camera.mp4";
+                File outFile = new File(videoFileName);
+                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                        outFile, cameraHeight, cameraWidth,
+                        3000000, EGL14.eglGetCurrentContext()
+                ));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(FURenderToNV21ImageExampleActivity.this, "video file saved to "
+                                + videoFileName, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+                mTexureMovieEncoder.setTextureId(fuTex);
+                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
+
+            }
 
             glSf.requestRender();
         }
@@ -481,7 +502,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
         parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
 
-        mCamera.setDisplayOrientation(90);
         CameraUtils.choosePreviewSize(parameters, desiredWidth, desiredHeight);
         mCamera.setParameters(parameters);
     }
@@ -649,13 +669,15 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     @Override
     protected void onStartRecording() {
         MiscUtil.Logger(TAG, "start recording", false);
-        mRecordingStatus = START_RECORDING;
+        mTexureMovieEncoder = new TextureMovieEncoder();
     }
 
     @Override
     protected void onStopRecording() {
         MiscUtil.Logger(TAG, "stop recording", false);
-        mRecordingStatus = STOP_RECORDING;
+        if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+            mTexureMovieEncoder.stopRecording();
+        }
     }
 
     @Override

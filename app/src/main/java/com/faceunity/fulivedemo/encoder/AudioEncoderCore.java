@@ -20,9 +20,9 @@ public class AudioEncoderCore {
     // TODO: these ought to be configurable as well
     private static final String MIME_TYPE = "audio/mp4a-latm";
     private static final int SAMPLE_RATE = 44100;   // 44.1[KHz] is only setting guaranteed to be available on all devices.
-    private static final int BIT_RATE = 64000;
-    private static final int SAMPLES_PER_FRAME = 1024;   // AAC, bytes/frame/channel
-    private static final int FRAMES_PER_BUFFER = 25;     // AAC, frame/buffer/sec
+    private static final int BIT_RATE = 128000;
+    private static final int SAMPLES_PER_FRAME = 2048;   // AAC, bytes/frame/channel
+    private static final int FRAMES_PER_BUFFER = 24;     // AAC, frame/buffer/sec
     private static final int TIMEOUT_USEC = 10000;	// 10[msec]
 
     private MediaMuxerWrapper mMuxer;

@@ -3,6 +3,7 @@ package com.faceunity.fulivedemo;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,12 +12,14 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.faceunity.fulivedemo.gles.FullFrameRect;
 import com.faceunity.fulivedemo.gles.Texture2dProgram;
 import com.faceunity.fulivedemo.encoder.TextureMovieEncoder;
 import com.faceunity.wrapper.faceunity;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -24,6 +27,9 @@ import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.IN_RECORDING;
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.START_RECORDING;
 
 
 /**
@@ -92,6 +98,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     final int STOP_RECORDING = 3;
     final int NONE_RECORDING = 4;
     int mRecordingStatus = NONE_RECORDING;
+
+    TextureMovieEncoder mTexureMovieEncoder;
+    String videoFileName;
+
 
     boolean mUseGesture = false;
 
@@ -234,9 +244,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         boolean isFirstOnDrawFrame;
 
         int faceTrackingStatus = 0;
-
-        TextureMovieEncoder mTexureMovieEncoder;
-        String videoFileName;
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -417,6 +424,28 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
 
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
+                videoFileName = MiscUtil.createFileName() + "_camera.mp4";
+                File outFile = new File(videoFileName);
+                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                        outFile, cameraHeight, cameraWidth,
+                        3000000, EGL14.eglGetCurrentContext()
+                ));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(FUDualInputToTextureExampleActivity.this, "video file saved to "
+                                + videoFileName, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+                mTexureMovieEncoder.setTextureId(fuTex);
+                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
+
+            }
+
             glSf.requestRender();
         }
 
@@ -540,8 +569,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
         parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
 
-        mCamera.setDisplayOrientation(90);
-
         CameraUtils.choosePreviewSize(parameters, desiredWidth, desiredHeight);
         mCamera.setParameters(parameters);
     }
@@ -642,13 +669,15 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @Override
     protected void onStartRecording() {
         MiscUtil.Logger(TAG, "start recording", false);
-        mRecordingStatus = START_RECORDING;
+        mTexureMovieEncoder = new TextureMovieEncoder();
     }
 
     @Override
     protected void onStopRecording() {
         MiscUtil.Logger(TAG, "stop recording", false);
-        mRecordingStatus = STOP_RECORDING;
+        if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+            mTexureMovieEncoder.stopRecording();
+        }
     }
 
     @Override

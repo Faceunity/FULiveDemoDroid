@@ -21,6 +21,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.opengl.EGLContext;
+import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -89,6 +90,21 @@ public class TextureMovieEncoder {
     private boolean mReady;
     private boolean mRunning;
 
+    public static final int IN_RECORDING = 1;
+    public static final int START_RECORDING = 2;
+    public static final int STOP_RECORDING = 3;
+    public static final int NONE_RECORDING = 4;
+    public static final int PREPARE_RECORDING = 5;
+    private int mRecordingStatus = NONE_RECORDING;
+
+    public boolean checkRecordingStatus(int recordingStatus) {
+        return mRecordingStatus == recordingStatus;
+    }
+
+    public TextureMovieEncoder() {
+        mRecordingStatus = START_RECORDING;
+    }
+
 
     /**
      * Encoder configuration.
@@ -133,6 +149,7 @@ public class TextureMovieEncoder {
      */
     public void startRecording(EncoderConfig config) {
         Log.d(TAG, "Encoder: startRecording()");
+        mRecordingStatus = PREPARE_RECORDING;
         synchronized (mReadyFence) {
             if (mRunning) {
                 Log.w(TAG, "Encoder thread already running");
@@ -167,6 +184,7 @@ public class TextureMovieEncoder {
         mHandler.sendMessage(mHandler.obtainMessage(MSG_QUIT));
         // We don't know when these will actually finish (or even start).  We don't want to
         // delay the UI thread though, so we return immediately.
+        mRecordingStatus = NONE_RECORDING;
     }
 
     /**
@@ -313,11 +331,14 @@ public class TextureMovieEncoder {
         }
     }
 
+    private EncoderConfig config = null;
+
     /**
      * Starts recording.
      */
     private void handleStartRecording(EncoderConfig config) {
         Log.d(TAG, "handleStartRecording " + config);
+        this.config = config;
         mFrameNum = 0;
         prepareEncoder(config.mEglContext, config.mWidth, config.mHeight, config.mBitRate,
                 config.mOutputFile);
@@ -337,7 +358,8 @@ public class TextureMovieEncoder {
         if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
         mVideoEncoder.drainEncoder(false);
 
-        //GLES20.glViewport(0, 0, 1920, 1080);
+        GLES20.glViewport(0, 0, config.mWidth, config.mHeight);
+
         mFullScreen.drawFrame(mTextureId, transform);
 
         //drawBox(mFrameNum++);
@@ -474,8 +496,8 @@ public class TextureMovieEncoder {
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
             int SAMPLE_RATE = 44100;
-            int SAMPLES_PER_FRAME = 1024;
-            int FRAMES_PER_BUFFER = 25;
+            int SAMPLES_PER_FRAME = 2048;
+            int FRAMES_PER_BUFFER = 24;
 
             synchronized (prepareEncoderFence) {
                 while (!prepareEncoderReady) {
@@ -519,6 +541,7 @@ public class TextureMovieEncoder {
                         final ByteBuffer buf = ByteBuffer.allocateDirect(SAMPLES_PER_FRAME);
                         int readBytes;
                         audioRecord.startRecording();
+                        mRecordingStatus = IN_RECORDING;
                         try {
                             while(!mRequestStop) {
                                 // read audio data from internal mic
@@ -533,7 +556,6 @@ public class TextureMovieEncoder {
                                 }
                             }
                             mAudioEncoder.encode(null, 0, getPTSUs());
-                            mAudioEncoder.drainEncoder(true);
                         } finally {
                             audioRecord.stop();
                         }
