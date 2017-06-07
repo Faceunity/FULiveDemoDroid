@@ -96,8 +96,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     HandlerThread mCreateItemThread;
     Handler mCreateItemHandler;
 
-    boolean isInCameraChange = false;
-    final Object inCameraChangeLock = new Object();
+    int cameraDataAlreadyCount = 0;
+    final Object prepareCameraDataLock = new Object();
+    boolean isNeedSwitchCameraSurfaceTexture = true;
 
     TextureMovieEncoder mTexureMovieEncoder;
     String videoFileName;
@@ -181,16 +182,16 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 Log.e(TAG, "onDrawFrame");
             }
 
-            synchronized (inCameraChangeLock) {
-                if (isInCameraChange) {
+            synchronized (prepareCameraDataLock) {
+                if (isNeedSwitchCameraSurfaceTexture) {
                     switchCameraSurfaceTexture();
-                    //block until new camera frame comes.
-                    while (isInCameraChange) {
-                        try {
-                            inCameraChangeLock.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                }
+                //block until new camera frame comes.
+                while (cameraDataAlreadyCount < 2) {
+                    try {
+                        prepareCameraDataLock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -312,6 +313,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         }
 
         public void switchCameraSurfaceTexture() {
+            isNeedSwitchCameraSurfaceTexture = false;
             if (mCameraSurfaceTexture != null) {
                 faceunity.fuOnCameraChange();
                 mCameraSurfaceTexture.release();
@@ -443,9 +445,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         }
         mCameraNV21Byte = data;
 
-        synchronized (inCameraChangeLock) {
-            isInCameraChange = false;
-            inCameraChangeLock.notify();
+        synchronized (prepareCameraDataLock) {
+            cameraDataAlreadyCount++;
+            prepareCameraDataLock.notify();
         }
     }
 
@@ -454,6 +456,15 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         mCamera.setPreviewCallback(this);
         try {
             mCamera.setPreviewTexture(st);
+            st.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+                @Override
+                public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                    synchronized (prepareCameraDataLock) {
+                        cameraDataAlreadyCount++;
+                        prepareCameraDataLock.notify();
+                    }
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -467,6 +478,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         if (VERBOSE_LOG) {
             Log.d(TAG, "openCamera");
         }
+
+        cameraDataAlreadyCount = 0;
+
         if (mCamera != null) {
             throw new RuntimeException("camera already initialized");
         }
@@ -642,10 +656,16 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
-        synchronized (inCameraChangeLock) {
-            isInCameraChange = true;
+
+        synchronized (prepareCameraDataLock) {
+            cameraDataAlreadyCount = 0;
+
+            isNeedSwitchCameraSurfaceTexture = true;
+
             mFrameId = 0;
+
             releaseCamera();
+
             if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
             } else {

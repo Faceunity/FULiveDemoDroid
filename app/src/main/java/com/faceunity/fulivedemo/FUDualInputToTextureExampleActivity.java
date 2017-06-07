@@ -28,9 +28,6 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.IN_RECORDING;
-import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.START_RECORDING;
-
 
 /**
  * 这个Activity演示了从Camera取数据,用fuDualInputToTexure处理并预览展示
@@ -90,8 +87,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean mUseBeauty = true;
 
-    boolean isInCameraChange = false;
-    final Object inCameraChangeLock = new Object();
+    int cameraDataAlreadyCount = 0;
+    final Object prepareCameraDataLock = new Object();
+    boolean isNeedSwitchCameraSurfaceTexture = true;
 
     final int IN_RECORDING = 1;
     final int START_RECORDING = 2;
@@ -194,9 +192,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         }
         mCameraNV21Byte = data;
-        synchronized (inCameraChangeLock) {
-            isInCameraChange = false;
-            inCameraChangeLock.notify();
+        synchronized (prepareCameraDataLock) {
+            cameraDataAlreadyCount++;
+            prepareCameraDataLock.notify();
         }
     }
 
@@ -211,7 +209,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         if (VERBOSE_LOG) {
             Log.d(TAG, "onFrameAvailable");
         }
-        //glSf.requestRender();
+        synchronized (prepareCameraDataLock) {
+            cameraDataAlreadyCount++;
+            prepareCameraDataLock.notify();
+        }
     }
 
     /**
@@ -292,6 +293,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         }
 
         public void switchCameraSurfaceTexture() {
+            isNeedSwitchCameraSurfaceTexture = false;
             if (mCameraSurfaceTexture != null) {
                 faceunity.fuOnCameraChange();
                 mCameraSurfaceTexture.release();
@@ -313,16 +315,16 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 Log.d(TAG, "onDrawFrame");
             }
 
-            synchronized (inCameraChangeLock) {
-                if (isInCameraChange) {
+            synchronized (prepareCameraDataLock) {
+                if (isNeedSwitchCameraSurfaceTexture ) {
                     switchCameraSurfaceTexture();
-                    //block until new camera frame comes.
-                    while (isInCameraChange) {
-                        try {
-                            inCameraChangeLock.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                }
+                //block until new camera frame comes.
+                while (cameraDataAlreadyCount < 2) {
+                    try {
+                        prepareCameraDataLock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -330,10 +332,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             if (isFirstOnDrawFrame) {
                 isFirstOnDrawFrame = false;
                 //return;
-            }
-
-            if (isInCameraChange) {
-                return;
             }
 
             if (++currentFrameCnt == 100) {
@@ -531,6 +529,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @SuppressWarnings("deprecation")
     private void openCamera(int cameraType, int desiredWidth, int desiredHeight) {
         Log.d(TAG, "openCamera");
+
+        cameraDataAlreadyCount = 0;
+
         if (mCamera != null) {
             throw new RuntimeException("camera already initialized");
         }
@@ -653,11 +654,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
-        synchronized (inCameraChangeLock) {
-            isInCameraChange = true;
+        synchronized (prepareCameraDataLock) {
+
+            isNeedSwitchCameraSurfaceTexture = true;
+
+            cameraDataAlreadyCount = 0;
+
             releaseCamera();
+
             mCameraNV21Byte = null;
             mFrameId = 0;
+
             if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
             } else {
