@@ -122,4 +122,22 @@ public class CameraUtils {
         }
         camera.setDisplayOrientation(result);
     }
+
+    public static int[] closetFramerate(Camera.Parameters parameters, float frameRate) {
+        int framerate = (int) (frameRate * 1000);
+        List<int[]> rates = parameters.getSupportedPreviewFpsRange();
+        int[] bestFramerate = rates.get(0);
+        for (int i = 0; i < rates.size(); i++) {
+            int[] rate = rates.get(i);
+            Log.e(TAG, "supported preview pfs min " + rate[0] + " max " + rate[1]);
+            int curDelta = Math.abs(rate[1] - framerate);
+            int bestDelta = Math.abs(bestFramerate[1] - framerate);
+            if (curDelta < bestDelta) {
+                bestFramerate = rate;
+            } else if (curDelta == bestDelta) {
+                bestFramerate = bestFramerate[0] < rate[0] ? rate : bestFramerate;
+            }
+        }
+        return bestFramerate;
+    }
 }

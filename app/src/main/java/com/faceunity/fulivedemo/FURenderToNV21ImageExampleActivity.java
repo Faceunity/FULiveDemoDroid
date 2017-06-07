@@ -63,6 +63,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     boolean VERBOSE_LOG = false;
 
     byte[] mCameraNV21Byte;
+    byte[] fuImgNV21Bytes;
 
     float mFacebeautyColorLevel = 0.2f;
     float mFacebeautyBlurLevel = 6.0f;
@@ -97,6 +98,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     HandlerThread mCreateItemThread;
     Handler mCreateItemHandler;
+
+    boolean isInCameraChange = false;
+    final Object inCameraChangeLock = new Object();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +184,20 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 Log.e(TAG, "onDrawFrame");
             }
 
+            synchronized (inCameraChangeLock) {
+                if (isInCameraChange) {
+                    switchCameraSurfaceTexture();
+                    //block until new camera frame comes.
+                    while (isInCameraChange) {
+                        try {
+                            inCameraChangeLock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
             /**
              * 获取camera数据, 更新到texture
              */
@@ -213,10 +231,10 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
-                long tmp = System.currentTimeMillis();
-                Log.e(TAG, "renderToNV21Image FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                long tmp = System.nanoTime();
+                Log.e(TAG, "renderToNV21Image FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
-                Log.e(TAG, "renderToNV21Image cost time avg : " + oneHundredFrameFUTime / 100.f);
+                Log.e(TAG, "renderToNV21Image cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
                 oneHundredFrameFUTime = 0;
             }
 
@@ -234,20 +252,27 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
             faceunity.fuItemSetParam(mFacebeautyItem, "red_level", mFacebeautyRedLevel);
 
-
-            //faceunity.fuItemSetParam(mFacebeautyItem, "is_beauty_on", 0);
-
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
+                glSf.requestRender();
                 return;
             }
+
+            if (fuImgNV21Bytes == null) {
+                fuImgNV21Bytes = new byte[mCameraNV21Byte.length];
+            }
+            long beforeCopy = System.nanoTime();
+            System.arraycopy(mCameraNV21Byte, 0, fuImgNV21Bytes, 0, mCameraNV21Byte.length);
+            long afterCopy = System.nanoTime();
+            Log.e(TAG, "array len " + mCameraNV21Byte.length + " time " + (afterCopy - beforeCopy) / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
+
             /**
              * 这个函数执行完成后，入参的nv21 byte数组会被改变
              */
-            long fuStartTime = System.currentTimeMillis();
-            int fuTex = faceunity.fuRenderToNV21Image(mCameraNV21Byte,
+            long fuStartTime = System.nanoTime();
+            int fuTex = faceunity.fuRenderToNV21Image(fuImgNV21Bytes,
                     cameraWidth, cameraHeight, mFrameId, itemsArray, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X);
-            long fuEndTime = System.currentTimeMillis();
+            long fuEndTime = System.nanoTime();
             oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
             if (DRAW_RETURNED_TEXTURE) {
@@ -261,6 +286,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                   //      mtxCameraFront : mtxCameraBack);
             }
             mFrameId++;
+
+            glSf.requestRender();
         }
 
         public void switchCameraSurfaceTexture() {
@@ -311,7 +338,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         aspectFrameLayout.setAspectRatio(1.0f * cameraHeight / cameraWidth);
 
         glSf.onResume();
-
     }
 
     @Override
@@ -395,7 +421,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
         }
         mCameraNV21Byte = data;
-        glSf.requestRender();
+
+        synchronized (inCameraChangeLock) {
+            isInCameraChange = false;
+            inCameraChangeLock.notify();
+        }
     }
 
     private void handleCameraStartPreview(SurfaceTexture st) {
@@ -406,14 +436,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*st.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
-            @Override
-            public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                Log.e(TAG, "onFrameAvailable");
-                //
-                //glSf.requestRender();
-            }
-        });*/
         mCamera.startPreview();
     }
 
@@ -447,9 +469,18 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         CameraUtils.setCameraDisplayOrientation(this, cameraId, mCamera);
 
         Camera.Parameters parameters = mCamera.getParameters();
+
         List<String> focusModes = parameters.getSupportedFocusModes();
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+
+        /**
+         * 设置fps
+         * */
+        int[] closetFramerate = CameraUtils.closetFramerate(parameters, 30);
+        Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
+        parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
+
         mCamera.setDisplayOrientation(90);
         CameraUtils.choosePreviewSize(parameters, desiredWidth, desiredHeight);
         mCamera.setParameters(parameters);
@@ -591,18 +622,16 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
-        releaseCamera();
-        if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
-        } else {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
-        }
-        glSf.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                glRenderer.switchCameraSurfaceTexture();
+        synchronized (inCameraChangeLock) {
+            isInCameraChange = true;
+            mFrameId = 0;
+            releaseCamera();
+            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
+            } else {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
             }
-        });
+        }
     }
 
     @Override
@@ -633,5 +662,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     protected void onDestroy() {
         super.onDestroy();
         mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
+
+        mCreateItemThread.quit();
+        mCreateItemThread = null;
+        mCreateItemHandler = null;
     }
 }

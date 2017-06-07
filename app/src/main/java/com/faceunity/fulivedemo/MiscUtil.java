@@ -45,6 +45,8 @@ public class MiscUtil {
 
     public static boolean VERBOSE_LOG = false;
 
+    public static float NANO_IN_ONE_MILLI_SECOND = 1000000.0f;
+
     public static void Logger(String tag, String msg, boolean isImportant) {
         if (isImportant || isDebug) {
             Log.e(tag, msg);

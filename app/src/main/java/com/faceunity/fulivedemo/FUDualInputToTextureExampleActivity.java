@@ -3,7 +3,6 @@ package com.faceunity.fulivedemo;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,14 +11,12 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.faceunity.fulivedemo.gles.FullFrameRect;
 import com.faceunity.fulivedemo.gles.Texture2dProgram;
 import com.faceunity.fulivedemo.encoder.TextureMovieEncoder;
 import com.faceunity.wrapper.faceunity;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -55,6 +52,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     int cameraHeight = 720;
 
     byte[] mCameraNV21Byte;
+    byte[] fuImgNV21Bytes;
+
     int mFrameId = 0;
 
     static int mFacebeautyItem = 0; //美颜道具
@@ -85,7 +84,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean mUseBeauty = true;
 
-    boolean inCameraChange = false;
+    boolean isInCameraChange = false;
+    final Object inCameraChangeLock = new Object();
 
     final int IN_RECORDING = 1;
     final int START_RECORDING = 2;
@@ -124,7 +124,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     protected void onResume() {
         Log.d(TAG, "onResume");
 
-        resumeTimeStamp = System.currentTimeMillis();
+        resumeTimeStamp = System.nanoTime();
         isFirstOnFrameAvailable = true;
 
         super.onResume();
@@ -184,20 +184,24 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         }
         mCameraNV21Byte = data;
+        synchronized (inCameraChangeLock) {
+            isInCameraChange = false;
+            inCameraChangeLock.notify();
+        }
     }
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         if (isFirstOnFrameAvailable) {
-            frameAvailableTimeStamp = System.currentTimeMillis();
+            frameAvailableTimeStamp = System.nanoTime();
             isFirstOnFrameAvailable = false;
             Log.e(TAG, "first frame available time cost " +
-                    (frameAvailableTimeStamp - resumeTimeStamp));
+                    (frameAvailableTimeStamp - resumeTimeStamp) / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
         }
         if (VERBOSE_LOG) {
             Log.d(TAG, "onFrameAvailable");
         }
-        glSf.requestRender();
+        //glSf.requestRender();
     }
 
     /**
@@ -302,21 +306,35 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 Log.d(TAG, "onDrawFrame");
             }
 
+            synchronized (inCameraChangeLock) {
+                if (isInCameraChange) {
+                    switchCameraSurfaceTexture();
+                    //block until new camera frame comes.
+                    while (isInCameraChange) {
+                        try {
+                            inCameraChangeLock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
             if (isFirstOnDrawFrame) {
                 isFirstOnDrawFrame = false;
                 //return;
             }
 
-            if (inCameraChange) {
+            if (isInCameraChange) {
                 return;
             }
 
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
-                long tmp = System.currentTimeMillis();
-                Log.e(TAG, "dualInput FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                long tmp = System.nanoTime();
+                Log.e(TAG, "dualInput FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND/ ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
-                Log.e(TAG, "dualInput cost time avg : " + oneHundredFrameFUTime / 100.f);
+                Log.e(TAG, "dualInput cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
                 oneHundredFrameFUTime = 0;
             }
 
@@ -367,27 +385,39 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
+                glSf.requestRender();
                 return;
             }
 
-            /**
-             * 这里拿到fu处理过后的texture，可以对这个texture做后续操作，如硬编、预览。
-             */
             boolean isOESTexture = true; //camera默认的是OES的
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
             boolean isNeedReadBack = false; //是否需要写回，如果是，则入参的byte[]会被修改为带有fu特效的
             flags = isNeedReadBack ? flags | faceunity.FU_ADM_FLAG_ENABLE_READBACK : flags;
+            if (isNeedReadBack) {
+                if (fuImgNV21Bytes == null) {
+                    fuImgNV21Bytes = new byte[mCameraNV21Byte.length];
+                }
+                System.arraycopy(mCameraNV21Byte, 0, fuImgNV21Bytes, 0, mCameraNV21Byte.length);
+            } else {
+                fuImgNV21Bytes = mCameraNV21Byte;
+            }
             flags |= mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X;
-            long fuStartTime = System.currentTimeMillis();
-            int fuTex = faceunity.fuDualInputToTexture(mCameraNV21Byte, mCameraTextureId, flags,
+
+            long fuStartTime = System.nanoTime();
+            /**
+             * 这里拿到fu处理过后的texture，可以对这个texture做后续操作，如硬编、预览。
+             */
+            int fuTex = faceunity.fuDualInputToTexture(fuImgNV21Bytes, mCameraTextureId, flags,
                     cameraWidth, cameraHeight, mFrameId++, itemsArray);
-            long fuEndTime = System.currentTimeMillis();
+            long fuEndTime = System.nanoTime();
             oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
               //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
+
+            glSf.requestRender();
         }
 
         public void notifyPause() {
@@ -495,10 +525,23 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         CameraUtils.setCameraDisplayOrientation(this, cameraId, mCamera);
 
         Camera.Parameters parameters = mCamera.getParameters();
+
+        /**
+         * 设置对焦，会影响camera吞吐速率
+         */
         List<String> focusModes = parameters.getSupportedFocusModes();
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+
+        /**
+         * 设置fps
+         * */
+        int[] closetFramerate = CameraUtils.closetFramerate(parameters, 30);
+        Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
+        parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
+
         mCamera.setDisplayOrientation(90);
+
         CameraUtils.choosePreviewSize(parameters, desiredWidth, desiredHeight);
         mCamera.setParameters(parameters);
     }
@@ -583,22 +626,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
-        inCameraChange = true;
-        releaseCamera();
-        mCameraNV21Byte = null;
-        mFrameId = 0;
-        if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
-        } else {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
-        }
-        glSf.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                glRenderer.switchCameraSurfaceTexture();
+        synchronized (inCameraChangeLock) {
+            isInCameraChange = true;
+            releaseCamera();
+            mCameraNV21Byte = null;
+            mFrameId = 0;
+            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
+            } else {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
             }
-        });
-        inCameraChange = false;
+        }
     }
 
     @Override
@@ -628,5 +666,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         super.onDestroy();
         Log.e(TAG, "onDestroy");
         mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
+
+        mCreateItemThread.quit();
+        mCreateItemThread = null;
+        mCreateItemHandler = null;
     }
 }
