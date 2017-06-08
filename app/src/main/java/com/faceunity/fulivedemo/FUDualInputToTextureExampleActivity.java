@@ -28,19 +28,22 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.IN_RECORDING;
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.START_RECORDING;
+
 
 /**
  * 这个Activity演示了从Camera取数据,用fuDualInputToTexure处理并预览展示
  * 所谓dual input，指从cpu和gpu同时拿数据，
  * cpu拿到的是nv21的byte数组，gpu拿到的是对应的texture
- *
+ * <p>
  * Created by lirui on 2016/12/13.
  */
 
 @SuppressWarnings("deprecation")
 public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         implements Camera.PreviewCallback,
-                   SurfaceTexture.OnFrameAvailableListener {
+        SurfaceTexture.OnFrameAvailableListener {
 
     final String TAG = "FUDualInputToTextureEg";
 
@@ -90,12 +93,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     int cameraDataAlreadyCount = 0;
     final Object prepareCameraDataLock = new Object();
     boolean isNeedSwitchCameraSurfaceTexture = true;
-
-    final int IN_RECORDING = 1;
-    final int START_RECORDING = 2;
-    final int STOP_RECORDING = 3;
-    final int NONE_RECORDING = 4;
-    int mRecordingStatus = NONE_RECORDING;
 
     TextureMovieEncoder mTexureMovieEncoder;
     String videoFileName;
@@ -217,7 +214,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     /**
      * set preview and start preview after the surface created
-     * */
+     */
     private void handleCameraStartPreview(SurfaceTexture surfaceTexture) {
         Log.e(TAG, "handleCameraStartPreview");
         mCamera.setPreviewCallback(this);
@@ -316,7 +313,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             synchronized (prepareCameraDataLock) {
-                if (isNeedSwitchCameraSurfaceTexture ) {
+                if (isNeedSwitchCameraSurfaceTexture) {
                     switchCameraSurfaceTexture();
                 }
                 //block until new camera frame comes.
@@ -337,7 +334,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
                 long tmp = System.nanoTime();
-                Log.e(TAG, "dualInput FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND/ ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                Log.e(TAG, "dualInput FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
                 Log.e(TAG, "dualInput cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
                 oneHundredFrameFUTime = 0;
@@ -418,7 +415,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
-              //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
+            //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
 
@@ -449,6 +446,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         public void notifyPause() {
             faceTrackingStatus = 0;
+            onStopRecording();
+
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
             }

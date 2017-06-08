@@ -57,9 +57,9 @@ import java.nio.ByteBuffer;
  * <li>call TextureMovieEncoder#startRecording() with the config
  * <li>call TextureMovieEncoder#setTextureId() with the texture object that receives frames
  * <li>for each frame, after latching it with SurfaceTexture#updateTexImage(),
- *     call TextureMovieEncoder#frameAvailable().
+ * call TextureMovieEncoder#frameAvailable().
  * </ul>
- *
+ * <p>
  * TODO: tweak the API (esp. textureId) so it's less awkward for simple use cases.
  */
 public class TextureMovieEncoder {
@@ -114,7 +114,7 @@ public class TextureMovieEncoder {
      * under us).
      * <p>
      * TODO: make frame rate and iframe interval configurable?  Maybe use builder pattern
-     *       with reasonable defaults for those and bit rate.
+     * with reasonable defaults for those and bit rate.
      */
     public static class EncoderConfig {
         final File mOutputFile;
@@ -124,7 +124,7 @@ public class TextureMovieEncoder {
         final EGLContext mEglContext;
 
         public EncoderConfig(File outputFile, int width, int height, int bitRate,
-                EGLContext sharedEglContext) {
+                             EGLContext sharedEglContext) {
             mOutputFile = outputFile;
             mWidth = width;
             mHeight = height;
@@ -259,9 +259,11 @@ public class TextureMovieEncoder {
         public VideoThread(String name) {
             super(name);
         }
+
         /**
          * Encoder thread entry point.  Establishes Looper/Handler and waits for messages.
          * <p>
+         *
          * @see Thread#run()
          */
         @Override
@@ -350,7 +352,8 @@ public class TextureMovieEncoder {
      * <p>
      * The texture is rendered onto the encoder's input surface.
      * <p>
-     * @param transform The texture transform, from SurfaceTexture.
+     *
+     * @param transform      The texture transform, from SurfaceTexture.
      * @param timestampNanos The frame's timestamp, from SurfaceTexture.
      */
     private void handleFrameAvailable(float[] transform, long timestampNanos) {
@@ -419,6 +422,7 @@ public class TextureMovieEncoder {
 
     /**
      * For drawing texture to hw encode, init egl related.
+     *
      * @param sharedContext
      * @param width
      * @param height
@@ -426,7 +430,7 @@ public class TextureMovieEncoder {
      * @param outputFile
      */
     private void prepareEncoder(EGLContext sharedContext, int width, int height, int bitRate,
-            File outputFile) {
+                                File outputFile) {
         try {
             // Create a MediaMuxer.  We can't add the video track and start() the muxer here,
             // because our MediaFormat doesn't have the Magic Goodies.  These can only be
@@ -435,7 +439,7 @@ public class TextureMovieEncoder {
             // We're not actually interested in multiplexing audio.  We just want to convert
             // the raw H.264 elementary stream we get from MediaCodec into a .mp4 file.
             //mMuxer = new MediaMuxer(outputFile.toString(),
-              //      MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            //      MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             mMuxer = new MediaMuxerWrapper(outputFile.toString());
             mVideoEncoder = new VideoEncoderCore(width, height, bitRate, mMuxer);
             mAudioEncoder = new AudioEncoderCore(mMuxer);
@@ -474,7 +478,7 @@ public class TextureMovieEncoder {
 
     private boolean mRequestStop = false;
 
-    private static final int[] AUDIO_SOURCES = new int[] {
+    private static final int[] AUDIO_SOURCES = new int[]{
             MediaRecorder.AudioSource.MIC,
             MediaRecorder.AudioSource.DEFAULT,
             MediaRecorder.AudioSource.CAMCORDER,
@@ -503,7 +507,7 @@ public class TextureMovieEncoder {
                 while (!prepareEncoderReady) {
                     try {
                         prepareEncoderFence.wait();
-                    } catch (InterruptedException e){
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -543,7 +547,7 @@ public class TextureMovieEncoder {
                         audioRecord.startRecording();
                         mRecordingStatus = IN_RECORDING;
                         try {
-                            while(!mRequestStop) {
+                            while (!mRequestStop) {
                                 // read audio data from internal mic
                                 buf.clear();
                                 readBytes = audioRecord.read(buf, SAMPLES_PER_FRAME);
@@ -552,7 +556,7 @@ public class TextureMovieEncoder {
                                     buf.position(readBytes);
                                     buf.flip();
                                     mAudioEncoder.encode(buf, readBytes, getPTSUs());
-                                    mAudioEncoder.drainEncoder(false);
+                                    mAudioEncoder.drainEncoder();
                                 }
                             }
                             mAudioEncoder.encode(null, 0, getPTSUs());
@@ -579,8 +583,10 @@ public class TextureMovieEncoder {
      * previous presentationTimeUs for writing
      */
     private long prevOutputPTSUs = 0;
+
     /**
      * get next encoding presentationTimeUs
+     *
      * @return
      */
     protected long getPTSUs() {

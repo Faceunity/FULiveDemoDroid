@@ -26,18 +26,18 @@ import static android.content.ContentValues.TAG;
 
 /**
  * 本Demo展示了独立使用FU SDK API的用法.
- *
+ * <p>
  * FU SDK和任何三方无耦合，
  * FU SDK负责范围本质上只是接收输入的图像，输出处理后的图像,
  * 如果有对接三方SDK如推流的需求，可以参考本Demo对FU SDK API的使用.
  * FU SDK不涉及视频编码，网络，使用者可以自由选择.
- *
+ * <p>
  * 本着演示输入输出API的原则，演示Activity为FUDualInputToTextureExampleActivity和FURenderToNV21ImageExampleActivity
- *
+ * <p>
  * Tips:
  * 有FU SDK具体问题,参考详细文档https://github.com/Faceunity/FUQiniuDemoDroid
  * 有Android Graphics,OpenGL ES及Camera问题，参考https://github.com/google/grafika
- *
+ * <p>
  * Created by lirui on 2016/12/13.
  */
 
@@ -49,12 +49,12 @@ public class MainActivity extends ListActivity {
     private static final String CLASS_NAME = "class_name";
 
     private static final String[][] EXAMPLES = {
-            { "fuDualInputToTexture",
-              "示例：双输入，输入摄像头nv21格式内容和surface texture，输出添加美颜和道具后的texture",
-              "FUDualInputToTextureExampleActivity"},
-            { "fuRenderToNV21Image",
-              "示例：单输入，输入摄像头nv21格式内容，输出添加美颜和道具后的nv21 bytes和texture",
-              "FURenderToNV21ImageExampleActivity"},
+            {"fuDualInputToTexture",
+                    "示例：双输入，输入摄像头nv21格式内容和surface texture，输出添加美颜和道具后的texture",
+                    "FUDualInputToTextureExampleActivity"},
+            {"fuRenderToNV21Image",
+                    "示例：单输入，输入摄像头nv21格式内容，输出添加美颜和道具后的nv21 bytes和texture",
+                    "FURenderToNV21ImageExampleActivity"},
     };
 
     @Override
@@ -71,8 +71,8 @@ public class MainActivity extends ListActivity {
                 this,
                 createActivityList(),
                 android.R.layout.two_line_list_item,
-                new String[] { TITLE, DESCRIPTION },
-                new int[] { android.R.id.text1, android.R.id.text2 }
+                new String[]{TITLE, DESCRIPTION},
+                new int[]{android.R.id.text1, android.R.id.text2}
         ));
     }
 
@@ -128,7 +128,7 @@ public class MainActivity extends ListActivity {
         }
 
         @SuppressWarnings("unchecked")
-        Map<String, Object> map = (Map<String, Object>)l.getItemAtPosition(position);
+        Map<String, Object> map = (Map<String, Object>) l.getItemAtPosition(position);
         Intent intent = (Intent) map.get(CLASS_NAME);
         startActivity(intent);
     }

@@ -11,16 +11,16 @@ import java.util.Arrays;
  * Created by lirui on 2017/1/20.
  */
 
-public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAndFilterSelectAdapter.ItemViewHolder>{
+public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAndFilterSelectAdapter.ItemViewHolder> {
 
     public static final int[] EFFECT_ITEM_RES_ARRAY = {
-        R.mipmap.ic_delete_all, R.mipmap.tiara, R.mipmap.item0208, R.mipmap.yellowear,
+            R.mipmap.ic_delete_all, R.mipmap.tiara, R.mipmap.item0208, R.mipmap.yellowear,
             R.mipmap.princesscrown, R.mipmap.mood, R.mipmap.deer, R.mipmap.beagledog, R.mipmap.item0501,
             R.mipmap.colorcrown, R.mipmap.item0210, R.mipmap.happyrabbi, R.mipmap.item0204, R.mipmap.hartshorn
     };
     public static final String[] EFFECT_ITEM_FILE_NAME = {"none", "tiara.mp3", "item0208.mp3",
             "YellowEar.mp3", "PrincessCrown.mp3", "Mood.mp3", "Deer.mp3", "BeagleDog.mp3", "item0501.mp3",
-            "ColorCrown.mp3", "item0210.mp3",  "HappyRabbi.mp3", "item0204.mp3", "hartshorn.mp3"};
+            "ColorCrown.mp3", "item0210.mp3", "HappyRabbi.mp3", "item0204.mp3", "hartshorn.mp3"};
 
     public static final int[] FILTER_ITEM_RES_ARRAY = {
             R.mipmap.nature, R.mipmap.delta, R.mipmap.electric, R.mipmap.slowlived, R.mipmap.tokyo, R.mipmap.warm
@@ -92,6 +92,7 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
         EffectAndFilterItemView mItemView;
+
         public ItemViewHolder(View itemView) {
             super(itemView);
             mItemView = (EffectAndFilterItemView) itemView;

@@ -35,12 +35,12 @@ import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.START_RECORDI
  * 这个Activity演示了如何通过fuRenderToNV21Image
  * 实现在无GL Context的情况下输入nv21的人脸图像，输出添加道具及美颜后的nv21图像
  * 和dual input对应，可以认为single input
- *
+ * <p>
  * FU SDK使用者可以将拿到处理后的nv21图像与自己的原有项目对接
  * 请FU SDK使用者直接参考示例放至代码至对应位置
- *
+ * <p>
  * FU SDK与camera无耦合，不关心数据的来源，只要图像内容正确且和宽高吻合即可
- *
+ * <p>
  * Created by lirui on 2016/12/13.
  */
 
@@ -132,9 +132,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
         boolean isFirstOnDrawFrame;
 
-        //Note : this mtx may be not proper for every device, here use it just in a demo
-        float[] mtxCameraFront = {0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
-        float[] mtxCameraBack = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         int faceTrackingStatus = 0;
 
         @Override
@@ -276,14 +273,13 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
             if (DRAW_RETURNED_TEXTURE) {
-                mFullScreenFUDisplay.drawFrame(fuTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
-                                mtxCameraFront : mtxCameraBack);
+                mFullScreenFUDisplay.drawFrame(fuTex, mtx);
             } else {
                 //TODO 将nv21 byte数组转换成texture，并通过预览检测正确性
                 //int loadNV21ByteTex = faceunity.fuRenderNV21ImageToTexture(mCameraNV21Byte, cameraWidth,
-                  //      cameraHeight, mFrameId, new int[]{0});
+                //      cameraHeight, mFrameId, new int[]{0});
                 //mFullScreenFUDisplay.drawFrame(loadNV21ByteTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
-                  //      mtxCameraFront : mtxCameraBack);
+                //      mtxCameraFront : mtxCameraBack);
             }
             mFrameId++;
 
@@ -326,6 +322,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
         public void notifyPause() {
             faceTrackingStatus = 0;
+            onStopRecording();
+
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
             }
@@ -470,7 +468,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         }
         mCamera.startPreview();
     }
-
 
 
     @SuppressWarnings("deprecation")

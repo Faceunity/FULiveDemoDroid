@@ -12,8 +12,8 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-	
-	<color name="c80000000">#80000000</color> <!--50%-->
+
+    <color name="c80000000">#80000000</color> <!--50%-->
     <color name="cb2000000">#b2000000</color>
     <color name="c66000000">#66000000</color><!--40%-->
     <color name="percent30translucentBlack">#4D000000</color>
