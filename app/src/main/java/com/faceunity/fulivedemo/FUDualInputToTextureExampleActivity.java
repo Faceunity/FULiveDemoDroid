@@ -45,7 +45,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         implements Camera.PreviewCallback,
         SurfaceTexture.OnFrameAvailableListener {
 
-    final String TAG = "FUDualInputToTextureEg";
+    final static String TAG = "FUDualInputToTextureEg";
 
     Camera mCamera;
 
@@ -107,7 +107,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
+        Log.e(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
         mContext = this;
@@ -127,7 +127,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onResume() {
-        Log.d(TAG, "onResume");
+        Log.e(TAG, "onResume");
 
         resumeTimeStamp = System.nanoTime();
         isFirstOnFrameAvailable = true;
@@ -154,7 +154,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onPause() {
-        Log.d(TAG, "onPause");
+        Log.e(TAG, "onPause");
         super.onPause();
 
         releaseCamera();
@@ -186,7 +186,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (VERBOSE_LOG) {
             Log.e(TAG, "onPreviewFrame len " + data.length);
-            Log.d(TAG, "onPreviewThread " + Thread.currentThread());
+            Log.e(TAG, "onPreviewThread " + Thread.currentThread());
         }
         mCameraNV21Byte = data;
         synchronized (prepareCameraDataLock) {
@@ -204,7 +204,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     (frameAvailableTimeStamp - resumeTimeStamp) / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
         }
         if (VERBOSE_LOG) {
-            Log.d(TAG, "onFrameAvailable");
+            Log.e(TAG, "onFrameAvailable");
         }
         synchronized (prepareCameraDataLock) {
             cameraDataAlreadyCount++;
@@ -239,7 +239,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         int mCameraTextureId;
         SurfaceTexture mCameraSurfaceTexture;
 
-        boolean isFirstOnDrawFrame;
+        boolean isFirstCameraOnDrawFrame;
 
         int faceTrackingStatus = 0;
 
@@ -252,6 +252,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_EXT));
             mCameraTextureId = mFullScreenCamera.createTextureObject();
+
             switchCameraSurfaceTexture();
 
             try {
@@ -286,16 +287,18 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 e.printStackTrace();
             }
 
-            isFirstOnDrawFrame = true;
+            isFirstCameraOnDrawFrame = true;
         }
 
         public void switchCameraSurfaceTexture() {
+            Log.e(TAG, "switchCameraSurfaceTexture");
             isNeedSwitchCameraSurfaceTexture = false;
             if (mCameraSurfaceTexture != null) {
                 faceunity.fuOnCameraChange();
                 mCameraSurfaceTexture.release();
             }
             mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
+            Log.e(TAG, "send start camera message");
             mMainHandler.sendMessage(mMainHandler.obtainMessage(
                     MainHandler.HANDLE_CAMERA_START_PREVIEW,
                     mCameraSurfaceTexture));
@@ -309,15 +312,26 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         @Override
         public void onDrawFrame(GL10 gl) {
             if (VERBOSE_LOG) {
-                Log.d(TAG, "onDrawFrame");
+                Log.e(TAG, "onDrawFrame");
             }
 
-            synchronized (prepareCameraDataLock) {
-                if (isNeedSwitchCameraSurfaceTexture) {
-                    switchCameraSurfaceTexture();
+            if (isNeedSwitchCameraSurfaceTexture) {
+                switchCameraSurfaceTexture();
+            }
+
+            Log.e(TAG, "after switchCameraSurfaceTexture");
+
+            /**
+             * If camera texture data not ready there will be low possibility in meizu note3 causing black screen.
+             */
+            while (cameraDataAlreadyCount < 2) {
+                Log.e(TAG, "while cameraDataAlreadyCount < 2");
+                if (isFirstCameraOnDrawFrame) {
+                    glSf.requestRender();
+                    return;
                 }
-                //block until new camera frame comes.
-                while (cameraDataAlreadyCount < 2) {
+                synchronized (prepareCameraDataLock) {
+                    //block until new camera frame comes.
                     try {
                         prepareCameraDataLock.wait();
                     } catch (InterruptedException e) {
@@ -326,10 +340,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 }
             }
 
-            if (isFirstOnDrawFrame) {
-                isFirstOnDrawFrame = false;
-                //return;
-            }
+            isFirstCameraOnDrawFrame = false;
 
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
@@ -366,7 +377,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 faceTrackingStatus = isTracking;
             }
             if (VERBOSE_LOG) {
-                Log.d(TAG, "isTracking " + isTracking);
+                Log.e(TAG, "isTracking " + isTracking);
             }
 
             if (isNeedEffectItem) {
@@ -478,6 +489,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             FUDualInputToTextureExampleActivity activity = mActivityWeakReference.get();
             switch (msg.what) {
                 case HANDLE_CAMERA_START_PREVIEW:
+                    Log.e(TAG, "HANDLE_CAMERA_START_PREVIEW");
                     activity.handleCameraStartPreview((SurfaceTexture) msg.obj);
                     break;
             }
@@ -527,7 +539,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @SuppressWarnings("deprecation")
     private void openCamera(int cameraType, int desiredWidth, int desiredHeight) {
-        Log.d(TAG, "openCamera");
+        Log.e(TAG, "openCamera");
 
         cameraDataAlreadyCount = 0;
 
@@ -652,7 +664,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onCameraChange() {
-        Log.d(TAG, "onCameraChange");
+        Log.e(TAG, "onCameraChange");
         synchronized (prepareCameraDataLock) {
 
             isNeedSwitchCameraSurfaceTexture = true;

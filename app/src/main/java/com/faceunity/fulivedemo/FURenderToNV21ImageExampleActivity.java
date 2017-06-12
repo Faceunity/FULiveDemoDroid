@@ -130,7 +130,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         int mCameraTextureId;
         SurfaceTexture mCameraSurfaceTexture;
 
-        boolean isFirstOnDrawFrame;
+        boolean isFirstCameraOnDrawFrame;
 
         int faceTrackingStatus = 0;
 
@@ -164,7 +164,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 e.printStackTrace();
             }
 
-            isFirstOnDrawFrame = true;
+            isFirstCameraOnDrawFrame = true;
             //faceunity.disableBoostWithEGLImage();
         }
 
@@ -179,12 +179,17 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 Log.e(TAG, "onDrawFrame");
             }
 
-            synchronized (prepareCameraDataLock) {
-                if (isNeedSwitchCameraSurfaceTexture) {
-                    switchCameraSurfaceTexture();
+            while (cameraDataAlreadyCount < 2) {
+                if (isFirstCameraOnDrawFrame) {
+                    glSf.requestRender();
+                    return;
                 }
-                //block until new camera frame comes.
-                while (cameraDataAlreadyCount < 2) {
+                synchronized (prepareCameraDataLock) {
+                    if (isNeedSwitchCameraSurfaceTexture) {
+                        switchCameraSurfaceTexture();
+                    }
+                    //block until new camera frame comes.
+
                     try {
                         prepareCameraDataLock.wait();
                     } catch (InterruptedException e) {
@@ -192,6 +197,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                     }
                 }
             }
+
+            isFirstCameraOnDrawFrame = false;
 
             /**
              * 获取camera数据, 更新到texture
