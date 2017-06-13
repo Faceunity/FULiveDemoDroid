@@ -1,18 +1,25 @@
 package com.faceunity.fulivedemo;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.faceunity.fulivedemo.gles.FullFrameRect;
 import com.faceunity.fulivedemo.gles.Texture2dProgram;
+import com.faceunity.fulivedemo.encoder.TextureMovieEncoder;
 import com.faceunity.wrapper.faceunity;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -50,8 +57,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     byte[] mCameraNV21Byte;
     int mFrameId = 0;
 
-    int mFacebeautyItem = 0; //美颜道具
-    int mEffectItem = 0; //道具
+    static int mFacebeautyItem = 0; //美颜道具
+    static int mEffectItem = 0; //贴纸道具
+    static int mGestureItem = 0; //手势道具
+    static int[] itemsArray = {mFacebeautyItem, mEffectItem, mGestureItem};
 
     long resumeTimeStamp;
     boolean isFirstOnFrameAvailable;
@@ -59,21 +68,44 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean VERBOSE_LOG = false;
 
-    float mFacebeautyColorLevel = 0.5f;
+    float mFacebeautyColorLevel = 0.2f;
     float mFacebeautyBlurLevel = 6.0f;
     float mFacebeautyCheeckThin = 1.0f;
-    float mFacebeautyEnlargeEye = 1.0f;
+    float mFacebeautyEnlargeEye = 0.5f;
+    float mFacebeautyRedLevel = 0.5f;
+    int mFaceShape = 3;
+    float mFaceShapeLevel = 0.5f;
+
     String mFilterName = EffectAndFilterSelectAdapter.FILTERS_NAME[0];
-    String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
+
+    boolean isNeedEffectItem = true;
+    static String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
 
     int mCurrentCameraType;
 
     boolean mUseBeauty = true;
 
+    boolean inCameraChange = false;
+
+    final int IN_RECORDING = 1;
+    final int START_RECORDING = 2;
+    final int STOP_RECORDING = 3;
+    final int NONE_RECORDING = 4;
+    int mRecordingStatus = NONE_RECORDING;
+
+    boolean mUseGesture = false;
+
+    HandlerThread mCreateItemThread;
+    Handler mCreateItemHandler;
+
+    Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+
+        mContext = this;
 
         mMainHandler = new MainHandler(this);
 
@@ -82,6 +114,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         glRenderer = new GLRenderer();
         glSf.setRenderer(glRenderer);
         glSf.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        mCreateItemThread = new HandlerThread("CreateItemThread");
+        mCreateItemThread.start();
+        mCreateItemHandler = new CreateItemHandler(mCreateItemThread.getLooper(), mContext);
     }
 
     @Override
@@ -120,25 +156,31 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         mFrameId = 0;
 
+        mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
+
         glSf.queueEvent(new Runnable() {
             @Override
             public void run() {
                 //Note: 切忌使用一个已经destroy的item
                 faceunity.fuDestroyItem(mEffectItem);
-                mEffectItem = 0;
+                itemsArray[1] = mEffectItem = 0;
                 faceunity.fuDestroyItem(mFacebeautyItem);
-                mFacebeautyItem = 0;
+                itemsArray[0] = mFacebeautyItem = 0;
                 faceunity.fuOnDeviceLost();
+                isNeedEffectItem = true;
             }
         });
         glRenderer.notifyPause();
         glSf.onPause();
+
+        lastOneHundredFrameTimeStamp = 0;
+        oneHundredFrameFUTime = 0;
     }
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (VERBOSE_LOG) {
-            Log.d(TAG, "onPreviewFrame");
+            Log.e(TAG, "onPreviewFrame len " + data.length);
             Log.d(TAG, "onPreviewThread " + Thread.currentThread());
         }
         mCameraNV21Byte = data;
@@ -175,6 +217,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     long lastOneHundredFrameTimeStamp = 0;
     int currentFrameCnt = 0;
+    long oneHundredFrameFUTime = 0;
 
     class GLRenderer implements GLSurfaceView.Renderer {
 
@@ -188,41 +231,64 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         int faceTrackingStatus = 0;
 
+        TextureMovieEncoder mTexureMovieEncoder;
+        String videoFileName;
+
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.e(TAG, "onSurfaceCreated");
-            mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
-                    Texture2dProgram.ProgramType.TEXTURE_EXT));
-            mCameraTextureId = mFullScreenCamera.createTextureObject();
-            mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
-            mMainHandler.sendMessage(mMainHandler.obtainMessage(
-                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
-                    mCameraSurfaceTexture));
 
             mFullScreenFUDisplay = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_2D));
+            mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
+                    Texture2dProgram.ProgramType.TEXTURE_EXT));
+            mCameraTextureId = mFullScreenCamera.createTextureObject();
+            switchCameraSurfaceTexture();
 
             try {
                 InputStream is = getAssets().open("v3.mp3");
                 byte[] v3data = new byte[is.available()];
-                is.read(v3data);
+                int len = is.read(v3data);
                 is.close();
                 faceunity.fuSetup(v3data, null, authpack.A());
-                faceunity.fuSetMaxFaces(1);
-                Log.e(TAG, "fuSetup");
+                //faceunity.fuSetMaxFaces(1);
+                Log.e(TAG, "fuSetup v3 len " + len);
 
                 if (mUseBeauty) {
                     is = getAssets().open("face_beautification.mp3");
                     byte[] itemData = new byte[is.available()];
-                    is.read(itemData);
+                    len = is.read(itemData);
+                    Log.e(TAG, "beautification len " + len);
                     is.close();
                     mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
+                    itemsArray[0] = mFacebeautyItem;
+                }
+
+                if (mUseGesture) {
+                    is = getAssets().open("heart.mp3");
+                    byte[] itemData = new byte[is.available()];
+                    len = is.read(itemData);
+                    Log.e(TAG, "heart len " + len);
+                    is.close();
+                    mGestureItem = faceunity.fuCreateItemFromPackage(itemData);
+                    itemsArray[2] = mGestureItem;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
             isFirstOnDrawFrame = true;
+        }
+
+        public void switchCameraSurfaceTexture() {
+            if (mCameraSurfaceTexture != null) {
+                faceunity.fuOnCameraChange();
+                mCameraSurfaceTexture.release();
+            }
+            mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
+            mMainHandler.sendMessage(mMainHandler.obtainMessage(
+                    MainHandler.HANDLE_CAMERA_START_PREVIEW,
+                    mCameraSurfaceTexture));
         }
 
         @Override
@@ -237,8 +303,11 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             if (isFirstOnDrawFrame) {
-                //第一次onDrawFrame并不是由camera内容驱动的
                 isFirstOnDrawFrame = false;
+                //return;
+            }
+
+            if (inCameraChange) {
                 return;
             }
 
@@ -247,14 +316,20 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 long tmp = System.currentTimeMillis();
                 Log.e(TAG, "dualInput FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
+                Log.e(TAG, "dualInput cost time avg : " + oneHundredFrameFUTime / 100.f);
+                oneHundredFrameFUTime = 0;
             }
 
             /**
              * 获取camera数据, 更新到texture
              */
             float[] mtx = new float[16];
-            mCameraSurfaceTexture.updateTexImage();
-            mCameraSurfaceTexture.getTransformMatrix(mtx);
+            try {
+                mCameraSurfaceTexture.updateTexImage();
+                mCameraSurfaceTexture.getTransformMatrix(mtx);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             final int isTracking = faceunity.fuIsTracking();
             if (isTracking != faceTrackingStatus) {
@@ -274,33 +349,41 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 Log.d(TAG, "isTracking " + isTracking);
             }
 
-            if (mEffectItem == 0) {
-                try {
-                    InputStream is = getAssets().open(mEffectFileName);
-                    byte[] itemData = new byte[is.available()];
-                    is.read(itemData);
-                    is.close();
-                    mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (isNeedEffectItem) {
+                isNeedEffectItem = false;
+                mCreateItemHandler.sendEmptyMessage(CreateItemHandler.HANDLE_CREATE_ITEM);
             }
-
-            faceunity.fuItemSetParam(mEffectItem, "isAndroid", 1.0);
 
             faceunity.fuItemSetParam(mFacebeautyItem, "color_level", mFacebeautyColorLevel);
             faceunity.fuItemSetParam(mFacebeautyItem, "blur_level", mFacebeautyBlurLevel);
             faceunity.fuItemSetParam(mFacebeautyItem, "filter_name", mFilterName);
             faceunity.fuItemSetParam(mFacebeautyItem, "cheek_thinning", mFacebeautyCheeckThin);
             faceunity.fuItemSetParam(mFacebeautyItem, "eye_enlarging", mFacebeautyEnlargeEye);
+            faceunity.fuItemSetParam(mFacebeautyItem, "face_shape", mFaceShape);
+            faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
+            faceunity.fuItemSetParam(mFacebeautyItem, "red_level", mFacebeautyRedLevel);
+
+            //faceunity.fuItemSetParam(mFacebeautyItem, "use_old_blur", 1);
+
+            if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
+                Log.e(TAG, "camera nv21 bytes null");
+                return;
+            }
 
             /**
              * 这里拿到fu处理过后的texture，可以对这个texture做后续操作，如硬编、预览。
              */
             boolean isOESTexture = true; //camera默认的是OES的
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
+            boolean isNeedReadBack = false; //是否需要写回，如果是，则入参的byte[]会被修改为带有fu特效的
+            flags = isNeedReadBack ? flags | faceunity.FU_ADM_FLAG_ENABLE_READBACK : flags;
+            flags |= mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X;
+            long fuStartTime = System.currentTimeMillis();
             int fuTex = faceunity.fuDualInputToTexture(mCameraNV21Byte, mCameraTextureId, flags,
-                    cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
+                    cameraWidth, cameraHeight, mFrameId++, itemsArray);
+            long fuEndTime = System.currentTimeMillis();
+            oneHundredFrameFUTime += fuEndTime - fuStartTime;
+
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
               //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
@@ -340,6 +423,47 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             switch (msg.what) {
                 case HANDLE_CAMERA_START_PREVIEW:
                     activity.handleCameraStartPreview((SurfaceTexture) msg.obj);
+                    break;
+            }
+        }
+    }
+
+    static class CreateItemHandler extends Handler {
+
+        static final int HANDLE_CREATE_ITEM = 1;
+
+        WeakReference<Context> mContext;
+
+        CreateItemHandler(Looper looper, Context context) {
+            super(looper);
+            mContext = new WeakReference<Context>(context);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            Context context = mContext.get();
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case HANDLE_CREATE_ITEM:
+                    try {
+                        if (mEffectFileName.equals("none")) {
+                            itemsArray[1] = mEffectItem = 0;
+                        } else {
+                            InputStream is = context.getAssets().open(mEffectFileName);
+                            byte[] itemData = new byte[is.available()];
+                            int len = is.read(itemData);
+                            Log.e("FU", "effect len " + len);
+                            is.close();
+                            int tmp = itemsArray[1];
+                            itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
+                            faceunity.fuItemSetParam(mEffectItem, "isAndroid", 1.0);
+                            if (tmp != 0) {
+                                faceunity.fuDestroyItem(tmp);
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }
@@ -423,7 +547,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onCheekThinSelected(int progress, int max) {
-        mFacebeautyCheeckThin = 2.0f * progress / max;
+        mFacebeautyCheeckThin = 1.0f * progress / max;
     }
 
     @Override
@@ -433,21 +557,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onEffectItemSelected(String effectItemName) {
-        mEffectFileName = effectItemName;
-        if (mEffectItem != 0) {
-            glSf.queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    faceunity.fuDestroyItem(mEffectItem);
-                }
-            });
+        if (effectItemName.equals(mEffectFileName)) {
+            return;
         }
-        mEffectItem = 0;
+        mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
+        mEffectFileName = effectItemName;
+        isNeedEffectItem = true;
     }
 
     @Override
     protected void onEnlargeEyeSelected(int progress, int max) {
-        mFacebeautyEnlargeEye = 4.0f * progress / max;
+        mFacebeautyEnlargeEye = 1.0f * progress / max;
     }
 
     @Override
@@ -456,14 +576,57 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     }
 
     @Override
+    protected void onRedLevelSelected(int progress, int max) {
+        mFacebeautyRedLevel = 1.0f * progress / max;
+    }
+
+    @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
+        inCameraChange = true;
         releaseCamera();
+        mCameraNV21Byte = null;
+        mFrameId = 0;
         if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
             openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
         } else {
             openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
         }
-        handleCameraStartPreview(glRenderer.mCameraSurfaceTexture);
+        glSf.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                glRenderer.switchCameraSurfaceTexture();
+            }
+        });
+        inCameraChange = false;
+    }
+
+    @Override
+    protected void onStartRecording() {
+        MiscUtil.Logger(TAG, "start recording", false);
+        mRecordingStatus = START_RECORDING;
+    }
+
+    @Override
+    protected void onStopRecording() {
+        MiscUtil.Logger(TAG, "stop recording", false);
+        mRecordingStatus = STOP_RECORDING;
+    }
+
+    @Override
+    protected void onFaceShapeLevelSelected(int progress, int max) {
+        mFaceShapeLevel = (1.0f * progress) / max;
+    }
+
+    @Override
+    protected void onFaceShapeSelected(int faceShape) {
+        mFaceShape = faceShape;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy");
+        mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
     }
 }

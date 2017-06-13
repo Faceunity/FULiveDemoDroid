@@ -5,6 +5,7 @@
 
     <color name="faceunityYellow">#ffcb15</color>
     <color name="faceunityGreen">#2ddbb1</color>
+    <color name="unselect_gray">#48ffffff</color>
 
     <color name="camera_line_gray">#4dffffff</color>
 

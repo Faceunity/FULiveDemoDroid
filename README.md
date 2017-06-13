@@ -2,20 +2,11 @@
 
 FULiveDemoDroid 是集成了 Faceunity 面部跟踪和虚拟道具功能的 Android Demo。
 
-## v3.2 爱心手势识别
-在v3.2中加入了爱心手势识别，用户比出爱心手势，可以触发特定的道具动效。目前线上提供了一个简单的演示用手势道具，自定义手势道具的流程和2D道具制作一致，具体打包的细节可以联系我司技术支持。
+## v3.3 美颜模块升级
+在v3.3中我们升级了美颜模块。保留老版磨皮算法的同时，默认提供了效果更好的新磨皮算法，进一步减少涂抹感。另外，我们改进了美白效果，并新增了可调节的红润效果，进一步改善肤色。在美型模块中，我们新增了三个脸型调整模板，以进一步满足不同的美型需要。具体细节可以参见[这里](https://github.com/Faceunity/FULiveDemoDroid/tree/dev#视频美颜)。
 
-手势识别的技术细节参见[这里](https://github.com/Faceunity/FULiveDemoDroid#手势识别)。
-
-## v3.1 美颜更新
-在v3.1中，全面更新了美颜的功能和效果。改进了磨皮算法，使得在细腻皮肤的同时充分保持皮肤的细节，减少涂抹感。增加智能美型功能，可以自然地实现瘦脸和大眼效果，并可根据需要进行调节。具体细节可以参见[这里](https://github.com/Faceunity/FULiveDemoDroid#视频美颜)。
-
-## v3.0 重要更新
-在v3.0中，全面升级了底层人脸数据库，数据库大小从原来的 10M 缩小到 3M ，同时取消了之前的 ar.mp3 数据。新的数据库可以支持稳定的全头模型，从而支持更好的道具定位、面部纹理；同时新的数据库强化了跟踪模块，从而提升虚拟化身道具的表情响应度和精度。
-
-由于升级了底层数据表达，v2.0 版本下的道具将全面不兼容。我司制作的道具请联系我司获取升级之后的道具包。自行制作的道具请联系我司获取道具升级工具和技术支持。
-
-v2.0 版本的系统仍然保留在 v2 分支中，但不再进行更新。
+另外，我们改进了手势识别模块，引入了移动端深度神经网络，提高了手势检出率，同时降低了误检率。
+具体细节可以参见[这里](https://github.com/Faceunity/FULiveDemoDroid/tree/dev#手势识别)。
 
 ## 库文件
   - nama.jar 函数调用接口
@@ -91,7 +82,7 @@ fuDualInputTexture调用例程如
 
 之后，将该handle和其他需要绘制的道具一起传入绘制接口即可。加载美颜道具后不需设置任何参数，即可启用默认设置的美颜的效果。
 
-美颜道具主要包含四个模块的内容，滤镜，美白，磨皮，美型。每个模块可以调节的参数如下。
+美颜道具主要包含五个模块的内容，滤镜，美白和红润，磨皮，美型。每个模块可以调节的参数如下。
 
 #### 滤镜
 
@@ -101,44 +92,76 @@ fuDualInputTexture调用例程如
 ```
 
 其中 "nature" 作为默认的美白滤镜，其他滤镜属于风格化滤镜。切换滤镜时，通过 fuItemSetParams 设置美颜道具的参数，如：
-```C
+```Java
 //  Set item parameters - filter
 faceunity.fuItemSetParam(m_items[1], "filter_name", "nature");
 ```
 
-#### 美白
+#### 美白和红润
 
 当滤镜设置为美白滤镜 "nature" 时，通过参数 color_level 来控制美白程度。当滤镜为其他风格化滤镜时，该参数用于控制风格化程度。该参数取值为大于等于0的浮点数，0为无效果，1为默认效果，大于1为继续增强效果。
 
 设置参数的例子代码如下：
 
-```C
+```Java
 //  Set item parameters - whiten
 faceunity.fuItemSetParam(m_items[1], "color_level", 1.0);
 ```
+新版美颜新增红润调整功能。参数名为 red_level 来控制红润程度。使用方法基本与美白效果一样。该参数的推荐取值范围为[0, 1]，0为无效果，0.5为默认效果，大于1为继续增强效果。
+
 
 #### 磨皮
 
-新版美颜中磨皮的参数改为了一个复合参数 blur_level ，其取值范围为0-6，对应7个不同的磨皮程度。
+新版美颜中，控制磨皮的参数有两个：blur_level、use_old_blur。
+
+参数 blur_level 指定磨皮程度。该参数的推荐取值范围为[0, 6]，0为无效果，对应7个不同的磨皮程度。
+
+参数 use_old_blur 指定是否使用旧磨皮。该参数设置为0即使用新磨皮，设置为大于0即使用旧磨皮
 
 设置参数的例子代码如下：
 
-```C
+```Java
 //  Set item parameters - blur
-faceunity.fuItemSetParam(m_items[1], "blur_level", 5.0);
+fuItemSetParamd(g_items[1], "blur_level", 6.0);
+
+//  Set item parameters - use old blur
+fuItemSetParamd(g_items[1], "use_old_blur", 1.0);
 ```
 
 如果对默认的7个磨皮等级不满意，想进一步自定义磨皮效果，可以联系我司获取内部参数调节的方式。
 
 #### 美型
 
-目前我们支持两种美型模式，瘦脸和大眼，分别由 cheek_thinning 和 eye_enlarging 控制效果的强弱。两个参数的取值都为大于等于0的浮点数，0为关闭效果，1为默认效果，大于1为进一步增强效果。
+目前我们支持四种基本脸型：女神、网红、自然、默认。由参数 face_shape 指定：默认（3）、女神（0）、网红（1）、自然（2）。
 
-设置参数的例子代码如下：
 ```C
 //  Set item parameters - shaping
-faceunity.fuItemSetParam(m_items[1], "cheek_thinning", 1.0);
-faceunity.fuItemSetParam(m_items[1], "eye_enlarging", 1.0);
+fuItemSetParamd(g_items[1], "face_shape", 3);
+```
+
+在上述四种基本脸型的基础上，我们提供了以下三个参数：face_shape_level、eye_enlarging、cheek_thinning。
+
+参数 face_shape_level 用以控制变化到指定基础脸型的程度。该参数的取值范围为[0, 1]。0为无效果，即关闭美型，1为指定脸型。
+
+若要关闭美型，可将 face_shape_level 设置为0。
+
+```C
+//  Set item parameters - shaping level
+fuItemSetParamd(g_items[1], "face_shape_level", 1.0);
+```
+
+参数 eye_enlarging 用以控制眼睛大小。此参数受参数 face_shape_level 影响。该参数的推荐取值范围为[0, 1]。大于1为继续增强效果。
+
+```C
+//  Set item parameters - eye enlarging level
+fuItemSetParamd(g_items[1], "eye_enlarging", 1.0);
+```
+
+参数 cheek_thinning 用以控制脸大小。此参数受参数 face_shape_level 影响。该参数的推荐取值范围为[0, 1]。大于1为继续增强效果。
+
+```C
+//  Set item parameters - cheek thinning level
+fuItemSetParamd(g_items[1], "cheek_thinning", 1.0);
 ```
 
 ## 手势识别
