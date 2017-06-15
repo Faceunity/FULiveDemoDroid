@@ -93,6 +93,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     Context mContext;
 
+    boolean isBenchmarkFPS = true;
+    boolean isBenchmarkTime = false;
+
     HandlerThread mCreateItemThread;
     Handler mCreateItemHandler;
 
@@ -234,9 +237,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
                 long tmp = System.nanoTime();
-                Log.e(TAG, "renderToNV21Image FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                if (isBenchmarkFPS)
+                    Log.e(TAG, "renderToNV21Image FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
-                Log.e(TAG, "renderToNV21Image cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
+                if (isBenchmarkTime)
+                    Log.e(TAG, "renderToNV21Image cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
                 oneHundredFrameFUTime = 0;
             }
 

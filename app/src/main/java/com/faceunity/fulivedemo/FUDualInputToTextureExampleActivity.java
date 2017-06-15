@@ -105,6 +105,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     Context mContext;
 
+    boolean isBenchmarkFPS = true;
+    boolean isBenchmarkTime = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "onCreate");
@@ -319,13 +322,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 switchCameraSurfaceTexture();
             }
 
-            Log.e(TAG, "after switchCameraSurfaceTexture");
+            if (VERBOSE_LOG) {
+                Log.e(TAG, "after switchCameraSurfaceTexture");
+            }
 
             /**
              * If camera texture data not ready there will be low possibility in meizu note3 causing black screen.
              */
             while (cameraDataAlreadyCount < 2) {
-                Log.e(TAG, "while cameraDataAlreadyCount < 2");
+                if (VERBOSE_LOG) {
+                    Log.e(TAG, "while cameraDataAlreadyCount < 2");
+                }
                 if (isFirstCameraOnDrawFrame) {
                     glSf.requestRender();
                     return;
@@ -345,9 +352,11 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
                 long tmp = System.nanoTime();
-                Log.e(TAG, "dualInput FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                if (isBenchmarkFPS)
+                    Log.e(TAG, "dualInput FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
-                Log.e(TAG, "dualInput cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
+                if (isBenchmarkTime)
+                    Log.e(TAG, "dualInput cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
                 oneHundredFrameFUTime = 0;
             }
 
