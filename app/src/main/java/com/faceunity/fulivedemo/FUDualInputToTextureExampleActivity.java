@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.EGL14;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
@@ -310,6 +311,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         @Override
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             Log.e(TAG, "onSurfaceChanged " + width + " " + height);
+            GLES20.glViewport(0, 0, width, height);
         }
 
         @Override
