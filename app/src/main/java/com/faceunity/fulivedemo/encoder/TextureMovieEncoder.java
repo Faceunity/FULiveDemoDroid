@@ -359,7 +359,11 @@ public class TextureMovieEncoder {
     private void handleFrameAvailable(float[] transform, long timestampNanos) {
         Log.e(TAG, "handleFrameAvailable " + timestampNanos);
         if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
-        mVideoEncoder.drainEncoder(false);
+        try {
+            mVideoEncoder.drainEncoder(false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         GLES20.glViewport(0, 0, config.mWidth, config.mHeight);
 
@@ -378,7 +382,11 @@ public class TextureMovieEncoder {
      */
     private void handleStopRecording() {
         Log.d(TAG, "handleStopRecording");
-        mVideoEncoder.drainEncoder(true);
+        try {
+            mVideoEncoder.drainEncoder(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         mRequestStop = true;
         //mAudioEncoder.drainEncoder(true);
         releaseEncoder();
