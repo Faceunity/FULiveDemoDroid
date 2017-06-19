@@ -97,6 +97,8 @@ public class TextureMovieEncoder {
     public static final int PREPARE_RECORDING = 5;
     private int mRecordingStatus = NONE_RECORDING;
 
+    private OnEncoderStatusUpdateListener onEncoderStatusUpdateListener;
+
     public boolean checkRecordingStatus(int recordingStatus) {
         return mRecordingStatus == recordingStatus;
     }
@@ -345,6 +347,9 @@ public class TextureMovieEncoder {
         prepareEncoder(config.mEglContext, config.mWidth, config.mHeight, config.mBitRate,
                 config.mOutputFile);
         mRequestStop = false;
+        if (onEncoderStatusUpdateListener != null) {
+            onEncoderStatusUpdateListener.onStartSuccess();
+        }
     }
 
     /**
@@ -387,9 +392,22 @@ public class TextureMovieEncoder {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        mRequestStop = true;
-        //mAudioEncoder.drainEncoder(true);
+        mRequestStop = true; //Audio stop
         releaseEncoder();
+        Log.e(TAG, "handleStopRecording before stop success");
+        while (!stopEncoderSuccess) {
+            synchronized (stopEncoderFence) {
+                try {
+                    stopEncoderFence.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        prepareEncoderFence = false;
+        if (onEncoderStatusUpdateListener != null) {
+            onEncoderStatusUpdateListener.onStopSuccess();
+        }
     }
 
     /**
@@ -427,7 +445,8 @@ public class TextureMovieEncoder {
 
     Object prepareEncoderFence = new Object();
     boolean prepareEncoderReady = false;
-
+    Object stopEncoderFence = new Object();
+    boolean stopEncoderSuccess = false;
     /**
      * For drawing texture to hw encode, init egl related.
      *
@@ -584,6 +603,11 @@ public class TextureMovieEncoder {
             if (VERBOSE) {
                 Log.v(TAG, "AudioThread:finished");
             }
+
+            synchronized (stopEncoderFence) {
+                stopEncoderSuccess = true;
+                stopEncoderFence.notify();
+            }
         }
     }
 
@@ -604,5 +628,14 @@ public class TextureMovieEncoder {
         if (result < prevOutputPTSUs)
             result = (prevOutputPTSUs - result) + result;
         return result;
+    }
+
+    public interface OnEncoderStatusUpdateListener {
+        void onStartSuccess();
+        void onStopSuccess();
+    }
+
+    public void setOnEncoderStatusUpdateListener(OnEncoderStatusUpdateListener _On_encoderStatusUpdateListener) {
+        this.onEncoderStatusUpdateListener = _On_encoderStatusUpdateListener;
     }
 }

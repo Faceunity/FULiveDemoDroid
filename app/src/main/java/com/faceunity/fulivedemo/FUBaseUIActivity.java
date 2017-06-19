@@ -52,7 +52,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
     protected ImageView mFaceTrackingStatusImageView;
 
-    private Button mRecordingBtn;
+    protected Button mRecordingBtn;
     private int mRecordStatus = 0;
 
     @Override
@@ -244,6 +244,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
                 onCameraChange();
                 break;
             case R.id.btn_recording:
+                mRecordingBtn.setVisibility(View.INVISIBLE);
                 if (mRecordStatus == 0) {
                     mRecordingBtn.setText("停止录制");
                     onStartRecording();

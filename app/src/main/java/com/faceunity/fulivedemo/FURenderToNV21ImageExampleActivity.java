@@ -304,6 +304,32 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                         outFile, cameraHeight, cameraWidth,
                         3000000, EGL14.eglGetCurrentContext()
                 ));
+
+                //forbid click until start or stop success
+                mTexureMovieEncoder.setOnEncoderStatusUpdateListener(new TextureMovieEncoder.OnEncoderStatusUpdateListener() {
+                    @Override
+                    public void onStartSuccess() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.e(TAG, "start encoder success");
+                                mRecordingBtn.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onStopSuccess() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.e(TAG, "stop encoder success");
+                                mRecordingBtn.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+                });
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
