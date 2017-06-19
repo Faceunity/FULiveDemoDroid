@@ -404,7 +404,7 @@ public class TextureMovieEncoder {
                 }
             }
         }
-        prepareEncoderFence = false;
+        stopEncoderSuccess = false;
         if (onEncoderStatusUpdateListener != null) {
             onEncoderStatusUpdateListener.onStopSuccess();
         }
@@ -443,10 +443,10 @@ public class TextureMovieEncoder {
                 new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_2D));
     }
 
-    Object prepareEncoderFence = new Object();
-    boolean prepareEncoderReady = false;
-    Object stopEncoderFence = new Object();
-    boolean stopEncoderSuccess = false;
+    private final Object prepareEncoderFence = new Object();
+    private boolean prepareEncoderReady = false;
+    private final Object stopEncoderFence = new Object();
+    private boolean stopEncoderSuccess = false;
     /**
      * For drawing texture to hw encode, init egl related.
      *
