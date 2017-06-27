@@ -731,8 +731,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onStopRecording() {
-        MiscUtil.Logger(TAG, "stop recording", false);
         if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+            MiscUtil.Logger(TAG, "stop recording", false);
             mTexureMovieEncoder.stopRecording();
         }
     }

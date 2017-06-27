@@ -165,6 +165,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         mFrameId = 0;
 
+        glSf.onPause();
         mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
 
         glSf.queueEvent(new Runnable() {
@@ -180,7 +181,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
         });
         glRenderer.notifyPause();
-        glSf.onPause();
 
         lastOneHundredFrameTimeStamp = 0;
         oneHundredFrameFUTime = 0;
@@ -729,8 +729,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onStopRecording() {
-        MiscUtil.Logger(TAG, "stop recording", false);
         if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+            MiscUtil.Logger(TAG, "stop recording", false);
             mTexureMovieEncoder.stopRecording();
         }
     }
