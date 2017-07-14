@@ -362,7 +362,15 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
         public void notifyPause() {
             faceTrackingStatus = 0;
-            onStopRecording();
+
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mRecordingBtn.performClick();
+                    }
+                });
+            }
 
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
