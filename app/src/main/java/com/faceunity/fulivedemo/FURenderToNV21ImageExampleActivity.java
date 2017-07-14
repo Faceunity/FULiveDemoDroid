@@ -302,7 +302,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 File outFile = new File(videoFileName);
                 mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
                         outFile, cameraHeight, cameraWidth,
-                        3000000, EGL14.eglGetCurrentContext()
+                        3000000, EGL14.eglGetCurrentContext(), mCameraSurfaceTexture.getTimestamp()
                 ));
 
                 //forbid click until start or stop success

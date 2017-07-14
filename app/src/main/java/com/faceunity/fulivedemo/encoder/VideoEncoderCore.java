@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
  */
 public class VideoEncoderCore {
     private static final String TAG = "VideoEncoder";
-    private static final boolean VERBOSE = true;
+    private static final boolean VERBOSE = false;
 
     // TODO: these ought to be configurable as well
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding

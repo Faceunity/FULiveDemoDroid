@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 
 public class AudioEncoderCore {
     private static final String TAG = "AudioEncoder";
-    private static final boolean VERBOSE = true;
+    private static final boolean VERBOSE = false;
 
     // TODO: these ought to be configurable as well
     private static final String MIME_TYPE = "audio/mp4a-latm";

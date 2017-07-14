@@ -64,7 +64,7 @@ import java.nio.ByteBuffer;
  */
 public class TextureMovieEncoder {
     private static final String TAG = "TextureMovieEncoder";
-    private static final boolean VERBOSE = true;
+    private static final boolean VERBOSE = false;
 
     private static final int MSG_START_RECORDING = 0;
     private static final int MSG_STOP_RECORDING = 1;
@@ -99,6 +99,9 @@ public class TextureMovieEncoder {
 
     private OnEncoderStatusUpdateListener onEncoderStatusUpdateListener;
 
+    private long firstTimeStampBase = 0;
+    private long firstNanoTime = 0;
+
     public boolean checkRecordingStatus(int recordingStatus) {
         return mRecordingStatus == recordingStatus;
     }
@@ -124,14 +127,16 @@ public class TextureMovieEncoder {
         final int mHeight;
         final int mBitRate;
         final EGLContext mEglContext;
+        final long firstTimeStampBase;
 
         public EncoderConfig(File outputFile, int width, int height, int bitRate,
-                             EGLContext sharedEglContext) {
+                             EGLContext sharedEglContext, long firstTimeStamp) {
             mOutputFile = outputFile;
             mWidth = width;
             mHeight = height;
             mBitRate = bitRate;
             mEglContext = sharedEglContext;
+            firstTimeStampBase = firstTimeStamp;
         }
 
         @Override
@@ -152,6 +157,9 @@ public class TextureMovieEncoder {
     public void startRecording(EncoderConfig config) {
         Log.d(TAG, "Encoder: startRecording()");
         mRecordingStatus = PREPARE_RECORDING;
+        firstTimeStampBase = config.firstTimeStampBase;
+        firstNanoTime = System.nanoTime();
+
         synchronized (mReadyFence) {
             if (mRunning) {
                 Log.w(TAG, "Encoder thread already running");
@@ -362,7 +370,7 @@ public class TextureMovieEncoder {
      * @param timestampNanos The frame's timestamp, from SurfaceTexture.
      */
     private void handleFrameAvailable(float[] transform, long timestampNanos) {
-        Log.e(TAG, "handleFrameAvailable " + timestampNanos);
+        if (VERBOSE) Log.e(TAG, "handleFrameAvailable " + timestampNanos);
         if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
         try {
             mVideoEncoder.drainEncoder(false);
@@ -622,12 +630,27 @@ public class TextureMovieEncoder {
      * @return
      */
     protected long getPTSUs() {
-        long result = System.nanoTime() / 1000L;
-        // presentationTimeUs should be monotonic
-        // otherwise muxer fail to write
-        if (result < prevOutputPTSUs)
+        long result = 0, thisNanoTime = System.nanoTime();
+
+        if (firstTimeStampBase == 0) {
+            result = thisNanoTime;
+        } else {
+            if (firstNanoTime == 0) firstNanoTime = thisNanoTime;
+            long elapsedTime = thisNanoTime - firstNanoTime;
+            result = firstTimeStampBase + elapsedTime;
+        }
+
+        result = result / 1000L;
+
+        if (result < prevOutputPTSUs) {
             result = (prevOutputPTSUs - result) + result;
-        return result;
+        }
+
+        if (result == prevOutputPTSUs) {
+            result += 100;
+        }
+
+        return prevOutputPTSUs = result;
     }
 
     public interface OnEncoderStatusUpdateListener {

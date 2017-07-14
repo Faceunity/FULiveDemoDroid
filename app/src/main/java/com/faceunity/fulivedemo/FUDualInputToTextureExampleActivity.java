@@ -446,7 +446,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 File outFile = new File(videoFileName);
                 mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
                         outFile, cameraHeight, cameraWidth,
-                        3000000, EGL14.eglGetCurrentContext()
+                        3000000, EGL14.eglGetCurrentContext(), mCameraSurfaceTexture.getTimestamp()
                 ));
 
                 //forbid click until start or stop success
@@ -494,7 +494,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         public void notifyPause() {
             faceTrackingStatus = 0;
-            onStopRecording();
+
+            //onStopRecording();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mRecordingBtn.performClick();
+                }
+            });
 
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
