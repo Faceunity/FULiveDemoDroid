@@ -65,7 +65,7 @@
                     android:orientation="horizontal"
                     android:visibility="gone">
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level0"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -76,7 +76,7 @@
                         android:onClick="onClick"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level1"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -89,7 +89,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level2"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -102,7 +102,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level3"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -115,7 +115,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level4"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -128,7 +128,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level5"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -141,7 +141,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level6"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -225,7 +225,7 @@
                             android:textColor="@color/faceunityYellow"
                             android:textSize="17sp" />
 
-                        <TextView
+                        <Button
                             android:id="@+id/face_shape_3_default"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
@@ -238,7 +238,7 @@
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <Button
                             android:id="@+id/face_shape_0_nvshen"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
@@ -251,7 +251,7 @@
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <Button
                             android:id="@+id/face_shape_1_wanghong"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
@@ -264,7 +264,7 @@
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <Button
                             android:id="@+id/face_shape_2_ziran"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
