@@ -50,7 +50,7 @@ public class Texture2dProgram {
                     "varying vec2 vTextureCoord;\n" +
                     "uniform sampler2D sTexture;\n" +
                     "void main() {\n" +
-                    "    gl_FragColor = texture2D(sTexture, vTextureCoord);\n" +
+                    "    gl_FragColor = vec4(texture2D(sTexture, vTextureCoord).rgb, 1.0);\n" +
                     "}\n";
 
     // Simple fragment shader for use with external 2D textures (e.g. what we get from
@@ -61,7 +61,7 @@ public class Texture2dProgram {
                     "varying vec2 vTextureCoord;\n" +
                     "uniform samplerExternalOES sTexture;\n" +
                     "void main() {\n" +
-                    "    gl_FragColor = texture2D(sTexture, vTextureCoord);\n" +
+                    "    gl_FragColor = vec4(texture2D(sTexture, vTextureCoord).rgb, 1.0);\n" +
                     "}\n";
 
     // Fragment shader that converts color to black & white with a simple transformation.
