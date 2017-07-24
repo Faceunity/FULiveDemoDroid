@@ -131,6 +131,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         mCreateItemHandler = new CreateItemHandler(mCreateItemThread.getLooper(), mContext);
     }
 
+    final int PREVIEW_BUFFER_COUNT = 3;
+    byte[][] previewCallbackBuffer;
+
     @Override
     protected void onResume() {
         Log.e(TAG, "onResume");
@@ -203,6 +206,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             Log.e(TAG, "onPreviewThread " + Thread.currentThread());
         }
         mCameraNV21Byte = isInPause ? null : data;
+        mCamera.addCallbackBuffer(data);
         synchronized (prepareCameraDataLock) {
             cameraDataAlreadyCount++;
             prepareCameraDataLock.notify();
@@ -231,7 +235,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
      */
     private void handleCameraStartPreview(SurfaceTexture surfaceTexture) {
         Log.e(TAG, "handleCameraStartPreview");
-        mCamera.setPreviewCallback(this);
+
+        if (previewCallbackBuffer == null) {
+            Log.e(TAG, "allocate preview callback buffer");
+            previewCallbackBuffer = new byte[PREVIEW_BUFFER_COUNT][cameraWidth * cameraHeight * 3 / 2];
+        }
+        mCamera.setPreviewCallbackWithBuffer(this);
+        for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++)
+            mCamera.addCallbackBuffer(previewCallbackBuffer[i]);
         try {
             mCamera.setPreviewTexture(surfaceTexture);
         } catch (IOException e) {
@@ -666,7 +677,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             try {
                 mCamera.stopPreview();
                 mCamera.setPreviewTexture(null);
-                mCamera.setPreviewCallback(null);
+                mCamera.setPreviewCallbackWithBuffer(null);
                 mCamera.release();
                 mCamera = null;
             } catch (Exception e) {
