@@ -33,18 +33,15 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
     private RecyclerView mOwnerRecyclerView;
     private int mOwnerRecyclerViewType;
 
-    private ArrayList<Boolean> mItemsClickStateList;
     private final int EFFECT_DEFAULT_CLICK_POSITION = 1;
     private final int FILTER_DEFAULT_CLICK_POSITION = 0;
-    private int mLastClickPosition = -1;
+    private EffectAndFilterItemView lastClickItemView = null;
+    private int lastClickPosition = EFFECT_DEFAULT_CLICK_POSITION;
     private OnItemSelectedListener mOnItemSelectedListener;
 
     public EffectAndFilterSelectAdapter(RecyclerView recyclerView, int recyclerViewType) {
         mOwnerRecyclerView = recyclerView;
         mOwnerRecyclerViewType = recyclerViewType;
-
-        mItemsClickStateList = new ArrayList<>();
-        initItemsClickState();
     }
 
     @Override
@@ -56,31 +53,27 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
 
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, final int position) {
-        if (mItemsClickStateList.get(position) == null || !mItemsClickStateList.get(position)) {
-            holder.mItemView.setUnselectedBackground();
-        } else {
+        final int adapterPosition = holder.getAdapterPosition();
+        if (adapterPosition == lastClickPosition) {
             holder.mItemView.setSelectedBackground();
-        }
+            lastClickItemView = holder.mItemView;
+        } else holder.mItemView.setUnselectedBackground();
 
         if (mOwnerRecyclerViewType == RECYCLEVIEW_TYPE_EFFECT) {
-            holder.mItemView.setItemIcon(EFFECT_ITEM_RES_ARRAY[position % EFFECT_ITEM_RES_ARRAY.length]);
+            holder.mItemView.setItemIcon(EFFECT_ITEM_RES_ARRAY[adapterPosition % EFFECT_ITEM_RES_ARRAY.length]);
         } else {
-            holder.mItemView.setItemIcon(FILTER_ITEM_RES_ARRAY[position % FILTER_ITEM_RES_ARRAY.length]);
-            holder.mItemView.setItemText(FILTERS_NAME[position % FILTER_ITEM_RES_ARRAY.length].toUpperCase());
+            holder.mItemView.setItemIcon(FILTER_ITEM_RES_ARRAY[adapterPosition % FILTER_ITEM_RES_ARRAY.length]);
+            holder.mItemView.setItemText(FILTERS_NAME[adapterPosition % FILTER_ITEM_RES_ARRAY.length].toUpperCase());
         }
 
         holder.mItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mLastClickPosition != position) {
-                    ItemViewHolder lastItemViewHolder = (ItemViewHolder) mOwnerRecyclerView.findViewHolderForAdapterPosition(mLastClickPosition);
-                    if (lastItemViewHolder != null) {
-                        lastItemViewHolder.mItemView.setUnselectedBackground();
-                    }
-                    mItemsClickStateList.set(mLastClickPosition, false);
-                }
+                if (lastClickItemView != null) lastClickItemView.setUnselectedBackground();
+                lastClickItemView = holder.mItemView;
+                lastClickPosition = adapterPosition;
                 holder.mItemView.setSelectedBackground();
-                setClickPosition(position);
+                setClickPosition(adapterPosition);
             }
         });
     }
@@ -99,26 +92,10 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
         }
     }
 
-    private void initItemsClickState() {
-        if (mItemsClickStateList == null) {
-            return;
-        }
-        mItemsClickStateList.clear();
-        if (mOwnerRecyclerViewType == RECYCLEVIEW_TYPE_EFFECT) {
-            mItemsClickStateList.addAll(Arrays.asList(new Boolean[EFFECT_ITEM_RES_ARRAY.length]));
-            setClickPosition(EFFECT_DEFAULT_CLICK_POSITION);
-        } else {
-            mItemsClickStateList.addAll(Arrays.asList(new Boolean[FILTER_ITEM_RES_ARRAY.length]));
-            setClickPosition(FILTER_DEFAULT_CLICK_POSITION);
-        }
-    }
-
     private void setClickPosition(int position) {
         if (position < 0) {
             return;
         }
-        mItemsClickStateList.set(position, true);
-        mLastClickPosition = position;
         if (mOnItemSelectedListener != null) {
             mOnItemSelectedListener.onItemSelected(position);
         }
