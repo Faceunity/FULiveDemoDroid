@@ -186,6 +186,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 Log.e(TAG, "onDrawFrame");
             }
 
+            if (isInPause) {
+                glSf.requestRender();
+                return;
+            }
+
             while (cameraDataAlreadyCount < 2) {
                 if (isFirstCameraOnDrawFrame) {
                     glSf.requestRender();
@@ -423,9 +428,13 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
         mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
 
+        releaseCamera();
+
         glSf.queueEvent(new Runnable() {
             @Override
             public void run() {
+                glRenderer.notifyPause();
+
                 //Note: 切忌使用一个已经destroy的item
                 //faceunity.fuDestroyAllItems();
                 faceunity.fuDestroyItem(mEffectItem);
@@ -437,11 +446,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
         });
 
-        glRenderer.notifyPause();
-
         glSf.onPause();
-
-        releaseCamera();
 
         lastOneHundredFrameTimeStamp = 0;
         oneHundredFrameFUTime = 0;
@@ -573,12 +578,17 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     }
 
     private void releaseCamera() {
+        Log.e(TAG, "release camera");
         if (mCamera != null) {
-            mCamera.stopPreview();
-            mCamera.setPreviewCallback(null);
-            mCamera.release();
-            mCamera = null;
-            Log.e(TAG, "release camera");
+            try {
+                mCamera.stopPreview();
+                mCamera.setPreviewCallback(null);
+                mCamera.setPreviewTexture(null);
+                mCamera.release();
+                mCamera = null;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

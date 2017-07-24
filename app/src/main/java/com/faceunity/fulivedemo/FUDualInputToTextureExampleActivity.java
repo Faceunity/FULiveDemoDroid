@@ -172,9 +172,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
 
+        releaseCamera();
+
         glSf.queueEvent(new Runnable() {
             @Override
             public void run() {
+                glRenderer.notifyPause();
+                glRenderer.destroySurfaceTexture();
+
                 //Note: 切忌使用一个已经destroy的item
                 faceunity.fuDestroyItem(mEffectItem);
                 itemsArray[1] = mEffectItem = 0;
@@ -184,11 +189,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 isNeedEffectItem = true;
             }
         });
-        glRenderer.notifyPause();
 
         glSf.onPause();
-
-        releaseCamera();
 
         lastOneHundredFrameTimeStamp = 0;
         oneHundredFrameFUTime = 0;
@@ -307,7 +309,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             isNeedSwitchCameraSurfaceTexture = false;
             if (mCameraSurfaceTexture != null) {
                 faceunity.fuOnCameraChange();
-                mCameraSurfaceTexture.release();
+                destroySurfaceTexture();
             }
             mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
             Log.e(TAG, "send start camera message");
@@ -326,6 +328,11 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         public void onDrawFrame(GL10 gl) {
             if (VERBOSE_LOG) {
                 Log.e(TAG, "onDrawFrame");
+            }
+
+            if (isInPause) {
+                glSf.requestRender();
+                return;
             }
 
             if (isNeedSwitchCameraSurfaceTexture) {
@@ -374,12 +381,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
              * 获取camera数据, 更新到texture
              */
             float[] mtx = new float[16];
-            try {
-                mCameraSurfaceTexture.updateTexImage();
-                mCameraSurfaceTexture.getTransformMatrix(mtx);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            if (mCameraSurfaceTexture != null) {
+                try {
+                    mCameraSurfaceTexture.updateTexImage();
+                    mCameraSurfaceTexture.getTransformMatrix(mtx);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else throw new RuntimeException("HOW COULD IT HAPPEN!!! mCameraSurfaceTexture is null!!!");
 
             final int isTracking = faceunity.fuIsTracking();
             if (isTracking != faceTrackingStatus) {
@@ -447,7 +456,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
             //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
-            mFullScreenFUDisplay.drawFrame(fuTex, mtx);
+            if (mFullScreenFUDisplay != null) mFullScreenFUDisplay.drawFrame(fuTex, mtx);
+            else throw new RuntimeException("HOW COULD IT HAPPEN!!! mFullScreenFUDisplay is null!!!");
 
             if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
                 videoFileName = MiscUtil.createFileName() + "_camera.mp4";
@@ -494,7 +504,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
                 mTexureMovieEncoder.setTextureId(fuTex);
                 mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
-
             }
 
             if (!isInPause) glSf.requestRender();
@@ -514,14 +523,19 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
+                mFullScreenFUDisplay = null;
             }
 
             if (mFullScreenCamera != null) {
                 mFullScreenCamera.release(false);
+                mFullScreenCamera = null;
             }
+        }
 
+        public void destroySurfaceTexture() {
             if (mCameraSurfaceTexture != null) {
                 mCameraSurfaceTexture.release();
+                mCameraSurfaceTexture = null;
             }
         }
     }
@@ -613,6 +627,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
         }
         if (mCamera == null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(FUDualInputToTextureExampleActivity.this,
+                            "Open Camera Failed! Make sure it is not locked!", Toast.LENGTH_SHORT)
+                            .show();
+                }
+            });
             throw new RuntimeException("unable to open camera");
         }
 
@@ -639,17 +661,17 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     }
 
     private void releaseCamera() {
+        Log.e(TAG, "release camera");
         if (mCamera != null) {
-            mCamera.stopPreview();
-            mCamera.setPreviewCallback(null);
             try {
+                mCamera.stopPreview();
                 mCamera.setPreviewTexture(null);
-            } catch (IOException e) {
+                mCamera.setPreviewCallback(null);
+                mCamera.release();
+                mCamera = null;
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            mCamera.release();
-            mCamera = null;
-            Log.e(TAG, "release camera");
         }
     }
 
