@@ -109,6 +109,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     boolean isBenchmarkFPS = true;
     boolean isBenchmarkTime = false;
 
+    boolean isInPause = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "onCreate");
@@ -136,6 +138,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         resumeTimeStamp = System.nanoTime();
         isFirstOnFrameAvailable = true;
 
+        isInPause = false;
+
         super.onResume();
 
         openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT,
@@ -159,13 +163,13 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @Override
     protected void onPause() {
         Log.e(TAG, "onPause");
-        super.onPause();
 
-        releaseCamera();
+        isInPause = true;
+
+        super.onPause();
 
         mFrameId = 0;
 
-        glSf.onPause();
         mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
 
         glSf.queueEvent(new Runnable() {
@@ -182,6 +186,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         });
         glRenderer.notifyPause();
 
+        glSf.onPause();
+
+        releaseCamera();
+
         lastOneHundredFrameTimeStamp = 0;
         oneHundredFrameFUTime = 0;
     }
@@ -192,7 +200,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             Log.e(TAG, "onPreviewFrame len " + data.length);
             Log.e(TAG, "onPreviewThread " + Thread.currentThread());
         }
-        mCameraNV21Byte = data;
+        mCameraNV21Byte = isInPause ? null : data;
         synchronized (prepareCameraDataLock) {
             cameraDataAlreadyCount++;
             prepareCameraDataLock.notify();
@@ -489,7 +497,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
             }
 
-            glSf.requestRender();
+            if (!isInPause) glSf.requestRender();
         }
 
         public void notifyPause() {

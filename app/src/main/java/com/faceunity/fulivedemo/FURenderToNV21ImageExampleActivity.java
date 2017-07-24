@@ -97,6 +97,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     boolean isBenchmarkFPS = true;
     boolean isBenchmarkTime = false;
 
+    boolean isInPause = false;
+
     HandlerThread mCreateItemThread;
     Handler mCreateItemHandler;
 
@@ -345,7 +347,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
             }
 
-            glSf.requestRender();
+            if (!isInPause) glSf.requestRender();
         }
 
         public void switchCameraSurfaceTexture() {
@@ -390,6 +392,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     protected void onResume() {
         super.onResume();
 
+        isInPause = false;
+
         cameraWidth = 1280;
         cameraHeight = 720;
         openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT,
@@ -411,10 +415,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onPause() {
-        super.onPause();
-        releaseCamera();
+        isInPause = true;
 
-        glSf.onPause();
+        super.onPause();
 
         mFrameId = 0;
 
@@ -435,6 +438,10 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         });
 
         glRenderer.notifyPause();
+
+        glSf.onPause();
+
+        releaseCamera();
 
         lastOneHundredFrameTimeStamp = 0;
         oneHundredFrameFUTime = 0;
@@ -489,7 +496,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 Log.e(TAG, "isTracking " + isTracking);
             }
         }
-        mCameraNV21Byte = data;
+        mCameraNV21Byte = isInPause ? null : data;
 
         synchronized (prepareCameraDataLock) {
             cameraDataAlreadyCount++;
