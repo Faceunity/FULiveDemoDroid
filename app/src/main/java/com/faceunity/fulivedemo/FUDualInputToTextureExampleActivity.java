@@ -63,10 +63,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     int mFrameId = 0;
 
-    static int mFacebeautyItem = 0; //美颜道具
+    static int mFaceBeautyItem = 0; //美颜道具
     static int mEffectItem = 0; //贴纸道具
     static int mGestureItem = 0; //手势道具
-    static int[] itemsArray = {mFacebeautyItem, mEffectItem, mGestureItem};
+    static int[] itemsArray = {mFaceBeautyItem, mEffectItem, mGestureItem};
 
     long resumeTimeStamp;
     boolean isFirstOnFrameAvailable;
@@ -74,11 +74,11 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean VERBOSE_LOG = false;
 
-    float mFacebeautyColorLevel = 0.2f;
-    float mFacebeautyBlurLevel = 6.0f;
-    float mFacebeautyCheeckThin = 1.0f;
-    float mFacebeautyEnlargeEye = 0.5f;
-    float mFacebeautyRedLevel = 0.5f;
+    float mFaceBeautyColorLevel = 0.2f;
+    float mFaceBeautyBlurLevel = 6.0f;
+    float mFaceBeautyCheekThin = 1.0f;
+    float mFaceBeautyEnlargeEye = 0.5f;
+    float mFaceBeautyRedLevel = 0.5f;
     int mFaceShape = 3;
     float mFaceShapeLevel = 0.5f;
 
@@ -95,7 +95,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     final Object prepareCameraDataLock = new Object();
     boolean isNeedSwitchCameraSurfaceTexture = true;
 
-    TextureMovieEncoder mTexureMovieEncoder;
+    TextureMovieEncoder mTextureMovieEncoder;
     String videoFileName;
 
 
@@ -186,8 +186,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 //Note: 切忌使用一个已经destroy的item
                 faceunity.fuDestroyItem(mEffectItem);
                 itemsArray[1] = mEffectItem = 0;
-                faceunity.fuDestroyItem(mFacebeautyItem);
-                itemsArray[0] = mFacebeautyItem = 0;
+                faceunity.fuDestroyItem(mFaceBeautyItem);
+                itemsArray[0] = mFaceBeautyItem = 0;
                 faceunity.fuOnDeviceLost();
                 isNeedEffectItem = true;
             }
@@ -295,8 +295,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     len = is.read(itemData);
                     Log.e(TAG, "beautification len " + len);
                     is.close();
-                    mFacebeautyItem = faceunity.fuCreateItemFromPackage(itemData);
-                    itemsArray[0] = mFacebeautyItem;
+                    mFaceBeautyItem = faceunity.fuCreateItemFromPackage(itemData);
+                    itemsArray[0] = mFaceBeautyItem;
                 }
 
                 if (mUseGesture) {
@@ -424,16 +424,16 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 mCreateItemHandler.sendEmptyMessage(CreateItemHandler.HANDLE_CREATE_ITEM);
             }
 
-            faceunity.fuItemSetParam(mFacebeautyItem, "color_level", mFacebeautyColorLevel);
-            faceunity.fuItemSetParam(mFacebeautyItem, "blur_level", mFacebeautyBlurLevel);
-            faceunity.fuItemSetParam(mFacebeautyItem, "filter_name", mFilterName);
-            faceunity.fuItemSetParam(mFacebeautyItem, "cheek_thinning", mFacebeautyCheeckThin);
-            faceunity.fuItemSetParam(mFacebeautyItem, "eye_enlarging", mFacebeautyEnlargeEye);
-            faceunity.fuItemSetParam(mFacebeautyItem, "face_shape", mFaceShape);
-            faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
-            faceunity.fuItemSetParam(mFacebeautyItem, "red_level", mFacebeautyRedLevel);
+            faceunity.fuItemSetParam(mFaceBeautyItem, "color_level", mFaceBeautyColorLevel);
+            faceunity.fuItemSetParam(mFaceBeautyItem, "blur_level", mFaceBeautyBlurLevel);
+            faceunity.fuItemSetParam(mFaceBeautyItem, "filter_name", mFilterName);
+            faceunity.fuItemSetParam(mFaceBeautyItem, "cheek_thinning", mFaceBeautyCheekThin);
+            faceunity.fuItemSetParam(mFaceBeautyItem, "eye_enlarging", mFaceBeautyEnlargeEye);
+            faceunity.fuItemSetParam(mFaceBeautyItem, "face_shape", mFaceShape);
+            faceunity.fuItemSetParam(mFaceBeautyItem, "face_shape_level", mFaceShapeLevel);
+            faceunity.fuItemSetParam(mFaceBeautyItem, "red_level", mFaceBeautyRedLevel);
 
-            //faceunity.fuItemSetParam(mFacebeautyItem, "use_old_blur", 1);
+            //faceunity.fuItemSetParam(mFaceBeautyItem, "use_old_blur", 1);
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
@@ -465,21 +465,21 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
-            //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
+            //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFaceBeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             if (mFullScreenFUDisplay != null) mFullScreenFUDisplay.drawFrame(fuTex, mtx);
             else throw new RuntimeException("HOW COULD IT HAPPEN!!! mFullScreenFUDisplay is null!!!");
 
-            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
+            if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
                 videoFileName = MiscUtil.createFileName() + "_camera.mp4";
                 File outFile = new File(videoFileName);
-                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                mTextureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
                         outFile, cameraHeight, cameraWidth,
                         3000000, EGL14.eglGetCurrentContext(), mCameraSurfaceTexture.getTimestamp()
                 ));
 
                 //forbid click until start or stop success
-                mTexureMovieEncoder.setOnEncoderStatusUpdateListener(new TextureMovieEncoder.OnEncoderStatusUpdateListener() {
+                mTextureMovieEncoder.setOnEncoderStatusUpdateListener(new TextureMovieEncoder.OnEncoderStatusUpdateListener() {
                     @Override
                     public void onStartSuccess() {
                         runOnUiThread(new Runnable() {
@@ -512,9 +512,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 });
             }
 
-            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
-                mTexureMovieEncoder.setTextureId(fuTex);
-                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
+            if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+                mTextureMovieEncoder.setTextureId(fuTex);
+                mTextureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
             }
 
             if (!isInPause) glSf.requestRender();
@@ -523,7 +523,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         public void notifyPause() {
             faceTrackingStatus = 0;
 
-            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+            if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -690,37 +690,37 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     protected void onBlurLevelSelected(int level) {
         switch (level) {
             case 0:
-                mFacebeautyBlurLevel = 0;
+                mFaceBeautyBlurLevel = 0;
                 break;
             case 1:
-                mFacebeautyBlurLevel = 1.0f;
+                mFaceBeautyBlurLevel = 1.0f;
                 break;
             case 2:
-                mFacebeautyBlurLevel = 2.0f;
+                mFaceBeautyBlurLevel = 2.0f;
                 break;
             case 3:
-                mFacebeautyBlurLevel = 3.0f;
+                mFaceBeautyBlurLevel = 3.0f;
                 break;
             case 4:
-                mFacebeautyBlurLevel = 4.0f;
+                mFaceBeautyBlurLevel = 4.0f;
                 break;
             case 5:
-                mFacebeautyBlurLevel = 5.0f;
+                mFaceBeautyBlurLevel = 5.0f;
                 break;
             case 6:
-                mFacebeautyBlurLevel = 6.0f;
+                mFaceBeautyBlurLevel = 6.0f;
                 break;
         }
     }
 
     @Override
     protected void onCheekThinSelected(int progress, int max) {
-        mFacebeautyCheeckThin = 1.0f * progress / max;
+        mFaceBeautyCheekThin = 1.0f * progress / max;
     }
 
     @Override
     protected void onColorLevelSelected(int progress, int max) {
-        mFacebeautyColorLevel = 1.0f * progress / max;
+        mFaceBeautyColorLevel = 1.0f * progress / max;
     }
 
     @Override
@@ -735,7 +735,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onEnlargeEyeSelected(int progress, int max) {
-        mFacebeautyEnlargeEye = 1.0f * progress / max;
+        mFaceBeautyEnlargeEye = 1.0f * progress / max;
     }
 
     @Override
@@ -745,7 +745,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onRedLevelSelected(int progress, int max) {
-        mFacebeautyRedLevel = 1.0f * progress / max;
+        mFaceBeautyRedLevel = 1.0f * progress / max;
     }
 
     @Override
@@ -773,14 +773,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     @Override
     protected void onStartRecording() {
         MiscUtil.Logger(TAG, "start recording", false);
-        mTexureMovieEncoder = new TextureMovieEncoder();
+        mTextureMovieEncoder = new TextureMovieEncoder();
     }
 
     @Override
     protected void onStopRecording() {
-        if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+        if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
             MiscUtil.Logger(TAG, "stop recording", false);
-            mTexureMovieEncoder.stopRecording();
+            mTextureMovieEncoder.stopRecording();
         }
     }
 
