@@ -1,5 +1,6 @@
 package com.faceunity.fulivedemo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -15,7 +16,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.faceunity.fulivedemo.gles.CameraClipFrameRect;
 import com.faceunity.fulivedemo.gles.FullFrameRect;
+import com.faceunity.fulivedemo.gles.LandmarksPoints;
 import com.faceunity.fulivedemo.gles.Texture2dProgram;
 import com.faceunity.fulivedemo.encoder.TextureMovieEncoder;
 import com.faceunity.wrapper.faceunity;
@@ -24,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -98,7 +102,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     TextureMovieEncoder mTextureMovieEncoder;
     String videoFileName;
 
-
     boolean mUseGesture = false;
 
     HandlerThread mCreateItemThread;
@@ -110,6 +113,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     boolean isBenchmarkTime = false;
 
     boolean isInPause = false;
+
+    boolean isInAvatarMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,7 +160,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         Camera.Size size = mCamera.getParameters().getPreviewSize();
         cameraWidth = size.width;
         cameraHeight = size.height;
-        Log.e(TAG, "open camera size " + size.width + " " + size.height);
+        Log.e(TAG, "open camera size width : " + size.width + " height : " + size.height);
 
         AspectFrameLayout aspectFrameLayout = (AspectFrameLayout) findViewById(R.id.afl);
         aspectFrameLayout.setAspectRatio(1.0f * cameraHeight / cameraWidth);
@@ -171,8 +176,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         super.onPause();
 
-        mFrameId = 0;
-
         mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
 
         releaseCamera();
@@ -183,13 +186,16 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 glRenderer.notifyPause();
                 glRenderer.destroySurfaceTexture();
 
-                //Note: 切忌使用一个已经destroy的item
-                faceunity.fuDestroyItem(mEffectItem);
                 itemsArray[1] = mEffectItem = 0;
-                faceunity.fuDestroyItem(mFaceBeautyItem);
                 itemsArray[0] = mFaceBeautyItem = 0;
-                faceunity.fuOnDeviceLost();
+                //Note: 切忌使用一个已经destroy的item
+                faceunity.fuDestroyAllItems();
+                //faceunity.fuDestroyItem(mEffectItem);
+                //faceunity.fuDestroyItem(mFaceBeautyItem);
                 isNeedEffectItem = true;
+                //faceunity.fuOnDeviceLost();
+                faceunity.fuClearReadbackRelated();
+                mFrameId = 0;
             }
         });
 
@@ -268,6 +274,11 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         int faceTrackingStatus = 0;
 
+        CameraClipFrameRect cameraClipFrameRect;
+
+        LandmarksPoints landmarksPoints;
+        float[] landmarksData = new float[150];
+
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             Log.e(TAG, "onSurfaceCreated");
@@ -278,6 +289,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     Texture2dProgram.ProgramType.TEXTURE_EXT));
             mCameraTextureId = mFullScreenCamera.createTextureObject();
 
+            cameraClipFrameRect = new CameraClipFrameRect(0.4f, 0.4f * 0.8f); //clip 20% vertical
+            landmarksPoints = new LandmarksPoints();//如果有证书权限可以获取到的话，绘制人脸特征点
+
             switchCameraSurfaceTexture();
 
             try {
@@ -286,7 +300,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 int len = is.read(v3data);
                 is.close();
                 faceunity.fuSetup(v3data, null, authpack.A());
-                //faceunity.fuSetMaxFaces(1);
+                //faceunity.fuSetMaxFaces(1);//设置最大识别人脸数目
                 Log.e(TAG, "fuSetup v3 len " + len);
 
                 if (mUseBeauty) {
@@ -342,7 +356,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             if (isInPause) {
-                glSf.requestRender();
+                //glSf.requestRender();
                 return;
             }
 
@@ -355,7 +369,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             /**
-             * If camera texture data not ready there will be low possibility in meizu note3 causing black screen.
+             * If camera texture data not ready there will be low possibility in meizu note3 which maybe causing black screen.
              */
             while (cameraDataAlreadyCount < 2) {
                 if (VERBOSE_LOG) {
@@ -408,6 +422,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     public void run() {
                         if (isTracking == 0) {
                             mFaceTrackingStatusImageView.setVisibility(View.VISIBLE);
+                            Arrays.fill(landmarksData, 0);
                         } else {
                             mFaceTrackingStatusImageView.setVisibility(View.INVISIBLE);
                         }
@@ -433,17 +448,20 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFaceBeautyItem, "face_shape_level", mFaceShapeLevel);
             faceunity.fuItemSetParam(mFaceBeautyItem, "red_level", mFaceBeautyRedLevel);
 
+            faceunity.fuItemSetParam(mEffectItem, "rotationAngle", mCurrentCameraType== Camera.CameraInfo.CAMERA_FACING_FRONT ? 90 : 270);
+
             //faceunity.fuItemSetParam(mFaceBeautyItem, "use_old_blur", 1);
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
                 glSf.requestRender();
+                glSf.requestRender();
                 return;
             }
 
-            boolean isOESTexture = true; //camera默认的是OES的
+            boolean isOESTexture = true; //Tip: camera texture类型是默认的是OES的，和texture 2D不同
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
-            boolean isNeedReadBack = false; //是否需要写回，如果是，则入参的byte[]会被修改为带有fu特效的
+            boolean isNeedReadBack = false; //是否需要写回，如果是，则入参的byte[]会被修改为带有fu特效的；支持写回自定义大小的内存数组中，即readback custom img
             flags = isNeedReadBack ? flags | faceunity.FU_ADM_FLAG_ENABLE_READBACK : flags;
             if (isNeedReadBack) {
                 if (fuImgNV21Bytes == null) {
@@ -456,7 +474,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             flags |= mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X;
 
             long fuStartTime = System.nanoTime();
-            /**
+            /*
              * 这里拿到fu处理过后的texture，可以对这个texture做后续操作，如硬编、预览。
              */
             int fuTex = faceunity.fuDualInputToTexture(fuImgNV21Bytes, mCameraTextureId, flags,
@@ -469,6 +487,16 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             if (mFullScreenFUDisplay != null) mFullScreenFUDisplay.drawFrame(fuTex, mtx);
             else throw new RuntimeException("HOW COULD IT HAPPEN!!! mFullScreenFUDisplay is null!!!");
+
+            /**
+             * 绘制Avatar模式下的镜头内容以及landmarks
+             **/
+            if (isInAvatarMode) {
+                cameraClipFrameRect.drawFrame(mCameraTextureId, mtx);
+                faceunity.fuGetFaceInfo(0, "landmarks", landmarksData);
+                landmarksPoints.refresh(landmarksData, cameraWidth, cameraHeight, 0.1f, 0.8f);
+                landmarksPoints.draw(mCurrentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
+            }
 
             if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
                 videoFileName = MiscUtil.createFileName() + "_camera.mp4";
@@ -600,7 +628,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                             int len = is.read(itemData);
                             Log.e("FU", "effect len " + len);
                             is.close();
-                            int tmp = itemsArray[1];
+                            final int tmp = itemsArray[1];
                             itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
                             faceunity.fuItemSetParam(mEffectItem, "isAndroid", 1.0);
                             if (tmp != 0) {
@@ -728,6 +756,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         if (effectItemName.equals(mEffectFileName)) {
             return;
         }
+        isInAvatarMode = effectItemName.equals("lixiaolong.bundle");
         mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
         mEffectFileName = effectItemName;
         isNeedEffectItem = true;

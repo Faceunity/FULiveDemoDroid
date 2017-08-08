@@ -106,8 +106,10 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     final Object prepareCameraDataLock = new Object();
     boolean isNeedSwitchCameraSurfaceTexture = true;
 
-    TextureMovieEncoder mTexureMovieEncoder;
+    TextureMovieEncoder mTextureMovieEncoder;
     String videoFileName;
+
+    boolean isDebugMultiThread = false;//print every fu call sys time and tid
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,7 +173,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
 
             isFirstCameraOnDrawFrame = true;
-            //faceunity.disableBoostWithEGLImage();
+            //faceunity.fuDisableBoostWithEGLImage();
         }
 
         @Override
@@ -187,7 +189,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
 
             if (isInPause) {
-                glSf.requestRender();
+                //glSf.requestRender();
                 return;
             }
 
@@ -304,16 +306,16 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
             mFrameId++;
 
-            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
+            if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
                 videoFileName = MiscUtil.createFileName() + "_camera.mp4";
                 File outFile = new File(videoFileName);
-                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                mTextureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
                         outFile, cameraHeight, cameraWidth,
                         3000000, EGL14.eglGetCurrentContext(), mCameraSurfaceTexture.getTimestamp()
                 ));
 
                 //forbid click until start or stop success
-                mTexureMovieEncoder.setOnEncoderStatusUpdateListener(new TextureMovieEncoder.OnEncoderStatusUpdateListener() {
+                mTextureMovieEncoder.setOnEncoderStatusUpdateListener(new TextureMovieEncoder.OnEncoderStatusUpdateListener() {
                     @Override
                     public void onStartSuccess() {
                         runOnUiThread(new Runnable() {
@@ -346,9 +348,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 });
             }
 
-            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
-                mTexureMovieEncoder.setTextureId(fuTex);
-                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
+            if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+                mTextureMovieEncoder.setTextureId(fuTex);
+                mTextureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
 
             }
 
@@ -370,7 +372,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         public void notifyPause() {
             faceTrackingStatus = 0;
 
-            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+            if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -420,11 +422,10 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onPause() {
+        Log.e(TAG, "onPause");
         isInPause = true;
 
         super.onPause();
-
-        mFrameId = 0;
 
         mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
 
@@ -437,11 +438,14 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
                 //Note: 切忌使用一个已经destroy的item
                 //faceunity.fuDestroyAllItems();
-                faceunity.fuDestroyItem(mEffectItem);
+                //faceunity.fuDestroyItem(mEffectItem);
                 itemsArray[1] = mEffectItem = 0;
-                faceunity.fuDestroyItem(mFacebeautyItem);
+                //faceunity.fuDestroyItem(mFacebeautyItem);
                 itemsArray[0] = mFacebeautyItem = 0;
-                faceunity.fuOnDeviceLost();
+                //faceunity.fuOnDeviceLost();
+                faceunity.fuDestroyAllItems();
+                faceunity.fuClearReadbackRelated();
+                mFrameId = 0;
                 isNeedEffectItem = true;
             }
         });
@@ -751,14 +755,14 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     @Override
     protected void onStartRecording() {
         MiscUtil.Logger(TAG, "start recording", false);
-        mTexureMovieEncoder = new TextureMovieEncoder();
+        mTextureMovieEncoder = new TextureMovieEncoder();
     }
 
     @Override
     protected void onStopRecording() {
-        if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+        if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
             MiscUtil.Logger(TAG, "stop recording", false);
-            mTexureMovieEncoder.stopRecording();
+            mTextureMovieEncoder.stopRecording();
         }
     }
 
