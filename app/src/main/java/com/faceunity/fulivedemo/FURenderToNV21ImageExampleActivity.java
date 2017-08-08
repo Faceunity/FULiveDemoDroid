@@ -270,6 +270,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
             faceunity.fuItemSetParam(mFacebeautyItem, "red_level", mFacebeautyRedLevel);
 
+            faceunity.fuItemSetParam(mEffectItem, "rotationAngle", mCurrentCameraType== Camera.CameraInfo.CAMERA_FACING_FRONT ? 90 : 270);
+
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
                 glSf.requestRender();
