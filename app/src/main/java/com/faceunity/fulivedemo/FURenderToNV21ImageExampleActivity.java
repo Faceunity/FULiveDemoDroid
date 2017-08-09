@@ -144,7 +144,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            Log.e(TAG, "onSurfaceCreated");
+            Log.e(TAG, "onSurfaceCreated fu version " + faceunity.fuGetVersion());
 
             mFullScreenFUDisplay = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_2D));
@@ -444,9 +444,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 itemsArray[1] = mEffectItem = 0;
                 //faceunity.fuDestroyItem(mFacebeautyItem);
                 itemsArray[0] = mFacebeautyItem = 0;
-                //faceunity.fuOnDeviceLost();
                 faceunity.fuDestroyAllItems();
-                faceunity.fuClearReadbackRelated();
+                faceunity.fuOnDeviceLost();
+                //faceunity.fuClearReadbackRelated();
                 mFrameId = 0;
                 isNeedEffectItem = true;
             }

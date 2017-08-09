@@ -1,6 +1,5 @@
 package com.faceunity.fulivedemo;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -193,8 +192,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 //faceunity.fuDestroyItem(mEffectItem);
                 //faceunity.fuDestroyItem(mFaceBeautyItem);
                 isNeedEffectItem = true;
-                //faceunity.fuOnDeviceLost();
-                faceunity.fuClearReadbackRelated();
+                faceunity.fuOnDeviceLost();
+                // faceunity.fuClearReadbackRelated();
                 mFrameId = 0;
             }
         });
@@ -281,7 +280,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            Log.e(TAG, "onSurfaceCreated");
+            Log.e(TAG, "onSurfaceCreated fu version " + faceunity.fuGetVersion());
 
             mFullScreenFUDisplay = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_2D));
