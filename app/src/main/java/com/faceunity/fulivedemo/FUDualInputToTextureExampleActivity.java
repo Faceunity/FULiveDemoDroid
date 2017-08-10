@@ -493,8 +493,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             if (isInAvatarMode) {
                 cameraClipFrameRect.drawFrame(mCameraTextureId, mtx);
                 faceunity.fuGetFaceInfo(0, "landmarks", landmarksData);
-                landmarksPoints.refresh(landmarksData, cameraWidth, cameraHeight, 0.1f, 0.8f);
-                landmarksPoints.draw(mCurrentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
+                landmarksPoints.refresh(landmarksData, cameraWidth, cameraHeight, 0.1f, 0.8f, mCurrentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
+                landmarksPoints.draw();
             }
 
             if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(START_RECORDING)) {

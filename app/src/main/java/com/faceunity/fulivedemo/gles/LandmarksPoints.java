@@ -72,7 +72,7 @@ public class LandmarksPoints {
     static {
         originMtx = GlUtil.IDENTITY_MATRIX;
         flipMtx = Arrays.copyOf(originMtx, originMtx.length);
-        Matrix.scaleM(flipMtx, 0, 1, -1, 1);
+        //Matrix.scaleM(flipMtx, 0, 1, -1, 1);
     }
 
     ByteBuffer bb;
@@ -113,7 +113,7 @@ public class LandmarksPoints {
     /**
      * Encapsulates the OpenGL ES instructions for drawing this shape.
      */
-    public void draw(boolean isFlip) {
+    public void draw() {
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
 
@@ -143,7 +143,7 @@ public class LandmarksPoints {
         GlUtil.checkGlError("glGetUniformLocation");
 
         // Apply the projection and view transformation
-        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, isFlip ? flipMtx : originMtx, 0);
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, originMtx, 0);
         GlUtil.checkGlError("glUniformMatrix4fv");
 
         GLES20.glUniform1f(mPointSizeHandle, mPointSize);
@@ -156,12 +156,12 @@ public class LandmarksPoints {
         GLES20.glDisableVertexAttribArray(mPositionHandle);
     }
 
-    public void refresh(float[] landmarksData, int fullWidth, int fullHeight, float topClipRatio, float heightClipRatio) {
+    public void refresh(float[] landmarksData, int fullWidth, int fullHeight, float topClipRatio, float heightClipRatio, boolean isFlip) {
         for (int i = 0; i < 150; i++) pointsCoords[i] = landmarksData[i];
         //adjust to get the coords
         for (int i = 0; i < landmarksData.length; i += 2) {
             float x, y;
-            x = (pointsCoords[i]) / fullWidth;
+            x = (isFlip ? (fullWidth - pointsCoords[i]) : pointsCoords[i]) / fullWidth;
             y = (pointsCoords[i + 1]) / fullHeight;
 
             //adjust corresponds to clip to camera preview and show only top left (0.4, 0.4 * 0.8)
