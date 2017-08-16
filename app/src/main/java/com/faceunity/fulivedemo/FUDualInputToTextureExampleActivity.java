@@ -447,8 +447,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFaceBeautyItem, "face_shape_level", mFaceShapeLevel);
             faceunity.fuItemSetParam(mFaceBeautyItem, "red_level", mFaceBeautyRedLevel);
 
-            faceunity.fuItemSetParam(mEffectItem, "rotationAngle", mCurrentCameraType== Camera.CameraInfo.CAMERA_FACING_FRONT ? 90 : 270);
-
             //faceunity.fuItemSetParam(mFaceBeautyItem, "use_old_blur", 1);
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
@@ -578,6 +576,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         }
     }
 
+    public int getCurrentCameraType() {
+        return mCurrentCameraType;
+    }
+
     static class MainHandler extends Handler {
 
         static final int HANDLE_CAMERA_START_PREVIEW = 1;
@@ -630,6 +632,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                             final int tmp = itemsArray[1];
                             itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
                             faceunity.fuItemSetParam(mEffectItem, "isAndroid", 1.0);
+                            faceunity.fuItemSetParam(mEffectItem, "rotationAngle",
+                                    ((FUDualInputToTextureExampleActivity) mContext.get()).getCurrentCameraType()
+                                            == Camera.CameraInfo.CAMERA_FACING_FRONT ? 90 : 270);
                             if (tmp != 0) {
                                 faceunity.fuDestroyItem(tmp);
                             }

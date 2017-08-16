@@ -281,8 +281,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
             faceunity.fuItemSetParam(mFacebeautyItem, "red_level", mFacebeautyRedLevel);
 
-            faceunity.fuItemSetParam(mEffectItem, "rotationAngle", mCurrentCameraType== Camera.CameraInfo.CAMERA_FACING_FRONT ? 90 : 270);
-
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
                 glSf.requestRender();
@@ -619,6 +617,10 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         }
     }
 
+    public int getCurrentCameraType() {
+        return mCurrentCameraType;
+    }
+
     static class MainHandler extends Handler {
 
         static final int HANDLE_CAMERA_START_PREVIEW = 1;
@@ -668,6 +670,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                             int tmp = itemsArray[1];
                             itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
                             faceunity.fuItemSetParam(mEffectItem, "isAndroid", 1.0);
+                            faceunity.fuItemSetParam(mEffectItem, "rotationAngle",
+                                    ((FURenderToNV21ImageExampleActivity) mContext.get()).getCurrentCameraType()
+                                            == Camera.CameraInfo.CAMERA_FACING_FRONT ? 90 : 270);
                             if (tmp != 0) {
                                 faceunity.fuDestroyItem(tmp);
                             }
