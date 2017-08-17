@@ -22,6 +22,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.opengl.EGLContext;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -102,6 +103,11 @@ public class TextureMovieEncoder {
     private long firstTimeStampBase = 0;
     private long firstNanoTime = 0;
 
+    private int texture;
+    private int frameBuffer;
+
+    private int mWidth, mHeight;
+
     public boolean checkRecordingStatus(int recordingStatus) {
         return mRecordingStatus == recordingStatus;
     }
@@ -155,6 +161,23 @@ public class TextureMovieEncoder {
      * encoder may not yet be fully configured.
      */
     public void startRecording(EncoderConfig config) {
+        mWidth = config.mWidth;
+        mHeight = config.mHeight;
+
+        int[] textures = new int[1];
+        GLES20.glGenTextures(1, textures, 0);
+        texture = textures[0];
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, mWidth, mHeight, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+
+        int[] framebuffers = new int[1];
+        GLES20.glGenFramebuffers(1, framebuffers, 0);
+
+        frameBuffer = framebuffers[0];
+
         Log.d(TAG, "Encoder: startRecording()");
         mRecordingStatus = PREPARE_RECORDING;
         firstTimeStampBase = config.firstTimeStampBase;
@@ -190,11 +213,17 @@ public class TextureMovieEncoder {
      * has completed).
      */
     public void stopRecording() {
+        GLES20.glDeleteFramebuffers(1, new int[]{frameBuffer}, 0);
+        GLES20.glDeleteTextures(1, new int[]{texture}, 0);
+        frameBuffer = 0;
+        texture = 0;
+
+        mRecordingStatus = NONE_RECORDING;
+
         mHandler.sendMessage(mHandler.obtainMessage(MSG_STOP_RECORDING));
         mHandler.sendMessage(mHandler.obtainMessage(MSG_QUIT));
         // We don't know when these will actually finish (or even start).  We don't want to
         // delay the UI thread though, so we return immediately.
-        mRecordingStatus = NONE_RECORDING;
     }
 
     /**
@@ -234,7 +263,7 @@ public class TextureMovieEncoder {
         }
 
         float[] transform = new float[16];      // TODO - avoid alloc every frame
-        st.getTransformMatrix(transform);
+        Matrix.setIdentityM(transform, 0);
         long timestamp = st.getTimestamp();
         if (timestamp == 0) {
             // Seeing this after device is toggled off/on with power button.  The
@@ -256,13 +285,29 @@ public class TextureMovieEncoder {
      * <p>
      * TODO: do something less clumsy
      */
-    public void setTextureId(int id) {
-        synchronized (mReadyFence) {
-            if (!mReady) {
-                return;
+    public void setTextureId(FullFrameRect mFullScreenFUDisplay, int fuTex, float[] mtx) {
+        if (texture != 0) {
+            int viewport[] = new int[4];
+            GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
+
+            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer);
+            GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, texture, 0);
+
+            GLES20.glViewport(0, 0, mWidth, mHeight);
+
+            if (mFullScreenFUDisplay != null) mFullScreenFUDisplay.drawFrame(fuTex, mtx);
+
+            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+
+            GLES20.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+            synchronized (mReadyFence) {
+                if (!mReady) {
+                    return;
+                }
             }
+            mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TEXTURE_ID, texture, 0, null));
         }
-        mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TEXTURE_ID, id, 0, null));
     }
 
     private class VideoThread extends Thread {
@@ -370,24 +415,24 @@ public class TextureMovieEncoder {
      * @param timestampNanos The frame's timestamp, from SurfaceTexture.
      */
     private void handleFrameAvailable(float[] transform, long timestampNanos) {
-        if (VERBOSE) Log.e(TAG, "handleFrameAvailable " + timestampNanos);
-        if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
-        try {
-            mVideoEncoder.drainEncoder(false);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (texture != 0) {
+            if (VERBOSE) Log.e(TAG, "handleFrameAvailable " + timestampNanos);
+            if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
+            try {
+                mVideoEncoder.drainEncoder(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            GLES20.glViewport(0, 0, config.mWidth, config.mHeight);
+
+            synchronized (TextureMovieEncoder.class) {
+                mFullScreen.drawFrame(mTextureId, transform);
+            }
+
+            mInputWindowSurface.setPresentationTime(getPTSUs() * 1000L);
+            mInputWindowSurface.swapBuffers();
         }
-
-        GLES20.glViewport(0, 0, config.mWidth, config.mHeight);
-
-        mFullScreen.drawFrame(mTextureId, transform);
-
-        //drawBox(mFrameNum++);
-
-        mInputWindowSurface.setPresentationTime(timestampNanos);
-        mInputWindowSurface.swapBuffers();
-        //GLES20.glFlush();
-        //GLES20.glFinish();
     }
 
     /**

@@ -538,7 +538,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             if (mTextureMovieEncoder != null && mTextureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
-                mTextureMovieEncoder.setTextureId(fuTex);
+                mTextureMovieEncoder.setTextureId(mFullScreenFUDisplay, fuTex, mtx);
                 mTextureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
             }
 
