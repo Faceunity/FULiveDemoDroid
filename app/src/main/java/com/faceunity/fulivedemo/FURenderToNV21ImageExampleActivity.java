@@ -84,7 +84,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     boolean isNeedEffectItem = true;
     static String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
 
-    int mCurrentCameraType;
+    int currentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
     final boolean DRAW_RETURNED_TEXTURE = true; //直接绘制fuRenderToNV21Image返回的texture或者将返回的nv21 bytes数组load到texture再绘制
 
@@ -302,7 +302,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
              */
             long fuStartTime = System.nanoTime();
             int fuTex = faceunity.fuRenderToNV21Image(fuImgNV21Bytes,
-                    cameraWidth, cameraHeight, mFrameId, itemsArray, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X);
+                    cameraWidth, cameraHeight, mFrameId, itemsArray, currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X);
             long fuEndTime = System.nanoTime();
             oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
@@ -312,7 +312,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 //TODO 将nv21 byte数组转换成texture，并通过预览检测正确性
                 //int loadNV21ByteTex = faceunity.fuRenderNV21ImageToTexture(mCameraNV21Byte, cameraWidth,
                 //      cameraHeight, mFrameId, new int[]{0});
-                //mFullScreenFUDisplay.drawFrame(loadNV21ByteTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
+                //mFullScreenFUDisplay.drawFrame(loadNV21ByteTex, currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
                 //      mtxCameraFront : mtxCameraBack);
             }
             mFrameId++;
@@ -323,7 +323,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             if (isInAvatarMode) {
                 cameraClipFrameRect.drawFrame(mCameraTextureId, mtx);
                 faceunity.fuGetFaceInfo(0, "landmarks", landmarksData);
-                landmarksPoints.refresh(landmarksData, cameraWidth, cameraHeight, 0.1f, 0.8f, mCurrentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
+                landmarksPoints.refresh(landmarksData, cameraWidth, cameraHeight, 0.1f, 0.8f, currentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
                 landmarksPoints.draw();
             }
 
@@ -424,9 +424,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
         cameraWidth = 1280;
         cameraHeight = 720;
-        openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT,
-                cameraWidth,
-                cameraHeight);
+
+        openCamera(currentCameraType, cameraWidth, cameraHeight);
 
         Camera.Size size = mCamera.getParameters().getPreviewSize();
         cameraWidth = size.width;
@@ -575,7 +574,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             if (info.facing == cameraType) {
                 cameraId = i;
                 mCamera = Camera.open(i);
-                mCurrentCameraType = cameraType;
+                currentCameraType = cameraType;
                 break;
             }
         }
@@ -618,7 +617,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     }
 
     public int getCurrentCameraType() {
-        return mCurrentCameraType;
+        return currentCameraType;
     }
 
     static class MainHandler extends Handler {
@@ -761,7 +760,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
             releaseCamera();
 
-            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            if (currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
             } else {
                 openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);

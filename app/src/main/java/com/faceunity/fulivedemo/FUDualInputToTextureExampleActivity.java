@@ -90,7 +90,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     boolean isNeedEffectItem = true;
     static String mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
 
-    int mCurrentCameraType;
+    int currentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
     boolean mUseBeauty = true;
 
@@ -149,9 +149,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
         super.onResume();
 
-        openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT,
-                cameraWidth,
-                cameraHeight);
+        openCamera(currentCameraType, cameraWidth, cameraHeight);
 
         /**
          * 请注意这个地方, camera返回的图像并不一定是设置的大小（因为可能并不支持）
@@ -468,7 +466,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             } else {
                 fuImgNV21Bytes = mCameraNV21Byte;
             }
-            flags |= mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X;
+            flags |= currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X;
 
             long fuStartTime = System.nanoTime();
             /*
@@ -491,7 +489,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             if (isInAvatarMode) {
                 cameraClipFrameRect.drawFrame(mCameraTextureId, mtx);
                 faceunity.fuGetFaceInfo(0, "landmarks", landmarksData);
-                landmarksPoints.refresh(landmarksData, cameraWidth, cameraHeight, 0.1f, 0.8f, mCurrentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
+                landmarksPoints.refresh(landmarksData, cameraWidth, cameraHeight, 0.1f, 0.8f, currentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
                 landmarksPoints.draw();
             }
 
@@ -577,7 +575,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     }
 
     public int getCurrentCameraType() {
-        return mCurrentCameraType;
+        return currentCameraType;
     }
 
     static class MainHandler extends Handler {
@@ -665,7 +663,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             if (info.facing == cameraType) {
                 cameraId = i;
                 mCamera = Camera.open(i);
-                mCurrentCameraType = cameraType;
+                currentCameraType = cameraType;
                 break;
             }
         }
@@ -795,7 +793,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             mCameraNV21Byte = null;
             mFrameId = 0;
 
-            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            if (currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                 openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
             } else {
                 openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
