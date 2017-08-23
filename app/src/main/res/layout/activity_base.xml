@@ -462,6 +462,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@mipmap/ic_detect_tip" />
+        <TextView
+            android:id="@+id/tv_system_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="20sp"
+            android:textColor="@color/brickRedColor"
+            android:layout_gravity="center"
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/btn_choose_camera"

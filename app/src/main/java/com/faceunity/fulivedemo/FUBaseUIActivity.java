@@ -55,6 +55,8 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
     protected Button mRecordingBtn;
     private int mRecordStatus = 0;
 
+    TextView tvSystemError;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -211,6 +213,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
         mFaceTrackingStatusImageView = (ImageView) findViewById(R.id.iv_face_detect);
         mRecordingBtn = (Button) findViewById(R.id.btn_recording);
+        tvSystemError = (TextView) findViewById(R.id.tv_system_error);
     }
 
     @Override

@@ -270,6 +270,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         boolean isFirstCameraOnDrawFrame;
 
         int faceTrackingStatus = 0;
+        int systemErrorStatus = 0;//success number
 
         CameraClipFrameRect cameraClipFrameRect;
 
@@ -429,6 +430,18 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
             if (VERBOSE_LOG) {
                 Log.e(TAG, "isTracking " + isTracking);
+            }
+
+            final int systemError = faceunity.fuGetSystemError();
+            Log.e(TAG, "system error " + systemError + " " + faceunity.fuGetSystemErrorString(systemError));
+            if (systemError != systemErrorStatus) {
+                systemErrorStatus = systemError;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvSystemError.setText(faceunity.fuGetSystemErrorString(systemError));
+                    }
+                });
             }
 
             if (isNeedEffectItem) {
