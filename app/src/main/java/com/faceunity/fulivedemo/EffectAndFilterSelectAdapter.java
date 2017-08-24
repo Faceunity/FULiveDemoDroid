@@ -15,10 +15,10 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
 
     public static final int[] EFFECT_ITEM_RES_ARRAY = {
             R.mipmap.ic_delete_all, R.mipmap.yuguan, R.mipmap.lixiaolong, R.mipmap.matianyu, R.mipmap.yazui,
-            R.mipmap.mood, R.mipmap.item0204,
+            R.mipmap.gradient, R.mipmap.mood, R.mipmap.item0204,
     };
     public static final String[] EFFECT_ITEM_FILE_NAME = {"none", "yuguan.mp3", "lixiaolong.bundle",
-            "mask_matianyu.bundle", "yazui.mp3", "Mood.mp3", "item0204.mp3"};
+            "mask_matianyu.bundle", "yazui.mp3", "gradient.bundle", "Mood.mp3", "item0204.mp3"};
 
     public static final int[] FILTER_ITEM_RES_ARRAY = {
             R.mipmap.nature, R.mipmap.delta, R.mipmap.electric, R.mipmap.slowlived, R.mipmap.tokyo, R.mipmap.warm
