@@ -310,6 +310,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 Log.e(TAG, "array len " + mCameraNV21Byte.length + " time " + (afterCopy - beforeCopy) / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
             }
 
+            if (isInAvatarMode) faceunity.fuItemSetParam(mEffectItem, "default_rotation_mode", (currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) ? 1 : 3);
+
             /**
              * 这个函数执行完成后，入参的nv21 byte数组会被改变
              */

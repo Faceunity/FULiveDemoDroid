@@ -481,6 +481,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
             flags |= currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X;
 
+            if (isInAvatarMode) faceunity.fuItemSetParam(mEffectItem, "default_rotation_mode", (currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) ? 1 : 3);
+
             long fuStartTime = System.nanoTime();
             /*
              * 这里拿到fu处理过后的texture，可以对这个texture做后续操作，如硬编、预览。
@@ -500,7 +502,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
              * 绘制Avatar模式下的镜头内容以及landmarks
              **/
             if (isInAvatarMode) {
-                faceunity.fuItemSetParam(mEffectItem, "default_rotation_mode", (currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) ? 1 : 3);
                 cameraClipFrameRect.drawFrame(mCameraTextureId, mtx);
                 faceunity.fuGetFaceInfo(0, "landmarks", landmarksData);
                 landmarksPoints.refresh(landmarksData, cameraWidth, cameraHeight, 0.1f, 0.8f, currentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
