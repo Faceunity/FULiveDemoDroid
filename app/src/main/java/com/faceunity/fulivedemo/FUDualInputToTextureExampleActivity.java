@@ -56,7 +56,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     GLSurfaceView glSf;
     GLRenderer glRenderer;
 
-    Handler mMainHandler;
 
     int cameraWidth = 1280;
     int cameraHeight = 720;
@@ -433,12 +432,12 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
 
             final int systemError = faceunity.fuGetSystemError();
-            Log.e(TAG, "system error " + systemError + " " + faceunity.fuGetSystemErrorString(systemError));
             if (systemError != systemErrorStatus) {
                 systemErrorStatus = systemError;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.e(TAG, "system error " + systemError + " " + faceunity.fuGetSystemErrorString(systemError));
                         tvSystemError.setText(faceunity.fuGetSystemErrorString(systemError));
                     }
                 });

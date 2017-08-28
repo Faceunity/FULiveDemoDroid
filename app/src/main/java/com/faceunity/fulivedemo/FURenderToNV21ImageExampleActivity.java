@@ -88,8 +88,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     final boolean DRAW_RETURNED_TEXTURE = true; //直接绘制fuRenderToNV21Image返回的texture或者将返回的nv21 bytes数组load到texture再绘制
 
-    MainHandler mMainHandler;
-
     int currentFrameCnt = 0;
     long lastOneHundredFrameTimeStamp = 0;
     long oneHundredFrameFUTime = 0;
@@ -258,12 +256,12 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
 
             final int systemError = faceunity.fuGetSystemError();
-            Log.e(TAG, "system error " + systemError + " " + faceunity.fuGetSystemErrorString(systemError));
             if (systemError != systemErrorStatus) {
                 systemErrorStatus = systemError;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.e(TAG, "system error " + systemError + " " + faceunity.fuGetSystemErrorString(systemError));
                         tvSystemError.setText(faceunity.fuGetSystemErrorString(systemError));
                     }
                 });

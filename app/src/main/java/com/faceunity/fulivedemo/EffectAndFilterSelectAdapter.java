@@ -14,11 +14,13 @@ import java.util.Arrays;
 public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAndFilterSelectAdapter.ItemViewHolder> {
 
     public static final int[] EFFECT_ITEM_RES_ARRAY = {
-            R.mipmap.ic_delete_all, R.mipmap.yuguan, R.mipmap.lixiaolong, R.mipmap.matianyu, R.mipmap.yazui,
-            R.mipmap.gradient, R.mipmap.mood, R.mipmap.item0204,
+            R.mipmap.ic_delete_all, R.mipmap.item0204, R.mipmap.bgseg, R.mipmap.fu_zh_duzui,
+            R.mipmap.yazui,  R.mipmap.matianyu, R.mipmap.lixiaolong,
+            R.mipmap.mood, R.mipmap.gradient, R.mipmap.yuguan,
     };
-    public static final String[] EFFECT_ITEM_FILE_NAME = {"none", "yuguan.mp3", "lixiaolong.bundle",
-            "mask_matianyu.bundle", "yazui.mp3", "gradient.bundle", "Mood.mp3", "item0204.mp3"};
+    public static final String[] EFFECT_ITEM_FILE_NAME = {"none", "item0204.mp3", "bg_seg.bundle", "fu_zh_duzui.mp3",
+             "yazui.mp3", "mask_matianyu.bundle","lixiaolong.bundle",
+            "Mood.mp3", "gradient.bundle", "yuguan.mp3",};
 
     public static final int[] FILTER_ITEM_RES_ARRAY = {
             R.mipmap.nature, R.mipmap.delta, R.mipmap.electric, R.mipmap.slowlived, R.mipmap.tokyo, R.mipmap.warm
@@ -47,6 +49,19 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
         return mOwnerRecyclerViewType == RECYCLEVIEW_TYPE_EFFECT ?
                 EFFECT_ITEM_RES_ARRAY.length :
                 FILTER_ITEM_RES_ARRAY.length;
+    }
+
+    String getHintStringByPosition(int position) {
+        String res = "";
+        switch (EFFECT_ITEM_RES_ARRAY[position]) {
+            case R.mipmap.mood:
+                res = "嘴角向上或嘴角向下";
+                break;
+            case R.mipmap.fu_zh_duzui:
+                res = "嘟嘴";
+                break;
+        }
+        return res;
     }
 
     @Override
