@@ -29,17 +29,17 @@ public class FlatShadedProgram {
 
     private static final String VERTEX_SHADER =
             "uniform mat4 uMVPMatrix;" +
-            "attribute vec4 aPosition;" +
-            "void main() {" +
-            "    gl_Position = uMVPMatrix * aPosition;" +
-            "}";
+                    "attribute vec4 aPosition;" +
+                    "void main() {" +
+                    "    gl_Position = uMVPMatrix * aPosition;" +
+                    "}";
 
     private static final String FRAGMENT_SHADER =
             "precision mediump float;" +
-            "uniform vec4 uColor;" +
-            "void main() {" +
-            "    gl_FragColor = uColor;" +
-            "}";
+                    "uniform vec4 uColor;" +
+                    "void main() {" +
+                    "    gl_FragColor = uColor;" +
+                    "}";
 
     // Handles to the GL program and various components of it.
     private int mProgramHandle = -1;
@@ -79,17 +79,17 @@ public class FlatShadedProgram {
     /**
      * Issues the draw call.  Does the full setup on every call.
      *
-     * @param mvpMatrix The 4x4 projection matrix.
-     * @param color A 4-element color vector.
-     * @param vertexBuffer Buffer with vertex data.
-     * @param firstVertex Index of first vertex to use in vertexBuffer.
-     * @param vertexCount Number of vertices in vertexBuffer.
+     * @param mvpMatrix       The 4x4 projection matrix.
+     * @param color           A 4-element color vector.
+     * @param vertexBuffer    Buffer with vertex data.
+     * @param firstVertex     Index of first vertex to use in vertexBuffer.
+     * @param vertexCount     Number of vertices in vertexBuffer.
      * @param coordsPerVertex The number of coordinates per vertex (e.g. x,y is 2).
-     * @param vertexStride Width, in bytes, of the data for each vertex (often vertexCount *
-     *        sizeof(float)).
+     * @param vertexStride    Width, in bytes, of the data for each vertex (often vertexCount *
+     *                        sizeof(float)).
      */
     public void draw(float[] mvpMatrix, float[] color, FloatBuffer vertexBuffer,
-            int firstVertex, int vertexCount, int coordsPerVertex, int vertexStride) {
+                     int firstVertex, int vertexCount, int coordsPerVertex, int vertexStride) {
         GlUtil.checkGlError("draw start");
 
         // Select the program.
@@ -110,7 +110,7 @@ public class FlatShadedProgram {
 
         // Connect vertexBuffer to "aPosition".
         GLES20.glVertexAttribPointer(maPositionLoc, coordsPerVertex,
-            GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
+                GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
         GlUtil.checkGlError("glVertexAttribPointer");
 
         // Draw the rect.

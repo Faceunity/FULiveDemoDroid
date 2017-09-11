@@ -19,7 +19,7 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
  * Created by lirui on 2017/1/19.
  */
 
-public abstract class FUBaseUIActivity extends Activity implements View.OnClickListener{
+public abstract class FUBaseUIActivity extends Activity implements View.OnClickListener {
 
     private final String TAG = "FUBaseUIActivity";
 
@@ -43,7 +43,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
     private TextView[] mBlurLevels;
     private int[] BLUR_LEVEL_TV_ID = {R.id.blur_level0, R.id.blur_level1, R.id.blur_level2,
-        R.id.blur_level3, R.id.blur_level4, R.id.blur_level5, R.id.blur_level6};
+            R.id.blur_level3, R.id.blur_level4, R.id.blur_level5, R.id.blur_level6};
 
     private TextView mFaceShape0Nvshen;
     private TextView mFaceShape1Wanghong;
@@ -315,40 +315,46 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
     /**
      * 道具贴纸选择
+     *
      * @param effectItemName 道具贴纸文件名
      */
     abstract protected void onEffectItemSelected(String effectItemName);
 
     /**
      * 滤镜选择
+     *
      * @param filterName 滤镜名称
      */
     abstract protected void onFilterSelected(String filterName);
 
     /**
      * 磨皮选择
+     *
      * @param level 磨皮level
      */
     abstract protected void onBlurLevelSelected(int level);
 
     /**
      * 美白选择
+     *
      * @param progress 美白滑动条进度
-     * @param max 美白滑动条最大值
+     * @param max      美白滑动条最大值
      */
     abstract protected void onColorLevelSelected(int progress, int max);
 
     /**
      * 瘦脸选择
+     *
      * @param progress 瘦脸滑动进度
-     * @param max 瘦脸滑动条最大值
+     * @param max      瘦脸滑动条最大值
      */
     abstract protected void onCheekThinSelected(int progress, int max);
 
     /**
      * 大眼选择
+     *
      * @param progress 大眼滑动进度
-     * @param max 大眼滑动条最大值
+     * @param max      大眼滑动条最大值
      */
     abstract protected void onEnlargeEyeSelected(int progress, int max);
 

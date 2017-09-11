@@ -21,6 +21,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.opengl.EGLContext;
+import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -56,9 +57,9 @@ import java.nio.ByteBuffer;
  * <li>call TextureMovieEncoder#startRecording() with the config
  * <li>call TextureMovieEncoder#setTextureId() with the texture object that receives frames
  * <li>for each frame, after latching it with SurfaceTexture#updateTexImage(),
- *     call TextureMovieEncoder#frameAvailable().
+ * call TextureMovieEncoder#frameAvailable().
  * </ul>
- *
+ * <p>
  * TODO: tweak the API (esp. textureId) so it's less awkward for simple use cases.
  */
 public class TextureMovieEncoder {
@@ -89,6 +90,21 @@ public class TextureMovieEncoder {
     private boolean mReady;
     private boolean mRunning;
 
+    public static final int IN_RECORDING = 1;
+    public static final int START_RECORDING = 2;
+    public static final int STOP_RECORDING = 3;
+    public static final int NONE_RECORDING = 4;
+    public static final int PREPARE_RECORDING = 5;
+    private int mRecordingStatus = NONE_RECORDING;
+
+    public boolean checkRecordingStatus(int recordingStatus) {
+        return mRecordingStatus == recordingStatus;
+    }
+
+    public TextureMovieEncoder() {
+        mRecordingStatus = START_RECORDING;
+    }
+
 
     /**
      * Encoder configuration.
@@ -98,7 +114,7 @@ public class TextureMovieEncoder {
      * under us).
      * <p>
      * TODO: make frame rate and iframe interval configurable?  Maybe use builder pattern
-     *       with reasonable defaults for those and bit rate.
+     * with reasonable defaults for those and bit rate.
      */
     public static class EncoderConfig {
         final File mOutputFile;
@@ -108,7 +124,7 @@ public class TextureMovieEncoder {
         final EGLContext mEglContext;
 
         public EncoderConfig(File outputFile, int width, int height, int bitRate,
-                EGLContext sharedEglContext) {
+                             EGLContext sharedEglContext) {
             mOutputFile = outputFile;
             mWidth = width;
             mHeight = height;
@@ -133,6 +149,7 @@ public class TextureMovieEncoder {
      */
     public void startRecording(EncoderConfig config) {
         Log.d(TAG, "Encoder: startRecording()");
+        mRecordingStatus = PREPARE_RECORDING;
         synchronized (mReadyFence) {
             if (mRunning) {
                 Log.w(TAG, "Encoder thread already running");
@@ -167,6 +184,7 @@ public class TextureMovieEncoder {
         mHandler.sendMessage(mHandler.obtainMessage(MSG_QUIT));
         // We don't know when these will actually finish (or even start).  We don't want to
         // delay the UI thread though, so we return immediately.
+        mRecordingStatus = NONE_RECORDING;
     }
 
     /**
@@ -241,9 +259,11 @@ public class TextureMovieEncoder {
         public VideoThread(String name) {
             super(name);
         }
+
         /**
          * Encoder thread entry point.  Establishes Looper/Handler and waits for messages.
          * <p>
+         *
          * @see Thread#run()
          */
         @Override
@@ -313,11 +333,14 @@ public class TextureMovieEncoder {
         }
     }
 
+    private EncoderConfig config = null;
+
     /**
      * Starts recording.
      */
     private void handleStartRecording(EncoderConfig config) {
         Log.d(TAG, "handleStartRecording " + config);
+        this.config = config;
         mFrameNum = 0;
         prepareEncoder(config.mEglContext, config.mWidth, config.mHeight, config.mBitRate,
                 config.mOutputFile);
@@ -329,7 +352,8 @@ public class TextureMovieEncoder {
      * <p>
      * The texture is rendered onto the encoder's input surface.
      * <p>
-     * @param transform The texture transform, from SurfaceTexture.
+     *
+     * @param transform      The texture transform, from SurfaceTexture.
      * @param timestampNanos The frame's timestamp, from SurfaceTexture.
      */
     private void handleFrameAvailable(float[] transform, long timestampNanos) {
@@ -337,7 +361,8 @@ public class TextureMovieEncoder {
         if (VERBOSE) Log.d(TAG, "handleFrameAvailable tr=" + transform);
         mVideoEncoder.drainEncoder(false);
 
-        //GLES20.glViewport(0, 0, 1920, 1080);
+        GLES20.glViewport(0, 0, config.mWidth, config.mHeight);
+
         mFullScreen.drawFrame(mTextureId, transform);
 
         //drawBox(mFrameNum++);
@@ -397,6 +422,7 @@ public class TextureMovieEncoder {
 
     /**
      * For drawing texture to hw encode, init egl related.
+     *
      * @param sharedContext
      * @param width
      * @param height
@@ -404,7 +430,7 @@ public class TextureMovieEncoder {
      * @param outputFile
      */
     private void prepareEncoder(EGLContext sharedContext, int width, int height, int bitRate,
-            File outputFile) {
+                                File outputFile) {
         try {
             // Create a MediaMuxer.  We can't add the video track and start() the muxer here,
             // because our MediaFormat doesn't have the Magic Goodies.  These can only be
@@ -413,7 +439,7 @@ public class TextureMovieEncoder {
             // We're not actually interested in multiplexing audio.  We just want to convert
             // the raw H.264 elementary stream we get from MediaCodec into a .mp4 file.
             //mMuxer = new MediaMuxer(outputFile.toString(),
-              //      MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            //      MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             mMuxer = new MediaMuxerWrapper(outputFile.toString());
             mVideoEncoder = new VideoEncoderCore(width, height, bitRate, mMuxer);
             mAudioEncoder = new AudioEncoderCore(mMuxer);
@@ -452,7 +478,7 @@ public class TextureMovieEncoder {
 
     private boolean mRequestStop = false;
 
-    private static final int[] AUDIO_SOURCES = new int[] {
+    private static final int[] AUDIO_SOURCES = new int[]{
             MediaRecorder.AudioSource.MIC,
             MediaRecorder.AudioSource.DEFAULT,
             MediaRecorder.AudioSource.CAMCORDER,
@@ -474,14 +500,14 @@ public class TextureMovieEncoder {
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
 
             int SAMPLE_RATE = 44100;
-            int SAMPLES_PER_FRAME = 1024;
-            int FRAMES_PER_BUFFER = 25;
+            int SAMPLES_PER_FRAME = 2048;
+            int FRAMES_PER_BUFFER = 24;
 
             synchronized (prepareEncoderFence) {
                 while (!prepareEncoderReady) {
                     try {
                         prepareEncoderFence.wait();
-                    } catch (InterruptedException e){
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -519,8 +545,9 @@ public class TextureMovieEncoder {
                         final ByteBuffer buf = ByteBuffer.allocateDirect(SAMPLES_PER_FRAME);
                         int readBytes;
                         audioRecord.startRecording();
+                        mRecordingStatus = IN_RECORDING;
                         try {
-                            while(!mRequestStop) {
+                            while (!mRequestStop) {
                                 // read audio data from internal mic
                                 buf.clear();
                                 readBytes = audioRecord.read(buf, SAMPLES_PER_FRAME);
@@ -529,11 +556,10 @@ public class TextureMovieEncoder {
                                     buf.position(readBytes);
                                     buf.flip();
                                     mAudioEncoder.encode(buf, readBytes, getPTSUs());
-                                    mAudioEncoder.drainEncoder(false);
+                                    mAudioEncoder.drainEncoder();
                                 }
                             }
                             mAudioEncoder.encode(null, 0, getPTSUs());
-                            mAudioEncoder.drainEncoder(true);
                         } finally {
                             audioRecord.stop();
                         }
@@ -557,8 +583,10 @@ public class TextureMovieEncoder {
      * previous presentationTimeUs for writing
      */
     private long prevOutputPTSUs = 0;
+
     /**
      * get next encoding presentationTimeUs
+     *
      * @return
      */
     protected long getPTSUs() {

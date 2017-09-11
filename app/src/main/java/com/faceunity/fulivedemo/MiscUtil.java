@@ -1,6 +1,5 @@
 package com.faceunity.fulivedemo;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -21,7 +20,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.File;
@@ -30,7 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -45,6 +42,8 @@ public class MiscUtil {
 
     public static boolean VERBOSE_LOG = false;
 
+    public static float NANO_IN_ONE_MILLI_SECOND = 1000000.0f;
+
     public static void Logger(String tag, String msg, boolean isImportant) {
         if (isImportant || isDebug) {
             Log.e(tag, msg);
@@ -55,7 +54,7 @@ public class MiscUtil {
         Logger(TAG, "checkPermission " + permission, false);
         if (ContextCompat.checkSelfPermission(context, permission)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions((Activity)context,
+            ActivityCompat.requestPermissions((Activity) context,
                     new String[]{permission}, 0);
         }
     }
@@ -63,28 +62,28 @@ public class MiscUtil {
     /**
      * This method converts dp unit to equivalent pixels, depending on device density.
      *
-     * @param dp A value in dp (density independent pixels) unit. Which we need to convert into pixels
+     * @param dp      A value in dp (density independent pixels) unit. Which we need to convert into pixels
      * @param context Context to get resources and device specific display metrics
      * @return A float value to represent px equivalent to dp depending on device density
      */
-    public static float convertDpToPixel(float dp, Context context){
+    public static float convertDpToPixel(float dp, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         return px;
     }
 
     /**
      * This method converts device specific pixels to density independent pixels.
      *
-     * @param px A value in px (pixels) unit. Which we need to convert into db
+     * @param px      A value in px (pixels) unit. Which we need to convert into db
      * @param context Context to get resources and device specific display metrics
      * @return A float value to represent dp equivalent to px value
      */
-    public static float convertPixelsToDp(float px, Context context){
+    public static float convertPixelsToDp(float px, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float dp = px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        float dp = px / ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         return dp;
     }
 
@@ -126,6 +125,7 @@ public class MiscUtil {
         return filePath + getCurrentDate() +
                 "_" + System.currentTimeMillis();
     }
+
     public static String saveDataToFile(String fileName, String fileExtName, final byte[] data) {
         File dir = new File(filePath);
         if (!dir.exists()) {
@@ -244,7 +244,7 @@ public class MiscUtil {
                     contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
                 }
                 String selection = MediaStore.Images.Media._ID + "=?";
-                String[] selectionArgs = new String[] { split[1] };
+                String[] selectionArgs = new String[]{split[1]};
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
         } // MediaStore (and general)
@@ -263,7 +263,7 @@ public class MiscUtil {
 
     public static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = null;
-        String[] projection = { MediaStore.Images.Media.DATA };
+        String[] projection = {MediaStore.Images.Media.DATA};
         try {
             cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
@@ -278,8 +278,7 @@ public class MiscUtil {
     }
 
     /**
-     * @param uri
-     *            The Uri to check.
+     * @param uri The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
     public static boolean isExternalStorageDocument(Uri uri) {
@@ -287,8 +286,7 @@ public class MiscUtil {
     }
 
     /**
-     * @param uri
-     *            The Uri to check.
+     * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
     public static boolean isDownloadsDocument(Uri uri) {
@@ -296,8 +294,7 @@ public class MiscUtil {
     }
 
     /**
-     * @param uri
-     *            The Uri to check.
+     * @param uri The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */
     public static boolean isMediaDocument(Uri uri) {
@@ -305,8 +302,7 @@ public class MiscUtil {
     }
 
     /**
-     * @param uri
-     *            The Uri to check.
+     * @param uri The Uri to check.
      * @return Whether the Uri authority is Google Photos.
      */
     public static boolean isGooglePhotosUri(Uri uri) {
@@ -350,7 +346,7 @@ public class MiscUtil {
         if (VERBOSE_LOG) {
             MiscUtil.Logger(TAG, "latest media thumbnail path " + imagePath, false);
         }
-        return  imagePath;
+        return imagePath;
     }
 
     public static void toast(final Context context, String msg) {

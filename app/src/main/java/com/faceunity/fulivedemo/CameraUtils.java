@@ -107,10 +107,18 @@ public class CameraUtils {
         int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
         int degrees = 0;
         switch (rotation) {
-            case Surface.ROTATION_0: degrees = 0; break;
-            case Surface.ROTATION_90: degrees = 90; break;
-            case Surface.ROTATION_180: degrees = 180; break;
-            case Surface.ROTATION_270: degrees = 270; break;
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
         }
 
         int result;
@@ -121,5 +129,23 @@ public class CameraUtils {
             result = (info.orientation - degrees + 360) % 360;
         }
         camera.setDisplayOrientation(result);
+    }
+
+    public static int[] closetFramerate(Camera.Parameters parameters, float frameRate) {
+        int framerate = (int) (frameRate * 1000);
+        List<int[]> rates = parameters.getSupportedPreviewFpsRange();
+        int[] bestFramerate = rates.get(0);
+        for (int i = 0; i < rates.size(); i++) {
+            int[] rate = rates.get(i);
+            Log.e(TAG, "supported preview pfs min " + rate[0] + " max " + rate[1]);
+            int curDelta = Math.abs(rate[1] - framerate);
+            int bestDelta = Math.abs(bestFramerate[1] - framerate);
+            if (curDelta < bestDelta) {
+                bestFramerate = rate;
+            } else if (curDelta == bestDelta) {
+                bestFramerate = bestFramerate[0] < rate[0] ? rate : bestFramerate;
+            }
+        }
+        return bestFramerate;
     }
 }

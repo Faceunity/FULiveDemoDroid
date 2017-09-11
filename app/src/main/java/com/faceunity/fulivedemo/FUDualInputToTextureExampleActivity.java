@@ -28,21 +28,24 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.IN_RECORDING;
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.START_RECORDING;
+
 
 /**
  * 这个Activity演示了从Camera取数据,用fuDualInputToTexure处理并预览展示
  * 所谓dual input，指从cpu和gpu同时拿数据，
  * cpu拿到的是nv21的byte数组，gpu拿到的是对应的texture
- *
+ * <p>
  * Created by lirui on 2016/12/13.
  */
 
 @SuppressWarnings("deprecation")
 public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         implements Camera.PreviewCallback,
-                   SurfaceTexture.OnFrameAvailableListener {
+        SurfaceTexture.OnFrameAvailableListener {
 
-    final String TAG = "FUDualInputToTextureEg";
+    final static String TAG = "FUDualInputToTextureEg";
 
     Camera mCamera;
 
@@ -55,6 +58,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     int cameraHeight = 720;
 
     byte[] mCameraNV21Byte;
+    byte[] fuImgNV21Bytes;
+
     int mFrameId = 0;
 
     static int mFacebeautyItem = 0; //美颜道具
@@ -85,13 +90,13 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean mUseBeauty = true;
 
-    boolean inCameraChange = false;
+    int cameraDataAlreadyCount = 0;
+    final Object prepareCameraDataLock = new Object();
+    boolean isNeedSwitchCameraSurfaceTexture = true;
 
-    final int IN_RECORDING = 1;
-    final int START_RECORDING = 2;
-    final int STOP_RECORDING = 3;
-    final int NONE_RECORDING = 4;
-    int mRecordingStatus = NONE_RECORDING;
+    TextureMovieEncoder mTexureMovieEncoder;
+    String videoFileName;
+
 
     boolean mUseGesture = false;
 
@@ -102,7 +107,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
+        Log.e(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
         mContext = this;
@@ -122,9 +127,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onResume() {
-        Log.d(TAG, "onResume");
+        Log.e(TAG, "onResume");
 
-        resumeTimeStamp = System.currentTimeMillis();
+        resumeTimeStamp = System.nanoTime();
         isFirstOnFrameAvailable = true;
 
         super.onResume();
@@ -149,7 +154,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onPause() {
-        Log.d(TAG, "onPause");
+        Log.e(TAG, "onPause");
         super.onPause();
 
         releaseCamera();
@@ -181,28 +186,35 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (VERBOSE_LOG) {
             Log.e(TAG, "onPreviewFrame len " + data.length);
-            Log.d(TAG, "onPreviewThread " + Thread.currentThread());
+            Log.e(TAG, "onPreviewThread " + Thread.currentThread());
         }
         mCameraNV21Byte = data;
+        synchronized (prepareCameraDataLock) {
+            cameraDataAlreadyCount++;
+            prepareCameraDataLock.notify();
+        }
     }
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
         if (isFirstOnFrameAvailable) {
-            frameAvailableTimeStamp = System.currentTimeMillis();
+            frameAvailableTimeStamp = System.nanoTime();
             isFirstOnFrameAvailable = false;
             Log.e(TAG, "first frame available time cost " +
-                    (frameAvailableTimeStamp - resumeTimeStamp));
+                    (frameAvailableTimeStamp - resumeTimeStamp) / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
         }
         if (VERBOSE_LOG) {
-            Log.d(TAG, "onFrameAvailable");
+            Log.e(TAG, "onFrameAvailable");
         }
-        glSf.requestRender();
+        synchronized (prepareCameraDataLock) {
+            cameraDataAlreadyCount++;
+            prepareCameraDataLock.notify();
+        }
     }
 
     /**
      * set preview and start preview after the surface created
-     * */
+     */
     private void handleCameraStartPreview(SurfaceTexture surfaceTexture) {
         Log.e(TAG, "handleCameraStartPreview");
         mCamera.setPreviewCallback(this);
@@ -227,12 +239,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         int mCameraTextureId;
         SurfaceTexture mCameraSurfaceTexture;
 
-        boolean isFirstOnDrawFrame;
+        boolean isFirstCameraOnDrawFrame;
 
         int faceTrackingStatus = 0;
-
-        TextureMovieEncoder mTexureMovieEncoder;
-        String videoFileName;
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -243,6 +252,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             mFullScreenCamera = new FullFrameRect(new Texture2dProgram(
                     Texture2dProgram.ProgramType.TEXTURE_EXT));
             mCameraTextureId = mFullScreenCamera.createTextureObject();
+
             switchCameraSurfaceTexture();
 
             try {
@@ -277,15 +287,18 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 e.printStackTrace();
             }
 
-            isFirstOnDrawFrame = true;
+            isFirstCameraOnDrawFrame = true;
         }
 
         public void switchCameraSurfaceTexture() {
+            Log.e(TAG, "switchCameraSurfaceTexture");
+            isNeedSwitchCameraSurfaceTexture = false;
             if (mCameraSurfaceTexture != null) {
                 faceunity.fuOnCameraChange();
                 mCameraSurfaceTexture.release();
             }
             mCameraSurfaceTexture = new SurfaceTexture(mCameraTextureId);
+            Log.e(TAG, "send start camera message");
             mMainHandler.sendMessage(mMainHandler.obtainMessage(
                     MainHandler.HANDLE_CAMERA_START_PREVIEW,
                     mCameraSurfaceTexture));
@@ -299,24 +312,42 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         @Override
         public void onDrawFrame(GL10 gl) {
             if (VERBOSE_LOG) {
-                Log.d(TAG, "onDrawFrame");
+                Log.e(TAG, "onDrawFrame");
             }
 
-            if (isFirstOnDrawFrame) {
-                isFirstOnDrawFrame = false;
-                //return;
+            if (isNeedSwitchCameraSurfaceTexture) {
+                switchCameraSurfaceTexture();
             }
 
-            if (inCameraChange) {
-                return;
+            Log.e(TAG, "after switchCameraSurfaceTexture");
+
+            /**
+             * If camera texture data not ready there will be low possibility in meizu note3 causing black screen.
+             */
+            while (cameraDataAlreadyCount < 2) {
+                Log.e(TAG, "while cameraDataAlreadyCount < 2");
+                if (isFirstCameraOnDrawFrame) {
+                    glSf.requestRender();
+                    return;
+                }
+                synchronized (prepareCameraDataLock) {
+                    //block until new camera frame comes.
+                    try {
+                        prepareCameraDataLock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+
+            isFirstCameraOnDrawFrame = false;
 
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
-                long tmp = System.currentTimeMillis();
-                Log.e(TAG, "dualInput FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                long tmp = System.nanoTime();
+                Log.e(TAG, "dualInput FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
-                Log.e(TAG, "dualInput cost time avg : " + oneHundredFrameFUTime / 100.f);
+                Log.e(TAG, "dualInput cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
                 oneHundredFrameFUTime = 0;
             }
 
@@ -346,7 +377,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 faceTrackingStatus = isTracking;
             }
             if (VERBOSE_LOG) {
-                Log.d(TAG, "isTracking " + isTracking);
+                Log.e(TAG, "isTracking " + isTracking);
             }
 
             if (isNeedEffectItem) {
@@ -367,31 +398,67 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
+                glSf.requestRender();
                 return;
             }
 
-            /**
-             * 这里拿到fu处理过后的texture，可以对这个texture做后续操作，如硬编、预览。
-             */
             boolean isOESTexture = true; //camera默认的是OES的
             int flags = isOESTexture ? faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE : 0;
             boolean isNeedReadBack = false; //是否需要写回，如果是，则入参的byte[]会被修改为带有fu特效的
             flags = isNeedReadBack ? flags | faceunity.FU_ADM_FLAG_ENABLE_READBACK : flags;
+            if (isNeedReadBack) {
+                if (fuImgNV21Bytes == null) {
+                    fuImgNV21Bytes = new byte[mCameraNV21Byte.length];
+                }
+                System.arraycopy(mCameraNV21Byte, 0, fuImgNV21Bytes, 0, mCameraNV21Byte.length);
+            } else {
+                fuImgNV21Bytes = mCameraNV21Byte;
+            }
             flags |= mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X;
-            long fuStartTime = System.currentTimeMillis();
-            int fuTex = faceunity.fuDualInputToTexture(mCameraNV21Byte, mCameraTextureId, flags,
+
+            long fuStartTime = System.nanoTime();
+            /**
+             * 这里拿到fu处理过后的texture，可以对这个texture做后续操作，如硬编、预览。
+             */
+            int fuTex = faceunity.fuDualInputToTexture(fuImgNV21Bytes, mCameraTextureId, flags,
                     cameraWidth, cameraHeight, mFrameId++, itemsArray);
-            long fuEndTime = System.currentTimeMillis();
+            long fuEndTime = System.nanoTime();
             oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
             //int fuTex = faceunity.fuBeautifyImage(mCameraTextureId, flags,
-              //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
+            //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFacebeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             mFullScreenFUDisplay.drawFrame(fuTex, mtx);
+
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
+                videoFileName = MiscUtil.createFileName() + "_camera.mp4";
+                File outFile = new File(videoFileName);
+                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                        outFile, cameraHeight, cameraWidth,
+                        3000000, EGL14.eglGetCurrentContext()
+                ));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(FUDualInputToTextureExampleActivity.this, "video file saved to "
+                                + videoFileName, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+                mTexureMovieEncoder.setTextureId(fuTex);
+                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
+
+            }
+
+            glSf.requestRender();
         }
 
         public void notifyPause() {
             faceTrackingStatus = 0;
+            onStopRecording();
+
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
             }
@@ -422,6 +489,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             FUDualInputToTextureExampleActivity activity = mActivityWeakReference.get();
             switch (msg.what) {
                 case HANDLE_CAMERA_START_PREVIEW:
+                    Log.e(TAG, "HANDLE_CAMERA_START_PREVIEW");
                     activity.handleCameraStartPreview((SurfaceTexture) msg.obj);
                     break;
             }
@@ -471,7 +539,10 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @SuppressWarnings("deprecation")
     private void openCamera(int cameraType, int desiredWidth, int desiredHeight) {
-        Log.d(TAG, "openCamera");
+        Log.e(TAG, "openCamera");
+
+        cameraDataAlreadyCount = 0;
+
         if (mCamera != null) {
             throw new RuntimeException("camera already initialized");
         }
@@ -495,10 +566,21 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         CameraUtils.setCameraDisplayOrientation(this, cameraId, mCamera);
 
         Camera.Parameters parameters = mCamera.getParameters();
+
+        /**
+         * 设置对焦，会影响camera吞吐速率
+         */
         List<String> focusModes = parameters.getSupportedFocusModes();
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-        mCamera.setDisplayOrientation(90);
+
+        /**
+         * 设置fps
+         * */
+        int[] closetFramerate = CameraUtils.closetFramerate(parameters, 30);
+        Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
+        parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
+
         CameraUtils.choosePreviewSize(parameters, desiredWidth, desiredHeight);
         mCamera.setParameters(parameters);
     }
@@ -582,35 +664,38 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onCameraChange() {
-        Log.d(TAG, "onCameraChange");
-        inCameraChange = true;
-        releaseCamera();
-        mCameraNV21Byte = null;
-        mFrameId = 0;
-        if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
-        } else {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
-        }
-        glSf.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                glRenderer.switchCameraSurfaceTexture();
+        Log.e(TAG, "onCameraChange");
+        synchronized (prepareCameraDataLock) {
+
+            isNeedSwitchCameraSurfaceTexture = true;
+
+            cameraDataAlreadyCount = 0;
+
+            releaseCamera();
+
+            mCameraNV21Byte = null;
+            mFrameId = 0;
+
+            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
+            } else {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
             }
-        });
-        inCameraChange = false;
+        }
     }
 
     @Override
     protected void onStartRecording() {
         MiscUtil.Logger(TAG, "start recording", false);
-        mRecordingStatus = START_RECORDING;
+        mTexureMovieEncoder = new TextureMovieEncoder();
     }
 
     @Override
     protected void onStopRecording() {
         MiscUtil.Logger(TAG, "stop recording", false);
-        mRecordingStatus = STOP_RECORDING;
+        if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+            mTexureMovieEncoder.stopRecording();
+        }
     }
 
     @Override
@@ -628,5 +713,9 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         super.onDestroy();
         Log.e(TAG, "onDestroy");
         mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
+
+        mCreateItemThread.quit();
+        mCreateItemThread = null;
+        mCreateItemHandler = null;
     }
 }

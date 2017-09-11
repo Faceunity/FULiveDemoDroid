@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/cb2000000">
+
     <com.faceunity.fulivedemo.AspectFrameLayout
         android:id="@+id/afl"
         android:layout_width="match_parent"
@@ -19,8 +20,8 @@
             android:id="@+id/main_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="bottom"
             android:layout_gravity="bottom"
+            android:gravity="bottom"
             android:orientation="vertical">
 
             <!--hint text-->
@@ -31,9 +32,9 @@
                 android:id="@+id/hint_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
                 android:layout_gravity="center_horizontal"
-                android:textColor="@color/colorWhite"/>
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
 
             <!--start of effect beauty select-->
             <FrameLayout
@@ -53,213 +54,228 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
                 <!--blur level select-->
                 <LinearLayout
                     android:id="@+id/blur_level_select_block"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
+                    android:layout_gravity="bottom"
                     android:gravity="center_horizontal"
-                    android:layout_gravity="bottom">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
                     <TextView
                         android:id="@+id/blur_level0"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
-                        android:background="@drawable/zero_blur_level_item_unselected"
-                        android:layout_margin="@dimen/normal_space"
-                        android:textSize="22sp"
                         android:layout_gravity="center"
+                        android:layout_margin="@dimen/normal_space"
+                        android:background="@drawable/zero_blur_level_item_unselected"
                         android:gravity="center"
-                        android:onClick="onClick"/>
+                        android:onClick="onClick"
+                        android:textSize="22sp" />
+
                     <TextView
                         android:id="@+id/blur_level1"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/min_space"
                         android:background="@drawable/blur_level_item_unselected"
+                        android:gravity="center"
+                        android:onClick="onClick"
                         android:text="1"
                         android:textColor="@color/colorWhite"
-                        android:layout_margin="@dimen/min_space"
-                        android:textSize="22sp"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:onClick="onClick"/>
+                        android:textSize="22sp" />
+
                     <TextView
                         android:id="@+id/blur_level2"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/min_space"
                         android:background="@drawable/blur_level_item_unselected"
+                        android:gravity="center"
+                        android:onClick="onClick"
                         android:text="2"
                         android:textColor="@color/colorWhite"
-                        android:layout_margin="@dimen/min_space"
-                        android:textSize="22sp"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:onClick="onClick"/>
+                        android:textSize="22sp" />
+
                     <TextView
                         android:id="@+id/blur_level3"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/min_space"
+                        android:background="@drawable/blur_level_item_unselected"
+                        android:gravity="center"
+                        android:onClick="onClick"
                         android:text="3"
                         android:textColor="@color/colorWhite"
-                        android:layout_margin="@dimen/min_space"
-                        android:textSize="22sp"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:background="@drawable/blur_level_item_unselected"
-                        android:onClick="onClick"/>
+                        android:textSize="22sp" />
+
                     <TextView
                         android:id="@+id/blur_level4"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/min_space"
+                        android:background="@drawable/blur_level_item_unselected"
+                        android:gravity="center"
+                        android:onClick="onClick"
                         android:text="4"
                         android:textColor="@color/colorWhite"
-                        android:layout_margin="@dimen/min_space"
-                        android:textSize="22sp"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:background="@drawable/blur_level_item_unselected"
-                        android:onClick="onClick"/>
+                        android:textSize="22sp" />
+
                     <TextView
                         android:id="@+id/blur_level5"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/min_space"
+                        android:background="@drawable/blur_level_item_unselected"
+                        android:gravity="center"
+                        android:onClick="onClick"
                         android:text="5"
                         android:textColor="@color/colorWhite"
-                        android:layout_margin="@dimen/min_space"
-                        android:textSize="22sp"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:background="@drawable/blur_level_item_unselected"
-                        android:onClick="onClick"/>
+                        android:textSize="22sp" />
+
                     <TextView
                         android:id="@+id/blur_level6"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/min_space"
+                        android:background="@drawable/blur_level_item_selected"
+                        android:gravity="center"
+                        android:onClick="onClick"
                         android:text="6"
                         android:textColor="@color/colorWhite"
-                        android:layout_margin="@dimen/min_space"
-                        android:textSize="22sp"
-                        android:layout_gravity="center"
-                        android:gravity="center"
-                        android:background="@drawable/blur_level_item_selected"
-                        android:onClick="onClick"/>
+                        android:textSize="22sp" />
                 </LinearLayout>
                 <!--color level select-->
                 <LinearLayout
                     android:id="@+id/color_level_select_block"
                     android:layout_width="match_parent"
                     android:layout_height="58dp"
+                    android:layout_gravity="bottom"
                     android:gravity="center"
-                    android:visibility="gone"
                     android:padding="@dimen/normal_space"
-                    android:layout_gravity="bottom">
+                    android:visibility="gone">
+
                     <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
                         android:id="@+id/color_level_seekbar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:dsb_progressColor="@color/faceunityYellow"
                         app:dsb_indicatorColor="@color/faceunityYellow"
+                        app:dsb_indicatorElevation="0dp"
+                        app:dsb_indicatorPopupEnabled="true"
+                        app:dsb_max="100"
+                        app:dsb_min="0"
+                        app:dsb_progressColor="@color/faceunityYellow"
                         app:dsb_scrubberHeight="2dp"
                         app:dsb_thumbSize="16dp"
-                        app:dsb_min="0"
-                        app:dsb_max="100"
-                        app:dsb_value="20"
-                        app:dsb_indicatorPopupEnabled="true"
-                        app:dsb_indicatorElevation="0dp"/>
+                        app:dsb_value="20" />
                 </LinearLayout>
                 <!--red level select-->
                 <LinearLayout
                     android:id="@+id/red_level_select_block"
                     android:layout_width="match_parent"
                     android:layout_height="58dp"
+                    android:layout_gravity="bottom"
                     android:gravity="center"
-                    android:visibility="gone"
                     android:padding="@dimen/normal_space"
-                    android:layout_gravity="bottom">
+                    android:visibility="gone">
+
                     <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
                         android:id="@+id/red_level_seekbar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:dsb_progressColor="@color/faceunityYellow"
                         app:dsb_indicatorColor="@color/faceunityYellow"
+                        app:dsb_indicatorElevation="0dp"
+                        app:dsb_indicatorPopupEnabled="true"
+                        app:dsb_max="100"
+                        app:dsb_min="0"
+                        app:dsb_progressColor="@color/faceunityYellow"
                         app:dsb_scrubberHeight="2dp"
                         app:dsb_thumbSize="16dp"
-                        app:dsb_min="0"
-                        app:dsb_max="100"
-                        app:dsb_value="50"
-                        app:dsb_indicatorPopupEnabled="true"
-                        app:dsb_indicatorElevation="0dp"/>
+                        app:dsb_value="50" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/lin_face_shape"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
                     android:orientation="vertical"
-                    android:visibility="gone"
-                    android:layout_gravity="bottom">
+                    android:visibility="gone">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:padding="@dimen/normal_space">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginRight="16dp"
                             android:text="脸型"
                             android:textColor="@color/faceunityYellow"
-                            android:layout_marginRight="16dp"
-                            android:textSize="17sp"/>
+                            android:textSize="17sp" />
+
                         <TextView
                             android:id="@+id/face_shape_3_default"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
-                            android:background="@color/faceunityYellow"
-                            android:textColor="@color/white"
-                            android:textSize="16sp"
-                            android:text="默认"
-                            android:layout_marginRight="15dp"
-                            android:onClick="onClick"
                             android:layout_gravity="center"
-                            android:gravity="center"/>
+                            android:layout_marginRight="15dp"
+                            android:background="@color/faceunityYellow"
+                            android:gravity="center"
+                            android:onClick="onClick"
+                            android:text="默认"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+
                         <TextView
                             android:id="@+id/face_shape_0_nvshen"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
-                            android:background="@color/unselect_gray"
-                            android:textColor="@color/white"
-                            android:textSize="16sp"
-                            android:text="女神"
-                            android:layout_marginRight="15dp"
                             android:layout_gravity="center"
+                            android:layout_marginRight="15dp"
+                            android:background="@color/unselect_gray"
                             android:gravity="center"
-                            android:onClick="onClick"/>
+                            android:onClick="onClick"
+                            android:text="女神"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+
                         <TextView
                             android:id="@+id/face_shape_1_wanghong"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
-                            android:background="@color/unselect_gray"
-                            android:textColor="@color/white"
-                            android:textSize="16sp"
-                            android:text="网红"
-                            android:layout_marginRight="15dp"
                             android:layout_gravity="center"
+                            android:layout_marginRight="15dp"
+                            android:background="@color/unselect_gray"
                             android:gravity="center"
-                            android:onClick="onClick"/>
+                            android:onClick="onClick"
+                            android:text="网红"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+
                         <TextView
                             android:id="@+id/face_shape_2_ziran"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
-                            android:background="@color/unselect_gray"
-                            android:textColor="@color/white"
-                            android:textSize="16sp"
-                            android:text="自然"
-                            android:layout_marginRight="15dp"
                             android:layout_gravity="center"
+                            android:layout_marginRight="15dp"
+                            android:background="@color/unselect_gray"
                             android:gravity="center"
-                            android:onClick="onClick"/>
+                            android:onClick="onClick"
+                            android:text="自然"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
                     </LinearLayout>
                     <!--face shape select-->
                     <LinearLayout
@@ -267,26 +283,28 @@
                         android:layout_height="58dp"
                         android:gravity="center"
                         android:padding="@dimen/normal_space">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/faceunityYellow"
-                            android:text="程度"
                             android:layout_marginRight="8dp"
-                            android:textSize="17sp"/>
+                            android:text="程度"
+                            android:textColor="@color/faceunityYellow"
+                            android:textSize="17sp" />
+
                         <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
                             android:id="@+id/face_shape_seekbar"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:dsb_progressColor="@color/faceunityYellow"
                             app:dsb_indicatorColor="@color/faceunityYellow"
+                            app:dsb_indicatorElevation="0dp"
+                            app:dsb_indicatorPopupEnabled="true"
+                            app:dsb_max="100"
+                            app:dsb_min="0"
+                            app:dsb_progressColor="@color/faceunityYellow"
                             app:dsb_scrubberHeight="2dp"
                             app:dsb_thumbSize="16dp"
-                            app:dsb_min="0"
-                            app:dsb_max="100"
-                            app:dsb_value="50"
-                            app:dsb_indicatorPopupEnabled="true"
-                            app:dsb_indicatorElevation="0dp"/>
+                            app:dsb_value="50" />
                     </LinearLayout>
                     <!--enlarge eye select-->
                     <LinearLayout
@@ -295,26 +313,28 @@
                         android:layout_height="58dp"
                         android:gravity="center"
                         android:padding="@dimen/normal_space">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/faceunityYellow"
-                            android:text="大眼"
                             android:layout_marginRight="8dp"
-                            android:textSize="17sp"/>
+                            android:text="大眼"
+                            android:textColor="@color/faceunityYellow"
+                            android:textSize="17sp" />
+
                         <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
                             android:id="@+id/enlarge_eye_level_seekbar"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:dsb_progressColor="@color/faceunityYellow"
                             app:dsb_indicatorColor="@color/faceunityYellow"
+                            app:dsb_indicatorElevation="0dp"
+                            app:dsb_indicatorPopupEnabled="true"
+                            app:dsb_max="100"
+                            app:dsb_min="0"
+                            app:dsb_progressColor="@color/faceunityYellow"
                             app:dsb_scrubberHeight="2dp"
                             app:dsb_thumbSize="16dp"
-                            app:dsb_min="0"
-                            app:dsb_max="100"
-                            app:dsb_value="50"
-                            app:dsb_indicatorPopupEnabled="true"
-                            app:dsb_indicatorElevation="0dp"/>
+                            app:dsb_value="50" />
                     </LinearLayout>
                     <!--cheek thin select-->
                     <LinearLayout
@@ -322,28 +342,30 @@
                         android:layout_width="match_parent"
                         android:layout_height="58dp"
                         android:gravity="center"
-                        android:padding="@dimen/normal_space"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:padding="@dimen/normal_space">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/faceunityYellow"
-                            android:text="瘦脸"
                             android:layout_marginRight="8dp"
-                            android:textSize="17sp"/>
+                            android:text="瘦脸"
+                            android:textColor="@color/faceunityYellow"
+                            android:textSize="17sp" />
+
                         <org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
                             android:id="@+id/cheekthin_level_seekbar"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:dsb_progressColor="@color/faceunityYellow"
                             app:dsb_indicatorColor="@color/faceunityYellow"
+                            app:dsb_indicatorElevation="0dp"
+                            app:dsb_indicatorPopupEnabled="true"
+                            app:dsb_max="100"
+                            app:dsb_min="0"
+                            app:dsb_progressColor="@color/faceunityYellow"
                             app:dsb_scrubberHeight="2dp"
                             app:dsb_thumbSize="16dp"
-                            app:dsb_min="0"
-                            app:dsb_max="100"
-                            app:dsb_value="50"
-                            app:dsb_indicatorPopupEnabled="true"
-                            app:dsb_indicatorElevation="0dp"/>
+                            app:dsb_value="50" />
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout> <!--end of effect select-->
@@ -351,80 +373,86 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@color/percent60translucentBlack">
+                android:background="@color/percent60translucentBlack"
+                android:orientation="horizontal">
+
                 <Button
                     android:id="@+id/btn_choose_effect"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="道具"
                     android:background="@color/colorTranslucent"
-                    android:textSize="16sp"
-                    android:textColor="@color/faceunityYellow"
                     android:onClick="onClick"
-                    android:textStyle="bold"
-                    android:padding="@dimen/min_space"/>
+                    android:padding="@dimen/min_space"
+                    android:text="道具"
+                    android:textColor="@color/faceunityYellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <Button
                     android:id="@+id/btn_choose_filter"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="滤镜"
                     android:background="@color/colorTranslucent"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorWhite"
                     android:onClick="onClick"
-                    android:textStyle="bold"
-                    android:padding="@dimen/min_space"/>
+                    android:padding="@dimen/min_space"
+                    android:text="滤镜"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <Button
                     android:id="@+id/btn_choose_blur_level"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="磨皮"
                     android:background="@color/colorTranslucent"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorWhite"
                     android:onClick="onClick"
-                    android:textStyle="bold"
-                    android:padding="@dimen/min_space"/>
+                    android:padding="@dimen/min_space"
+                    android:text="磨皮"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <Button
                     android:id="@+id/btn_choose_color_level"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="美白"
                     android:background="@color/colorTranslucent"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorWhite"
                     android:onClick="onClick"
-                    android:textStyle="bold"
-                    android:padding="@dimen/min_space"/>
+                    android:padding="@dimen/min_space"
+                    android:text="美白"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <Button
                     android:id="@+id/btn_choose_red_level"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="红润"
                     android:background="@color/colorTranslucent"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorWhite"
                     android:onClick="onClick"
-                    android:textStyle="bold"
-                    android:padding="@dimen/min_space"/>
+                    android:padding="@dimen/min_space"
+                    android:text="红润"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <Button
                     android:id="@+id/btn_choose_face_shape"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="美型"
                     android:background="@color/colorTranslucent"
-                    android:textSize="16sp"
-                    android:textColor="@color/colorWhite"
                     android:onClick="onClick"
-                    android:textStyle="bold"
-                    android:padding="@dimen/min_space"/>
+                    android:padding="@dimen/min_space"
+                    android:text="美型"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout> <!--end of main bottom-->
 
@@ -432,27 +460,26 @@
             android:id="@+id/iv_face_detect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_detect_tip"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:src="@mipmap/ic_detect_tip" />
 
         <Button
             android:id="@+id/btn_choose_camera"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:onClick="onClick"
             android:layout_gravity="right|top"
+            android:layout_margin="@dimen/max_space"
             android:background="@mipmap/camera_front"
-            android:layout_margin="@dimen/max_space"/>
+            android:onClick="onClick" />
 
         <Button
             android:id="@+id/btn_recording"
             android:layout_width="80dp"
             android:layout_height="40dp"
-            android:background="@color/faceunityYellow"
-            android:text="开始录制"
-            android:textColor="@color/colorWhite"
             android:layout_margin="10dp"
+            android:background="@color/faceunityYellow"
             android:onClick="onClick"
-            android:visibility="gone"/>
+            android:text="开始录制"
+            android:textColor="@color/colorWhite" />
     </com.faceunity.fulivedemo.AspectFrameLayout>
 </RelativeLayout>

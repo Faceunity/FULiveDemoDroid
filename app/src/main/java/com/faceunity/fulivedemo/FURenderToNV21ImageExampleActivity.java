@@ -28,16 +28,19 @@ import java.util.List;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.IN_RECORDING;
+import static com.faceunity.fulivedemo.encoder.TextureMovieEncoder.START_RECORDING;
+
 /**
  * 这个Activity演示了如何通过fuRenderToNV21Image
  * 实现在无GL Context的情况下输入nv21的人脸图像，输出添加道具及美颜后的nv21图像
  * 和dual input对应，可以认为single input
- *
+ * <p>
  * FU SDK使用者可以将拿到处理后的nv21图像与自己的原有项目对接
  * 请FU SDK使用者直接参考示例放至代码至对应位置
- *
+ * <p>
  * FU SDK与camera无耦合，不关心数据的来源，只要图像内容正确且和宽高吻合即可
- *
+ * <p>
  * Created by lirui on 2016/12/13.
  */
 
@@ -63,6 +66,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     boolean VERBOSE_LOG = false;
 
     byte[] mCameraNV21Byte;
+    byte[] fuImgNV21Bytes;
 
     float mFacebeautyColorLevel = 0.2f;
     float mFacebeautyBlurLevel = 6.0f;
@@ -83,12 +87,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     MainHandler mMainHandler;
 
-    final int IN_RECORDING = 1;
-    final int START_RECORDING = 2;
-    final int STOP_RECORDING = 3;
-    final int NONE_RECORDING = 4;
-    int mRecordingStatus = NONE_RECORDING;
-
     int currentFrameCnt = 0;
     long lastOneHundredFrameTimeStamp = 0;
     long oneHundredFrameFUTime = 0;
@@ -97,6 +95,13 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
     HandlerThread mCreateItemThread;
     Handler mCreateItemHandler;
+
+    int cameraDataAlreadyCount = 0;
+    final Object prepareCameraDataLock = new Object();
+    boolean isNeedSwitchCameraSurfaceTexture = true;
+
+    TextureMovieEncoder mTexureMovieEncoder;
+    String videoFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,15 +130,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         int mCameraTextureId;
         SurfaceTexture mCameraSurfaceTexture;
 
-        boolean isFirstOnDrawFrame;
+        boolean isFirstCameraOnDrawFrame;
 
-        //Note : this mtx may be not proper for every device, here use it just in a demo
-        float[] mtxCameraFront = {0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
-        float[] mtxCameraBack = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
         int faceTrackingStatus = 0;
-
-        TextureMovieEncoder mTexureMovieEncoder;
-        String videoFileName;
 
         @Override
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -165,7 +164,7 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
                 e.printStackTrace();
             }
 
-            isFirstOnDrawFrame = true;
+            isFirstCameraOnDrawFrame = true;
             //faceunity.disableBoostWithEGLImage();
         }
 
@@ -179,6 +178,27 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             if (VERBOSE_LOG) {
                 Log.e(TAG, "onDrawFrame");
             }
+
+            while (cameraDataAlreadyCount < 2) {
+                if (isFirstCameraOnDrawFrame) {
+                    glSf.requestRender();
+                    return;
+                }
+                synchronized (prepareCameraDataLock) {
+                    if (isNeedSwitchCameraSurfaceTexture) {
+                        switchCameraSurfaceTexture();
+                    }
+                    //block until new camera frame comes.
+
+                    try {
+                        prepareCameraDataLock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            isFirstCameraOnDrawFrame = false;
 
             /**
              * 获取camera数据, 更新到texture
@@ -213,10 +233,10 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
             if (++currentFrameCnt == 100) {
                 currentFrameCnt = 0;
-                long tmp = System.currentTimeMillis();
-                Log.e(TAG, "renderToNV21Image FPS : " + (1000.0f / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
+                long tmp = System.nanoTime();
+                Log.e(TAG, "renderToNV21Image FPS : " + (1000.0f * MiscUtil.NANO_IN_ONE_MILLI_SECOND / ((tmp - lastOneHundredFrameTimeStamp) / 100.0f)));
                 lastOneHundredFrameTimeStamp = tmp;
-                Log.e(TAG, "renderToNV21Image cost time avg : " + oneHundredFrameFUTime / 100.f);
+                Log.e(TAG, "renderToNV21Image cost time avg : " + oneHundredFrameFUTime / 100.f / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
                 oneHundredFrameFUTime = 0;
             }
 
@@ -234,36 +254,69 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             faceunity.fuItemSetParam(mFacebeautyItem, "face_shape_level", mFaceShapeLevel);
             faceunity.fuItemSetParam(mFacebeautyItem, "red_level", mFacebeautyRedLevel);
 
-
-            //faceunity.fuItemSetParam(mFacebeautyItem, "is_beauty_on", 0);
-
             if (mCameraNV21Byte == null || mCameraNV21Byte.length == 0) {
                 Log.e(TAG, "camera nv21 bytes null");
+                glSf.requestRender();
                 return;
             }
+
+            if (fuImgNV21Bytes == null) {
+                fuImgNV21Bytes = new byte[mCameraNV21Byte.length];
+            }
+            long beforeCopy = System.nanoTime();
+            System.arraycopy(mCameraNV21Byte, 0, fuImgNV21Bytes, 0, mCameraNV21Byte.length);
+            long afterCopy = System.nanoTime();
+            if (VERBOSE_LOG) {
+                Log.e(TAG, "array len " + mCameraNV21Byte.length + " time " + (afterCopy - beforeCopy) / MiscUtil.NANO_IN_ONE_MILLI_SECOND);
+            }
+
             /**
              * 这个函数执行完成后，入参的nv21 byte数组会被改变
              */
-            long fuStartTime = System.currentTimeMillis();
-            int fuTex = faceunity.fuRenderToNV21Image(mCameraNV21Byte,
+            long fuStartTime = System.nanoTime();
+            int fuTex = faceunity.fuRenderToNV21Image(fuImgNV21Bytes,
                     cameraWidth, cameraHeight, mFrameId, itemsArray, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X);
-            long fuEndTime = System.currentTimeMillis();
+            long fuEndTime = System.nanoTime();
             oneHundredFrameFUTime += fuEndTime - fuStartTime;
 
             if (DRAW_RETURNED_TEXTURE) {
-                mFullScreenFUDisplay.drawFrame(fuTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
-                                mtxCameraFront : mtxCameraBack);
+                mFullScreenFUDisplay.drawFrame(fuTex, mtx);
             } else {
                 //TODO 将nv21 byte数组转换成texture，并通过预览检测正确性
                 //int loadNV21ByteTex = faceunity.fuRenderNV21ImageToTexture(mCameraNV21Byte, cameraWidth,
-                  //      cameraHeight, mFrameId, new int[]{0});
+                //      cameraHeight, mFrameId, new int[]{0});
                 //mFullScreenFUDisplay.drawFrame(loadNV21ByteTex, mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ?
-                  //      mtxCameraFront : mtxCameraBack);
+                //      mtxCameraFront : mtxCameraBack);
             }
             mFrameId++;
+
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(START_RECORDING)) {
+                videoFileName = MiscUtil.createFileName() + "_camera.mp4";
+                File outFile = new File(videoFileName);
+                mTexureMovieEncoder.startRecording(new TextureMovieEncoder.EncoderConfig(
+                        outFile, cameraHeight, cameraWidth,
+                        3000000, EGL14.eglGetCurrentContext()
+                ));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(FURenderToNV21ImageExampleActivity.this, "video file saved to "
+                                + videoFileName, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+                mTexureMovieEncoder.setTextureId(fuTex);
+                mTexureMovieEncoder.frameAvailable(mCameraSurfaceTexture);
+
+            }
+
+            glSf.requestRender();
         }
 
         public void switchCameraSurfaceTexture() {
+            isNeedSwitchCameraSurfaceTexture = false;
             if (mCameraSurfaceTexture != null) {
                 faceunity.fuOnCameraChange();
                 mCameraSurfaceTexture.release();
@@ -276,6 +329,8 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
 
         public void notifyPause() {
             faceTrackingStatus = 0;
+            onStopRecording();
+
             if (mFullScreenFUDisplay != null) {
                 mFullScreenFUDisplay.release(false);
             }
@@ -311,7 +366,6 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         aspectFrameLayout.setAspectRatio(1.0f * cameraHeight / cameraWidth);
 
         glSf.onResume();
-
     }
 
     @Override
@@ -395,7 +449,11 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
             }
         }
         mCameraNV21Byte = data;
-        glSf.requestRender();
+
+        synchronized (prepareCameraDataLock) {
+            cameraDataAlreadyCount++;
+            prepareCameraDataLock.notify();
+        }
     }
 
     private void handleCameraStartPreview(SurfaceTexture st) {
@@ -403,20 +461,20 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         mCamera.setPreviewCallback(this);
         try {
             mCamera.setPreviewTexture(st);
+            st.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+                @Override
+                public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                    synchronized (prepareCameraDataLock) {
+                        cameraDataAlreadyCount++;
+                        prepareCameraDataLock.notify();
+                    }
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*st.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
-            @Override
-            public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                Log.e(TAG, "onFrameAvailable");
-                //
-                //glSf.requestRender();
-            }
-        });*/
         mCamera.startPreview();
     }
-
 
 
     @SuppressWarnings("deprecation")
@@ -424,6 +482,9 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         if (VERBOSE_LOG) {
             Log.d(TAG, "openCamera");
         }
+
+        cameraDataAlreadyCount = 0;
+
         if (mCamera != null) {
             throw new RuntimeException("camera already initialized");
         }
@@ -447,10 +508,18 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
         CameraUtils.setCameraDisplayOrientation(this, cameraId, mCamera);
 
         Camera.Parameters parameters = mCamera.getParameters();
+
         List<String> focusModes = parameters.getSupportedFocusModes();
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-        mCamera.setDisplayOrientation(90);
+
+        /**
+         * 设置fps
+         * */
+        int[] closetFramerate = CameraUtils.closetFramerate(parameters, 30);
+        Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
+        parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
+
         CameraUtils.choosePreviewSize(parameters, desiredWidth, desiredHeight);
         mCamera.setParameters(parameters);
     }
@@ -591,18 +660,22 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     @Override
     protected void onCameraChange() {
         Log.d(TAG, "onCameraChange");
-        releaseCamera();
-        if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
-        } else {
-            openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
-        }
-        glSf.queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                glRenderer.switchCameraSurfaceTexture();
+
+        synchronized (prepareCameraDataLock) {
+            cameraDataAlreadyCount = 0;
+
+            isNeedSwitchCameraSurfaceTexture = true;
+
+            mFrameId = 0;
+
+            releaseCamera();
+
+            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_BACK, cameraWidth, cameraHeight);
+            } else {
+                openCamera(Camera.CameraInfo.CAMERA_FACING_FRONT, cameraWidth, cameraHeight);
             }
-        });
+        }
     }
 
     @Override
@@ -620,18 +693,24 @@ public class FURenderToNV21ImageExampleActivity extends FUBaseUIActivity
     @Override
     protected void onStartRecording() {
         MiscUtil.Logger(TAG, "start recording", false);
-        mRecordingStatus = START_RECORDING;
+        mTexureMovieEncoder = new TextureMovieEncoder();
     }
 
     @Override
     protected void onStopRecording() {
         MiscUtil.Logger(TAG, "stop recording", false);
-        mRecordingStatus = STOP_RECORDING;
+        if (mTexureMovieEncoder != null && mTexureMovieEncoder.checkRecordingStatus(IN_RECORDING)) {
+            mTexureMovieEncoder.stopRecording();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mEffectFileName = EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[1];
+
+        mCreateItemThread.quit();
+        mCreateItemThread = null;
+        mCreateItemHandler = null;
     }
 }

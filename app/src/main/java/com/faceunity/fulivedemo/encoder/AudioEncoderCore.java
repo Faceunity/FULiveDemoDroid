@@ -20,10 +20,10 @@ public class AudioEncoderCore {
     // TODO: these ought to be configurable as well
     private static final String MIME_TYPE = "audio/mp4a-latm";
     private static final int SAMPLE_RATE = 44100;   // 44.1[KHz] is only setting guaranteed to be available on all devices.
-    private static final int BIT_RATE = 64000;
-    private static final int SAMPLES_PER_FRAME = 1024;   // AAC, bytes/frame/channel
-    private static final int FRAMES_PER_BUFFER = 25;     // AAC, frame/buffer/sec
-    private static final int TIMEOUT_USEC = 10000;	// 10[msec]
+    private static final int BIT_RATE = 128000;
+    private static final int SAMPLES_PER_FRAME = 2048;   // AAC, bytes/frame/channel
+    private static final int FRAMES_PER_BUFFER = 24;     // AAC, frame/buffer/sec
+    private static final int TIMEOUT_USEC = 10000;    // 10[msec]
 
     private MediaMuxerWrapper mMuxer;
     private MediaCodec mEncoder;
@@ -56,8 +56,9 @@ public class AudioEncoderCore {
 
     /**
      * Method to set byte array to the MediaCodec encoder
+     *
      * @param buffer
-     * @param length　length of byte array, zero means EOS.
+     * @param length             　length of byte array, zero means EOS.
      * @param presentationTimeUs
      */
     protected void encode(final ByteBuffer buffer, final int length, final long presentationTimeUs) {
@@ -101,25 +102,15 @@ public class AudioEncoderCore {
      * We're just using the muxer to get a .mp4 file (instead of a raw H.264 stream).  We're
      * not recording audio.
      */
-    public void drainEncoder(boolean endOfStream) {
+    public void drainEncoder() {
         final int TIMEOUT_USEC = 10000;
-        if (VERBOSE) Log.d(TAG, "drainEncoder(" + endOfStream + ")");
-
-        if (endOfStream) {
-            if (VERBOSE) Log.d(TAG, "sending EOS to encoder");
-            mEncoder.signalEndOfInputStream();
-        }
 
         ByteBuffer[] encoderOutputBuffers = mEncoder.getOutputBuffers();
         while (true) {
             int encoderStatus = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                 // no output available yet
-                if (!endOfStream) {
-                    break;      // out of while
-                } else {
-                    if (VERBOSE) Log.d(TAG, "no output available, spinning to await EOS");
-                }
+                break;      // out of while
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                 // not expected for an encoder
                 encoderOutputBuffers = mEncoder.getOutputBuffers();
@@ -183,11 +174,6 @@ public class AudioEncoderCore {
                 mEncoder.releaseOutputBuffer(encoderStatus, false);
 
                 if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-                    if (!endOfStream) {
-                        Log.w(TAG, "reached end of stream unexpectedly");
-                    } else {
-                        if (VERBOSE) Log.d(TAG, "end of stream reached");
-                    }
                     break;      // out of while
                 }
             }

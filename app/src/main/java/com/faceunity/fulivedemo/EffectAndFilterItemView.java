@@ -13,7 +13,7 @@ import android.widget.TextView;
  * Created by lirui on 2017/1/20.
  */
 
-public class EffectAndFilterItemView extends LinearLayout{
+public class EffectAndFilterItemView extends LinearLayout {
     private ImageView mItemIcon;
     private TextView mItemText;
 
