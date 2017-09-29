@@ -114,6 +114,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     boolean isInAvatarMode = false;
 
+    boolean boostBestCameraFPS = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "onCreate");
@@ -707,9 +709,11 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         /**
          * 设置fps
          * */
-        int[] closetFramerate = CameraUtils.closetFramerate(parameters, 30);
-        Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
-        parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
+        if (boostBestCameraFPS) {
+            int[] closetFramerate = CameraUtils.closetFramerate(parameters, 30);
+            Log.e(TAG, "closet framerate min " + closetFramerate[0] + " max " + closetFramerate[1]);
+            parameters.setPreviewFpsRange(closetFramerate[0], closetFramerate[1]);
+        }
 
         CameraUtils.choosePreviewSize(parameters, desiredWidth, desiredHeight);
         mCamera.setParameters(parameters);
