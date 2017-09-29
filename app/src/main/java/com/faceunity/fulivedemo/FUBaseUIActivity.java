@@ -2,6 +2,7 @@ package com.faceunity.fulivedemo;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,8 +53,11 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
     protected ImageView mFaceTrackingStatusImageView;
 
-    private Button mRecordingBtn;
+    protected Button mRecordingBtn;
     private int mRecordStatus = 0;
+
+    TextView tvSystemError;
+    TextView tvHint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +77,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
             public void onItemSelected(int itemPosition) {
                 Log.d(TAG, "effect item selected " + itemPosition);
                 onEffectItemSelected(EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[itemPosition]);
+                showHintText(mEffectRecyclerAdapter.getHintStringByPosition(itemPosition));
             }
         });
         mEffectRecyclerView.setAdapter(mEffectRecyclerAdapter);
@@ -211,6 +216,8 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
 
         mFaceTrackingStatusImageView = (ImageView) findViewById(R.id.iv_face_detect);
         mRecordingBtn = (Button) findViewById(R.id.btn_recording);
+        tvSystemError = (TextView) findViewById(R.id.tv_system_error);
+        tvHint = (TextView) findViewById(R.id.hint_text);
     }
 
     @Override
@@ -244,6 +251,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
                 onCameraChange();
                 break;
             case R.id.btn_recording:
+                mRecordingBtn.setVisibility(View.INVISIBLE);
                 if (mRecordStatus == 0) {
                     mRecordingBtn.setText("停止录制");
                     onStartRecording();
@@ -273,6 +281,23 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         }
     }
 
+    Handler mMainHandler;
+    Runnable resetHintRunnable = new Runnable() {
+        @Override
+        public void run() {
+            tvHint.setText("");
+        }
+    };
+
+    public void showHintText(String hint) {
+        if (mMainHandler == null) return;
+        if (tvHint != null) {
+            mMainHandler.removeCallbacks(resetHintRunnable);
+            tvHint.setText(hint);
+        }
+        mMainHandler.postDelayed(resetHintRunnable, 5000);
+    }
+
     private void setBlurLevelTextBackground(TextView tv) {
         mBlurLevels[0].setBackground(getResources().getDrawable(R.drawable.zero_blur_level_item_unselected));
         for (int i = 1; i < BLUR_LEVEL_TV_ID.length; i++) {
@@ -294,12 +319,12 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
     }
 
     private void setEffectFilterBeautyChooseBlock(View v) {
-        mEffectRecyclerView.setVisibility(View.INVISIBLE);
-        mFilterRecyclerView.setVisibility(View.INVISIBLE);
-        mFaceShapeSelect.setVisibility(View.INVISIBLE);
-        mBlurLevelSelect.setVisibility(View.INVISIBLE);
-        mColorLevelSelect.setVisibility(View.INVISIBLE);
-        mRedLevelSelect.setVisibility(View.INVISIBLE);
+        mEffectRecyclerView.setVisibility(View.GONE);
+        mFilterRecyclerView.setVisibility(View.GONE);
+        mFaceShapeSelect.setVisibility(View.GONE);
+        mBlurLevelSelect.setVisibility(View.GONE);
+        mColorLevelSelect.setVisibility(View.GONE);
+        mRedLevelSelect.setVisibility(View.GONE);
         v.setVisibility(View.VISIBLE);
     }
 

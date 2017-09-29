@@ -131,6 +131,7 @@ public class CameraUtils {
         camera.setDisplayOrientation(result);
     }
 
+    //TODO: follow the recipe from http://stackoverflow.com/questions/22639336/#22645327
     public static int[] closetFramerate(Camera.Parameters parameters, float frameRate) {
         int framerate = (int) (frameRate * 1000);
         List<int[]> rates = parameters.getSupportedPreviewFpsRange();

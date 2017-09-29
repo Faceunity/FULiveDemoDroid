@@ -14,13 +14,13 @@ import java.util.Arrays;
 public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAndFilterSelectAdapter.ItemViewHolder> {
 
     public static final int[] EFFECT_ITEM_RES_ARRAY = {
-            R.mipmap.ic_delete_all, R.mipmap.tiara, R.mipmap.item0208, R.mipmap.yellowear,
-            R.mipmap.princesscrown, R.mipmap.mood, R.mipmap.deer, R.mipmap.beagledog, R.mipmap.item0501,
-            R.mipmap.colorcrown, R.mipmap.item0210, R.mipmap.happyrabbi, R.mipmap.item0204, R.mipmap.hartshorn
+            R.mipmap.ic_delete_all, R.mipmap.item0204, R.mipmap.bgseg, R.mipmap.fu_zh_duzui,
+            R.mipmap.yazui,  R.mipmap.matianyu, R.mipmap.lixiaolong,
+            R.mipmap.mood, R.mipmap.gradient, R.mipmap.yuguan,
     };
-    public static final String[] EFFECT_ITEM_FILE_NAME = {"none", "tiara.mp3", "item0208.mp3",
-            "YellowEar.mp3", "PrincessCrown.mp3", "Mood.mp3", "Deer.mp3", "BeagleDog.mp3", "item0501.mp3",
-            "ColorCrown.mp3", "item0210.mp3", "HappyRabbi.mp3", "item0204.mp3", "hartshorn.mp3"};
+    public static final String[] EFFECT_ITEM_FILE_NAME = {"none", "item0204.mp3", "bg_seg.bundle", "fu_zh_duzui.mp3",
+             "yazui.mp3", "mask_matianyu.bundle","lixiaolong.bundle",
+            "Mood.mp3", "gradient.bundle", "yuguan.mp3",};
 
     public static final int[] FILTER_ITEM_RES_ARRAY = {
             R.mipmap.nature, R.mipmap.delta, R.mipmap.electric, R.mipmap.slowlived, R.mipmap.tokyo, R.mipmap.warm
@@ -33,18 +33,15 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
     private RecyclerView mOwnerRecyclerView;
     private int mOwnerRecyclerViewType;
 
-    private ArrayList<Boolean> mItemsClickStateList;
     private final int EFFECT_DEFAULT_CLICK_POSITION = 1;
     private final int FILTER_DEFAULT_CLICK_POSITION = 0;
-    private int mLastClickPosition = -1;
+    private EffectAndFilterItemView lastClickItemView = null;
+    private int lastClickPosition = EFFECT_DEFAULT_CLICK_POSITION;
     private OnItemSelectedListener mOnItemSelectedListener;
 
     public EffectAndFilterSelectAdapter(RecyclerView recyclerView, int recyclerViewType) {
         mOwnerRecyclerView = recyclerView;
         mOwnerRecyclerViewType = recyclerViewType;
-
-        mItemsClickStateList = new ArrayList<>();
-        initItemsClickState();
     }
 
     @Override
@@ -54,33 +51,42 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
                 FILTER_ITEM_RES_ARRAY.length;
     }
 
+    String getHintStringByPosition(int position) {
+        String res = "";
+        switch (EFFECT_ITEM_RES_ARRAY[position]) {
+            case R.mipmap.mood:
+                res = "嘴角向上或嘴角向下";
+                break;
+            case R.mipmap.fu_zh_duzui:
+                res = "嘟嘴";
+                break;
+        }
+        return res;
+    }
+
     @Override
     public void onBindViewHolder(final ItemViewHolder holder, final int position) {
-        if (mItemsClickStateList.get(position) == null || !mItemsClickStateList.get(position)) {
-            holder.mItemView.setUnselectedBackground();
-        } else {
+        final int adapterPosition = holder.getAdapterPosition();
+        if (adapterPosition == lastClickPosition) {
             holder.mItemView.setSelectedBackground();
-        }
+            lastClickItemView = holder.mItemView;
+        } else holder.mItemView.setUnselectedBackground();
 
         if (mOwnerRecyclerViewType == RECYCLEVIEW_TYPE_EFFECT) {
-            holder.mItemView.setItemIcon(EFFECT_ITEM_RES_ARRAY[position % EFFECT_ITEM_RES_ARRAY.length]);
+            holder.mItemView.setItemIcon(EFFECT_ITEM_RES_ARRAY[adapterPosition % EFFECT_ITEM_RES_ARRAY.length]);
         } else {
-            holder.mItemView.setItemIcon(FILTER_ITEM_RES_ARRAY[position % FILTER_ITEM_RES_ARRAY.length]);
-            holder.mItemView.setItemText(FILTERS_NAME[position % FILTER_ITEM_RES_ARRAY.length].toUpperCase());
+            holder.mItemView.setItemIcon(FILTER_ITEM_RES_ARRAY[adapterPosition % FILTER_ITEM_RES_ARRAY.length]);
+            holder.mItemView.setItemText(FILTERS_NAME[adapterPosition % FILTER_ITEM_RES_ARRAY.length].toUpperCase());
         }
 
         holder.mItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mLastClickPosition != position) {
-                    ItemViewHolder lastItemViewHolder = (ItemViewHolder) mOwnerRecyclerView.findViewHolderForAdapterPosition(mLastClickPosition);
-                    if (lastItemViewHolder != null) {
-                        lastItemViewHolder.mItemView.setUnselectedBackground();
-                    }
-                    mItemsClickStateList.set(mLastClickPosition, false);
-                }
+                if (lastClickItemView != null) lastClickItemView.setUnselectedBackground();
+                lastClickItemView = holder.mItemView;
+                lastClickPosition = adapterPosition;
                 holder.mItemView.setSelectedBackground();
-                setClickPosition(position);
+                setClickPosition(adapterPosition);
             }
         });
     }
@@ -99,26 +105,10 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
         }
     }
 
-    private void initItemsClickState() {
-        if (mItemsClickStateList == null) {
-            return;
-        }
-        mItemsClickStateList.clear();
-        if (mOwnerRecyclerViewType == RECYCLEVIEW_TYPE_EFFECT) {
-            mItemsClickStateList.addAll(Arrays.asList(new Boolean[EFFECT_ITEM_RES_ARRAY.length]));
-            setClickPosition(EFFECT_DEFAULT_CLICK_POSITION);
-        } else {
-            mItemsClickStateList.addAll(Arrays.asList(new Boolean[FILTER_ITEM_RES_ARRAY.length]));
-            setClickPosition(FILTER_DEFAULT_CLICK_POSITION);
-        }
-    }
-
     private void setClickPosition(int position) {
         if (position < 0) {
             return;
         }
-        mItemsClickStateList.set(position, true);
-        mLastClickPosition = position;
         if (mOnItemSelectedListener != null) {
             mOnItemSelectedListener.onItemSelected(position);
         }

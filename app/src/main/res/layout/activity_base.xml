@@ -33,8 +33,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:textColor="@color/colorWhite"
-                android:textSize="16sp" />
+                android:textColor="@color/faceunityYellow"
+                android:textSize="16sp"
+                android:layout_margin="8dp"/>
 
             <!--start of effect beauty select-->
             <FrameLayout
@@ -65,7 +66,7 @@
                     android:orientation="horizontal"
                     android:visibility="gone">
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level0"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -76,7 +77,7 @@
                         android:onClick="onClick"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level1"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -89,7 +90,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level2"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -102,7 +103,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level3"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -115,7 +116,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level4"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -128,7 +129,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level5"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -141,7 +142,7 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="22sp" />
 
-                    <TextView
+                    <Button
                         android:id="@+id/blur_level6"
                         android:layout_width="@dimen/blur_circle_size"
                         android:layout_height="@dimen/blur_circle_size"
@@ -225,7 +226,7 @@
                             android:textColor="@color/faceunityYellow"
                             android:textSize="17sp" />
 
-                        <TextView
+                        <Button
                             android:id="@+id/face_shape_3_default"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
@@ -238,7 +239,7 @@
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <Button
                             android:id="@+id/face_shape_0_nvshen"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
@@ -251,7 +252,7 @@
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <Button
                             android:id="@+id/face_shape_1_wanghong"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
@@ -264,7 +265,7 @@
                             android:textColor="@color/white"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <Button
                             android:id="@+id/face_shape_2_ziran"
                             android:layout_width="50dp"
                             android:layout_height="30dp"
@@ -381,7 +382,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/colorTranslucent"
+                    android:background="?android:selectableItemBackground"
                     android:onClick="onClick"
                     android:padding="@dimen/min_space"
                     android:text="道具"
@@ -394,7 +395,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/colorTranslucent"
+                    android:background="?android:selectableItemBackground"
                     android:onClick="onClick"
                     android:padding="@dimen/min_space"
                     android:text="滤镜"
@@ -407,7 +408,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/colorTranslucent"
+                    android:background="?android:selectableItemBackground"
                     android:onClick="onClick"
                     android:padding="@dimen/min_space"
                     android:text="磨皮"
@@ -420,7 +421,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/colorTranslucent"
+                    android:background="?android:selectableItemBackground"
                     android:onClick="onClick"
                     android:padding="@dimen/min_space"
                     android:text="美白"
@@ -433,7 +434,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/colorTranslucent"
+                    android:background="?android:selectableItemBackground"
                     android:onClick="onClick"
                     android:padding="@dimen/min_space"
                     android:text="红润"
@@ -446,7 +447,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/colorTranslucent"
+                    android:background="?android:selectableItemBackground"
                     android:onClick="onClick"
                     android:padding="@dimen/min_space"
                     android:text="美型"
@@ -462,6 +463,15 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@mipmap/ic_detect_tip" />
+        <TextView
+            android:id="@+id/tv_system_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="20sp"
+            android:textColor="@color/brickRedColor"
+            android:layout_gravity="center"
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/btn_choose_camera"

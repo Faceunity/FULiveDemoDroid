@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 
 public class AudioEncoderCore {
     private static final String TAG = "AudioEncoder";
-    private static final boolean VERBOSE = true;
+    private static final boolean VERBOSE = false;
 
     // TODO: these ought to be configurable as well
     private static final String MIME_TYPE = "audio/mp4a-latm";
@@ -61,7 +61,7 @@ public class AudioEncoderCore {
      * @param length             　length of byte array, zero means EOS.
      * @param presentationTimeUs
      */
-    protected void encode(final ByteBuffer buffer, final int length, final long presentationTimeUs) {
+    protected void encode(final ByteBuffer buffer, final int length, final long presentationTimeUs) throws Exception {
         if (VERBOSE) Log.e(TAG, "encode");
         final ByteBuffer[] inputBuffers = mEncoder.getInputBuffers();
         while (true) {
@@ -102,7 +102,7 @@ public class AudioEncoderCore {
      * We're just using the muxer to get a .mp4 file (instead of a raw H.264 stream).  We're
      * not recording audio.
      */
-    public void drainEncoder() {
+    public void drainEncoder() throws Exception {
         final int TIMEOUT_USEC = 10000;
 
         ByteBuffer[] encoderOutputBuffers = mEncoder.getOutputBuffers();

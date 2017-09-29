@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
  */
 public class VideoEncoderCore {
     private static final String TAG = "VideoEncoder";
-    private static final boolean VERBOSE = true;
+    private static final boolean VERBOSE = false;
 
     // TODO: these ought to be configurable as well
     private static final String MIME_TYPE = "video/avc";    // H.264 Advanced Video Coding
@@ -119,7 +119,7 @@ public class VideoEncoderCore {
      * We're just using the muxer to get a .mp4 file (instead of a raw H.264 stream).  We're
      * not recording audio.
      */
-    public void drainEncoder(boolean endOfStream) {
+    public void drainEncoder(boolean endOfStream) throws Exception{
         final int TIMEOUT_USEC = 10000;
         if (VERBOSE) Log.d(TAG, "drainEncoder(" + endOfStream + ")");
 
