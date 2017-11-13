@@ -24,12 +24,15 @@ FULiveDemoDroid 是 Faceunity 的面部跟踪和虚拟道具功能在Android SDK
 ## 集成方法
 我们的系统需要EGL context的环境进行GPU绘制，并且所有API需要在同一线程调用。如果接入环境中没有OpenGL环境无法提供EGL context,可以调用 `fuCreateEGLContext` 进行创建，并且只需要在初始化时创建一次，并且请注意在退出需要销毁时调用`fuReleaseEGLContext`。
 
-将 nama.jar 放在工程的 app/libs/ 文件夹下。将对应平台的 libnama.so 拷贝至 app/src/main/jniLibs/ 对应文件夹下。
+添加库文件的方式有以下2种,本质并无区别：
+
+- 将 nama.jar 放在工程的 app/libs/ 文件夹下。将对应平台的 libnama.so 拷贝至 app/src/main/jniLibs/ 对应文件夹下。
 之后在代码中加入
 ```Java
 import com.faceunity.wrapper.faceunity
 ```
 即可调用人脸跟踪及虚拟道具相关函数。
+- gradle文件中增加`compile 'com.faceunity:nama:x.y.z'`，其中`x.y.z`为具体的版本号，和release note一致。
 
 下面以使用GLSurfaceView搭配SDK Camera API为例，集成步骤主要分三步，另外全部API请参考`函数接口及参数说明`一节。
 
