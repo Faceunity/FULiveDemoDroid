@@ -2,24 +2,27 @@
 
 FULiveDemoDroid 是 Faceunity 的面部跟踪和虚拟道具功能在Android SDK中的集成，作为一款集成示例。
 
-## SDK v4.0 更新
+## SDK v4.4 更新
 
-在v4.0版本中，我们全面升级了移动端实时深度学习框架，更好地支持视频应用中日益增长的AI需求。随之推出的第一个功能是背景分割，开启该功能的道具可以在相机画面中自动分割出人像，并替换背景为其他内容。
+在v4.4版本中，我们做了一些优化，主要包括以下几点：
 
-由于深度学习框架的升级，SDK的库文件从之前的 ~3M 增加到了 ~5M，如果不需要AI相关功能，可以下载[SDK lite版](https://github.com/Faceunity/FULiveDemoDroid/releases)，库文件大小和老版本保持一致。
+- 新增表情优化功能
+- 优化表情校准功能
+- 修复高精度人脸重建相关问题
+- 修复偶现网络鉴权失败问题
+- 其他累积问题修复、接口调整
 
-与新版SDK一起，我们也推出更方便和好用的2D/3D贴纸道具制作工具——FUEditor，助力视频应用快速应对市场，推出具有个性化和吸引力的道具和玩法。相关文档和下载在[这里](https://github.com/Faceunity/FUEditor)，制作过程中遇到问题可以联系我司技术支持。
+具体更新内容可以到[这里](https://github.com/Faceunity/FULiveDemoDroid/blob/dev/docs/FUNama_SDK_v4.4_%E6%9B%B4%E6%96%B0%E6%96%87%E6%A1%A3.md)查看详细文档。
 
-此外，我们优化了SDK的系统稳定性，在网络条件波动的情况下保持SDK正常运行，并提供了获取SDK系统错误信息的接口，方便应用灵活处理。
 
 ## 库文件
   - nama.jar 函数调用接口
   - libnama.so 人脸跟踪及道具绘制核心库
   
 ## 数据文件
-目录 app/src/main/assets/ 下的 \*.mp3 为程序的数据文件。数据文件中都是二进制数据，与扩展名无关，用mp3只是为了避免打包时额外的压缩。实际在app中使用时，打包在程序内或者从网络接口下载这些数据都是可行的，只要在相应的函数接口传入正确的二进制数据即可。
+目录 app/src/main/assets/ 下的 \*.bundle 为程序的数据文件。数据文件中都是二进制数据，与扩展名无关，用bundle只是为了避免打包时额外的压缩。实际在app中使用时，打包在程序内或者从网络接口下载这些数据都是可行的，只要在相应的函数接口传入正确的二进制数据即可。
 
-其中 v3.mp3 是所有道具共用的数据文件，缺少该文件会导致系统初始化失败。其他每一个文件对应一个道具。自定义道具制作的文档和工具请联系我司获取。
+其中 v3.bundle 是所有道具共用的数据文件，缺少该文件会导致系统初始化失败。其他每一个文件对应一个道具。自定义道具制作的文档和工具请联系我司获取。
   
 ## 集成方法
 我们的系统需要EGL context的环境进行GPU绘制，并且所有API需要在同一线程调用。如果接入环境中没有OpenGL环境无法提供EGL context,可以调用 `fuCreateEGLContext` 进行创建，并且只需要在初始化时创建一次，并且请注意在退出需要销毁时调用`fuReleaseEGLContext`。
@@ -38,10 +41,10 @@ import com.faceunity.wrapper.faceunity
 
 #### 环境初始化
 
-在 GLSurfaceView 的 Renderer 的回调函数 onSurfaceCrated 中进行环境初始化，读取人脸数据 v3.mp3 文件，然后调用 fuSetup 。其中 g_auth_package 为密钥数组，没有密钥的话则传入 null 进行测试。
+在 GLSurfaceView 的 Renderer 的回调函数 onSurfaceCrated 中进行环境初始化，读取人脸数据 v3.bundle 文件，然后调用 fuSetup 。其中 g_auth_package 为密钥数组，没有密钥的话则传入 null 进行测试。
 
 ```Java
-    InputStream is = mContext.getAssets().open("v3.mp3");
+    InputStream is = mContext.getAssets().open("v3.bundle");
     byte[] v3data = new byte[is.available()];
     is.read(v3data);
     is.close();    
@@ -54,7 +57,7 @@ import com.faceunity.wrapper.faceunity
 
 道具加载：
 ```Java
-    InputStream is = mContext.getAssets().open("YelloEar.mp3");
+    InputStream is = mContext.getAssets().open("YelloEar.bundle");
     byte[] item_data = new byte[is.available()];
     is.read(item_data);
     is.close();
@@ -65,7 +68,7 @@ import com.faceunity.wrapper.faceunity
 
 美颜加载：
 ```Java
-    InputStream is = mContext.getAssets().open("face_beautification.mp3");
+    InputStream is = mContext.getAssets().open("face_beautification.bundle");
     byte[] item_data = new byte[is.available()];
     is.read(item_data);
     is.close();
@@ -176,7 +179,7 @@ fuItemSetParamd(g_items[1], "cheek_thinning", 1.0);
 ## 手势识别
 目前我们的手势识别功能也是以道具的形式进行加载的。一个手势识别的道具中包含了要识别的手势、识别到该手势时触发的动效、及控制脚本。加载该道具的过程和加载普通道具、美颜道具的方法一致。
 
-线上例子中 heart.mp3 为爱心手势演示道具。将其作为道具加载进行绘制即可启用手势识别功能。手势识别道具可以和普通道具及美颜共存，类似美颜将 m_items 扩展为三个并在最后加载手势道具即可。
+线上例子中 heart.bundle 为爱心手势演示道具。将其作为道具加载进行绘制即可启用手势识别功能。手势识别道具可以和普通道具及美颜共存，类似美颜将 m_items 扩展为三个并在最后加载手势道具即可。
 
 自定义手势道具的流程和2D道具制作一致，具体打包的细节可以联系我司技术支持。
 
@@ -246,7 +249,7 @@ public class authpack {
 * 检查图像自身正确性
 * 检查图像自身格式
 * 检查传参图像宽高
-* 检查库文件是否配套完全更新，如v3.mp3有无更新
+* 检查库文件是否配套完全更新，如v3.bundle有无更新
 
 ### 为什么过了一段时间人脸识别失效了？
 * 检查证书。如证书是否正确使用，是否过期。

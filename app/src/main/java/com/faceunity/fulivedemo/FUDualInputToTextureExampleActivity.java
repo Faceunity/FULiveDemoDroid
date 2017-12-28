@@ -67,8 +67,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     static int mFaceBeautyItem = 0; //美颜道具
     static int mEffectItem = 0; //贴纸道具
-    static int mGestureItem = 0; //手势道具
-    static int[] itemsArray = {mFaceBeautyItem, mEffectItem, mGestureItem};
+    static int[] itemsArray = {mFaceBeautyItem, mEffectItem};
 
     long resumeTimeStamp;
     boolean isFirstOnFrameAvailable;
@@ -99,8 +98,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     TextureMovieEncoder mTextureMovieEncoder;
     String videoFileName;
-
-    boolean mUseGesture = false;
 
     HandlerThread mCreateItemThread;
     Handler mCreateItemHandler;
@@ -294,7 +291,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             switchCameraSurfaceTexture();
 
             try {
-                InputStream is = getAssets().open("v3.mp3");
+                InputStream is = getAssets().open("v3.bundle");
                 byte[] v3data = new byte[is.available()];
                 int len = is.read(v3data);
                 is.close();
@@ -302,8 +299,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 //faceunity.fuSetMaxFaces(1);//设置最大识别人脸数目
                 Log.e(TAG, "fuSetup v3 len " + len);
 
+                is = getAssets().open("anim_model.bundle");
+                byte[] animModelData = new byte[is.available()];
+                is.read(animModelData);
+                is.close();
+                faceunity.fuLoadAnimModel(animModelData);
+
                 if (mUseBeauty) {
-                    is = getAssets().open("face_beautification.mp3");
+                    is = getAssets().open("face_beautification.bundle");
                     byte[] itemData = new byte[is.available()];
                     len = is.read(itemData);
                     Log.e(TAG, "beautification len " + len);
@@ -312,15 +315,6 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                     itemsArray[0] = mFaceBeautyItem;
                 }
 
-                if (mUseGesture) {
-                    is = getAssets().open("heart.mp3");
-                    byte[] itemData = new byte[is.available()];
-                    len = is.read(itemData);
-                    Log.e(TAG, "heart len " + len);
-                    is.close();
-                    mGestureItem = faceunity.fuCreateItemFromPackage(itemData);
-                    itemsArray[2] = mGestureItem;
-                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -412,7 +406,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            } else throw new RuntimeException("HOW COULD IT HAPPEN!!! mCameraSurfaceTexture is null!!!");
+            } else
+                throw new RuntimeException("HOW COULD IT HAPPEN!!! mCameraSurfaceTexture is null!!!");
 
             final int isTracking = faceunity.fuIsTracking();
             if (isTracking != faceTrackingStatus) {
@@ -482,7 +477,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             }
             flags |= currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? 0 : faceunity.FU_ADM_FLAG_FLIP_X;
 
-            if (isInAvatarMode) faceunity.fuItemSetParam(mEffectItem, "default_rotation_mode", (currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) ? 1 : 3);
+            if (isInAvatarMode)
+                faceunity.fuItemSetParam(mEffectItem, "default_rotation_mode", (currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) ? 1 : 3);
 
             long fuStartTime = System.nanoTime();
             /*
@@ -497,7 +493,8 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             //            cameraWidth, cameraHeight, mFrameId++, new int[] {mEffectItem, mFaceBeautyItem});
             //mFullScreenCamera.drawFrame(mCameraTextureId, mtx);
             if (mFullScreenFUDisplay != null) mFullScreenFUDisplay.drawFrame(fuTex, mtx);
-            else throw new RuntimeException("HOW COULD IT HAPPEN!!! mFullScreenFUDisplay is null!!!");
+            else
+                throw new RuntimeException("HOW COULD IT HAPPEN!!! mFullScreenFUDisplay is null!!!");
 
             /**
              * 绘制Avatar模式下的镜头内容以及landmarks
@@ -635,6 +632,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
             switch (msg.what) {
                 case HANDLE_CREATE_ITEM:
                     try {
+                        final int tmp = itemsArray[1];
                         if (mEffectFileName.equals("none")) {
                             itemsArray[1] = mEffectItem = 0;
                         } else {
@@ -643,15 +641,14 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
                             int len = is.read(itemData);
                             Log.e("FU", "effect len " + len);
                             is.close();
-                            final int tmp = itemsArray[1];
                             itemsArray[1] = mEffectItem = faceunity.fuCreateItemFromPackage(itemData);
                             faceunity.fuItemSetParam(mEffectItem, "isAndroid", 1.0);
                             faceunity.fuItemSetParam(mEffectItem, "rotationAngle",
                                     ((FUDualInputToTextureExampleActivity) mContext.get()).getCurrentCameraType()
                                             == Camera.CameraInfo.CAMERA_FACING_FRONT ? 90 : 270);
-                            if (tmp != 0) {
-                                faceunity.fuDestroyItem(tmp);
-                            }
+                        }
+                        if (tmp != 0) {
+                            faceunity.fuDestroyItem(tmp);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -736,29 +733,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
 
     @Override
     protected void onBlurLevelSelected(int level) {
-        switch (level) {
-            case 0:
-                mFaceBeautyBlurLevel = 0;
-                break;
-            case 1:
-                mFaceBeautyBlurLevel = 1.0f;
-                break;
-            case 2:
-                mFaceBeautyBlurLevel = 2.0f;
-                break;
-            case 3:
-                mFaceBeautyBlurLevel = 3.0f;
-                break;
-            case 4:
-                mFaceBeautyBlurLevel = 4.0f;
-                break;
-            case 5:
-                mFaceBeautyBlurLevel = 5.0f;
-                break;
-            case 6:
-                mFaceBeautyBlurLevel = 6.0f;
-                break;
-        }
+        mFaceBeautyBlurLevel = level;
     }
 
     @Override
@@ -776,7 +751,7 @@ public class FUDualInputToTextureExampleActivity extends FUBaseUIActivity
         if (effectItemName.equals(mEffectFileName)) {
             return;
         }
-        isInAvatarMode = effectItemName.equals("lixiaolong.bundle");
+        isInAvatarMode = effectItemName.equals("houzi4.bundle");
         mCreateItemHandler.removeMessages(CreateItemHandler.HANDLE_CREATE_ITEM);
         mEffectFileName = effectItemName;
         isNeedEffectItem = true;

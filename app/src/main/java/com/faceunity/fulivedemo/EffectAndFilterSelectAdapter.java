@@ -4,9 +4,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 /**
  * Created by lirui on 2017/1/20.
  */
@@ -15,12 +12,12 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
 
     public static final int[] EFFECT_ITEM_RES_ARRAY = {
             R.mipmap.ic_delete_all, R.mipmap.item0204, R.mipmap.bgseg, R.mipmap.fu_zh_duzui,
-            R.mipmap.yazui,  R.mipmap.matianyu, R.mipmap.lixiaolong,
+            R.mipmap.yazui,  R.mipmap.matianyu, R.mipmap.houzi,
             R.mipmap.mood, R.mipmap.gradient, R.mipmap.yuguan,
     };
-    public static final String[] EFFECT_ITEM_FILE_NAME = {"none", "item0204.mp3", "bg_seg.bundle", "fu_zh_duzui.mp3",
-             "yazui.mp3", "mask_matianyu.bundle","lixiaolong.bundle",
-            "Mood.mp3", "gradient.bundle", "yuguan.mp3",};
+    public static final String[] EFFECT_ITEM_FILE_NAME = {"none", "item0204.bundle", "bg_seg.bundle", "fu_zh_duzui.bundle",
+            "yazui.bundle", "mask_matianyu.bundle","houzi4.bundle",
+            "Mood.bundle", "gradient.bundle", "yuguan.bundle",};
 
     public static final int[] FILTER_ITEM_RES_ARRAY = {
             R.mipmap.nature, R.mipmap.delta, R.mipmap.electric, R.mipmap.slowlived, R.mipmap.tokyo, R.mipmap.warm
