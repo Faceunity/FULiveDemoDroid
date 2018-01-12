@@ -75,15 +75,19 @@ public class FullFrameRect {
         return mProgram.createTextureObject();
     }
 
+    public void drawFrame(int textureId, float[] texMatrix) {
+        drawFrame(textureId, GlUtil.IDENTITY_MATRIX, texMatrix);
+    }
+
     /**
      * Draws a viewport-filling rect, texturing it with the specified texture object.
      */
-    public void drawFrame(int textureId, float[] texMatrix) {
+    public void drawFrame(int textureId, float[] mvpMatrix, float[] texMatrix) {
         if (mProgram == null) {
             return;
         }
         // Use the identity matrix for MVP so our 2x2 FULL_RECTANGLE covers the viewport.
-        mProgram.draw(GlUtil.IDENTITY_MATRIX, mRectDrawable.getVertexArray(), 0,
+        mProgram.draw(mvpMatrix, mRectDrawable.getVertexArray(), 0,
                 mRectDrawable.getVertexCount(), mRectDrawable.getCoordsPerVertex(),
                 mRectDrawable.getVertexStride(),
                 texMatrix, mRectDrawable.getTexCoordArray(), textureId,

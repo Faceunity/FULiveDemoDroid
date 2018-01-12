@@ -8,5 +8,5 @@
     <dimen name="min_space">5dp</dimen>
     <dimen name="nano_space">3dp</dimen>
 
-    <dimen name="blur_circle_size">40dp</dimen>
+    <dimen name="blur_circle_size">35dp</dimen>
 </resources>

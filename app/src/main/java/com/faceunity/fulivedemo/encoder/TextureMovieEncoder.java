@@ -400,9 +400,6 @@ public class TextureMovieEncoder {
         prepareEncoder(config.mEglContext, config.mWidth, config.mHeight, config.mBitRate,
                 config.mOutputFile);
         mRequestStop = false;
-        if (onEncoderStatusUpdateListener != null) {
-            onEncoderStatusUpdateListener.onStartSuccess();
-        }
     }
 
     /**
@@ -626,6 +623,9 @@ public class TextureMovieEncoder {
                         int readBytes;
                         audioRecord.startRecording();
                         mRecordingStatus = IN_RECORDING;
+                        if (onEncoderStatusUpdateListener != null) {
+                            onEncoderStatusUpdateListener.onStartSuccess();
+                        }
                         try {
                             while (!mRequestStop) {
                                 // read audio data from internal mic
