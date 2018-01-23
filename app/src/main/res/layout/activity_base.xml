@@ -522,13 +522,15 @@
 
         <TextView
             android:id="@+id/is_calibrating_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_margin="8dp"
-            android:text="正在进行表情校准，请保持自然表情！"
-            android:textColor="@color/brickRedColor"
-            android:textSize="16sp"
+            android:background="@color/percent60translucentBlack"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="表情校准中"
+            android:textColor="@color/colorWhite"
+            android:textSize="17sp"
             android:visibility="gone"/>
 
         <ImageView

@@ -2,18 +2,11 @@
 
 FULiveDemoDroid 是 Faceunity 的面部跟踪和虚拟道具功能在Android SDK中的集成，作为一款集成示例。
 
-## SDK v4.5 更新
+## SDK v4.6 更新
 
-- 新增“美颜滤镜”类目
-- 新增“精准美肤”功能
-- 优化美颜中美白、红润两个功能的效果
-- 新增“严格跟踪”接口，在跟踪算法不确定时停止跟踪
-- 修复表情优化功能中一个会导致崩溃的bug
-- 修复iOS平台上骨骼动画支持问题
-- 修复v4.1.6之后版本FUEditor里骨骼动画支持问题
-- 轻微优化了avatar的绘制效率
+- 增强表情优化功能，在人脸快速转动时提高表情稳定性
 
-具体更新内容可以到[这里](https://github.com/Faceunity/FULiveDemoDroid/blob/dev/docs/FUNama%20SDK%20v4.5%20%E6%9B%B4%E6%96%B0%E6%96%87%E6%A1%A3_edited%20by%20Soma.md)查看详细文档。
+具体更新内容可以到[这里](https://github.com/Faceunity/FULiveDemoDroid/blob/dev/docs/FUNama%20SDK%20v4.6%20%E6%9B%B4%E6%96%B0%E6%96%87%E6%A1%A3.md)查看详细文档。
 
 
 ## 库文件
@@ -100,15 +93,27 @@ fuDualInputTexture调用例程如
 #### 滤镜
 
 在目前版本中提供以下滤镜：
+
+普通滤镜：
+
 ```Java
-"nature", "delta", "electric", "slowlived", "tokyo", "warm"
+"origin", "delta", "electric", "slowlived", "tokyo", "warm"
 ```
 
-其中 "nature" 作为默认的美白滤镜，其他滤镜属于风格化滤镜。切换滤镜时，通过 fuItemSetParams 设置美颜道具的参数，如：
+美颜滤镜：
+
+```Java
+"ziran", "danya", "fennen", "qingxin", "hongrun"
+```
+
+其中 "origin" 为原图滤镜，其他滤镜属于风格化滤镜及美颜滤镜。滤镜由参数 filter_name 指定。切换滤镜时，通过 fuItemSetParams 设置美颜道具的参数，如下：
+
 ```Java
 //  Set item parameters - filter
 faceunity.fuItemSetParam(m_items[1], "filter_name", "nature");
 ```
+
+另外滤镜开放了滤镜强度接口，详细信息可到[这里](https://github.com/Faceunity/FULiveDemoDroid/blob/dev/docs/%E8%A7%86%E9%A2%91%E7%BE%8E%E9%A2%9C%E6%9B%B4%E6%96%B0.md)查看详细信息。
 
 #### 美白和红润
 

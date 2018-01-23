@@ -351,7 +351,15 @@ public abstract class FUExampleActivity extends FUBaseUIActivity
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        isCalibratingText.setVisibility((isCalibrating[0] = isCalibratingTmp[0]) == 1 ? View.VISIBLE : View.GONE);
+                        if ((isCalibrating[0] = isCalibratingTmp[0]) > 0 && EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[6].equals(mEffectFileName)) {
+                            isCalibratingText.setVisibility(View.VISIBLE);
+                            isCalibratingText.setText(strCalibrating);
+                            showNum = 0;
+                            isCalibratingText.postDelayed(mCalibratingRunnable, 500);
+                        } else {
+                            isCalibratingText.removeCallbacks(mCalibratingRunnable);
+                            isCalibratingText.setVisibility(View.GONE);
+                        }
                     }
                 });
             }
@@ -766,4 +774,25 @@ public abstract class FUExampleActivity extends FUBaseUIActivity
         mFaceShape = faceShape;
     }
 
+    private static final String strCalibrating = "表情校准中";
+    private int showNum = 0;
+
+    private Runnable mCalibratingRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            showNum++;
+            StringBuilder builder = new StringBuilder();
+            builder.append(strCalibrating);
+            for (int i = 0; i < showNum; i++) {
+                builder.append(".");
+            }
+            isCalibratingText.setText(builder);
+            if (showNum < 6) {
+                isCalibratingText.postDelayed(mCalibratingRunnable, 500);
+            } else {
+                isCalibratingText.setVisibility(View.INVISIBLE);
+            }
+        }
+    };
 }

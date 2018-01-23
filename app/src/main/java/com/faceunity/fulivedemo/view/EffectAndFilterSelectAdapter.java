@@ -33,7 +33,7 @@ public class EffectAndFilterSelectAdapter extends RecyclerView.Adapter<EffectAnd
     public static final int[] BEAUTY_FILTER_ITEM_RES_ARRAY = {
             R.mipmap.origin, R.mipmap.qingxin, R.mipmap.shaonv, R.mipmap.ziran, R.mipmap.hongrun
     };
-    public final static String[] BEAUTY_FILTERS_NAME = {"ziran", "qingxin", "shaonv", "ziran", "hongrun"};
+    public final static String[] BEAUTY_FILTERS_NAME = {"ziran", "danya", "fennen", "qingxin", "hongrun"};
     public final static String[] BEAUTY_FILTERS_NAME_SHOW = {"自然", "淡雅", "粉嫩", "清新", "红润"};
 
     public static final int RECYCLEVIEW_TYPE_EFFECT = 0;
