@@ -15,13 +15,14 @@
  */
 package com.faceunity.fulivedemo.gles;
 
+import android.hardware.Camera;
+import android.opengl.GLES20;
+import android.opengl.Matrix;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
-
-import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 /**
  *
@@ -32,22 +33,22 @@ public class LandmarksPoints {
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
             "uniform mat4 uMVPMatrix;" +
-            "attribute vec4 vPosition;" +
-            "uniform float uPointSize;" +
-            "void main() {" +
-            // the matrix must be included as a modifier of gl_Position
-            // Note that the uMVPMatrix factor *must be first* in order
-            // for the matrix multiplication product to be correct.
-            "  gl_Position = uMVPMatrix * vPosition;" +
-            "  gl_PointSize = uPointSize;" +
-            "}";
+                    "attribute vec4 vPosition;" +
+                    "uniform float uPointSize;" +
+                    "void main() {" +
+                    // the matrix must be included as a modifier of gl_Position
+                    // Note that the uMVPMatrix factor *must be first* in order
+                    // for the matrix multiplication product to be correct.
+                    "  gl_Position = uMVPMatrix * vPosition;" +
+                    "  gl_PointSize = uPointSize;" +
+                    "}";
 
     private final String fragmentShaderCode =
             "precision mediump float;" +
-            "uniform vec4 vColor;" +
-            "void main() {" +
-            "  gl_FragColor = vColor;" +
-            "}";
+                    "uniform vec4 vColor;" +
+                    "void main() {" +
+                    "  gl_FragColor = vColor;" +
+                    "}";
 
     private final FloatBuffer vertexBuffer;
     private final int mProgram;
@@ -59,23 +60,22 @@ public class LandmarksPoints {
     private float mPointSize = 6.0f;
 
     // number of coordinates per vertex in this array
-    static final int COORDS_PER_VERTEX = 2;
+    private static final int COORDS_PER_VERTEX = 2;
 
-    public float pointsCoords[] = new float[150];
+    private float pointsCoords[] = new float[150];
     private final int vertexCount = pointsCoords.length / COORDS_PER_VERTEX;
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
 
-    float color[] = { 0.63671875f, 0.76953125f, 0.22265625f, 1.0f };
+    private float color[] = {0.63671875f, 0.76953125f, 0.22265625f, 1.0f};
 
-    static float[] originMtx;
-    static float[] flipMtx;
-    static {
-        originMtx = GlUtil.IDENTITY_MATRIX;
-        flipMtx = Arrays.copyOf(originMtx, originMtx.length);
-        //Matrix.scaleM(flipMtx, 0, 1, -1, 1);
-    }
+    private final float[] mvpMtx = new float[16];
+    private int mCameraType;
+    private int mOrientation;
+    private int mWidth;
+    private int mHeight;
 
     ByteBuffer bb;
+
     /**
      * Sets up the drawing object data for use in an OpenGL ES context.
      */
@@ -143,7 +143,7 @@ public class LandmarksPoints {
         GlUtil.checkGlError("glGetUniformLocation");
 
         // Apply the projection and view transformation
-        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, originMtx, 0);
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMtx, 0);
         GlUtil.checkGlError("glUniformMatrix4fv");
 
         GLES20.glUniform1f(mPointSizeHandle, mPointSize);
@@ -156,67 +156,26 @@ public class LandmarksPoints {
         GLES20.glDisableVertexAttribArray(mPositionHandle);
     }
 
-    public void refresh(float[] landmarksData, int fullWidth, int fullHeight, float topClipRatio, float heightClipRatio, boolean isFlip) {
-        for (int i = 0; i < 150; i++) pointsCoords[i] = landmarksData[i];
-        //adjust to get the coords
-        for (int i = 0; i < landmarksData.length; i += 2) {
-            float x, y;
-            x = (isFlip ? (fullWidth - pointsCoords[i]) : pointsCoords[i]) / fullWidth;
-            y = (pointsCoords[i + 1]) / fullHeight;
+    public void refresh(float[] landmarksData, int width, int height, int orientation, int cameraType) {
+        if (mWidth != width || mHeight != height || mOrientation != orientation || mCameraType != cameraType) {
+            float[] orthoMtx = new float[16];
+            float[] rotateMtx = new float[16];
+            Matrix.orthoM(orthoMtx, 0, 0, width, 0, height, -1, 1);
+            Matrix.setRotateM(rotateMtx, 0, 360 - orientation, 0.0f, 0.0f, 1.0f);
+            if (cameraType == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                Matrix.rotateM(rotateMtx, 0, 180, 1.0f, 0.0f, 0.0f);
+            }
+            Matrix.multiplyMM(mvpMtx, 0, rotateMtx, 0, orthoMtx, 0);
 
-            //adjust corresponds to clip to camera preview and show only top left (0.4, 0.4 * 0.8)
-            x = (x - topClipRatio) / heightClipRatio;
-            x = x * 0.64f + 0.36f;
-            y = y * 0.8f + 0.2f;
-
-            pointsCoords[i] = -y * 1.0f;
-            pointsCoords[i + 1] = x * 1.0f;
+            mWidth = width;
+            mHeight = height;
+            mOrientation = orientation;
+            mCameraType = cameraType;
         }
 
+        pointsCoords = Arrays.copyOf(landmarksData, landmarksData.length);
         vertexBuffer.put(pointsCoords);
         // set the buffer to read the first coordinate
         vertexBuffer.position(0);
     }
-
-    /**
-     * if (mGLCameraPreviewRenderer != null) {
-     float[] landmarksData = mGLCameraPreviewRenderer.getLandmarksData();
-     //double sum = 0;
-     //for (int i = 0; i < 150; i++) {
-     //  sum += landmarksData[i];
-     //}
-     if (mPoints != null) {
-     for (int i = 0; i < 150; i++) {
-     mPoints.pointsCoords[i] = landmarksData[i];
-     }
-     //if (VERBOSE_LOG) {
-     //  String tmp = "";
-     //for (int i = 0; i < 150; i++) {
-     //  tmp += landmarksData[i] + " ";
-     //}
-     //Logger.d(TAG, "faceinfo landmarks " + tmp);
-     //}
-     //adjust to get the coords
-     //String landmarkRes = "";
-     for (int i = 0; i < landmarksData.length; i += 2) {
-     float x, y;
-     x = (mPoints.pointsCoords[i]) / (CAMERA_PREVIEW_WIDTH);
-     y = (mPoints.pointsCoords[i + 1]) / CAMERA_PREVIEW_HEIGHT;
-     x = (x - topClipRatio) / heightClipRatio; //adjust corresponds to clip to camera preview
-     x = x * 2.0f - 1.0f;
-     y = y * 2.0f - 1.0f;
-     mPoints.pointsCoords[i] = -y * 1.0f;
-     mPoints.pointsCoords[i + 1] = x * 1.0f;
-     if (VERBOSE_LOG) {
-     //landmarkRes += " x " + mPoints.pointsCoords[i] + " y " + mPoints.pointsCoords[i + 1];
-     //Logger.d(TAG, "adjust landmarks " + landmarkRes);
-     }
-     }
-     }
-     if (mPoints != null) {
-     //MiscUtil.Logger(TAG, "draw landmarks", false);
-     mPoints.draw(mCurrentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT);
-     }
-     }
-     */
 }

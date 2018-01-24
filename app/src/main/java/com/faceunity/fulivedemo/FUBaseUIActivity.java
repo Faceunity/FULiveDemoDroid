@@ -1,17 +1,20 @@
 package com.faceunity.fulivedemo;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
+
+import com.faceunity.fulivedemo.view.EffectAndFilterSelectAdapter;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
@@ -20,27 +23,24 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
  * Created by lirui on 2017/1/19.
  */
 
-public abstract class FUBaseUIActivity extends Activity implements View.OnClickListener {
+public abstract class FUBaseUIActivity extends AppCompatActivity implements View.OnClickListener {
 
     private final String TAG = "FUBaseUIActivity";
 
     private RecyclerView mEffectRecyclerView;
     private EffectAndFilterSelectAdapter mEffectRecyclerAdapter;
-    private RecyclerView mFilterRecyclerView;
-    private EffectAndFilterSelectAdapter mFilterRecyclerAdapter;
 
-    private LinearLayout mBlurLevelSelect;
-    private LinearLayout mColorLevelSelect;
+    private LinearLayout mEffectSelect;
+    private LinearLayout mSkinBeautySelect;
     private LinearLayout mFaceShapeSelect;
-    private LinearLayout mRedLevelSelect;
-
 
     private Button mChooseEffectBtn;
     private Button mChooseFilterBtn;
-    private Button mChooseBlurLevelBtn;
-    private Button mChooseColorLevelBtn;
+    private Button mChooseBeautyFilterBtn;
+    private Button mChooseSkinBeautyBtn;
     private Button mChooseFaceShapeBtn;
-    private Button mChooseRedLevelBtn;
+
+    private DiscreteSeekBar filterLevelSeekbar;
 
     private TextView[] mBlurLevels;
     private int[] BLUR_LEVEL_TV_ID = {R.id.blur_level0, R.id.blur_level1, R.id.blur_level2,
@@ -56,8 +56,9 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
     protected Button mRecordingBtn;
     private int mRecordStatus = 0;
 
-    TextView tvSystemError;
-    TextView tvHint;
+    protected TextView tvSystemError;
+    protected TextView tvHint;
+    protected TextView isCalibratingText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,42 +75,42 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         mEffectRecyclerAdapter = new EffectAndFilterSelectAdapter(mEffectRecyclerView, EffectAndFilterSelectAdapter.RECYCLEVIEW_TYPE_EFFECT);
         mEffectRecyclerAdapter.setOnItemSelectedListener(new EffectAndFilterSelectAdapter.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(int itemPosition) {
+            public void onEffectItemSelected(int itemPosition) {
                 Log.d(TAG, "effect item selected " + itemPosition);
-                onEffectItemSelected(EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[itemPosition]);
+                onEffectSelected(EffectAndFilterSelectAdapter.EFFECT_ITEM_FILE_NAME[itemPosition]);
                 showHintText(mEffectRecyclerAdapter.getHintStringByPosition(itemPosition));
+            }
+
+            @Override
+            public void onFilterItemSelected(int itemPosition, int filterLevel) {
+                Log.d(TAG, "filter item selected " + itemPosition);
+                onFilterSelected(EffectAndFilterSelectAdapter.FILTERS_NAME[itemPosition]);
+                filterLevelSeekbar.setProgress(filterLevel);
+            }
+
+            @Override
+            public void onBeautyFilterItemSelected(int itemPosition, int filterLevel) {
+                Log.d(TAG, "beauty filter item selected " + itemPosition);
+                onFilterSelected(EffectAndFilterSelectAdapter.BEAUTY_FILTERS_NAME[itemPosition]);
+                filterLevelSeekbar.setProgress(filterLevel);
             }
         });
         mEffectRecyclerView.setAdapter(mEffectRecyclerAdapter);
 
-        mFilterRecyclerView = (RecyclerView) findViewById(R.id.filter_recycle_view);
-        mFilterRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mFilterRecyclerAdapter = new EffectAndFilterSelectAdapter(mFilterRecyclerView, EffectAndFilterSelectAdapter.RECYCLEVIEW_TYPE_FILTER);
-        mFilterRecyclerAdapter.setOnItemSelectedListener(new EffectAndFilterSelectAdapter.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int itemPosition) {
-                Log.d(TAG, "filter item selected " + itemPosition);
-                onFilterSelected(EffectAndFilterSelectAdapter.FILTERS_NAME[itemPosition]);
-            }
-        });
-        mFilterRecyclerView.setAdapter(mFilterRecyclerAdapter);
-
         mChooseEffectBtn = (Button) findViewById(R.id.btn_choose_effect);
         mChooseFilterBtn = (Button) findViewById(R.id.btn_choose_filter);
-        mChooseBlurLevelBtn = (Button) findViewById(R.id.btn_choose_blur_level);
-        mChooseColorLevelBtn = (Button) findViewById(R.id.btn_choose_color_level);
+        mChooseBeautyFilterBtn = (Button) findViewById(R.id.btn_choose_beauty_filter);
+        mChooseSkinBeautyBtn = (Button) findViewById(R.id.btn_choose_skin_beauty);
         mChooseFaceShapeBtn = (Button) findViewById(R.id.btn_choose_face_shape);
-        mChooseRedLevelBtn = (Button) findViewById(R.id.btn_choose_red_level);
 
         mFaceShape0Nvshen = (TextView) findViewById(R.id.face_shape_0_nvshen);
         mFaceShape1Wanghong = (TextView) findViewById(R.id.face_shape_1_wanghong);
         mFaceShape2Ziran = (TextView) findViewById(R.id.face_shape_2_ziran);
         mFaceShape3Default = (TextView) findViewById(R.id.face_shape_3_default);
 
-        mBlurLevelSelect = (LinearLayout) findViewById(R.id.blur_level_select_block);
-        mColorLevelSelect = (LinearLayout) findViewById(R.id.color_level_select_block);
+        mEffectSelect = (LinearLayout) findViewById(R.id.effect_select_block);
+        mSkinBeautySelect = (LinearLayout) findViewById(R.id.skin_beauty_select_block);
         mFaceShapeSelect = (LinearLayout) findViewById(R.id.lin_face_shape);
-        mRedLevelSelect = (LinearLayout) findViewById(R.id.red_level_select_block);
 
         mBlurLevels = new TextView[BLUR_LEVEL_TV_ID.length];
         for (int i = 0; i < BLUR_LEVEL_TV_ID.length; i++) {
@@ -123,6 +124,34 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
                 }
             });
         }
+
+        filterLevelSeekbar = (DiscreteSeekBar) findViewById(R.id.filter_level_seekbar);
+        filterLevelSeekbar.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+            @Override
+            public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+                Log.d(TAG, "filter level selected " + value);
+                onFilterLevelSelected(value, 100);
+                mEffectRecyclerAdapter.setFilterLevels(value);
+            }
+
+            @Override
+            public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
+
+            }
+        });
+
+        Switch mAllBlurLevelSwitch = (Switch) findViewById(R.id.all_blur_level);
+        mAllBlurLevelSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                onALLBlurLevelSelected(isChecked ? 1 : 0);
+            }
+        });
 
         DiscreteSeekBar colorLevelSeekbar = (DiscreteSeekBar) findViewById(R.id.color_level_seekbar);
         colorLevelSeekbar.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
@@ -218,6 +247,7 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         mRecordingBtn = (Button) findViewById(R.id.btn_recording);
         tvSystemError = (TextView) findViewById(R.id.tv_system_error);
         tvHint = (TextView) findViewById(R.id.hint_text);
+        isCalibratingText = (TextView) findViewById(R.id.is_calibrating_text);
     }
 
     @Override
@@ -225,27 +255,29 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         switch (v.getId()) {
             case R.id.btn_choose_effect:
                 setEffectFilterBeautyChooseBtnTextColor(mChooseEffectBtn);
-                setEffectFilterBeautyChooseBlock(mEffectRecyclerView);
+                setEffectFilterBeautyChooseBlock(mEffectSelect);
+                mEffectRecyclerAdapter.setOwnerRecyclerViewType(EffectAndFilterSelectAdapter.RECYCLEVIEW_TYPE_EFFECT);
+                filterLevelSeekbar.setVisibility(View.GONE);
                 break;
             case R.id.btn_choose_filter:
                 setEffectFilterBeautyChooseBtnTextColor(mChooseFilterBtn);
-                setEffectFilterBeautyChooseBlock(mFilterRecyclerView);
+                setEffectFilterBeautyChooseBlock(mEffectSelect);
+                mEffectRecyclerAdapter.setOwnerRecyclerViewType(EffectAndFilterSelectAdapter.RECYCLEVIEW_TYPE_FILTER);
+                filterLevelSeekbar.setVisibility(View.VISIBLE);
                 break;
-            case R.id.btn_choose_blur_level:
-                setEffectFilterBeautyChooseBtnTextColor(mChooseBlurLevelBtn);
-                setEffectFilterBeautyChooseBlock(mBlurLevelSelect);
+            case R.id.btn_choose_beauty_filter:
+                setEffectFilterBeautyChooseBtnTextColor(mChooseBeautyFilterBtn);
+                setEffectFilterBeautyChooseBlock(mEffectSelect);
+                mEffectRecyclerAdapter.setOwnerRecyclerViewType(EffectAndFilterSelectAdapter.RECYCLEVIEW_TYPE_BEAUTY_FILTER);
+                filterLevelSeekbar.setVisibility(View.VISIBLE);
                 break;
-            case R.id.btn_choose_color_level:
-                setEffectFilterBeautyChooseBtnTextColor(mChooseColorLevelBtn);
-                setEffectFilterBeautyChooseBlock(mColorLevelSelect);
+            case R.id.btn_choose_skin_beauty:
+                setEffectFilterBeautyChooseBtnTextColor(mChooseSkinBeautyBtn);
+                setEffectFilterBeautyChooseBlock(mSkinBeautySelect);
                 break;
             case R.id.btn_choose_face_shape:
                 setEffectFilterBeautyChooseBtnTextColor(mChooseFaceShapeBtn);
                 setEffectFilterBeautyChooseBlock(mFaceShapeSelect);
-                break;
-            case R.id.btn_choose_red_level:
-                setEffectFilterBeautyChooseBtnTextColor(mChooseRedLevelBtn);
-                setEffectFilterBeautyChooseBlock(mRedLevelSelect);
                 break;
             case R.id.btn_choose_camera:
                 onCameraChange();
@@ -281,21 +313,25 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
         }
     }
 
-    Handler mMainHandler;
     Runnable resetHintRunnable = new Runnable() {
         @Override
         public void run() {
             tvHint.setText("");
+            tvHint.setVisibility(View.GONE);
         }
     };
 
     public void showHintText(String hint) {
-        if (mMainHandler == null) return;
         if (tvHint != null) {
-            mMainHandler.removeCallbacks(resetHintRunnable);
+            tvHint.removeCallbacks(resetHintRunnable);
             tvHint.setText(hint);
+            if (hint.isEmpty()) {
+                tvHint.setVisibility(View.GONE);
+            } else {
+                tvHint.setVisibility(View.VISIBLE);
+            }
         }
-        mMainHandler.postDelayed(resetHintRunnable, 5000);
+        tvHint.postDelayed(resetHintRunnable, 5000);
     }
 
     private void setBlurLevelTextBackground(TextView tv) {
@@ -319,22 +355,18 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
     }
 
     private void setEffectFilterBeautyChooseBlock(View v) {
-        mEffectRecyclerView.setVisibility(View.GONE);
-        mFilterRecyclerView.setVisibility(View.GONE);
+        mEffectSelect.setVisibility(View.GONE);
+        mSkinBeautySelect.setVisibility(View.GONE);
         mFaceShapeSelect.setVisibility(View.GONE);
-        mBlurLevelSelect.setVisibility(View.GONE);
-        mColorLevelSelect.setVisibility(View.GONE);
-        mRedLevelSelect.setVisibility(View.GONE);
         v.setVisibility(View.VISIBLE);
     }
 
     private void setEffectFilterBeautyChooseBtnTextColor(Button selectedBtn) {
         mChooseEffectBtn.setTextColor(getResources().getColor(R.color.colorWhite));
-        mChooseColorLevelBtn.setTextColor(getResources().getColor(R.color.colorWhite));
-        mChooseBlurLevelBtn.setTextColor(getResources().getColor(R.color.colorWhite));
         mChooseFilterBtn.setTextColor(getResources().getColor(R.color.colorWhite));
+        mChooseBeautyFilterBtn.setTextColor(getResources().getColor(R.color.colorWhite));
+        mChooseSkinBeautyBtn.setTextColor(getResources().getColor(R.color.colorWhite));
         mChooseFaceShapeBtn.setTextColor(getResources().getColor(R.color.colorWhite));
-        mChooseRedLevelBtn.setTextColor(getResources().getColor(R.color.white));
         selectedBtn.setTextColor(getResources().getColor(R.color.faceunityYellow));
     }
 
@@ -343,7 +375,15 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
      *
      * @param effectItemName 道具贴纸文件名
      */
-    abstract protected void onEffectItemSelected(String effectItemName);
+    abstract protected void onEffectSelected(String effectItemName);
+
+    /**
+     * 滤镜强度
+     *
+     * @param progress 滤镜强度滑动条进度
+     * @param max      滤镜强度滑动条最大值
+     */
+    abstract protected void onFilterLevelSelected(int progress, int max);
 
     /**
      * 滤镜选择
@@ -358,6 +398,13 @@ public abstract class FUBaseUIActivity extends Activity implements View.OnClickL
      * @param level 磨皮level
      */
     abstract protected void onBlurLevelSelected(int level);
+
+    /**
+     * 精准磨皮
+     *
+     * @param isAll 是否开启精准磨皮（0关闭 1开启）
+     */
+    abstract protected void onALLBlurLevelSelected(int isAll);
 
     /**
      * 美白选择

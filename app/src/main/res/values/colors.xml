@@ -13,11 +13,10 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <color name="c80000000">#80000000</color> <!--50%-->
-    <color name="cb2000000">#b2000000</color>
-    <color name="c66000000">#66000000</color><!--40%-->
-    <color name="percent30translucentBlack">#4D000000</color>
     <color name="percent15translucentBlack">#26000000</color>
+    <color name="percent30translucentBlack">#4D000000</color>
+    <color name="percent40translucentBlack">#66000000</color><!--40%-->
+    <color name="percent50translucentBlack">#80000000</color> <!--50%-->
     <color name="percent60translucentBlack">#99000000</color>
 
 
