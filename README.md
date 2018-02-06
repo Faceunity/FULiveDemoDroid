@@ -2,11 +2,12 @@
 
 FULiveDemoDroid 是 Faceunity 的面部跟踪和虚拟道具功能在Android SDK中的集成，作为一款集成示例。
 
-## SDK v4.6 更新
+## SDK v4.7 更新
 
-- 增强表情优化功能，在人脸快速转动时提高表情稳定性
+- 修复android 8.0及以上版本个别分辨率花屏的问题
+- 修复了其他一些BUG
 
-具体更新内容可以到[这里](https://github.com/Faceunity/FULiveDemoDroid/blob/dev/docs/FUNama%20SDK%20v4.6%20%E6%9B%B4%E6%96%B0%E6%96%87%E6%A1%A3.md)查看详细文档。
+具体更新内容可以到[这里](https://github.com/Faceunity/FULiveDemoDroid/blob/dev/docs/FUNama%20SDK%20v4.7%20%E6%9B%B4%E6%96%B0%E6%96%87%E6%A1%A3.md)查看详细文档。
 
 
 ## 库文件
