@@ -110,7 +110,7 @@ fuDualInputTexture调用例程如
 
 ```Java
 //  Set item parameters - filter
-faceunity.fuItemSetParam(m_items[1], "filter_name", "nature");
+faceunity.fuItemSetParam(m_items[1], "filter_name", "origin");
 ```
 
 另外滤镜开放了滤镜强度接口，详细信息可到[这里](https://github.com/Faceunity/FULiveDemoDroid/tree/master/docs/%E8%A7%86%E9%A2%91%E7%BE%8E%E9%A2%9C%E6%9B%B4%E6%96%B0.md)查看详细信息。
