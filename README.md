@@ -344,7 +344,7 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "nonshin_bl
 
 ### 四、亮眼
 
-使眼睛区域的纹理变得更加清晰，眼眸更加明亮。可通过参数 eye_bright 来控制美白程度。该参数的推荐取值范围为0～1，0为关闭该功能，0到1效果逐渐增强。
+使眼睛区域的纹理变得更加清晰，眼眸更加明亮。可通过参数 eye_bright 来控制亮眼程度。该参数的推荐取值范围为0～1，0为关闭该功能，0到1效果逐渐增强。
 
 设置参数的例子代码如下：
 
@@ -354,7 +354,7 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_bright
 
 ### 五、美牙
 
-使牙齿区域变得更亮更白。可通过参数 tooth_whiten 来控制美白程度。该参数的推荐取值范围为0～1，0为关闭该功能，0到1效果渐变增强。
+使牙齿区域变得更亮更白。可通过参数 tooth_whiten 来控制美牙程度。该参数的推荐取值范围为0～1，0为关闭该功能，0到1效果逐渐增强。
 
 设置参数的例子代码如下：
 
