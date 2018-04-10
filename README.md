@@ -66,6 +66,8 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
   - 1、拨打电话 **0571-89774660**
   - 2、发送邮件至 **marketing@faceunity.com** 进行咨询。
 
+android端发放的证书为authpack.java文件，如果您已经获取到鉴权证书，将证书文件覆盖工程中com.faceunity.fulivedemo包下的authpack.java文件即可。根据应用需求，鉴权数据也可以在运行时提供(如网络下载)，不过要注意证书泄露风险，防止证书被滥用。
+
 #### 初始化SDK
 
 初始化接口：
