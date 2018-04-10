@@ -2,6 +2,8 @@
 
 FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具贴纸、AR面具、换脸、表情识别、音乐滤镜、背景分割、手势识别、哈哈镜、人像光照以及人像驱动功能的Demo。Demo新增了一个展示Faceunity产品列表的主界面，新版Demo将根据客户证书权限来控制用户可以使用哪些产品。
 
+注：demo第一次运行会报一个缺少返回语句的error，这是因为在本demo中缺少我司颁发的证书。如果您已拥有我司颁发的证书，将证书替换到工程中重新运行即可。如您还没有我司颁发的证书，可以查看[这里][1]获取证书
+
 ## SDK v5.0 更新
 
 本次更新：
@@ -15,13 +17,14 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 - 新增被动表情校准模式
 - 优化手势识别
 - 人脸跟踪底层性能进一步优化
+- 性能优化
 - 其他累积问题修复、接口调整
 
 具体更新内容可以到[这里](https://github.com/Faceunity/FULiveDemoDroid/blob/dev/docs/FUNama%20SDK%20v5.0%20%E6%9B%B4%E6%96%B0%E6%96%87%E6%A1%A3.md)查看详细文档。
 
 ## SDK集成
 
-### 一、gradle
+### 一、通过 gradle 集成
 
 含有深度学习的版本：
 
@@ -40,10 +43,12 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 ## 文件说明
 
 ### 一、库文件
+
   - jniLibs 文件夹下 libnama.so 人脸跟踪及道具绘制核心静态库
   - libs 文件夹下 nama.jar java层native接口封装
 
 ### 二、数据文件
+
   - v3.bundle 初始化必须的二进制文件
   - face_beautification.bundle 我司美颜相关的二进制文件
   - effects 文件夹下的 *.bundle 文件是我司制作的特效贴纸文件，自定义特效贴纸制作的文档和工具请联系我司获取。
@@ -53,17 +58,19 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 ## SDK接入指引
 
 ### 初始化
-#### 获取证书
+
+#### 导入证书
 
 您需要拥有我司颁发的证书才能使用我们的SDK的功能，获取证书方法：
-1、拨打电话 **0571-89774660**
-2、发送邮件至 **marketing@faceunity.com** 进行咨询。
 
-#### 初始化faceunity
+  - 1、拨打电话 **0571-89774660**
+  - 2、发送邮件至 **marketing@faceunity.com** 进行咨询。
+
+#### 初始化SDK
 
 初始化接口：
 
-初始化系统环境，加载系统数据，并进行网络鉴权。必须在调用SDK其他接口前执行，否则会引发崩溃。
+初始化SDK环境，加载SDK数据，并进行网络鉴权。必须在调用SDK其他接口前执行，否则会引发崩溃。
 
 ```java
 public static native int fuSetup(byte[] v3data, byte[] ardata, byte[] authdata);
@@ -97,6 +104,7 @@ faceunity.fuSetup(v3Data, null, authpack.A());
 ```java
 public static native int fuCreateItemFromPackage(byte[] data);
 ```
+
 参数说明：
 
 `data` 道具二进制数据
@@ -115,6 +123,7 @@ is.close();
 mItemsArray[ITEM_ARRAYS_EFFECT] = faceunity.fuCreateItemFromPackage(itemData);
 updateEffectItemParams( mItemsArray[ITEM_ARRAYS_EFFECT]);//更新道具参数
 ```
+
 #### 道具销毁
 
 ##### 销毁单个道具
@@ -474,6 +483,7 @@ __使用方法__：
 
 自定义手势道具的流程和2D道具制作一致，具体打包的细节可以联系我司技术支持。
 
+注：新版手势道具中部分道具需要使用非lite版SDK才能正常使用
 
 ## 3D绘制抗锯齿功能
 
@@ -1366,3 +1376,6 @@ public class authpack {
 用户在库环境初始化时，需要提供该数组进行鉴权，具体参考 fuSetup 接口。没有证书、证书失效、网络连接失败等情况下，会造成鉴权失败，在控制台或者Android平台的log里面打出 "not authenticated" 信息，并在运行一段时间后停止渲染道具。
 
 任何其他关于授权问题，请email：support@faceunity.com
+
+
+  [1]: https://github.com/Faceunity/FULiveDemoDroid/tree/dev#%E5%AF%BC%E5%85%A5%E8%AF%81%E4%B9%A6

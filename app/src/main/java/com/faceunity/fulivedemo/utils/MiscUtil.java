@@ -1,5 +1,6 @@
 package com.faceunity.fulivedemo.utils;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -24,12 +25,15 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static com.faceunity.fulivedemo.utils.Constant.filePath;
 
 /**
  * Created by lirui on 2017/3/6.
@@ -41,8 +45,6 @@ public class MiscUtil {
     private static String TAG = "FU-MiscUtil";
 
     public static boolean VERBOSE_LOG = false;
-
-    public static float NANO_IN_ONE_MILLI_SECOND = 1000000.0f;
 
     public static void Logger(String tag, String msg, boolean isImportant) {
         if (isImportant || isDebug) {
@@ -59,31 +61,44 @@ public class MiscUtil {
         }
     }
 
+    public static void checkPermission(Context context) {
+        Logger(TAG, "checkPermission", false);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "no permission");
+            ActivityCompat.requestPermissions((Activity) context,
+                    new String[]{Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.RECORD_AUDIO}, 0);
+        }
+    }
+
     /**
      * This method converts dp unit to equivalent pixels, depending on device density.
      *
-     * @param dp      A value in dp (density independent pixels) unit. Which we need to convert into pixels
      * @param context Context to get resources and device specific display metrics
+     * @param dp      A value in dp (density independent pixels) unit. Which we need to convert into pixels
      * @return A float value to represent px equivalent to dp depending on device density
      */
-    public static float convertDpToPixel(float dp, Context context) {
+    public static int convertDpToPixel(Context context, float dp) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        int px = (int) (dp * ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT));
         return px;
     }
 
     /**
      * This method converts device specific pixels to density independent pixels.
      *
-     * @param px      A value in px (pixels) unit. Which we need to convert into db
      * @param context Context to get resources and device specific display metrics
+     * @param px      A value in px (pixels) unit. Which we need to convert into db
      * @return A float value to represent dp equivalent to px value
      */
-    public static float convertPixelsToDp(float px, Context context) {
+    public static int convertPixelsToDp(Context context, float px) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
-        float dp = px / ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        int dp = (int) (px / ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT));
         return dp;
     }
 
@@ -114,9 +129,6 @@ public class MiscUtil {
         return null;
     }
 
-    public static final String filePath = Environment.getExternalStoragePublicDirectory("")
-            + File.separator + "FaceUnity" + File.separator + "FULiveDemo" + File.separator;
-
     public static String createFileName() {
         File dir = new File(filePath);
         if (!dir.exists()) {
@@ -124,6 +136,13 @@ public class MiscUtil {
         }
         return filePath + getCurrentDate() +
                 "_" + System.currentTimeMillis();
+    }
+
+    public static void createFile(String path) {
+        File dir = new File(path);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
     }
 
     public static String saveDataToFile(String fileName, String fileExtName, final byte[] data) {
@@ -136,6 +155,7 @@ public class MiscUtil {
             @Override
             public void run() {
                 File file = new File(fileFullName);
+                Logger(TAG, "saveDataToFile " + fileFullName, false);
                 try {
                     FileOutputStream fos = new FileOutputStream(file);
                     fos.write(data);
@@ -179,6 +199,27 @@ public class MiscUtil {
         return fileName;
     }
 
+    public static String saveBitmap(final Bitmap bitmap, String dir, String name) {
+        File dirFile = new File(dir);
+        if (!dirFile.exists()) {
+            dirFile.mkdirs();
+        }
+        final String path = dir + name;
+        try {
+            File file = new File(path);
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+            return path;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static Bitmap getBitmapFromPath(String filePath) {
         return BitmapFactory.decodeFile(filePath, new BitmapFactory.Options());
     }
@@ -195,7 +236,7 @@ public class MiscUtil {
     }
 
     public static String getCurrentDate() {
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
         return df.format(new Date());
     }
 
@@ -358,11 +399,59 @@ public class MiscUtil {
         });
     }
 
-    public static float sumArray(float[] array) {
-        float res = 0;
-        for (float item : array) {
-            res += item;
+
+    public static boolean copyFilesTo(File srcDir, File destDir) throws IOException {
+
+        if (!srcDir.isDirectory() || !destDir.isDirectory())
+            return false;// 判断是否是目录
+        if (!destDir.exists())
+            return false;// 判断目标目录是否存在
+        File[] srcFiles = srcDir.listFiles();
+        for (int i = 0; i < srcFiles.length; i++) {
+            if (srcFiles[i].isFile()) {
+                // 获得目标文件
+                File destFile = new File(destDir.getPath() + "//"
+                        + srcFiles[i].getName());
+                copyFileTo(srcFiles[i], destFile);
+            } else if (srcFiles[i].isDirectory()) {
+                File theDestDir = new File(destDir.getPath() + "//"
+                        + srcFiles[i].getName());
+                copyFilesTo(srcFiles[i], theDestDir);
+            }
         }
-        return res;
+        return true;
+    }
+
+    public static boolean copyFileTo(final File srcFile, final File destFile) {
+
+        if (srcFile.isDirectory() || destFile.isDirectory())
+            return false;// 判断是否是文件
+        try {
+            FileInputStream fis = new FileInputStream(srcFile);
+            FileOutputStream fos = new FileOutputStream(destFile);
+            int readLen = 0;
+            byte[] buf = new byte[1024];
+            while ((readLen = fis.read(buf)) != -1) {
+                fos.write(buf, 0, readLen);
+            }
+            fos.flush();
+            fos.close();
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public static void deleteDirWihtFile(File dir) {
+        if (dir == null || !dir.exists() || !dir.isDirectory())
+            return;
+        for (File file : dir.listFiles()) {
+            if (file.isFile())
+                file.delete(); // 删除所有文件
+            else if (file.isDirectory())
+                deleteDirWihtFile(file); // 递规的方式删除文件夹
+        }
+        dir.delete();// 删除目录本身
     }
 }

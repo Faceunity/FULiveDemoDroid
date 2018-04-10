@@ -28,10 +28,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import com.faceunity.fulivedemo.gles.EglCore;
-import com.faceunity.fulivedemo.gles.FullFrameRect;
-import com.faceunity.fulivedemo.gles.Texture2dProgram;
-import com.faceunity.fulivedemo.gles.WindowSurface;
+import com.faceunity.fulivedemo.gles.ProgramTexture2d;
+import com.faceunity.fulivedemo.gles.core.EglCore;
+import com.faceunity.fulivedemo.gles.core.Program;
+import com.faceunity.fulivedemo.gles.core.WindowSurface;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,7 +77,7 @@ public class TextureMovieEncoder {
     // ----- accessed exclusively by encoder thread -----
     private WindowSurface mInputWindowSurface;
     private EglCore mEglCore;
-    private FullFrameRect mFullScreen;
+    private Program mFullScreen;
     private int mTextureId;
     private int mFrameNum;
     private VideoEncoderCore mVideoEncoder;
@@ -213,11 +213,6 @@ public class TextureMovieEncoder {
      * has completed).
      */
     public void stopRecording() {
-        GLES20.glDeleteFramebuffers(1, new int[]{frameBuffer}, 0);
-        GLES20.glDeleteTextures(1, new int[]{texture}, 0);
-        frameBuffer = 0;
-        texture = 0;
-
         mRecordingStatus = NONE_RECORDING;
 
         mHandler.sendMessage(mHandler.obtainMessage(MSG_STOP_RECORDING));
@@ -265,7 +260,7 @@ public class TextureMovieEncoder {
         float[] transform = new float[16];      // TODO - avoid alloc every frame
         Matrix.setIdentityM(transform, 0);
         long timestamp = st.getTimestamp();
-        if (timestamp == 0) {
+        if (timestamp == 0 || timestamp < firstTimeStampBase) {
             // Seeing this after device is toggled off/on with power button.  The
             // first frame back has a zero timestamp.
             //
@@ -274,7 +269,7 @@ public class TextureMovieEncoder {
             Log.w(TAG, "HEY: got SurfaceTexture with timestamp of zero");
             return;
         }
-
+        onEncoderStatusUpdateListener.onTimestampListener((timestamp - firstTimeStampBase) / 1000 / 1000);
         mHandler.sendMessage(mHandler.obtainMessage(MSG_FRAME_AVAILABLE,
                 (int) (timestamp >> 32), (int) timestamp, transform));
     }
@@ -285,7 +280,7 @@ public class TextureMovieEncoder {
      * <p>
      * TODO: do something less clumsy
      */
-    public void setTextureId(FullFrameRect mFullScreenFUDisplay, int fuTex, float[] mtx) {
+    public void setTextureId(Program fullScreen, int fuTex, float[] mtx) {
         if (texture != 0) {
             int viewport[] = new int[4];
             GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
@@ -295,7 +290,7 @@ public class TextureMovieEncoder {
 
             GLES20.glViewport(0, 0, mWidth, mHeight);
 
-            if (mFullScreenFUDisplay != null) mFullScreenFUDisplay.drawFrame(fuTex, mtx);
+            if (fullScreen != null) fullScreen.drawFrame(fuTex, mtx);
 
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
@@ -456,8 +451,13 @@ public class TextureMovieEncoder {
         }
         stopEncoderSuccess = false;
         if (onEncoderStatusUpdateListener != null) {
-            onEncoderStatusUpdateListener.onStopSuccess();
+            onEncoderStatusUpdateListener.onStopSuccess(config.mOutputFile);
         }
+
+        GLES20.glDeleteFramebuffers(1, new int[]{frameBuffer}, 0);
+        GLES20.glDeleteTextures(1, new int[]{texture}, 0);
+        frameBuffer = 0;
+        texture = 0;
     }
 
     /**
@@ -480,7 +480,7 @@ public class TextureMovieEncoder {
 
         // Release the EGLSurface and EGLContext.
         mInputWindowSurface.releaseEglSurface();
-        mFullScreen.release(false);
+        mFullScreen.release();
         mEglCore.release();
 
         // Create a new EGLContext and recreate the window surface.
@@ -489,14 +489,14 @@ public class TextureMovieEncoder {
         mInputWindowSurface.makeCurrent();
 
         // Create new programs and such for the new context.
-        mFullScreen = new FullFrameRect(
-                new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_2D));
+        mFullScreen = new ProgramTexture2d();
     }
 
     private final Object prepareEncoderFence = new Object();
     private boolean prepareEncoderReady = false;
     private final Object stopEncoderFence = new Object();
     private boolean stopEncoderSuccess = false;
+
     /**
      * For drawing texture to hw encode, init egl related.
      *
@@ -531,8 +531,7 @@ public class TextureMovieEncoder {
         mInputWindowSurface = new WindowSurface(mEglCore, mVideoEncoder.getInputSurface(), true);
         mInputWindowSurface.makeCurrent();
 
-        mFullScreen = new FullFrameRect(
-                new Texture2dProgram(Texture2dProgram.ProgramType.TEXTURE_2D));
+        mFullScreen = new ProgramTexture2d();
     }
 
     private void releaseEncoder() {
@@ -542,7 +541,7 @@ public class TextureMovieEncoder {
             mInputWindowSurface = null;
         }
         if (mFullScreen != null) {
-            mFullScreen.release(false);
+            mFullScreen.release();
             mFullScreen = null;
         }
         if (mEglCore != null) {
@@ -622,10 +621,10 @@ public class TextureMovieEncoder {
                         final ByteBuffer buf = ByteBuffer.allocateDirect(SAMPLES_PER_FRAME);
                         int readBytes;
                         audioRecord.startRecording();
-                        mRecordingStatus = IN_RECORDING;
                         if (onEncoderStatusUpdateListener != null) {
                             onEncoderStatusUpdateListener.onStartSuccess();
                         }
+                        mRecordingStatus = IN_RECORDING;
                         try {
                             while (!mRequestStop) {
                                 // read audio data from internal mic
@@ -700,7 +699,10 @@ public class TextureMovieEncoder {
 
     public interface OnEncoderStatusUpdateListener {
         void onStartSuccess();
-        void onStopSuccess();
+
+        void onStopSuccess(File outFile);
+
+        void onTimestampListener(long timestamp);
     }
 
     public void setOnEncoderStatusUpdateListener(OnEncoderStatusUpdateListener _On_encoderStatusUpdateListener) {
