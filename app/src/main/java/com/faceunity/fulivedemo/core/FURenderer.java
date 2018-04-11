@@ -36,6 +36,15 @@ public class FURenderer implements OnFaceUnityControlListener {
 
     private Context mContext;
 
+    /**
+     * 目录assets下的 *.bundle为程序的数据文件。
+     * 其中 v3.bundle：人脸识别数据文件，缺少该文件会导致系统初始化失败；
+     * face_beautification.bundle：美颜和美型相关的数据文件；
+     * anim_model.bundle：优化表情跟踪功能所需要加载的动画数据文件；适用于使用Animoji和avatar功能的用户，如果不是，可不加载
+     * ardata_ex.bundle：高精度模式的三维张量数据文件。适用于换脸功能，如果没用该功能可不加载
+     * fxaa.bundle：3D绘制抗锯齿数据文件。加载后，会使得3D绘制效果更加平滑。
+     * 目录effects下是我们打包签名好的道具
+     */
     public static final String BUNDLE_v3 = "v3.bundle";
     public static final String BUNDLE_anim_model = "anim_model.bundle";
     public static final String BUNDLE_face_beautification = "face_beautification.bundle";
@@ -104,20 +113,37 @@ public class FURenderer implements OnFaceUnityControlListener {
      */
     public static void initFURenderer(Context context) {
         try {
+            //获取faceunity SDK版本信息
             Log.e(TAG, "fu sdk version " + faceunity.fuGetVersion());
 
+            /**
+             * fuSetup faceunity初始化
+             * 其中 v3.bundle：人脸识别数据文件，缺少该文件会导致系统初始化失败；
+             *      authpack：用于鉴权证书内存数组。若没有,请咨询support@faceunity.com
+             * 首先调用完成后再调用其他FU API
+             */
             InputStream v3 = context.getAssets().open(BUNDLE_v3);
             byte[] v3Data = new byte[v3.available()];
             v3.read(v3Data);
             v3.close();
             faceunity.fuSetup(v3Data, null, authpack.A());
 
+            /**
+             * 加载优化表情跟踪功能所需要加载的动画数据文件anim_model.bundle；
+             * 启用该功能可以使表情系数及avatar驱动表情更加自然，减少异常表情、模型缺陷的出现。该功能对性能的影响较小。
+             * 启用该功能时，通过 fuLoadAnimModel 加载动画模型数据，加载成功即可启动。该功能会影响通过fuGetFaceInfo获取的expression表情系数，以及通过表情驱动的avatar模型。
+             * 适用于使用Animoji和avatar功能的用户，如果不是，可不加载
+             */
             InputStream animModel = context.getAssets().open(BUNDLE_anim_model);
             byte[] animModelData = new byte[animModel.available()];
             animModel.read(animModelData);
             animModel.close();
             faceunity.fuLoadAnimModel(animModelData);
 
+            /**
+             * 加载高精度模式的三维张量数据文件ardata_ex.bundle。
+             * 适用于换脸功能，如果没用该功能可不加载；如果使用了换脸功能，必须加载，否则会报错
+             */
             InputStream ar = context.getAssets().open(BUNDLE_ardata_ex);
             byte[] arDate = new byte[ar.available()];
             ar.read(arDate);
@@ -160,12 +186,24 @@ public class FURenderer implements OnFaceUnityControlListener {
     public void onSurfaceCreated() {
         Log.e(TAG, "onSurfaceCreated");
 
+        /**
+         * fuCreateEGLContext 创建OpenGL环境
+         * 适用于没OpenGL环境时调用
+         * 如果调用了fuCreateEGLContext，在销毁时需要调用fuReleaseEGLContext
+         */
         if (mIsCreateEGLContext) faceunity.fuCreateEGLContext();
 
         mFrameId = 0;
+        /**
+         *fuSetExpressionCalibration 控制表情校准功能的开关及不同模式，参数为0时关闭表情校准，1为主动校准，2为被动校准。
+         * 被动校准：该种模式下会在整个用户使用过程中逐渐进行表情校准，用户对该过程没有明显感觉。该种校准的强度相比主动校准较弱。
+         * 主动校准：老版本的表情校准模式。该种模式下系统会进行快速集中的表情校准，一般为初次识别到人脸之后的2-3秒钟。
+         *          在该段时间内，需要用户尽量保持无表情状态，该过程结束后再开始使用。该过程的开始和结束可以通过 fuGetFaceInfo 接口获取参数 is_calibrating
+         * 适用于使用Animoji和avatar功能的用户
+         */
         faceunity.fuSetExpressionCalibration(1);
-        faceunity.fuSetDefaultOrientation((360 - mInputImageOrientation) / 90);
-        faceunity.fuSetMaxFaces(mMaxFaces);
+        faceunity.fuSetDefaultOrientation((360 - mInputImageOrientation) / 90);//设置多脸，识别人脸默认方向，能够提高首次识别的速度
+        faceunity.fuSetMaxFaces(mMaxFaces);//设置多脸，目前最多支持8人。
 
         if (isNeedFaceBeauty) {
             mFuItemHandler.sendEmptyMessage(FUItemHandler.HANDLE_CREATE_BEAUTY_ITEM);
@@ -293,6 +331,31 @@ public class FURenderer implements OnFaceUnityControlListener {
     }
 
     /**
+     * 单美颜接口(fuBeautifyImage)，将输入的图像数据，送入SDK流水线进行全图美化，并输出处理之后的图像数据。
+     * 该接口仅执行图像层面的美化处 理（包括滤镜、美肤），不执行人脸跟踪及所有人脸相关的操作（如美型）。
+     * 由于功能集中，相比 fuDualInputToTexture 接口执行美颜道具，该接口所需计算更少，执行效率更高。
+     *
+     * @param tex 纹理ID
+     * @param w
+     * @param h
+     * @return
+     */
+    public int onDrawFrame(int tex, int w, int h) {
+        if (tex <= 0 || w <= 0 || h <= 0) {
+            Log.e(TAG, "onDrawFrame date null");
+            return 0;
+        }
+        prepareDrawFrame();
+
+        int flags = mInputTextureType;
+
+        if (mNeedBenchmark) mFuCallStartTime = System.nanoTime();
+        int fuTex = faceunity.fuBeautifyImage(tex, flags, w, h, mFrameId++, mItemsArray);
+        if (mNeedBenchmark) mOneHundredFrameFUTime += System.nanoTime() - mFuCallStartTime;
+        return fuTex;
+    }
+
+    /**
      * 使用 fuTrackFace + fuAvatarToTexture 的方法组合绘制画面，该组合没有camera画面绘制，适用于animoji等相关道具的绘制。
      * fuTrackFace 获取识别到的人脸信息
      * fuAvatarToTexture 依据人脸信息绘制道具
@@ -317,24 +380,24 @@ public class FURenderer implements OnFaceUnityControlListener {
         faceunity.fuTrackFace(img, flags, w, h);
 
         /**
-         * landmarks
+         * landmarks 2D人脸特征点，返回值为75个二维坐标，长度75*2
          */
         Arrays.fill(landmarksData, 0.0f);
         faceunity.fuGetFaceInfo(0, "landmarks", landmarksData);
 
         /**
-         *rotation
+         *rotation 人脸三维旋转，返回值为旋转四元数，长度4
          */
         Arrays.fill(rotationData, 0.0f);
         faceunity.fuGetFaceInfo(0, "rotation", rotationData);
         /**
-         * expression
+         * expression  表情系数，长度46
          */
         Arrays.fill(expressionData, 0.0f);
         faceunity.fuGetFaceInfo(0, "expression", expressionData);
 
         /**
-         * pupil pos
+         * pupil pos 人脸朝向，0-3分别对应手机四种朝向，长度1
          */
         Arrays.fill(pupilPosData, 0.0f);
         faceunity.fuGetFaceInfo(0, "pupil_pos", pupilPosData);
@@ -401,24 +464,39 @@ public class FURenderer implements OnFaceUnityControlListener {
 
         //修改美颜参数
         if (isNeedUpdateFaceBeauty && mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX] != 0) {
+            //filter_level 滤镜强度 范围0~1 SDK默认为 1
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "filter_level", mFaceBeautyFilterLevel);
+            //filter_name 滤镜
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "filter_name", mFilterName.filterName());
 
+            //skin_detect 精准美肤 0:关闭 1:开启 SDK默认为 0
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "skin_detect", mFaceBeautyALLBlurLevel);
+            //heavy_blur 美肤类型 0:清晰美肤 1:朦胧美肤 SDK默认为 0
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "heavy_blur", mFaceBeautyType);
+            //blur_level 磨皮 范围0~6 SDK默认为 6
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "blur_level", 6 * mFaceBeautyBlurLevel);
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "blur_blend_ratio", 0.5);
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "nonshin_blur_scale", 0.45);
+            //blur_blend_ratio 磨皮结果和原图融合率 范围0~1 SDK默认为 1
+//          faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "blur_blend_ratio", 1);
 
+            //color_level 美白 范围0~1 SDK默认为 1
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "color_level", mFaceBeautyColorLevel);
+            //red_level 红润 范围0~1 SDK默认为 1
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "red_level", mFaceBeautyRedLevel);
+            //eye_bright 亮眼 范围0~1 SDK默认为 0
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_bright", mBrightEyesLevel);
+            //tooth_whiten 美牙 范围0~1 SDK默认为 0
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "tooth_whiten", mBeautyTeethLevel);
 
+            //facewarp_version SDK 5.0 新版美型 0:基础美型 1: 新版美型 SDK默认为 1
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "facewarp_version", mOpenFaceShape);
 
+            //face_shape_level 美型程度 范围0~1 SDK默认为1
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "face_shape_level", mFaceShapeLevel);
+            //face_shape 脸型 0：女神 1：网红 2：自然 3：默认 SDK默认为 3
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "face_shape", mFaceBeautyFaceShape);
+            //eye_enlarging 大眼 范围0~1 SDK默认为 0
+            //cheek_thinning 瘦脸 范围0~1 SDK默认为 0
+            //if() 判断是用于区别新老美型的参数值
             if (mOpenFaceShape == 1.0) {
                 faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_enlarging", mFaceBeautyEnlargeEye);
                 faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "cheek_thinning", mFaceBeautyCheekThin);
@@ -426,9 +504,13 @@ public class FURenderer implements OnFaceUnityControlListener {
                 faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_enlarging", mFaceBeautyEnlargeEye_old);
                 faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "cheek_thinning", mFaceBeautyCheekThin_old);
             }
+            //intensity_chin 下巴 范围0~1 SDK默认为 0.5    大于0.5变大，小于0.5变小
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_chin", mChinLevel);
+            //intensity_forehead 额头 范围0~1 SDK默认为 0.5    大于0.5变大，小于0.5变小
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_forehead", mForeheadLevel);
+            //intensity_nose 鼻子 范围0~1 SDK默认为 0
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_nose", mThinNoseLevel);
+            //intensity_mouth 嘴型 范围0~1 SDK默认为 0.5   大于0.5变大，小于0.5变小
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_mouth", mMouthShape);
             isNeedUpdateFaceBeauty = false;
         }
@@ -768,10 +850,10 @@ public class FURenderer implements OnFaceUnityControlListener {
     }
 
     /**
-     * 加载道具
+     * fuCreateItemFromPackage 加载道具
      *
      * @param bundle（Effect本demo定义的道具实体类）
-     * @return
+     * @return 大于0时加载成功
      */
     private int loadItem(Effect bundle) {
         int item = 0;
@@ -803,12 +885,18 @@ public class FURenderer implements OnFaceUnityControlListener {
             @Override
             public void run() {
                 faceunity.fuItemSetParam(itemHandle, "isAndroid", 1.0);
-                faceunity.fuItemSetParam(itemHandle, "rotationAngle", 360 - mInputImageOrientation);
-                faceunity.fuItemSetParam(itemHandle, "camera_change", 1.0);
 
+                //rotationAngle 参数是用于旋转普通道具
+                faceunity.fuItemSetParam(itemHandle, "rotationAngle", 360 - mInputImageOrientation);
+
+                //这两句代码用于识别人脸默认方向的修改，主要针对animoji道具的切换摄像头倒置问题
+                faceunity.fuItemSetParam(itemHandle, "camera_change", 1.0);
                 faceunity.fuSetDefaultRotationMode((360 - mInputImageOrientation) / 90);
+                //is3DFlipH 参数是用于对3D道具的镜像
                 faceunity.fuItemSetParam(itemHandle, "is3DFlipH", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
+                //isFlipExpr 参数是用于对人像驱动道具的镜像
                 faceunity.fuItemSetParam(itemHandle, "isFlipExpr", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
+                //loc_y_flip与loc_x_flip 参数是用于对手势识别道具的镜像
                 faceunity.fuItemSetParam(itemHandle, "loc_y_flip", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
                 faceunity.fuItemSetParam(itemHandle, "loc_x_flip", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
             }
