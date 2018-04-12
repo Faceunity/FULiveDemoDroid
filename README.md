@@ -375,7 +375,7 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "tooth_whit
 
 ### 六、美型
 
-#### 1、基础美型
+#### 1、旧美型
 
 旧美型支持四种基本脸型：女神、网红、自然、默认。由参数 face_shape 指定：默认（3）、女神（0）、网红（1）、自然（2）。
 
