@@ -21,7 +21,7 @@ import com.faceunity.fulivedemo.ui.seekbar.internal.drawable.MarkerDrawable;
 
 
 /**
- * {@link android.view.ViewGroup} to be used as the real indicator.
+ * {@link ViewGroup} to be used as the real indicator.
  * <p>
  * I've used this to be able to accommodate the TextView
  * and the {@link  MarkerDrawable}

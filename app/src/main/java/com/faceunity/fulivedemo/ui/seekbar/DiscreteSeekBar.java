@@ -13,7 +13,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -35,6 +34,7 @@ import java.util.Formatter;
 import java.util.Locale;
 
 public class DiscreteSeekBar extends View {
+    private static final String TAG = DiscreteSeekBar.class.getSimpleName();
 
     /**
      * Interface to propagate seekbar change event
@@ -123,7 +123,7 @@ public class DiscreteSeekBar extends View {
 
     private int mTrackHeight;
     private int mScrubberHeight;
-    private int mAddedTouchBounds;
+    private final int mAddedTouchBounds;
 
     private int mMax;
     private int mMin;
@@ -314,6 +314,7 @@ public class DiscreteSeekBar extends View {
      * @see #setProgress(int)
      */
     public void setMax(int max) {
+        if (mMax == max) return;
         mMax = max;
         if (mMax < mMin) {
             setMin(mMax - 1);
@@ -341,6 +342,7 @@ public class DiscreteSeekBar extends View {
      * @see #setProgress(int)
      */
     public void setMin(int min) {
+        if (mMin == min) return;
         mMin = min;
         if (mMin > mMax) {
             setMax(mMin + 1);
@@ -370,12 +372,10 @@ public class DiscreteSeekBar extends View {
             mPositionAnimator.cancel();
         }
 
-        if (mValue != value) {
-            mValue = value;
-            notifyProgress(value, fromUser);
-            updateProgressMessage(value);
-            updateThumbPosFromCurrentProgress();
-        }
+        mValue = value;
+        notifyProgress(value, fromUser);
+        updateProgressMessage(value);
+        updateThumbPosFromCurrentProgress();
     }
 
     /**
@@ -682,8 +682,7 @@ public class DiscreteSeekBar extends View {
         if (!isEnabled()) {
             return false;
         }
-        int actionMasked = MotionEventCompat.getActionMasked(event);
-        switch (actionMasked) {
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDownX = event.getX();
                 startDragging(event, isInScrollingContainer());

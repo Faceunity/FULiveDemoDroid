@@ -12,7 +12,7 @@ import android.support.annotation.NonNull;
 /**
  * A drawable that changes it's Paint color depending on the Drawable State
  * <p>
- * Subclasses should implement {@link #doDraw(android.graphics.Canvas, android.graphics.Paint)}
+ * Subclasses should implement {@link #doDraw(Canvas, Paint)}
  * </p>
  *
  * @hide
@@ -73,9 +73,9 @@ public abstract class StateDrawable extends Drawable {
     /**
      * Subclasses should implement this method to do the actual drawing
      *
-     * @param canvas The current {@link android.graphics.Canvas} to draw into
-     * @param paint  The {@link android.graphics.Paint} preconfigurred with the current
-     *               {@link android.content.res.ColorStateList} color
+     * @param canvas The current {@link Canvas} to draw into
+     * @param paint  The {@link Paint} preconfigurred with the current
+     *               {@link ColorStateList} color
      */
     abstract void doDraw(Canvas canvas, Paint paint);
 

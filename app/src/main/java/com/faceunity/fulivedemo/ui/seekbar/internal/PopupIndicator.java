@@ -26,7 +26,7 @@ import com.faceunity.fulivedemo.ui.seekbar.internal.drawable.MarkerDrawable;
  * </p>
  *
  * @hide
- * @see #showIndicator(android.view.View, android.graphics.Rect)
+ * @see #showIndicator(View, Rect)
  * @see #dismiss()
  * @see #dismissComplete()
  * @see PopupIndicator.Floater

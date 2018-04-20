@@ -74,11 +74,6 @@ public interface OnFaceUnityControlListener {
     void onBeautyTeethSelected(float progress);
 
     /**
-     * 是否开启新美型
-     */
-    void onOpenNewFaceShapeSelected(float isOpen);
-
-    /**
      * 脸型选择
      */
     void onFaceShapeSelected(float faceShape);

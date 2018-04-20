@@ -17,12 +17,12 @@ import android.view.animation.Interpolator;
 /**
  * Implementation of {@link StateDrawable} to draw a morphing marker symbol.
  * <p>
- * It's basically an implementation of an {@link android.graphics.drawable.Animatable} Drawable with the following details:
+ * It's basically an implementation of an {@link Animatable} Drawable with the following details:
  * </p>
  * <ul>
  * <li>Animates from a circle shape to a "marker" shape just using a RoundRect</li>
  * <li>Animates color change from the normal state color to the pressed state color</li>
- * <li>Uses a {@link android.graphics.Path} to also serve as Outline for API>=21</li>
+ * <li>Uses a {@link Path} to also serve as Outline for API>=21</li>
  * </ul>
  *
  * @hide

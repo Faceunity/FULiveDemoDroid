@@ -104,7 +104,7 @@ public class SeekBarCompat {
      *
      * @param textView
      * @param textDirection
-     * @see android.widget.TextView#setTextDirection(int)
+     * @see TextView#setTextDirection(int)
      */
     public static void setTextDirection(TextView textView, int textDirection) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {

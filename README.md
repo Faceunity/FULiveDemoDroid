@@ -6,7 +6,7 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 ## SDK v5.0 更新
 
-本次更新：
+更新内容
 
 - 新增高级美颜功能
 - 新增精细脸型调整功能
@@ -36,9 +36,9 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 ### 二、通过 github 下载集成
 
-含有深度学习的版本：[Faceunity-Android-v5.0-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.0-dev/Faceunity-Android-v5.0-dev.zip)
+含有深度学习的版本：[Faceunity-Android-v5.0-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.0-dev-fix/Faceunity-Android-v5.0-dev.zip)
 
-不含深度学习的版本（lite版）：[Faceunity-Android-v5.0-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.0-dev/Faceunity-Android-v5.0-dev-lite.zip)
+不含深度学习的版本（lite版）：[Faceunity-Android-v5.0-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.0-dev-fix/Faceunity-Android-v5.0-dev-lite.zip)
 
 ## 文件说明
 
@@ -341,7 +341,7 @@ __新增朦胧美肤:__
 
 `blur_blend_ratio` 指定磨皮结果和原图融合率。该参数的推荐取值范围为0-1。
 
-注意：朦胧美肤使用了比较强的模糊算法，优点是会把皮肤磨得更加光滑，瑕疵更少，而且性能比老版磨皮更好，缺点是会降低一些清晰度。另外开启朦胧美肤后blur_level，skin_detect两个参数继续有效，而 nonshin_blur_scale 参数对朦胧美肤无效
+注意：朦胧美肤使用了比较强的模糊算法，优点是会把皮肤磨得更加光滑，瑕疵更少，而且性能比老版磨皮性能更好，缺点是会降低一些清晰度。另外开启朦胧美肤后blur_level，skin_detect两个参数继续有效，而 nonshin_blur_scale 参数对朦胧美肤无效
 
 设置参数的例子代码如下：
 
@@ -375,15 +375,15 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "tooth_whit
 
 ### 六、美型
 
-#### 1、旧美型
+#### 1、基本美型
 
-旧美型支持四种基本脸型：女神、网红、自然、默认。由参数 face_shape 指定：默认（3）、女神（0）、网红（1）、自然（2）。
+美型支持四种基本美型：女神、网红、自然、默认，一种高级美型：自定义。由参数 face_shape 指定：默认（3）、女神（0）、网红（1）、自然（2）、自定义（4）。
 
 ```java
 faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "face_shape", mFaceBeautyFaceShape);
 ```
 
-在上述四种基本脸型的基础上，我们提供了以下三个参数：face_shape_level、eye_enlarging、cheek_thinning。
+在上述四种基本美型及一种高级美型的基础上，我们提供了以下三个参数：face_shape_level、eye_enlarging、cheek_thinning。
 
 参数 face_shape_level 用以控制变化到指定基础脸型的程度。该参数的取值范围为[0, 1]。0为无效果，即关闭美型，1为指定脸型。
 
@@ -405,16 +405,16 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_enlarg
 faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "cheek_thinning", mFaceBeautyCheekThin);
 ```
 
-#### 2、新增美型
+#### 2、高级美型
 
 ##### 精细脸型调整功能
 
-优化瘦脸、大眼的效果，增加额头调整、下巴调整、瘦鼻、嘴型调整4项美颜变形，FULiveDemo中可以在脸型中选择自定义来开启精细脸型调整功能
+新增优化瘦脸、大眼的效果，增加额头调整、下巴调整、瘦鼻、嘴型调整4项美颜变形，将 face_shape 设为4即可开启精细脸型调整功能，FULiveDemo中可以在脸型中选择自定义来开启精细脸型调整功能
 
 __使用方法__：
 - 加载face_beautification.bundle
 - 调整如下参数
-  facewarp_version: 1,   // 1为开启新脸型模式，0为旧变形
+  face_shape: 4,   // 4为开启高级美型模式，0～3为基本美型
 
 ##### 瘦脸
 
@@ -424,7 +424,7 @@ __使用方法__：
 
 - 加载face_beautification.bundle
 - 调整如下参数
-  facewarp_version: 1,   // 1为开启新脸型模式，0为旧变形
+  face_shape: 4,   // 4为开启高级美型模式，0～3为基本美型
   cheek_thinning: 0.0,   // 使用了原有参数cheek_thinning控制瘦脸 ，范围0 - 1
 
 ##### 大眼
@@ -444,7 +444,7 @@ __使用方法__：
 __使用方法__：
 - 加载face_beautification.bundle
 - 调整如下参数
-  facewarp_version: 1,   // 1为开启新脸型模式，0为旧变形
+  face_shape: 4,   // 4为开启高级美型模式，0～3为基本美型
   intensity_forehead: 0.5,   // 大于0.5 变大，小于0.5变小
 
 ##### 下巴调整
@@ -454,7 +454,7 @@ __使用方法__：
 __使用方法__：
 - 加载face_beautification.bundle
 - 调整如下参数
-  facewarp_version: 1,   // 1为开启新脸型模式，0为旧变形
+  face_shape: 4,   // 4为开启高级美型模式，0～3为基本美型
   intensity_chin: 0.5,   // 大于0.5 变大，小于0.5变小
 
 ##### 瘦鼻
@@ -464,8 +464,7 @@ __使用方法__：
 __使用方法__：
 - 加载face_beautification.bundle
 - 调整如下参数
-
-  facewarp_version: 1,   // 1为开启新脸型模式，0为旧变形
+  face_shape: 4,   // 4为开启高级美型模式，0～3为基本美型
   intensity_nose: 0.0,   // 0为正常大小，大于0开始瘦鼻，范围0 - 1
 
 ##### 嘴型调整
@@ -475,7 +474,7 @@ __使用方法__：
 __使用方法__：
 - 加载face_beautification.bundle
 - 调整如下参数
-  facewarp_version: 1,   // 1为开启新脸型模式，0为旧变形
+  face_shape: 4,   // 4为开启高级美型模式，0～3为基本美型
   intensity_mouth: 0.5,   // 大于0.5变大，小于0.5变小
 
 ## 手势识别

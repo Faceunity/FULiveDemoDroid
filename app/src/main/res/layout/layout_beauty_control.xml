@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
-    android:gravity="bottom"
-    android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_gravity="bottom"
+              android:gravity="bottom"
+              android:orientation="vertical">
 
     <FrameLayout
         android:id="@+id/beauty_seek_bar_layout"
@@ -138,187 +137,75 @@
             android:scrollbars="none"
             android:visibility="gone">
 
-            <LinearLayout
+            <com.faceunity.fulivedemo.ui.BeautyBoxGroup
+                android:id="@+id/beauty_box_skin_beauty"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <LinearLayout
-                    android:id="@+id/beauty_all_blur_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/beauty_all_blur_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:checked_model="checkbox"
+                    app:drawable_checked="@drawable/beauty_skin_control_all_blur_checked"
+                    app:drawable_normal="@drawable/beauty_skin_control_all_blur_normal"
+                    app:text_normal="精准美肤"/>
 
-                    <ImageView
-                        android:id="@+id/beauty_all_blur_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_skin_control_all_blur_normal"/>
-
-                    <TextView
-                        android:id="@+id/beauty_all_blur_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="精准美肤"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/beauty_type_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/beauty_type_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:checked_model="checkbox"
+                    app:drawable_checked="@drawable/beauty_skin_control_type_checked"
+                    app:drawable_normal="@drawable/beauty_skin_control_type_checked"
+                    app:textColor_checked="@color/main_color"
+                    app:textColor_normal="@color/main_color"
+                    app:text_checked="朦胧磨皮"
+                    app:text_normal="清晰磨皮"/>
 
-                    <ImageView
-                        android:id="@+id/beauty_type_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_skin_control_type_checked"/>
-
-                    <TextView
-                        android:id="@+id/beauty_type_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="清晰磨皮"
-                        android:textColor="@color/main_color"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/beauty_blur_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/beauty_blur_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_skin_control_blur_checked"
+                    app:drawable_normal="@drawable/beauty_skin_control_blur_normal"
+                    app:text_normal="磨皮"/>
 
-                    <ImageView
-                        android:id="@+id/beauty_blur_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_skin_control_blur_normal"/>
-
-                    <TextView
-                        android:id="@+id/beauty_blur_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="磨皮"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/beauty_color_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/beauty_color_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_skin_control_color_checked"
+                    app:drawable_normal="@drawable/beauty_skin_control_color_normal"
+                    app:text_normal="美白"/>
 
-                    <ImageView
-                        android:id="@+id/beauty_color_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_skin_control_color_normal"/>
-
-                    <TextView
-                        android:id="@+id/beauty_color_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="美白"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/beauty_red_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/beauty_red_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_skin_control_red_checked"
+                    app:drawable_normal="@drawable/beauty_skin_control_red_normal"
+                    app:text_normal="红润"/>
 
-                    <ImageView
-                        android:id="@+id/beauty_red_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_skin_control_red_normal"/>
-
-                    <TextView
-                        android:id="@+id/beauty_red_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="红润"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/bright_eyes_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/beauty_bright_eyes_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_skin_control_bright_eyes_checked"
+                    app:drawable_normal="@drawable/beauty_skin_control_bright_eyes_normal"
+                    app:text_normal="亮眼"/>
 
-                    <ImageView
-                        android:id="@+id/bright_eyes_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_skin_control_bright_eyes_normal"/>
-
-                    <TextView
-                        android:id="@+id/bright_eyes_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="亮眼"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/beauty_teeth_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/beauty_teeth_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_skin_control_teeth_checked"
+                    app:drawable_normal="@drawable/beauty_skin_control_teeth_normal"
+                    app:text_normal="美牙"/>
 
-                    <ImageView
-                        android:id="@+id/beauty_teeth_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_skin_control_teeth_normal"/>
-
-                    <TextView
-                        android:id="@+id/beauty_teeth_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="美牙"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-            </LinearLayout>
+            </com.faceunity.fulivedemo.ui.BeautyBoxGroup>
         </HorizontalScrollView>
 
         <HorizontalScrollView
@@ -329,198 +216,82 @@
             android:scrollbars="none"
             android:visibility="gone">
 
-            <LinearLayout
+            <com.faceunity.fulivedemo.ui.BeautyBoxGroup
+                android:id="@+id/beauty_box_face_shape"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <LinearLayout
-                    android:id="@+id/face_shape_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/face_shape_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:checked_model="unchange"
+                    app:drawable_checked="@drawable/beauty_type_control_face_shape_checked"
+                    app:drawable_normal="@drawable/beauty_type_control_face_shape_normal"
+                    app:text_normal="脸型"/>
 
-                    <ImageView
-                        android:id="@+id/face_shape_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_type_control_face_shape_normal"/>
-
-                    <TextView
-                        android:id="@+id/face_shape_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="脸型"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/enlarge_eye_level_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/enlarge_eye_level_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_type_control_enlarge_eye_level_checked"
+                    app:drawable_normal="@drawable/beauty_type_control_enlarge_eye_level_normal"
+                    app:text_normal="大眼"/>
 
-                    <ImageView
-                        android:id="@+id/enlarge_eye_level_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_type_control_enlarge_eye_level_normal"/>
-
-                    <TextView
-                        android:id="@+id/enlarge_eye_level_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="大眼"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/cheekthin_level_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/cheek_thin_level_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_type_control_cheekthin_level_checked"
+                    app:drawable_normal="@drawable/beauty_type_control_cheekthin_level_normal"
+                    app:text_normal="瘦脸"/>
 
-                    <ImageView
-                        android:id="@+id/cheekthin_level_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_type_control_cheekthin_level_normal"/>
-
-                    <TextView
-                        android:id="@+id/cheekthin_level_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="瘦脸"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/chin_level_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/chin_level_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_type_control_chin_level_checked"
+                    app:drawable_normal="@drawable/beauty_type_control_chin_level_normal"
+                    app:text_normal="下巴"/>
 
-                    <ImageView
-                        android:id="@+id/chin_level_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_type_control_chin_level_normal"/>
-
-                    <TextView
-                        android:id="@+id/chin_level_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="下巴"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/forehead_level_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/forehead_level_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_type_control_forehead_level_checked"
+                    app:drawable_normal="@drawable/beauty_type_control_forehead_level_normal"
+                    app:text_normal="额头"/>
 
-                    <ImageView
-                        android:id="@+id/forehead_level_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_type_control_forehead_level_normal"/>
-
-                    <TextView
-                        android:id="@+id/forehead_level_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="额头"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/thin_nose_level_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/thin_nose_level_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_type_control_thin_nose_level_checked"
+                    app:drawable_normal="@drawable/beauty_type_control_thin_nose_level_normal"
+                    app:text_normal="瘦鼻"/>
 
-                    <ImageView
-                        android:id="@+id/thin_nose_level_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_type_control_thin_nose_level_normal"/>
-
-                    <TextView
-                        android:id="@+id/thin_nose_level_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="瘦鼻"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/mouth_shape_linear"
-                    android:layout_width="@dimen/x170"
+                <com.faceunity.fulivedemo.ui.BeautyBox
+                    android:id="@+id/mouth_shape_box"
+                    android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    app:drawable_checked="@drawable/beauty_type_control_mouth_shape_checked"
+                    app:drawable_normal="@drawable/beauty_type_control_mouth_shape_normal"
+                    app:text_normal="嘴型"/>
 
-                    <ImageView
-                        android:id="@+id/mouth_shape_linear_img"
-                        android:layout_width="@dimen/x120"
-                        android:layout_height="@dimen/x120"
-                        android:padding="@dimen/x8"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/beauty_type_control_mouth_shape_normal"/>
-
-                    <TextView
-                        android:id="@+id/mouth_shape_linear_txt"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/x8"
-                        android:text="嘴型"
-                        android:textColor="@color/main_color_c5c5c5"
-                        android:textSize="@dimen/min_text_size"/>
-                </LinearLayout>
-            </LinearLayout>
+            </com.faceunity.fulivedemo.ui.BeautyBoxGroup>
         </HorizontalScrollView>
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/effect_recycle_view"
+            android:id="@+id/filter_recycle_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone"/>
     </FrameLayout>
 
-    <LinearLayout
+    <com.faceunity.fulivedemo.ui.CheckGroup
         android:id="@+id/beauty_radio_group"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x100"
@@ -528,7 +299,7 @@
         android:background="@color/percent50translucentBlack"
         android:orientation="horizontal">
 
-        <TextView
+        <CheckBox
             android:id="@+id/beauty_radio_skin_beauty"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -537,10 +308,10 @@
             android:button="@null"
             android:gravity="center"
             android:text="美肤"
-            android:textColor="@color/main_color_c5c5c5"
+            android:textColor="@drawable/beauty_control_bottom_radio_color"
             android:textSize="@dimen/normal_text_size"/>
 
-        <TextView
+        <CheckBox
             android:id="@+id/beauty_radio_face_shape"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -549,10 +320,10 @@
             android:button="@null"
             android:gravity="center"
             android:text="美型"
-            android:textColor="@color/main_color_c5c5c5"
+            android:textColor="@drawable/beauty_control_bottom_radio_color"
             android:textSize="@dimen/normal_text_size"/>
 
-        <TextView
+        <CheckBox
             android:id="@+id/beauty_radio_beauty_filter"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -561,10 +332,10 @@
             android:button="@null"
             android:gravity="center"
             android:text="美颜滤镜"
-            android:textColor="@color/main_color_c5c5c5"
+            android:textColor="@drawable/beauty_control_bottom_radio_color"
             android:textSize="@dimen/normal_text_size"/>
 
-        <TextView
+        <CheckBox
             android:id="@+id/beauty_radio_filter"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -573,7 +344,7 @@
             android:button="@null"
             android:gravity="center"
             android:text="滤镜"
-            android:textColor="@color/main_color_c5c5c5"
+            android:textColor="@drawable/beauty_control_bottom_radio_color"
             android:textSize="@dimen/normal_text_size"/>
-    </LinearLayout>
+    </com.faceunity.fulivedemo.ui.CheckGroup>
 </LinearLayout>

@@ -25,6 +25,8 @@ import com.faceunity.fulivedemo.utils.MiscUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -107,12 +109,19 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     }
 
     public void onDestroy() {
+        final CountDownLatch count = new CountDownLatch(1);
         mGLSurfaceView.queueEvent(new Runnable() {
             @Override
             public void run() {
                 onSurfaceDestroy();
+                count.countDown();
             }
         });
+        try {
+            count.await(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         mGLSurfaceView.onPause();
     }
 

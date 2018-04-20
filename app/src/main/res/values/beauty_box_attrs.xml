@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BeautyBox">
+        <attr name="checked" format="boolean" />
+        <attr name="checked_model" format="integer">
+            <flag name="normal" value="1" />
+            <flag name="checkbox" value="2" />
+            <flag name="unchange" value="3" />
+        </attr>
+        <attr name="drawable_normal" format="reference" />
+        <attr name="drawable_checked" format="reference" />
+        <attr name="text_normal" format="string" />
+        <attr name="text_checked" format="string" />
+        <attr name="textColor_normal" format="reference|color" />
+        <attr name="textColor_checked" format="reference|color" />
+    </declare-styleable>
+</resources>

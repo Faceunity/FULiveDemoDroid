@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int[] home_function_permissions_code = {
             0x1,                    //美颜
-            0x8,                    //Animoji
+            0x10,                    //Animoji
             0x2 | 0x4,              //道具贴纸
             0x20 | 0x40,            //AR面具
             0x80,                   //换脸

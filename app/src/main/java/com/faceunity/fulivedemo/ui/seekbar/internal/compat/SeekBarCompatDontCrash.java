@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.faceunity.fulivedemo.ui.seekbar.internal.drawable.MarkerDrawable;
 
+
 /**
  * Wrapper compatibility class to call some API-Specific methods
  * And offer alternate procedures when possible

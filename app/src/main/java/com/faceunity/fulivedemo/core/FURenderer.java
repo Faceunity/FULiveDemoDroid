@@ -64,13 +64,10 @@ public class FURenderer implements OnFaceUnityControlListener {
     private float mBrightEyesLevel = 0.0f;//亮眼
     private float mBeautyTeethLevel = 0.0f;//美牙
 
-    private float mOpenFaceShape = 1.0f;
-    private float mFaceBeautyFaceShape = 3.0f;//脸型
+    private float mFaceBeautyFaceShape = 4.0f;//脸型
     private float mFaceShapeLevel = 1.0f;//程度
     private float mFaceBeautyEnlargeEye = 0.4f;//大眼
     private float mFaceBeautyCheekThin = 0.4f;//瘦脸
-    private float mFaceBeautyEnlargeEye_old = 0.4f;//大眼
-    private float mFaceBeautyCheekThin_old = 0.4f;//瘦脸
     private float mChinLevel = 0.3f;//下巴
     private float mForeheadLevel = 0.3f;//额头
     private float mThinNoseLevel = 0.5f;//瘦鼻
@@ -487,23 +484,15 @@ public class FURenderer implements OnFaceUnityControlListener {
             //tooth_whiten 美牙 范围0~1 SDK默认为 0
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "tooth_whiten", mBeautyTeethLevel);
 
-            //facewarp_version SDK 5.0 新版美型 0:基础美型 1: 新版美型 SDK默认为 1
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "facewarp_version", mOpenFaceShape);
 
             //face_shape_level 美型程度 范围0~1 SDK默认为1
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "face_shape_level", mFaceShapeLevel);
-            //face_shape 脸型 0：女神 1：网红 2：自然 3：默认 SDK默认为 3
+            //face_shape 脸型 0：女神 1：网红 2：自然 3：默认 4：自定义（新版美型） SDK默认为 3
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "face_shape", mFaceBeautyFaceShape);
             //eye_enlarging 大眼 范围0~1 SDK默认为 0
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_enlarging", mFaceBeautyEnlargeEye);
             //cheek_thinning 瘦脸 范围0~1 SDK默认为 0
-            //if() 判断是用于区别新老美型的参数值
-            if (mOpenFaceShape == 1.0) {
-                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_enlarging", mFaceBeautyEnlargeEye);
-                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "cheek_thinning", mFaceBeautyCheekThin);
-            } else {
-                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_enlarging", mFaceBeautyEnlargeEye_old);
-                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "cheek_thinning", mFaceBeautyCheekThin_old);
-            }
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "cheek_thinning", mFaceBeautyCheekThin);
             //intensity_chin 下巴 范围0~1 SDK默认为 0.5    大于0.5变大，小于0.5变小
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_chin", mChinLevel);
             //intensity_forehead 额头 范围0~1 SDK默认为 0.5    大于0.5变大，小于0.5变小
@@ -663,12 +652,6 @@ public class FURenderer implements OnFaceUnityControlListener {
     }
 
     @Override
-    public void onOpenNewFaceShapeSelected(float isOpen) {
-        isNeedUpdateFaceBeauty = true;
-        mOpenFaceShape = isOpen;
-    }
-
-    @Override
     public void onFaceShapeSelected(float faceShape) {
         isNeedUpdateFaceBeauty = true;
         this.mFaceBeautyFaceShape = faceShape;
@@ -677,22 +660,14 @@ public class FURenderer implements OnFaceUnityControlListener {
     @Override
     public void onEnlargeEyeSelected(float progress) {
         isNeedUpdateFaceBeauty = true;
-        if (mOpenFaceShape == 1.0) {
             mFaceBeautyEnlargeEye = progress;
-        } else {
-            mFaceBeautyEnlargeEye_old = progress;
-        }
     }
 
 
     @Override
     public void onCheekThinSelected(float progress) {
         isNeedUpdateFaceBeauty = true;
-        if (mOpenFaceShape == 1.0) {
             mFaceBeautyCheekThin = progress;
-        } else {
-            mFaceBeautyCheekThin_old = progress;
-        }
     }
 
     @Override
@@ -783,9 +758,7 @@ public class FURenderer implements OnFaceUnityControlListener {
     //--------------------------------------道具（异步加载道具）----------------------------------------
 
     public void createItem(Effect item) {
-        if (item == null) {
-            throw new RuntimeException("createItem itemNames  error");
-        }
+        if (item == null) return;
         mFuItemHandler.removeMessages(FUItemHandler.HANDLE_CREATE_ITEM);
         mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, FUItemHandler.HANDLE_CREATE_ITEM, item));
     }

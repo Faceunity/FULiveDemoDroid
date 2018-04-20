@@ -1,5 +1,6 @@
 package com.faceunity.fulivedemo.ui.seekbar.internal.compat;
 
+
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
 
 /**
