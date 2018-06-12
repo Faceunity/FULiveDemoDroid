@@ -53,25 +53,25 @@ public class FURenderer implements OnFaceUnityControlListener {
 
     //美颜和滤镜的默认参数
     private boolean isNeedUpdateFaceBeauty = true;
-    private float mFaceBeautyFilterLevel = 1.0f;//滤镜强度
+    private float mFilterLevel = 1.0f;//滤镜强度
     private Filter mFilterName = FilterEnum.ziran.filter();
 
-    private float mFaceBeautyALLBlurLevel = 1.0f;//精准磨皮
-    private float mFaceBeautyType = 0.0f;//美肤类型
-    private float mFaceBeautyBlurLevel = 0.7f;//磨皮
-    private float mFaceBeautyColorLevel = 0.5f;//美白
-    private float mFaceBeautyRedLevel = 0.5f;//红润
-    private float mBrightEyesLevel = 0.0f;//亮眼
-    private float mBeautyTeethLevel = 0.0f;//美牙
+    private float mSkinDetect = 1.0f;//精准磨皮
+    private float mHeavyBlur = 0.0f;//美肤类型
+    private float mBlurLevel = 0.7f;//磨皮
+    private float mColorLevel = 0.5f;//美白
+    private float mRedLevel = 0.5f;//红润
+    private float mEyeBright = 0.0f;//亮眼
+    private float mToothWhiten = 0.0f;//美牙
 
-    private float mFaceBeautyFaceShape = 4.0f;//脸型
+    private float mFaceShape = 4.0f;//脸型
     private float mFaceShapeLevel = 1.0f;//程度
-    private float mFaceBeautyEnlargeEye = 0.4f;//大眼
-    private float mFaceBeautyCheekThin = 0.4f;//瘦脸
-    private float mChinLevel = 0.3f;//下巴
-    private float mForeheadLevel = 0.3f;//额头
-    private float mThinNoseLevel = 0.5f;//瘦鼻
-    private float mMouthShape = 0.4f;//嘴形
+    private float mEyeEnlarge = 0.4f;//大眼
+    private float mCheekThinning = 0.4f;//瘦脸
+    private float mIntensityChin = 0.3f;//下巴
+    private float mIntensityForehead = 0.3f;//额头
+    private float mIntensityNose = 0.5f;//瘦鼻
+    private float mIntensityMouth = 0.4f;//嘴形
 
     private int mFrameId = 0;
 
@@ -199,7 +199,6 @@ public class FURenderer implements OnFaceUnityControlListener {
          * 适用于使用Animoji和avatar功能的用户
          */
         faceunity.fuSetExpressionCalibration(1);
-        faceunity.fuSetDefaultOrientation((360 - mInputImageOrientation) / 90);//设置多脸，识别人脸默认方向，能够提高首次识别的速度
         faceunity.fuSetMaxFaces(mMaxFaces);//设置多脸，目前最多支持8人。
 
         if (isNeedFaceBeauty) {
@@ -448,6 +447,8 @@ public class FURenderer implements OnFaceUnityControlListener {
 
         //获取faceunity错误信息，并调用回调接口
         int error = faceunity.fuGetSystemError();
+        if (error != 0)
+            Log.e(TAG, "fuGetSystemErrorString " + faceunity.fuGetSystemErrorString(error));
         if (mOnSystemErrorListener != null && error != 0) {
             mOnSystemErrorListener.onSystemError(error == 0 ? "" : faceunity.fuGetSystemErrorString(error));
         }
@@ -462,45 +463,45 @@ public class FURenderer implements OnFaceUnityControlListener {
         //修改美颜参数
         if (isNeedUpdateFaceBeauty && mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX] != 0) {
             //filter_level 滤镜强度 范围0~1 SDK默认为 1
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "filter_level", mFaceBeautyFilterLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "filter_level", mFilterLevel);
             //filter_name 滤镜
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "filter_name", mFilterName.filterName());
 
             //skin_detect 精准美肤 0:关闭 1:开启 SDK默认为 0
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "skin_detect", mFaceBeautyALLBlurLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "skin_detect", mSkinDetect);
             //heavy_blur 美肤类型 0:清晰美肤 1:朦胧美肤 SDK默认为 0
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "heavy_blur", mFaceBeautyType);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "heavy_blur", mHeavyBlur);
             //blur_level 磨皮 范围0~6 SDK默认为 6
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "blur_level", 6 * mFaceBeautyBlurLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "blur_level", 6 * mBlurLevel);
             //blur_blend_ratio 磨皮结果和原图融合率 范围0~1 SDK默认为 1
 //          faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "blur_blend_ratio", 1);
 
             //color_level 美白 范围0~1 SDK默认为 1
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "color_level", mFaceBeautyColorLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "color_level", mColorLevel);
             //red_level 红润 范围0~1 SDK默认为 1
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "red_level", mFaceBeautyRedLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "red_level", mRedLevel);
             //eye_bright 亮眼 范围0~1 SDK默认为 0
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_bright", mBrightEyesLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_bright", mEyeBright);
             //tooth_whiten 美牙 范围0~1 SDK默认为 0
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "tooth_whiten", mBeautyTeethLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "tooth_whiten", mToothWhiten);
 
 
             //face_shape_level 美型程度 范围0~1 SDK默认为1
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "face_shape_level", mFaceShapeLevel);
             //face_shape 脸型 0：女神 1：网红 2：自然 3：默认 4：自定义（新版美型） SDK默认为 3
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "face_shape", mFaceBeautyFaceShape);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "face_shape", mFaceShape);
             //eye_enlarging 大眼 范围0~1 SDK默认为 0
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_enlarging", mFaceBeautyEnlargeEye);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "eye_enlarging", mEyeEnlarge);
             //cheek_thinning 瘦脸 范围0~1 SDK默认为 0
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "cheek_thinning", mFaceBeautyCheekThin);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "cheek_thinning", mCheekThinning);
             //intensity_chin 下巴 范围0~1 SDK默认为 0.5    大于0.5变大，小于0.5变小
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_chin", mChinLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_chin", mIntensityChin);
             //intensity_forehead 额头 范围0~1 SDK默认为 0.5    大于0.5变大，小于0.5变小
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_forehead", mForeheadLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_forehead", mIntensityForehead);
             //intensity_nose 鼻子 范围0~1 SDK默认为 0
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_nose", mThinNoseLevel);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_nose", mIntensityNose);
             //intensity_mouth 嘴型 范围0~1 SDK默认为 0.5   大于0.5变大，小于0.5变小
-            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_mouth", mMouthShape);
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_mouth", mIntensityMouth);
             isNeedUpdateFaceBeauty = false;
         }
 
@@ -553,7 +554,6 @@ public class FURenderer implements OnFaceUnityControlListener {
                 mInputImageOrientation = inputImageOrientation;
                 faceunity.fuOnCameraChange();
                 updateEffectItemParams(mItemsArray[ITEM_ARRAYS_EFFECT]);
-                faceunity.fuSetDefaultOrientation((360 - mInputImageOrientation) / 90);
                 changeInputType();
             }
         });
@@ -589,6 +589,19 @@ public class FURenderer implements OnFaceUnityControlListener {
         });
     }
 
+    private int mDefaultOrientation;
+
+    public void setTrackOrientation(final int rotation) {
+        if (mTrackingStatus == 0 && mDefaultOrientation != rotation) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mDefaultOrientation = rotation;
+                    faceunity.fuSetDefaultOrientation(rotation / 90);//设置识别人脸默认方向，能够提高首次识别的速度
+                }
+            });
+        }
+    }
     //--------------------------------------美颜参数与道具回调----------------------------------------
 
     @Override
@@ -599,99 +612,98 @@ public class FURenderer implements OnFaceUnityControlListener {
     @Override
     public void onFilterLevelSelected(float progress) {
         isNeedUpdateFaceBeauty = true;
-        mFaceBeautyFilterLevel = progress;
+        mFilterLevel = progress;
     }
 
     @Override
-    public void onFilterSelected(Filter filterName) {
+    public void onFilterNameSelected(Filter filterName) {
         isNeedUpdateFaceBeauty = true;
         this.mFilterName = filterName;
     }
 
     @Override
-    public void onALLBlurLevelSelected(float isAll) {
+    public void onSkinDetectSelected(float isOpen) {
         isNeedUpdateFaceBeauty = true;
-        mFaceBeautyALLBlurLevel = isAll;
+        mSkinDetect = isOpen;
     }
 
     @Override
-    public void onBeautySkinTypeSelected(float isAll) {
+    public void onHeavyBlurSelected(float isOpen) {
         isNeedUpdateFaceBeauty = true;
-        mFaceBeautyType = isAll;
+        mHeavyBlur = isOpen;
     }
 
     @Override
     public void onBlurLevelSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mFaceBeautyBlurLevel = level;
+        mBlurLevel = level;
     }
 
     @Override
-    public void onColorLevelSelected(float progress) {
+    public void onColorLevelSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mFaceBeautyColorLevel = progress;
+        mColorLevel = level;
     }
 
 
     @Override
-    public void onRedLevelSelected(float progress) {
+    public void onRedLevelSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mFaceBeautyRedLevel = progress;
+        mRedLevel = level;
     }
 
     @Override
-    public void onBrightEyesSelected(float progress) {
+    public void onEyeBrightSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mBrightEyesLevel = progress;
+        mEyeBright = level;
     }
 
     @Override
-    public void onBeautyTeethSelected(float progress) {
+    public void onToothWhitenSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mBeautyTeethLevel = progress;
+        mToothWhiten = level;
     }
 
     @Override
     public void onFaceShapeSelected(float faceShape) {
         isNeedUpdateFaceBeauty = true;
-        this.mFaceBeautyFaceShape = faceShape;
+        this.mFaceShape = faceShape;
     }
 
     @Override
-    public void onEnlargeEyeSelected(float progress) {
+    public void onEyeEnlargeSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-            mFaceBeautyEnlargeEye = progress;
-    }
-
-
-    @Override
-    public void onCheekThinSelected(float progress) {
-        isNeedUpdateFaceBeauty = true;
-            mFaceBeautyCheekThin = progress;
+        mEyeEnlarge = level;
     }
 
     @Override
-    public void onChinLevelSelected(float progress) {
+    public void onCheekThinningSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mChinLevel = progress;
+        mCheekThinning = level;
     }
 
     @Override
-    public void onForeheadLevelSelected(float progress) {
+    public void onIntensityChinSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mForeheadLevel = progress;
+        mIntensityChin = level;
     }
 
     @Override
-    public void onThinNoseLevelSelected(float progress) {
+    public void onIntensityForeheadSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mThinNoseLevel = progress;
+        mIntensityForehead = level;
     }
 
     @Override
-    public void onMouthShapeSelected(float progress) {
+    public void onIntensityNoseSelected(float level) {
         isNeedUpdateFaceBeauty = true;
-        mMouthShape = progress;
+        mIntensityNose = level;
+    }
+
+    @Override
+    public void onIntensityMouthSelected(float level) {
+        isNeedUpdateFaceBeauty = true;
+        mIntensityMouth = level;
     }
 
     //--------------------------------------IsTracking（人脸识别回调相关定义）----------------------------------------

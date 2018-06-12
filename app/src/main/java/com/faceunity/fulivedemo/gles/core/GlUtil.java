@@ -113,7 +113,6 @@ public abstract class GlUtil {
         if (error != GLES20.GL_NO_ERROR) {
             String msg = op + ": glError 0x" + Integer.toHexString(error);
             Log.e(TAG, msg);
-            throw new RuntimeException(msg);
         }
     }
 
@@ -125,7 +124,7 @@ public abstract class GlUtil {
      */
     public static void checkLocation(int location, String label) {
         if (location < 0) {
-            throw new RuntimeException("Unable to locate '" + label + "' in program");
+            Log.e(TAG, "Unable to locate '" + label + "' in program");
         }
     }
 

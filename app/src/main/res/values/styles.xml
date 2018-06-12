@@ -5,12 +5,14 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@drawable/loading</item>
         <item name="android:windowEnableSplitTouch">false</item>
         <item name="android:splitMotionEvents">false</item>
     </style>
 
     <style name="ActivityBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowEnableSplitTouch">false</item>
+        <item name="android:windowBackground">@drawable/loading</item>
         <item name="android:splitMotionEvents">false</item>
     </style>
 

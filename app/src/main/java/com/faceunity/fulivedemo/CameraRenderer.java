@@ -1,6 +1,7 @@
 package com.faceunity.fulivedemo;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
@@ -11,7 +12,7 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.AsyncTask;
-import android.util.Log;
+import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.faceunity.fulivedemo.encoder.TextureMovieEncoder;
@@ -20,10 +21,10 @@ import com.faceunity.fulivedemo.gles.ProgramTextureOES;
 import com.faceunity.fulivedemo.gles.core.GlUtil;
 import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.Constant;
+import com.faceunity.fulivedemo.utils.FPSUtil;
 import com.faceunity.fulivedemo.utils.MiscUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -67,6 +68,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     private int mViewWidth = 1280;
     private int mViewHeight = 720;
 
+    private final Object mCameraLock = new Object();
     private Camera mCamera;
     private static final int PREVIEW_BUFFER_COUNT = 3;
     private byte[][] previewCallbackBuffer;
@@ -81,6 +83,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     private int mFuTextureId;
     private final float[] mtx = new float[16];
+    private float[] mvp = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
     private ProgramTextureOES mTextureOES;
 
@@ -90,10 +93,13 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     private boolean mTakePicing = false;
     private boolean mIsNeedTakePic = false;
 
+    private FPSUtil mFPSUtil;
+
     public CameraRenderer(Activity activity, GLSurfaceView GLSurfaceView, OnCameraRendererStatusListener onCameraRendererStatusListener) {
         mActivity = activity;
         mGLSurfaceView = GLSurfaceView;
         mOnCameraRendererStatusListener = onCameraRendererStatusListener;
+        mFPSUtil = new FPSUtil();
     }
 
     public void onCreate() {
@@ -145,32 +151,32 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
-
+        mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
         mOnCameraRendererStatusListener.onSurfaceChanged(gl, width, height);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mCameraNV21Byte == null) {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth));
-            return;
-        }
         try {
             mSurfaceTexture.updateTexImage();
             mSurfaceTexture.getTransformMatrix(mtx);
         } catch (Exception e) {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth));
+            return;
+        }
+        if (mCameraNV21Byte == null) {
+            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
             return;
         }
         mFuTextureId = mOnCameraRendererStatusListener.onDrawFrame(mCameraNV21Byte, mCameraTextureId, mCameraWidth, mCameraHeight);
         //用于屏蔽切换调用SDK处理数据方法导致的绿屏（切换SDK处理数据方法是用于展示，实际使用中无需切换，故无需调用做这个判断,直接使用else分支绘制即可）
         if (mFuTextureId <= 0) {
-            mTextureOES.drawFrame(mCameraTextureId, mtx, GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth));
+            mTextureOES.drawFrame(mCameraTextureId, mtx, mvp);
         } else {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth));
+            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
         }
         sendRecordingData(mFuTextureId);
         checkPic();
+        mFPSUtil.limit();
         mGLSurfaceView.requestRender();
     }
 
@@ -195,84 +201,103 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     }
 
     @SuppressWarnings("deprecation")
-    private void openCamera(int cameraType) {
-        Log.e(TAG, "open Camera");
-
-        Camera.CameraInfo info = new Camera.CameraInfo();
-        int cameraId = 0;
-        int numCameras = Camera.getNumberOfCameras();
-        for (int i = 0; i < numCameras; i++) {
-            Camera.getCameraInfo(i, info);
-            if (info.facing == cameraType) {
-                cameraId = i;
-                try {
-                    mCamera = Camera.open(i);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    releaseCamera();
-                    openCamera(cameraType);
-                    return;
+    private void openCamera(final int cameraType) {
+        try {
+            synchronized (mCameraLock) {
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                int cameraId = 0;
+                int numCameras = Camera.getNumberOfCameras();
+                for (int i = 0; i < numCameras; i++) {
+                    Camera.getCameraInfo(i, info);
+                    if (info.facing == cameraType) {
+                        cameraId = i;
+                        mCamera = Camera.open(i);
+                        mCurrentCameraType = cameraType;
+                        break;
+                    }
                 }
-                mCurrentCameraType = cameraType;
-                break;
+
+                mCameraOrientation = CameraUtils.getCameraOrientation(cameraId);
+                CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
+
+                Camera.Parameters parameters = mCamera.getParameters();
+
+                CameraUtils.setFocusModes(parameters);
+
+                int[] size = CameraUtils.choosePreviewSize(parameters, mCameraWidth, mCameraHeight);
+                mCameraWidth = size[0];
+                mCameraHeight = size[1];
+                mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+
+                mCamera.setParameters(parameters);
             }
+
+            if (mCameraTextureId > 0) {
+                cameraStartPreview();
+            }
+
+            mOnCameraRendererStatusListener.onCameraChange(mCurrentCameraType, mCameraOrientation);
+        } catch (Exception e) {
+            e.printStackTrace();
+            releaseCamera();
+            new AlertDialog.Builder(mActivity)
+                    .setTitle("警告")
+                    .setMessage("相机权限被禁用或者相机被别的应用占用！")
+                    .setNegativeButton("重试", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            openCamera(cameraType);
+                        }
+                    })
+                    .setNeutralButton("退出", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            mActivity.onBackPressed();
+                        }
+                    })
+                    .show();
         }
-
-        mCameraOrientation = CameraUtils.getCameraOrientation(cameraId);
-        CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
-
-        Camera.Parameters parameters = mCamera.getParameters();
-
-        CameraUtils.setFocusModes(parameters);
-
-        int[] size = CameraUtils.choosePreviewSize(parameters, mCameraWidth, mCameraHeight);
-        mCameraWidth = size[0];
-        mCameraHeight = size[1];
-
-        mCamera.setParameters(parameters);
-
-        if (mCameraTextureId > 0) {
-            cameraStartPreview();
-        }
-
-        mOnCameraRendererStatusListener.onCameraChange(mCurrentCameraType, mCameraOrientation);
     }
 
     private void cameraStartPreview() {
-        Log.e(TAG, "handleCameraStartPreview");
-        if (mCamera == null) {
-            return;
-        }
-        if (previewCallbackBuffer == null) {
-            previewCallbackBuffer = new byte[PREVIEW_BUFFER_COUNT][mCameraWidth * mCameraHeight * 3 / 2];
-        }
-        mCamera.setPreviewCallbackWithBuffer(this);
-        for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++)
-            mCamera.addCallbackBuffer(previewCallbackBuffer[i]);
         try {
-            if (mSurfaceTexture != null) {
-                mSurfaceTexture.release();
+            synchronized (mCameraLock) {
+                if (mCamera == null) {
+                    return;
+                }
+                if (previewCallbackBuffer == null) {
+                    previewCallbackBuffer = new byte[PREVIEW_BUFFER_COUNT][mCameraWidth * mCameraHeight * 3 / 2];
+                }
+                mCamera.setPreviewCallbackWithBuffer(this);
+                for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++)
+                    mCamera.addCallbackBuffer(previewCallbackBuffer[i]);
+                if (mSurfaceTexture != null) {
+                    mSurfaceTexture.release();
+                }
+                mCamera.setPreviewTexture(mSurfaceTexture = new SurfaceTexture(mCameraTextureId));
+                mCamera.startPreview();
             }
-            mCamera.setPreviewTexture(mSurfaceTexture = new SurfaceTexture(mCameraTextureId));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        mCamera.startPreview();
     }
 
     private void releaseCamera() {
-        Log.e(TAG, "release camera");
-        mCameraNV21Byte = null;
-        if (mCamera != null) {
-            try {
-                mCamera.stopPreview();
-                mCamera.setPreviewTexture(null);
-                mCamera.setPreviewCallbackWithBuffer(null);
-                mCamera.release();
-                mCamera = null;
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            synchronized (mCameraLock) {
+                mCameraNV21Byte = null;
+                if (mCamera != null) {
+                    mCamera.stopPreview();
+                    mCamera.setPreviewTexture(null);
+                    mCamera.setPreviewCallbackWithBuffer(null);
+                    mCamera.release();
+                    mCamera = null;
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

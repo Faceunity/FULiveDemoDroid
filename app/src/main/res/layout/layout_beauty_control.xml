@@ -138,14 +138,14 @@
             android:visibility="gone">
 
             <com.faceunity.fulivedemo.ui.BeautyBoxGroup
-                android:id="@+id/beauty_box_skin_beauty"
+                android:id="@+id/beauty_group_skin_beauty"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="horizontal">
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/beauty_all_blur_box"
+                    android:id="@+id/beauty_box_skin_detect"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:checked_model="checkbox"
@@ -154,7 +154,7 @@
                     app:text_normal="精准美肤"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/beauty_type_box"
+                    android:id="@+id/beauty_box_heavy_blur"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:checked_model="checkbox"
@@ -166,7 +166,7 @@
                     app:text_normal="清晰磨皮"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/beauty_blur_box"
+                    android:id="@+id/beauty_box_blur_level"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_skin_control_blur_checked"
@@ -174,7 +174,7 @@
                     app:text_normal="磨皮"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/beauty_color_box"
+                    android:id="@+id/beauty_box_color_level"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_skin_control_color_checked"
@@ -182,7 +182,7 @@
                     app:text_normal="美白"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/beauty_red_box"
+                    android:id="@+id/beauty_box_red_level"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_skin_control_red_checked"
@@ -190,7 +190,7 @@
                     app:text_normal="红润"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/beauty_bright_eyes_box"
+                    android:id="@+id/beauty_box_eye_bright"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_skin_control_bright_eyes_checked"
@@ -198,7 +198,7 @@
                     app:text_normal="亮眼"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/beauty_teeth_box"
+                    android:id="@+id/beauty_box_tooth_whiten"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_skin_control_teeth_checked"
@@ -217,14 +217,14 @@
             android:visibility="gone">
 
             <com.faceunity.fulivedemo.ui.BeautyBoxGroup
-                android:id="@+id/beauty_box_face_shape"
+                android:id="@+id/beauty_group_face_shape"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="horizontal">
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/face_shape_box"
+                    android:id="@+id/beauty_box_face_shape"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:checked_model="unchange"
@@ -233,7 +233,7 @@
                     app:text_normal="脸型"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/enlarge_eye_level_box"
+                    android:id="@+id/beauty_box_eye_enlarge"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_type_control_enlarge_eye_level_checked"
@@ -241,7 +241,7 @@
                     app:text_normal="大眼"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/cheek_thin_level_box"
+                    android:id="@+id/beauty_box_cheek_thinning"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_type_control_cheekthin_level_checked"
@@ -249,7 +249,7 @@
                     app:text_normal="瘦脸"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/chin_level_box"
+                    android:id="@+id/beauty_box_intensity_chin"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_type_control_chin_level_checked"
@@ -257,7 +257,7 @@
                     app:text_normal="下巴"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/forehead_level_box"
+                    android:id="@+id/beauty_box_intensity_forehead"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_type_control_forehead_level_checked"
@@ -265,7 +265,7 @@
                     app:text_normal="额头"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/thin_nose_level_box"
+                    android:id="@+id/beauty_box_intensity_nose"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_type_control_thin_nose_level_checked"
@@ -273,7 +273,7 @@
                     app:text_normal="瘦鼻"/>
 
                 <com.faceunity.fulivedemo.ui.BeautyBox
-                    android:id="@+id/mouth_shape_box"
+                    android:id="@+id/beauty_box_intensity_mouth"
                     android:layout_width="@dimen/x160"
                     android:layout_height="wrap_content"
                     app:drawable_checked="@drawable/beauty_type_control_mouth_shape_checked"

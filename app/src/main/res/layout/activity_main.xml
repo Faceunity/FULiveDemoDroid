@@ -4,27 +4,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/home_background"
+    android:background="@color/main_color_090017"
     android:fitsSystemWindows="false"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/home_top_logo"
-        android:layout_width="match_parent"
+
+    <TextView
+        android:id="@+id/home_top_title"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        android:src="@drawable/home_top_logo"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/x70"
+        android:text="FU Live Demo"
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"/>
+
+    <View
+        android:id="@+id/home_top_line"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x1"
+        android:layout_below="@+id/home_top_title"
+        android:layout_marginTop="@dimen/x32"
+        android:background="@color/line_302D33"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/home_recycler"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@+id/home_top_logo"
-        android:layout_centerHorizontal="true"
-        android:paddingLeft="@dimen/x50"
-        android:paddingRight="@dimen/x50"/>
-
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/home_top_line"
+        android:overScrollMode="never"
+        android:scrollbars="none"/>
 </RelativeLayout>

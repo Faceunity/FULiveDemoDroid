@@ -1,28 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/x20"
-    android:paddingLeft="@dimen/x30"
-    android:paddingRight="@dimen/x30"
+    android:padding="@dimen/x16"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/home_recycler_img"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"/>
+    <LinearLayout
+        android:layout_width="@dimen/x242"
+        android:layout_height="@dimen/x292"
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/home_recycler_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:textColor="@color/main_color"
-        android:textSize="@dimen/normal_text_size"/>
+        <ImageView
+            android:id="@+id/home_recycler_img"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="182"
+            android:background="@drawable/main_recycler_item_background"
+            android:paddingBottom="@dimen/x65"
+            android:paddingLeft="@dimen/x67"
+            android:paddingRight="@dimen/x67"
+            android:paddingTop="@dimen/x65"
+            android:scaleType="centerInside"/>
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/home_recycler_text"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="62"
+            android:background="@drawable/main_recycler_item_text_background"
+            android:gravity="center"
+            android:textColor="@color/colorWhite"
+            android:textSize="13sp"/>
+    </LinearLayout>
+</FrameLayout>

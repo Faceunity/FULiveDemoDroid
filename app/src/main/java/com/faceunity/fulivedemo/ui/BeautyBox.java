@@ -106,11 +106,7 @@ public class BeautyBox extends LinearLayout implements Checkable {
 
     @Override
     public void setChecked(boolean checked) {
-        mChecked = checked;
-
-        boxImg.setImageDrawable(mChecked ? drawableChecked : drawableNormal);
-        boxText.setText(mChecked ? textCheckedStr : textNormalStr);
-        boxText.setTextColor(mChecked ? textCheckedColor : textNormalColor);
+        updateView(mChecked = checked);
 
         // Avoid infinite recursions if setChecked() is called from a listener
         if (mBroadcasting) {
@@ -123,6 +119,12 @@ public class BeautyBox extends LinearLayout implements Checkable {
         }
 
         mBroadcasting = false;
+    }
+
+    public void updateView(boolean checked) {
+        boxImg.setImageDrawable(checked ? drawableChecked : drawableNormal);
+        boxText.setText(checked ? textCheckedStr : textNormalStr);
+        boxText.setTextColor(checked ? textCheckedColor : textNormalColor);
     }
 
     @Override

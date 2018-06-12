@@ -78,33 +78,17 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private static final int[] home_function_res = {
-            R.drawable.main_beauty_enable,
-            R.drawable.main_avatar_enable,
-            R.drawable.main_effect_enable,
-            R.drawable.main_ar_mask_enable,
-            R.drawable.main_change_face_enable,
-            R.drawable.main_expression_enable,
-            R.drawable.main_music_fiter_enable,
-            R.drawable.main_background_enable,
-            R.drawable.main_gesture_enable,
-            R.drawable.main_face_warp_enable,
-//            R.drawable.main_portrait_light_enable,
-            R.drawable.main_portrait_drive_enable
-    };
-
-    private static final int[] home_function_res_unable = {
-            R.drawable.main_beauty_unable,
-            R.drawable.main_avatar_unable,
-            R.drawable.main_effect_unable,
-            R.drawable.main_ar_mask_unable,
-            R.drawable.main_change_face_unable,
-            R.drawable.main_expression_unable,
-            R.drawable.main_music_fiter_unable,
-            R.drawable.main_background_unable,
-            R.drawable.main_gesture_unable,
-            R.drawable.main_face_warp_unable,
-//            R.drawable.main_portrait_light_unable,
-            R.drawable.main_portrait_drive_unable
+            R.drawable.main_beauty,
+            R.drawable.main_avatar,
+            R.drawable.main_effect,
+            R.drawable.main_ar_mask,
+            R.drawable.main_change_face,
+            R.drawable.main_expression,
+            R.drawable.main_music_fiter,
+            R.drawable.main_background,
+            R.drawable.main_gesture,
+            R.drawable.main_face_warp,
+            R.drawable.main_portrait_drive
     };
 
     private List<Integer> hasFaceUnityPermissionsList = new ArrayList<>();
@@ -142,48 +126,71 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mRecyclerView = (RecyclerView) findViewById(R.id.home_recycler);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        GridLayoutManager manager = new GridLayoutManager(this, 3);
+        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                int type = mRecyclerView.getAdapter().getItemViewType(position);
+                if (type == 0) {
+                    return 3;
+                }
+                return 1;
+            }
+        });
+        mRecyclerView.setLayoutManager(manager);
         mRecyclerView.setAdapter(mHomeRecyclerAdapter = new HomeRecyclerAdapter());
     }
 
-    class HomeRecyclerAdapter extends RecyclerView.Adapter<HomeRecyclerAdapter.HomeRecyclerHolder> {
+    class HomeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
-        public HomeRecyclerHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new HomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler, parent, false));
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            if (viewType > 0)
+                return new HomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler, parent, false));
+            else
+                return new TopHomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler_top, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(HomeRecyclerHolder holder, int pos) {
-            final int position = hasFaceUnityPermissionsList.get(pos);
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int p) {
+            if (viewHolder instanceof HomeRecyclerHolder) {
+                HomeRecyclerHolder holder = (HomeRecyclerHolder) viewHolder;
+                final int pos = p - 1;
+                final int position = hasFaceUnityPermissionsList.get(pos);
 
-            holder.homeFunctionImg.setImageResource(hasFaceUnityPermissions[position] ? home_function_res[position] : home_function_res_unable[position]);
-            holder.homeFunctionName.setTextColor(getResources().getColor(hasFaceUnityPermissions[position] ? R.color.main_color : R.color.main_color_gray));
-            holder.homeFunctionName.setText(home_function_name[position]);
+                holder.homeFunctionImg.setImageResource(home_function_res[position]);
+                holder.homeFunctionName.setText(home_function_name[position]);
+                holder.homeFunctionName.setBackgroundResource(hasFaceUnityPermissions[position] ? R.drawable.main_recycler_item_text_background : R.drawable.main_recycler_item_text_background_unable);
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!hasFaceUnityPermissions[position]) {
-                        Toast.makeText(MainActivity.this, "抱歉，你所使用的证书权限或SDK不包括该功能。", Toast.LENGTH_SHORT).show();
-                        return;
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!hasFaceUnityPermissions[position]) {
+                            Toast.makeText(MainActivity.this, "抱歉，你所使用的证书权限或SDK不包括该功能。", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Intent intent;
+                        if (home_function_res[position] == R.drawable.main_beauty) {
+                            intent = new Intent(MainActivity.this, FUBeautyActivity.class);
+                            startActivity(intent);
+                        } else {
+                            intent = new Intent(MainActivity.this, FUEffectActivity.class);
+                            intent.putExtra("EffectType", home_function_type[position]);
+                            startActivity(intent);
+                        }
                     }
-                    Intent intent;
-                    if (home_function_res[position] == R.drawable.main_beauty_enable) {
-                        intent = new Intent(MainActivity.this, FUBeautyActivity.class);
-                        startActivity(intent);
-                    } else {
-                        intent = new Intent(MainActivity.this, FUEffectActivity.class);
-                        intent.putExtra("EffectType", home_function_type[position]);
-                        startActivity(intent);
-                    }
-                }
-            });
+                });
+            }
         }
 
         @Override
         public int getItemCount() {
-            return hasFaceUnityPermissionsList.size();
+            return hasFaceUnityPermissionsList.size() + 1;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position;
         }
 
         class HomeRecyclerHolder extends RecyclerView.ViewHolder {
@@ -195,6 +202,13 @@ public class MainActivity extends AppCompatActivity {
                 super(itemView);
                 homeFunctionImg = (ImageView) itemView.findViewById(R.id.home_recycler_img);
                 homeFunctionName = (TextView) itemView.findViewById(R.id.home_recycler_text);
+            }
+        }
+
+        class TopHomeRecyclerHolder extends RecyclerView.ViewHolder {
+
+            public TopHomeRecyclerHolder(View itemView) {
+                super(itemView);
             }
         }
     }

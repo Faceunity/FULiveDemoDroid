@@ -1,6 +1,7 @@
 package com.faceunity.fulivedemo;
 
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 
 import com.faceunity.fulivedemo.core.FURenderer;
@@ -27,6 +28,14 @@ public class FUBeautyActivity extends FUBaseUIActivity
 
     @Override
     protected void onCreate() {
+
+        mHeightCheckBox.setVisibility(View.VISIBLE);
+        mHeightCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mBeautyControlView.setHeightPerformance(isChecked);
+            }
+        });
         //初始化FU相关 authpack 为证书文件
         mFURenderer = new FURenderer
                 .Builder(this)
@@ -87,6 +96,11 @@ public class FUBeautyActivity extends FUBaseUIActivity
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    protected void onSensorChanged(int rotation) {
+        mFURenderer.setTrackOrientation(rotation);
     }
 
     @Override

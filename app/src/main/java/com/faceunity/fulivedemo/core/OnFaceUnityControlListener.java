@@ -28,21 +28,21 @@ public interface OnFaceUnityControlListener {
      *
      * @param filterName 滤镜名称
      */
-    void onFilterSelected(Filter filterName);
+    void onFilterNameSelected(Filter filterName);
 
     /**
      * 精准磨皮
      *
-     * @param isAll 是否开启精准磨皮（0关闭 1开启）
+     * @param isOpen 是否开启精准磨皮（0关闭 1开启）
      */
-    void onALLBlurLevelSelected(float isAll);
+    void onSkinDetectSelected(float isOpen);
 
     /**
      * 美肤类型
      *
-     * @param skinType 0:清晰美肤 1:朦胧美肤
+     * @param isOpen 0:清晰美肤 1:朦胧美肤
      */
-    void onBeautySkinTypeSelected(float skinType);
+    void onHeavyBlurSelected(float isOpen);
 
     /**
      * 磨皮选择
@@ -54,24 +54,24 @@ public interface OnFaceUnityControlListener {
     /**
      * 美白选择
      *
-     * @param progress 美白
+     * @param level 美白
      */
-    void onColorLevelSelected(float progress);
+    void onColorLevelSelected(float level);
 
     /**
      * 红润
      */
-    void onRedLevelSelected(float progress);
+    void onRedLevelSelected(float level);
 
     /**
      * 亮眼
      */
-    void onBrightEyesSelected(float progress);
+    void onEyeBrightSelected(float level);
 
     /**
      * 美牙
      */
-    void onBeautyTeethSelected(float progress);
+    void onToothWhitenSelected(float level);
 
     /**
      * 脸型选择
@@ -81,37 +81,37 @@ public interface OnFaceUnityControlListener {
     /**
      * 大眼选择
      *
-     * @param progress 大眼
+     * @param level 大眼
      */
-    void onEnlargeEyeSelected(float progress);
+    void onEyeEnlargeSelected(float level);
 
     /**
      * 瘦脸选择
      *
-     * @param progress 瘦脸
+     * @param level 瘦脸
      */
-    void onCheekThinSelected(float progress);
+    void onCheekThinningSelected(float level);
 
     /**
      * 下巴
      */
-    void onChinLevelSelected(float progress);
+    void onIntensityChinSelected(float level);
 
     /**
      * 额头
      */
-    void onForeheadLevelSelected(float progress);
+    void onIntensityForeheadSelected(float level);
 
     /**
      * 瘦鼻
      */
-    void onThinNoseLevelSelected(float progress);
+    void onIntensityNoseSelected(float level);
 
 
     /**
      * 嘴形
      */
-    void onMouthShapeSelected(float progress);
+    void onIntensityMouthSelected(float level);
 
 
 }

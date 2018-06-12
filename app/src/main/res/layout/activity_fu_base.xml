@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -8,7 +7,7 @@
     <android.opengl.GLSurfaceView
         android:id="@+id/fu_base_gl_surface"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
     <LinearLayout
         android:id="@+id/fu_base_top_layout"
@@ -26,7 +25,7 @@
             android:background="@color/Transparent"
             android:onClick="onClick"
             android:scaleType="centerInside"
-            android:src="@drawable/back"/>
+            android:src="@drawable/back" />
 
         <RadioGroup
             android:id="@+id/fu_base_input_type_radio_group"
@@ -47,7 +46,7 @@
                 android:gravity="center"
                 app:text_color_xor="@color/colorWhite"
                 app:text_size_xor="@dimen/nano_text_size"
-                app:text_xor="双输入"/>
+                app:text_xor="双输入" />
 
             <com.faceunity.fulivedemo.ui.XORTextRadioButton
                 android:id="@+id/fu_base_input_type_single"
@@ -60,13 +59,13 @@
                 android:gravity="center"
                 app:text_color_xor="@color/colorWhite"
                 app:text_size_xor="@dimen/nano_text_size"
-                app:text_xor="单输入"/>
+                app:text_xor="单输入" />
         </RadioGroup>
 
         <Space
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
 
         <CheckBox
             android:id="@+id/fu_base_debug"
@@ -75,7 +74,7 @@
             android:layout_marginRight="@dimen/x30"
             android:background="@drawable/debug"
             android:button="@null"
-            android:checked="false"/>
+            android:checked="false" />
 
         <ImageButton
             android:id="@+id/fu_base_camera_change"
@@ -85,9 +84,21 @@
             android:background="@color/Transparent"
             android:onClick="onClick"
             android:scaleType="centerInside"
-            android:src="@drawable/camera_change"/>
+            android:src="@drawable/camera_change" />
 
     </LinearLayout>
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/fu_base_height"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/fu_base_top_layout"
+        android:layout_margin="@dimen/x20"
+        android:checked="false"
+        android:padding="@dimen/x20"
+        android:text="性能优先"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/fu_base_debug_text"
@@ -101,7 +112,7 @@
         android:padding="@dimen/x10"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/min_text_size"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/fu_base_is_calibrating_text"
@@ -114,7 +125,7 @@
         android:text="表情校准中"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/normal_text_size"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/fu_base_is_tracking_text"
@@ -124,7 +135,7 @@
         android:gravity="center"
         android:text="未检测到人脸"
         android:textColor="@color/colorWhite"
-        android:textSize="@dimen/normal_text_size"/>
+        android:textSize="@dimen/normal_text_size" />
 
     <TextView
         android:id="@+id/fu_base_effect_description"
@@ -138,7 +149,7 @@
         android:text=""
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/normal_text_size"
-        android:visibility="invisible"/>
+        android:visibility="invisible" />
 
     <com.faceunity.fulivedemo.ui.RecordBtn
         android:id="@+id/fu_base_take_pic"
@@ -146,11 +157,11 @@
         android:layout_height="@dimen/x160"
         android:layout_above="@+id/fu_base_bottom"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/x30"/>
+        android:layout_marginBottom="@dimen/x30" />
 
     <ViewStub
         android:id="@+id/fu_base_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true" />
 </RelativeLayout>

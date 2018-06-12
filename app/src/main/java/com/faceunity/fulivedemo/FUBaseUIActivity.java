@@ -1,6 +1,11 @@
 package com.faceunity.fulivedemo;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -29,7 +34,8 @@ import java.io.File;
  */
 public abstract class FUBaseUIActivity extends AppCompatActivity
         implements View.OnClickListener,
-        CameraRenderer.OnCameraRendererStatusListener {
+        CameraRenderer.OnCameraRendererStatusListener,
+        SensorEventListener {
     public final static String TAG = FUBaseUIActivity.class.getSimpleName();
 
     protected GLSurfaceView mGLSurfaceView;
@@ -43,6 +49,10 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
     protected TextView mIsCalibratingText;
     protected RecordBtn mTakePicBtn;
     protected ViewStub mBottomViewStub;
+    protected CheckBox mHeightCheckBox;
+
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,6 +70,9 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         mCameraRenderer = new CameraRenderer(this, mGLSurfaceView, this);
         mGLSurfaceView.setRenderer(mCameraRenderer);
         mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         mInputTypeRadioGroup = (RadioGroup) findViewById(R.id.fu_base_input_type_radio_group);
 
@@ -121,6 +134,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
                 mCameraRenderer.stopRecording();
             }
         });
+        mHeightCheckBox = (CheckBox) findViewById(R.id.fu_base_height);
 
         mBottomViewStub = (ViewStub) findViewById(R.id.fu_base_bottom);
         mBottomViewStub.setInflatedId(R.id.fu_base_bottom);
@@ -134,12 +148,14 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         mCameraRenderer.onResume();
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mCameraRenderer.onPause();
+        mSensorManager.unregisterListener(this);
     }
 
     @Override
@@ -176,5 +192,35 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         mEffectDescription.setVisibility(View.VISIBLE);
         mEffectDescription.setText(str);
         mEffectDescription.postDelayed(effectDescriptionHide, time);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+            if (Math.abs(x) > 3 || Math.abs(y) > 3) {
+                if (Math.abs(x) > Math.abs(y)) {
+                    if (x > 0) {
+                        onSensorChanged(0);
+                    } else {
+                        onSensorChanged(180);
+                    }
+                } else {
+                    if (y > 0) {
+                        onSensorChanged(90);
+                    } else {
+                        onSensorChanged(270);
+                    }
+                }
+            }
+        }
+    }
+
+    protected abstract void onSensorChanged(int rotation);
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 }

@@ -24,6 +24,8 @@ import javax.microedition.khronos.opengles.GL10;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.faceunity.fulivedemo.entity.BeautyParameterModel.getValue;
+
 /**
  * 道具界面
  * Created by tujh on 2018/1/31.
@@ -92,6 +94,21 @@ public class FUEffectActivity extends FUBaseUIActivity
         }
 
         mFURenderer = build.build();
+
+        mFURenderer.onSkinDetectSelected(getValue(R.id.beauty_box_skin_detect));
+        mFURenderer.onHeavyBlurSelected(getValue(R.id.beauty_box_heavy_blur));
+        mFURenderer.onBlurLevelSelected(getValue(R.id.beauty_box_blur_level));
+        mFURenderer.onColorLevelSelected(getValue(R.id.beauty_box_color_level));
+        mFURenderer.onRedLevelSelected(getValue(R.id.beauty_box_red_level));
+        mFURenderer.onEyeBrightSelected(getValue(R.id.beauty_box_eye_bright));
+        mFURenderer.onToothWhitenSelected(getValue(R.id.beauty_box_tooth_whiten));
+        mFURenderer.onFaceShapeSelected(getValue(R.id.beauty_box_face_shape));
+        mFURenderer.onEyeEnlargeSelected(getValue(R.id.beauty_box_eye_enlarge));
+        mFURenderer.onCheekThinningSelected(getValue(R.id.beauty_box_cheek_thinning));
+        mFURenderer.onIntensityChinSelected(getValue(R.id.beauty_box_intensity_chin));
+        mFURenderer.onIntensityForeheadSelected(getValue(R.id.beauty_box_intensity_forehead));
+        mFURenderer.onIntensityNoseSelected(getValue(R.id.beauty_box_intensity_nose));
+        mFURenderer.onIntensityMouthSelected(getValue(R.id.beauty_box_intensity_mouth));
     }
 
     @Override
@@ -104,6 +121,11 @@ public class FUEffectActivity extends FUBaseUIActivity
     protected void onPause() {
         super.onPause();
         stopMusic();
+    }
+
+    @Override
+    protected void onSensorChanged(int rotation) {
+        mFURenderer.setTrackOrientation(rotation);
     }
 
     @Override
@@ -294,6 +316,9 @@ public class FUEffectActivity extends FUBaseUIActivity
         }
         stopMusic();
 
+        if (effect.effectType() != Effect.EFFECT_TYPE_MUSIC_FILTER) {
+            return;
+        }
         mediaPlayer = new MediaPlayer();
         mMusicHandler = new Handler();
 
