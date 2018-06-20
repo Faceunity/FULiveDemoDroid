@@ -46,7 +46,6 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
     protected TextView mDebugText;
     protected TextView mIsTrackingText;
     protected TextView mEffectDescription;
-    protected TextView mIsCalibratingText;
     protected RecordBtn mTakePicBtn;
     protected ViewStub mBottomViewStub;
     protected CheckBox mHeightCheckBox;
@@ -85,7 +84,6 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
             }
         });
 
-        mIsCalibratingText = (TextView) findViewById(R.id.fu_base_is_calibrating_text);
         mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
         mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
         mTakePicBtn = (RecordBtn) findViewById(R.id.fu_base_take_pic);

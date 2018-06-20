@@ -115,19 +115,6 @@
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/fu_base_is_calibrating_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@color/percent50translucentBlack"
-        android:gravity="center"
-        android:padding="@dimen/x16"
-        android:text="表情校准中"
-        android:textColor="@color/colorWhite"
-        android:textSize="@dimen/normal_text_size"
-        android:visibility="invisible" />
-
-    <TextView
         android:id="@+id/fu_base_is_tracking_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -141,7 +128,7 @@
         android:id="@+id/fu_base_effect_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/fu_base_is_calibrating_text"
+        android:layout_below="@+id/fu_base_is_tracking_text"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/x100"
         android:gravity="center"

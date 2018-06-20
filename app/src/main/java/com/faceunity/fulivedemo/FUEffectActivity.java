@@ -33,7 +33,6 @@ import static com.faceunity.fulivedemo.entity.BeautyParameterModel.getValue;
 
 public class FUEffectActivity extends FUBaseUIActivity
         implements FURenderer.OnFUDebugListener,
-        FURenderer.OnCalibratingListener,
         FURenderer.OnTrackingStatusChangedListener {
     public final static String TAG = FUEffectActivity.class.getSimpleName();
 
@@ -75,25 +74,17 @@ public class FUEffectActivity extends FUBaseUIActivity
         });
 
         //初始化FU相关 authpack 为证书文件
-
-        FURenderer.Builder build = new FURenderer
+        mFURenderer = new FURenderer
                 .Builder(this)
                 .inputTextureType(faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .createEGLContext(false)
                 .needReadBackImage(false)
                 .defaultEffect(mEffects.size() > 1 ? mEffects.get(1) : null)
                 .setOnFUDebugListener(this)
-                .setOnTrackingStatusChangedListener(this);
-
-        if (mEffectType == Effect.EFFECT_TYPE_ANIMOJI) {
-            build.setOnCalibratingListener(this).setNeedAnimoji3D(true);
-        }
-
-        if (mEffectType == Effect.EFFECT_TYPE_ANIMOJI || mEffectType == Effect.EFFECT_TYPE_PORTRAIT_DRIVE) {
-            build.setOnCalibratingListener(this).setNeedFaceBeauty(false);
-        }
-
-        mFURenderer = build.build();
+                .setOnTrackingStatusChangedListener(this)
+                .setNeedAnimoji3D(mEffectType == Effect.EFFECT_TYPE_ANIMOJI)
+                .setNeedFaceBeauty(mEffectType != Effect.EFFECT_TYPE_ANIMOJI && mEffectType != Effect.EFFECT_TYPE_PORTRAIT_DRIVE)
+                .build();
 
         mFURenderer.onSkinDetectSelected(getValue(R.id.beauty_box_skin_detect));
         mFURenderer.onHeavyBlurSelected(getValue(R.id.beauty_box_heavy_blur));
@@ -149,56 +140,9 @@ public class FUEffectActivity extends FUBaseUIActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (status > 0) {
-                    mIsTrackingText.setVisibility(View.GONE);
-                } else {
-                    mIsTrackingText.setVisibility(View.VISIBLE);
-                    mIsCalibratingText.setVisibility(View.INVISIBLE);
-                    mIsCalibratingText.removeCallbacks(mCalibratingRunnable);
-                }
+                mIsTrackingText.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
             }
         });
-    }
-
-    private static final String strCalibrating = "表情校准中";
-    private int showNum = 0;
-    private final Runnable mCalibratingRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            showNum++;
-            StringBuilder builder = new StringBuilder();
-            builder.append(strCalibrating);
-            for (int i = 0; i < showNum; i++) {
-                builder.append(".");
-            }
-            mIsCalibratingText.setText(builder);
-            if (showNum < 6) {
-                mIsCalibratingText.postDelayed(mCalibratingRunnable, 500);
-            } else {
-                mIsCalibratingText.setVisibility(View.INVISIBLE);
-            }
-        }
-    };
-
-    @Override
-    public void OnCalibrating(final float isCalibrating) {
-        if (mEffects.get(mPositionSelect).effectType() == Effect.EFFECT_TYPE_ANIMOJI) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (isCalibrating > 0) {
-                        mIsCalibratingText.setVisibility(View.VISIBLE);
-                        mIsCalibratingText.setText(strCalibrating);
-                        showNum = 0;
-                        mIsCalibratingText.postDelayed(mCalibratingRunnable, 500);
-                    } else {
-                        mIsCalibratingText.setVisibility(View.INVISIBLE);
-                        mIsCalibratingText.removeCallbacks(mCalibratingRunnable);
-                    }
-                }
-            });
-        }
     }
 
     @Override

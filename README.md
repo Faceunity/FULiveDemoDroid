@@ -2,16 +2,20 @@
 
 FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具贴纸、AR面具、换脸、表情识别、音乐滤镜、背景分割、手势识别、哈哈镜、人像光照以及人像驱动功能的Demo。Demo新增了一个展示Faceunity产品列表的主界面，新版Demo将根据客户证书权限来控制用户可以使用哪些产品。
 
-注：demo第一次运行会报一个缺少返回语句的error，这是因为在本demo中缺少我司颁发的证书。如果您已拥有我司颁发的证书，将证书替换到工程中重新运行即可。如您还没有我司颁发的证书，可以查看[这里][1]获取证书
+注：demo第一次运行会报一个缺少返回语句的error，这是因为在本demo中缺少我司颁发的证书。如果您已拥有我司颁发的证书，将证书替换到工程中重新运行即可。如您还没有我司颁发的证书，可以查看[这里](#导入证书)获取证书
 
-## SDK v5.1 更新
+## SDK v5.2 更新
 
 更新内容
 
-- 修复FXAA和自定义滤镜的兼容问题
-- 修复背景分割的道具在iPhone 5s上crash问题
-- 新增道具不加上自定义滤镜效果功能
+- 人脸表情跟踪效果进一步优化提升
+- 优化美颜性能，减低功耗
+- 新增[美颜美型突变过渡效果](#七美颜美型突变过渡效果)功能
+- 修复换脸高级融合只显示半脸问题
 
+需要注意的更新：
+
+- 优化后的SDK只支持被动校准功能，即fuSetExpressionCalibration接口只支持0（关闭）或2（被动校准）这两个数字，设置为1时将不再有效果。
 
 ## SDK集成
 
@@ -19,17 +23,17 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 含有深度学习的版本：
 
-	compile 'com.faceunity:nama:5.1.0'
+	compile 'com.faceunity:nama:5.2.0'
 
 不含深度学习的版本（lite版）：
 
-	compile 'com.faceunity:nama:5.1.0-lite'
+	compile 'com.faceunity:nama:5.2.0-lite'
 
 ### 二、通过 github 下载集成
 
-含有深度学习的版本：[Faceunity-Android-v5.1-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.1-dev/Faceunity-Android-v5.1-dev.zip)
+含有深度学习的版本：[Faceunity-Android-v5.2-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.2-dev/Faceunity-Android-v5.2-dev.zip)
 
-不含深度学习的版本（lite版）：[Faceunity-Android-v5.1-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.1-dev/Faceunity-Android-v5.1-dev-lite.zip)
+不含深度学习的版本（lite版）：[Faceunity-Android-v5.2-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.2-dev/Faceunity-Android-v5.2-dev-lite.zip)
 
 ## 文件说明
 
@@ -468,6 +472,16 @@ __使用方法__：
   face_shape: 4,   // 4为开启高级美型模式，0～3为基本美型
   intensity_mouth: 0.5,   // 大于0.5变大，小于0.5变小
 
+### 七、美颜美型突变过渡效果
+
+使美颜变形过度的更自然，避免突变效果，可通过参数 change_frames 来控制渐变所需要的帧数，0 渐变关闭 ，大于0开启渐变，值为渐变所需要的帧数。
+
+设置参数的例子代码如下：
+
+```
+faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "change_frames", 10);
+```
+
 ## 手势识别
 目前我们的手势识别功能也是以道具的形式进行加载的。一个手势识别的道具中包含了要识别的手势、识别到该手势时触发的动效、及控制脚本。加载该道具的过程和加载普通道具、美颜道具的方法一致。
 
@@ -524,14 +538,12 @@ __使用方法__：
 
 ## 优化表情校准功能
 
-增加被动校准模式，将之前的表情校准定义为主动校准模式。
-
 - 被动校准：该种模式下会在整个用户使用过程中逐渐进行表情校准，用户对该过程没有明显感觉。该种校准的强度相比主动校准较弱。
-- 主动校准：老版本的表情校准模式。该种模式下系统会进行快速集中的表情校准，一般为初次识别到人脸之后的2-3秒钟。在该段时间内，需要用户尽量保持无表情状态，该过程结束后再开始使用。该过程的开始和结束可以通过 ```fuGetFaceInfo``` 接口获取参数 ```is_calibrating```。
+- 优化后的SDK只支持被动校准功能，即fuSetExpressionCalibration接口只支持0（关闭）或2（被动校准）这两个数字，设置为1时将不再有效果。
 
 __使用方法__：
 
-- 调用 ```fuSetExpressionCalibration``` 接口控制表情校准功能的开关及不同模式，参数为0时关闭表情校准，1为主动校准，2为被动校准。
+- 调用 ```fuSetExpressionCalibration``` 接口控制表情校准功能的开关及不同模式，参数为0时关闭表情校准，2为被动校准。
 
 ## 接口说明
 
@@ -1313,7 +1325,7 @@ public static native void fuSetExpressionCalibration(int i);
 
 参数说明：
 
-`i` 1为开启，0为关闭
+`i` 0为关闭表情校准，2为被动校准。
 
 ----
 
@@ -1368,6 +1380,3 @@ public class authpack {
 用户在库环境初始化时，需要提供该数组进行鉴权，具体参考 fuSetup 接口。没有证书、证书失效、网络连接失败等情况下，会造成鉴权失败，在控制台或者Android平台的log里面打出 "not authenticated" 信息，并在运行一段时间后停止渲染道具。
 
 任何其他关于授权问题，请email：support@faceunity.com
-
-
-  [1]: https://github.com/Faceunity/FULiveDemoDroid/tree/dev#%E5%AF%BC%E5%85%A5%E8%AF%81%E4%B9%A6

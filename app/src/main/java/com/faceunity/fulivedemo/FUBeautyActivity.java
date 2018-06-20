@@ -123,7 +123,7 @@ public class FUBeautyActivity extends FUBaseUIActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mIsTrackingText.setVisibility(status > 0 ? View.GONE : View.VISIBLE);
+                mIsTrackingText.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
             }
         });
     }

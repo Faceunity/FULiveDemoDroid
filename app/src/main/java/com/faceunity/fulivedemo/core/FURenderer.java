@@ -192,13 +192,12 @@ public class FURenderer implements OnFaceUnityControlListener {
 
         mFrameId = 0;
         /**
-         *fuSetExpressionCalibration 控制表情校准功能的开关及不同模式，参数为0时关闭表情校准，1为主动校准，2为被动校准。
-         * 被动校准：该种模式下会在整个用户使用过程中逐渐进行表情校准，用户对该过程没有明显感觉。该种校准的强度相比主动校准较弱。
-         * 主动校准：老版本的表情校准模式。该种模式下系统会进行快速集中的表情校准，一般为初次识别到人脸之后的2-3秒钟。
-         *          在该段时间内，需要用户尽量保持无表情状态，该过程结束后再开始使用。该过程的开始和结束可以通过 fuGetFaceInfo 接口获取参数 is_calibrating
-         * 适用于使用Animoji和avatar功能的用户
+         *fuSetExpressionCalibration 控制表情校准功能的开关及不同模式，参数为0时关闭表情校准，2为被动校准。
+         * 被动校准：该种模式下会在整个用户使用过程中逐渐进行表情校准，用户对该过程没有明显感觉。
+         *
+         * 优化后的SDK只支持被动校准功能，即fuSetExpressionCalibration接口只支持0（关闭）或2（被动校准）这两个数字，设置为1时将不再有效果。
          */
-        faceunity.fuSetExpressionCalibration(1);
+        faceunity.fuSetExpressionCalibration(2);
         faceunity.fuSetMaxFaces(mMaxFaces);//设置多脸，目前最多支持8人。
 
         if (isNeedFaceBeauty) {
@@ -453,13 +452,6 @@ public class FURenderer implements OnFaceUnityControlListener {
             mOnSystemErrorListener.onSystemError(error == 0 ? "" : faceunity.fuGetSystemErrorString(error));
         }
 
-        //获取是否正在表情校准，并调用回调接口
-        final float[] isCalibratingTmp = new float[1];
-        faceunity.fuGetFaceInfo(0, "is_calibrating", isCalibratingTmp);
-        if (mOnCalibratingListener != null && isCalibratingTmp[0] != mIsCalibrating) {
-            mOnCalibratingListener.OnCalibrating(mIsCalibrating = isCalibratingTmp[0]);
-        }
-
         //修改美颜参数
         if (isNeedUpdateFaceBeauty && mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX] != 0) {
             //filter_level 滤镜强度 范围0~1 SDK默认为 1
@@ -502,6 +494,9 @@ public class FURenderer implements OnFaceUnityControlListener {
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_nose", mIntensityNose);
             //intensity_mouth 嘴型 范围0~1 SDK默认为 0.5   大于0.5变大，小于0.5变小
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "intensity_mouth", mIntensityMouth);
+
+            //使美颜变形过度的更自然，避免突变效果，可通过参数 change_frames 来控制渐变所需要的帧数，0 渐变关闭 ，大于0开启渐变，值为渐变所需要的帧数
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "change_frames", 10);
             isNeedUpdateFaceBeauty = false;
         }
 
@@ -724,17 +719,6 @@ public class FURenderer implements OnFaceUnityControlListener {
 
     private OnSystemErrorListener mOnSystemErrorListener;
 
-    //--------------------------------------mIsCalibrating（表情校准回调相关定义）----------------------------------------
-
-    private float mIsCalibrating = 0;
-
-    public interface OnCalibratingListener {
-        void OnCalibrating(float isCalibrating);
-
-    }
-
-    private OnCalibratingListener mOnCalibratingListener;
-
     //--------------------------------------FPS（FPS相关定义）----------------------------------------
 
     private static final float NANO_IN_ONE_MILLI_SECOND = 1000000.0f;
@@ -908,7 +892,6 @@ public class FURenderer implements OnFaceUnityControlListener {
 
         private OnFUDebugListener onFUDebugListener;
         private OnTrackingStatusChangedListener onTrackingStatusChangedListener;
-        private OnCalibratingListener onCalibratingListener;
         private OnSystemErrorListener onSystemErrorListener;
 
         public Builder(@NonNull Context context) {
@@ -970,11 +953,6 @@ public class FURenderer implements OnFaceUnityControlListener {
             return this;
         }
 
-        public Builder setOnCalibratingListener(OnCalibratingListener onCalibratingListener) {
-            this.onCalibratingListener = onCalibratingListener;
-            return this;
-        }
-
         public Builder setOnSystemErrorListener(OnSystemErrorListener onSystemErrorListener) {
             this.onSystemErrorListener = onSystemErrorListener;
             return this;
@@ -993,7 +971,6 @@ public class FURenderer implements OnFaceUnityControlListener {
 
             fuRenderer.mOnFUDebugListener = onFUDebugListener;
             fuRenderer.mOnTrackingStatusChangedListener = onTrackingStatusChangedListener;
-            fuRenderer.mOnCalibratingListener = onCalibratingListener;
             fuRenderer.mOnSystemErrorListener = onSystemErrorListener;
             return fuRenderer;
         }

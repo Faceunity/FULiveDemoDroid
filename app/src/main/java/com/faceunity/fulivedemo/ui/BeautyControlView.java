@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -527,7 +526,6 @@ public class BeautyControlView extends FrameLayout {
         final int startHeight = getHeight();
         measure(0, MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
         final int endHeight = getMeasuredHeight();
-        Log.e(TAG, "startHeight " + startHeight + " endHeight " + endHeight);
         if (startHeight == endHeight) {
             return;
         }
