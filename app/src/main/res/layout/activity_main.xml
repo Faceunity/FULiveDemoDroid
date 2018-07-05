@@ -17,14 +17,14 @@
         android:layout_marginTop="@dimen/x70"
         android:text="FU Live Demo"
         android:textColor="@color/colorWhite"
-        android:textSize="18sp"/>
+        android:textSize="@dimen/text_size_36"/>
 
     <View
         android:id="@+id/home_top_line"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x1"
         android:layout_below="@+id/home_top_title"
-        android:layout_marginTop="@dimen/x32"
+        android:layout_marginTop="@dimen/x31"
         android:background="@color/line_302D33"/>
 
     <android.support.v7.widget.RecyclerView

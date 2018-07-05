@@ -8,5 +8,6 @@
         android:id="@+id/fu_effect_recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/x16"/>
+        android:background="#99050f14"
+        android:padding="@dimen/x14"/>
 </FrameLayout>

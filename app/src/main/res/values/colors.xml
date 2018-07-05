@@ -6,7 +6,7 @@
     <color name="colorAccent">#FF4081</color>
 
 
-    <color name="Transparent">#00000000</color>
+    <color name="transparent">#00000000</color>
     <color name="percent15translucentBlack">#26000000</color>
     <color name="percent30translucentBlack">#4D000000</color>
     <color name="percent40translucentBlack">#66000000</color>
@@ -14,7 +14,8 @@
     <color name="percent60translucentBlack">#99000000</color>
 
     <color name="colorWhite">#FFFFFFFF</color>
-    <color name="main_color">#FF61CAF4</color>
+    <color name="main_color">#FF5EC7FE</color>
+    <color name="main_color_79CDF9">#FF79CDF9</color>
     <color name="main_color_gray">#FFA8A8A8</color>
     <color name="main_color_c5c5c5">#FFC5C5C5</color>
     <color name="main_color_090017">#FF090017</color>

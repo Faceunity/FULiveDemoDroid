@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,11 +18,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.faceunity.fulivedemo.core.FURenderer;
-import com.faceunity.fulivedemo.entity.Effect;
-import com.faceunity.fulivedemo.utils.MiscUtil;
+import com.faceunity.FURenderer;
+import com.faceunity.entity.Effect;
+import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.utils.MiscUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
         });
         mRecyclerView.setLayoutManager(manager);
         mRecyclerView.setAdapter(mHomeRecyclerAdapter = new HomeRecyclerAdapter());
+        ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
     class HomeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -166,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (!hasFaceUnityPermissions[position]) {
-                            Toast.makeText(MainActivity.this, "抱歉，你所使用的证书权限或SDK不包括该功能。", Toast.LENGTH_SHORT).show();
+                            ToastUtil.showToast(MainActivity.this, "抱歉，你所使用的证书权限或SDK不包括该功能。");
                             return;
                         }
                         Intent intent;

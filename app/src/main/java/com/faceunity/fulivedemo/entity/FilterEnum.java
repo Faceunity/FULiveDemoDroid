@@ -1,5 +1,6 @@
 package com.faceunity.fulivedemo.entity;
 
+import com.faceunity.entity.Filter;
 import com.faceunity.fulivedemo.R;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public enum FilterEnum {
     tokyo("tokyo", R.drawable.tokyo, "tokyo", Filter.FILTER_TYPE_FILTER),
     warm("warm", R.drawable.warm, "warm", Filter.FILTER_TYPE_FILTER),
 
+    nature_beauty("origin", R.drawable.nature, "原图", Filter.FILTER_TYPE_BEAUTY_FILTER),
     ziran("ziran", R.drawable.origin, "自然", Filter.FILTER_TYPE_BEAUTY_FILTER),
     danya("danya", R.drawable.qingxin, "淡雅", Filter.FILTER_TYPE_BEAUTY_FILTER),
     fennen("fennen", R.drawable.shaonv, "粉嫩", Filter.FILTER_TYPE_BEAUTY_FILTER),

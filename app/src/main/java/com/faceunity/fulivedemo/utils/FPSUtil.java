@@ -1,5 +1,7 @@
 package com.faceunity.fulivedemo.utils;
 
+import android.util.Log;
+
 /**
  * FPS工具类
  * Created by tujh on 2018/5/24.
@@ -20,7 +22,7 @@ public class FPSUtil {
         long tmp = System.nanoTime();
         fps = 1000.0f * NANO_IN_ONE_MILLI_SECOND / (tmp - mLastFrameTimeStamp);
         mLastFrameTimeStamp = tmp;
-//        Log.e(TAG, "FPS : " + fps);
+        Log.e(TAG, "FPS : " + fps);
         return fps;
     }
 
@@ -71,5 +73,10 @@ public class FPSUtil {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void resetLimit() {
+        mLimitStartTime = 0;
+        mLimitFrameRate = 0;
     }
 }

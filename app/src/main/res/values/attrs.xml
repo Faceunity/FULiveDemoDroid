@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <declare-styleable name="xor_radio_btn">
-        <attr name="text_xor" format="string"/>
-        <attr name="text_size_xor" format="dimension"/>
-        <attr name="text_color_xor" format="color"/>
-    </declare-styleable>
-</resources>

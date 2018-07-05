@@ -1,5 +1,6 @@
 package com.faceunity.fulivedemo.entity;
 
+import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public enum EffectEnum {
     Effect_tiger("tiger", R.drawable.tiger, "ar/tiger.bundle", 4, Effect.EFFECT_TYPE_AR, ""),
     Effect_xiongmao("xiongmao", R.drawable.xiongmao, "ar/xiongmao.bundle", 4, Effect.EFFECT_TYPE_AR, ""),
     Effect_armesh("armesh", R.drawable.armesh, "ar/armesh.bundle", 4, Effect.EFFECT_TYPE_AR, ""),
-    Effect_armesh_ex("armesh_ex", R.drawable.armesh_ex, "ar/armesh_ex.bundle", 4, Effect.EFFECT_TYPE_AR, "高精度AR面具模式"),
+    Effect_armesh_ex("armesh_ex", R.drawable.armesh_ex, "ar/armesh_ex.bundle", 4, Effect.EFFECT_TYPE_AR, "AR面具高精度版"),
 
     Effect_mask_liudehua("mask_liudehua", R.drawable.mask_liudehua, "change/mask_liudehua.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, ""),
     Effect_mask_linzhiling("mask_linzhiling", R.drawable.mask_linzhiling, "change/mask_linzhiling.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, ""),

@@ -1,12 +1,14 @@
 package com.faceunity.fulivedemo;
 
+import android.content.Intent;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 
-import com.faceunity.fulivedemo.core.FURenderer;
+import com.faceunity.FURenderer;
+import com.faceunity.fulivedemo.entity.BeautyParameterModel;
 import com.faceunity.fulivedemo.ui.BeautyControlView;
-import com.faceunity.wrapper.faceunity;
+import com.faceunity.utils.Constant;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -30,9 +32,11 @@ public class FUBeautyActivity extends FUBaseUIActivity
     protected void onCreate() {
 
         mHeightCheckBox.setVisibility(View.VISIBLE);
+        mHeightImg.setVisibility(View.VISIBLE);
         mHeightCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mHeightImg.setImageResource(isChecked ? R.drawable.performance_checked : R.drawable.performance_normal);
                 mBeautyControlView.setHeightPerformance(isChecked);
             }
         });
@@ -40,7 +44,7 @@ public class FUBeautyActivity extends FUBaseUIActivity
         mFURenderer = new FURenderer
                 .Builder(this)
                 .maxFaces(4)
-                .inputTextureType(faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
+                .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .createEGLContext(false)
                 .needReadBackImage(false)
                 .defaultEffect(null)
@@ -52,11 +56,11 @@ public class FUBeautyActivity extends FUBaseUIActivity
         mBottomViewStub.inflate();
 
         mBeautyControlView = (BeautyControlView) findViewById(R.id.fu_beauty_control);
-        mBeautyControlView.setOnFaceUnityControlListener(mFURenderer);
+        mBeautyControlView.setOnFUControlListener(mFURenderer);
         mBeautyControlView.setOnBottomAnimatorChangeListener(new BeautyControlView.OnBottomAnimatorChangeListener() {
             @Override
             public void onBottomAnimatorChangeListener(float showRate) {
-                mTakePicBtn.setDrawWidth((int) (getResources().getDimensionPixelSize(R.dimen.x160) * (1 - showRate * 0.5)));
+                mTakePicBtn.setDrawWidth((int) (getResources().getDimensionPixelSize(R.dimen.x166) * (1 - showRate * 0.265)));
             }
         });
         mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
@@ -75,7 +79,6 @@ public class FUBeautyActivity extends FUBaseUIActivity
         mInputTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                mFURenderer.changeInputType();
                 switch (checkedId) {
                     case R.id.fu_base_input_type_double:
                         isDoubleInputType = true;
@@ -84,6 +87,18 @@ public class FUBeautyActivity extends FUBaseUIActivity
                         isDoubleInputType = false;
                         break;
                 }
+                mFURenderer.changeInputType();
+            }
+        });
+
+        mHeightCheckBox.setChecked(BeautyParameterModel.isHeightPerformance);
+        mSelectDataBtn.setVisibility(View.VISIBLE);
+        mSelectDataBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(FUBeautyActivity.this, SelectDataActivity.class);
+                intent.putExtra("SelectData", TAG);
+                startActivity(intent);
             }
         });
     }
@@ -91,6 +106,8 @@ public class FUBeautyActivity extends FUBaseUIActivity
     @Override
     protected void onResume() {
         super.onResume();
+        if (mBeautyControlView != null)
+            mBeautyControlView.onResume();
     }
 
     @Override
@@ -138,16 +155,20 @@ public class FUBeautyActivity extends FUBaseUIActivity
     }
 
     @Override
-    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight) {
+    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mtx, long timeStamp) {
+        int fuTextureId;
         if (isDoubleInputType) {
-            return mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
+            fuTextureId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
         } else {
             if (mFuNV21Byte == null) {
                 mFuNV21Byte = new byte[cameraNV21Byte.length];
             }
             System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
-            return mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
+            fuTextureId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
         }
+        sendRecordingData(fuTextureId, mtx, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
+        checkPic(fuTextureId, mtx, cameraHeight, cameraWidth);
+        return fuTextureId;
     }
 
     @Override

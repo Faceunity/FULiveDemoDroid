@@ -118,10 +118,12 @@ public class DiscreteSeekBar extends View {
     private static final int SEPARATION_DP = 5;
     private ThumbDrawable mThumb;
     private TrackRectDrawable mTrack;
+    private TrackRectDrawable mTrackBase;
     private TrackRectDrawable mScrubber;
     private Drawable mRipple;
 
     private int mTrackHeight;
+    private int mTrackBaseHeight;
     private int mScrubberHeight;
     private final int mAddedTouchBounds;
 
@@ -177,6 +179,7 @@ public class DiscreteSeekBar extends View {
         mAllowTrackClick = a.getBoolean(R.styleable.DiscreteSeekBar_dsb_allowTrackClickToDrag, mAllowTrackClick);
         mIndicatorPopupEnabled = a.getBoolean(R.styleable.DiscreteSeekBar_dsb_indicatorPopupEnabled, mIndicatorPopupEnabled);
         mTrackHeight = a.getDimensionPixelSize(R.styleable.DiscreteSeekBar_dsb_trackHeight, (int) (1 * density));
+        mTrackBaseHeight = a.getDimensionPixelSize(R.styleable.DiscreteSeekBar_dsb_trackBaseHeight, (int) (1 * density));
         mScrubberHeight = a.getDimensionPixelSize(R.styleable.DiscreteSeekBar_dsb_scrubberHeight, (int) (4 * density));
         int thumbSize = a.getDimensionPixelSize(R.styleable.DiscreteSeekBar_dsb_thumbSize, (int) (density * ThumbDrawable.DEFAULT_SIZE_DP));
         int separation = a.getDimensionPixelSize(R.styleable.DiscreteSeekBar_dsb_indicatorSeparation,
@@ -244,6 +247,9 @@ public class DiscreteSeekBar extends View {
         TrackRectDrawable shapeDrawable = new TrackRectDrawable(trackColor);
         mTrack = shapeDrawable;
         mTrack.setCallback(this);
+
+        mTrackBase = new TrackRectDrawable(trackColor);
+        mTrackBase.setCallback(this);
 
         shapeDrawable = new TrackRectDrawable(progressColor);
         mScrubber = shapeDrawable;
@@ -593,6 +599,11 @@ public class DiscreteSeekBar extends View {
         int trackHeight = Math.max(mTrackHeight / 2, 1);
         mTrack.setBounds(paddingLeft + halfThumb, bottom - halfThumb - trackHeight,
                 getWidth() - halfThumb - paddingRight - addedThumb, bottom - halfThumb + trackHeight);
+        int available = getWidth() - paddingRight - addedThumb - paddingLeft - thumbWidth;
+        float scaleDrawBase = (mValueBase - mMin) / (float) (mMax - mMin);
+        final int thumbPosBase = (int) (scaleDrawBase * available + 0.5f);
+        mTrackBase.setBounds(paddingLeft + halfThumb + thumbPosBase - mTrackBaseHeight / 8, bottom - halfThumb - mTrackBaseHeight / 2,
+                paddingLeft + halfThumb + thumbPosBase + mTrackBaseHeight / 8, bottom - halfThumb + mTrackBaseHeight / 2);
         int scrubberHeight = Math.max(mScrubberHeight / 2, 2);
         mScrubber.setBounds(paddingLeft + halfThumb, bottom - halfThumb - scrubberHeight,
                 paddingLeft + halfThumb, bottom - halfThumb + scrubberHeight);
@@ -609,6 +620,9 @@ public class DiscreteSeekBar extends View {
         super.onDraw(canvas);
         mTrack.draw(canvas);
         mScrubber.draw(canvas);
+        if (mMin != mValueBase && mMax != mValueBase) {
+            mTrackBase.draw(canvas);
+        }
         mThumb.draw(canvas);
     }
 
@@ -910,7 +924,8 @@ public class DiscreteSeekBar extends View {
         if (!isInEditMode()) {
             mIndicator.move(finalBounds.centerX());
         }
-
+        mTrackBase.getBounds().left = base + halfThumb - mTrackBaseHeight / 8;
+        mTrackBase.getBounds().right = base + halfThumb + mTrackBaseHeight / 8;
         mInvalidateRect.inset(-mAddedTouchBounds, -mAddedTouchBounds);
         finalBounds.inset(-mAddedTouchBounds, -mAddedTouchBounds);
         mInvalidateRect.union(finalBounds);

@@ -111,9 +111,6 @@ public class CameraUtils {
         // We should make sure that the requested MPEG size is less than the preferred
         // size, and has the same aspect ratio.
         Camera.Size ppsfv = parms.getPreferredPreviewSizeForVideo();
-        if (ppsfv != null) {
-            Log.e(TAG, "Camera preferred preview size for video is " + ppsfv.width + "x" + ppsfv.height);
-        }
 
         if (DEBUG) {
             for (Camera.Size size : parms.getSupportedPreviewSizes()) {

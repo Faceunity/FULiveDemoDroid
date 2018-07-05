@@ -1,30 +1,22 @@
 package com.faceunity.fulivedemo;
 
-import android.content.res.AssetFileDescriptor;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.os.Handler;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
-import com.faceunity.fulivedemo.core.FURenderer;
-import com.faceunity.fulivedemo.entity.Effect;
+import com.faceunity.FURenderer;
+import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.entity.EffectEnum;
-import com.faceunity.wrapper.faceunity;
+import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
+import com.faceunity.utils.Constant;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
-import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.getValue;
 
 /**
  * 道具界面
@@ -36,11 +28,11 @@ public class FUEffectActivity extends FUBaseUIActivity
         FURenderer.OnTrackingStatusChangedListener {
     public final static String TAG = FUEffectActivity.class.getSimpleName();
 
+    private EffectRecyclerAdapter mEffectRecyclerAdapter;
     private RecyclerView mRecyclerView;
 
     private int mEffectType;
     private ArrayList<Effect> mEffects;
-    private int mPositionSelect = 1;
 
     private byte[] mFuNV21Byte;
 
@@ -51,17 +43,16 @@ public class FUEffectActivity extends FUBaseUIActivity
         mEffectType = getIntent().getIntExtra("EffectType", 0);
         mEffects = EffectEnum.getEffectsByEffectType(mEffectType);
 
+        if (mEffectType == Effect.EFFECT_TYPE_ANIMOJI) {
+            mTopBackground.setVisibility(View.VISIBLE);
+        }
+
         mBottomViewStub.setLayoutResource(R.layout.layout_fu_effect);
         mBottomViewStub.inflate();
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mRecyclerView.setAdapter(new EffectRecyclerAdapter());
 
         mInputTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                mFURenderer.changeInputType();
                 switch (checkedId) {
                     case R.id.fu_base_input_type_double:
                         isDoubleInputType = true;
@@ -70,13 +61,14 @@ public class FUEffectActivity extends FUBaseUIActivity
                         isDoubleInputType = false;
                         break;
                 }
+                mFURenderer.changeInputType();
             }
         });
 
         //初始化FU相关 authpack 为证书文件
         mFURenderer = new FURenderer
                 .Builder(this)
-                .inputTextureType(faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
+                .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .createEGLContext(false)
                 .needReadBackImage(false)
                 .defaultEffect(mEffects.size() > 1 ? mEffects.get(1) : null)
@@ -86,32 +78,40 @@ public class FUEffectActivity extends FUBaseUIActivity
                 .setNeedFaceBeauty(mEffectType != Effect.EFFECT_TYPE_ANIMOJI && mEffectType != Effect.EFFECT_TYPE_PORTRAIT_DRIVE)
                 .build();
 
-        mFURenderer.onSkinDetectSelected(getValue(R.id.beauty_box_skin_detect));
-        mFURenderer.onHeavyBlurSelected(getValue(R.id.beauty_box_heavy_blur));
-        mFURenderer.onBlurLevelSelected(getValue(R.id.beauty_box_blur_level));
-        mFURenderer.onColorLevelSelected(getValue(R.id.beauty_box_color_level));
-        mFURenderer.onRedLevelSelected(getValue(R.id.beauty_box_red_level));
-        mFURenderer.onEyeBrightSelected(getValue(R.id.beauty_box_eye_bright));
-        mFURenderer.onToothWhitenSelected(getValue(R.id.beauty_box_tooth_whiten));
-        mFURenderer.onFaceShapeSelected(getValue(R.id.beauty_box_face_shape));
-        mFURenderer.onEyeEnlargeSelected(getValue(R.id.beauty_box_eye_enlarge));
-        mFURenderer.onCheekThinningSelected(getValue(R.id.beauty_box_cheek_thinning));
-        mFURenderer.onIntensityChinSelected(getValue(R.id.beauty_box_intensity_chin));
-        mFURenderer.onIntensityForeheadSelected(getValue(R.id.beauty_box_intensity_forehead));
-        mFURenderer.onIntensityNoseSelected(getValue(R.id.beauty_box_intensity_nose));
-        mFURenderer.onIntensityMouthSelected(getValue(R.id.beauty_box_intensity_mouth));
+        mRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mRecyclerView.setAdapter(mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer));
+        ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
+            @Override
+            public void onDescriptionChangeListener(String description) {
+                showDescription(description, 1500);
+            }
+        });
+
+        if (mEffectType == Effect.EFFECT_TYPE_NORMAL) {
+            mSelectDataBtn.setVisibility(View.VISIBLE);
+            mSelectDataBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(FUEffectActivity.this, SelectDataActivity.class);
+                    intent.putExtra("SelectData", TAG);
+                    startActivity(intent);
+                }
+            });
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        playMusic(mEffects.get(mPositionSelect));
+        mEffectRecyclerAdapter.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        stopMusic();
+        mEffectRecyclerAdapter.onPause();
     }
 
     @Override
@@ -151,27 +151,30 @@ public class FUEffectActivity extends FUBaseUIActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showDescription(mEffects.get(mPositionSelect).description(), 1500);
+                showDescription(mEffectRecyclerAdapter.getSelectEffect().description(), 1500);
             }
         });
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-
     }
 
     @Override
-    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight) {
+    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mtx, long timeStamp) {
+        int fuTextureId;
         if (isDoubleInputType) {
-            return mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
+            fuTextureId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
         } else {
             if (mFuNV21Byte == null) {
                 mFuNV21Byte = new byte[cameraNV21Byte.length];
             }
             System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
-            return mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
+            fuTextureId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
         }
+        sendRecordingData(fuTextureId, mtx, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
+        checkPic(fuTextureId, mtx, cameraHeight, cameraWidth);
+        return fuTextureId;
     }
 
     @Override
@@ -180,122 +183,4 @@ public class FUEffectActivity extends FUBaseUIActivity
         mFURenderer.onSurfaceDestroyed();
     }
 
-
-    class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAdapter.HomeRecyclerHolder> {
-
-        @Override
-        public HomeRecyclerHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new HomeRecyclerHolder(LayoutInflater.from(FUEffectActivity.this).inflate(R.layout.layout_effect_recycler, parent, false));
-        }
-
-        @Override
-        public void onBindViewHolder(HomeRecyclerHolder holder, final int position) {
-
-            holder.effectImg.setImageResource(mEffects.get(position).resId());
-            holder.effectImg.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mPositionSelect == position) {
-                        return;
-                    }
-                    Effect click = mEffects.get(mPositionSelect = position);
-                    mFURenderer.onEffectSelected(click);
-                    playMusic(click);
-                    notifyDataSetChanged();
-                    showDescription(click.description(), 1500);
-                }
-            });
-            if (mPositionSelect == position) {
-                holder.effectImg.setBackgroundResource(R.drawable.effect_select);
-            } else {
-                holder.effectImg.setBackgroundResource(0);
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return mEffects.size();
-        }
-
-        class HomeRecyclerHolder extends RecyclerView.ViewHolder {
-
-            CircleImageView effectImg;
-
-            public HomeRecyclerHolder(View itemView) {
-                super(itemView);
-                effectImg = (CircleImageView) itemView.findViewById(R.id.effect_recycler_img);
-            }
-        }
-    }
-
-    private MediaPlayer mediaPlayer;
-    private Handler mMusicHandler;
-    private static final int MUSIC_TIME = 50;
-    Runnable mMusicRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (mediaPlayer != null && mediaPlayer.isPlaying())
-                mFURenderer.setMusicTime(mediaPlayer.getCurrentPosition());
-
-            mMusicHandler.postDelayed(mMusicRunnable, MUSIC_TIME);
-        }
-    };
-
-    void stopMusic() {
-        if (mEffectType != Effect.EFFECT_TYPE_MUSIC_FILTER) {
-            return;
-        }
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
-            mMusicHandler.removeCallbacks(mMusicRunnable);
-
-        }
-    }
-
-    void playMusic(Effect effect) {
-        if (mEffectType != Effect.EFFECT_TYPE_MUSIC_FILTER) {
-            return;
-        }
-        stopMusic();
-
-        if (effect.effectType() != Effect.EFFECT_TYPE_MUSIC_FILTER) {
-            return;
-        }
-        mediaPlayer = new MediaPlayer();
-        mMusicHandler = new Handler();
-
-        /**
-         * mp3
-         */
-        try {
-            AssetFileDescriptor descriptor = getAssets().openFd("musicfilter/" + effect.bundleName() + ".mp3");
-            mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
-            descriptor.close();
-
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.prepareAsync();
-            mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-                @Override
-                public void onBufferingUpdate(MediaPlayer mp, int percent) {
-
-                }
-            });
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    // 装载完毕回调
-                    //mediaPlayer.setVolume(1f, 1f);
-                    mediaPlayer.setLooping(true);
-                    mediaPlayer.start();
-
-                    mMusicHandler.postDelayed(mMusicRunnable, MUSIC_TIME);
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-            mediaPlayer = null;
-        }
-    }
 }

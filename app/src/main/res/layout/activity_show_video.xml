@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/show_gl_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="@dimen/x93"
+        android:layout_height="@dimen/x90"
+        android:layout_marginTop="@dimen/x40"
+        android:onClick="onClick"
+        android:paddingBottom="@dimen/x20"
+        android:paddingLeft="@dimen/x32"
+        android:paddingRight="@dimen/x32"
+        android:paddingTop="@dimen/x20"
+        android:scaleType="centerInside"
+        android:src="@drawable/back_show"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/show_play_btn"
+        android:layout_width="@dimen/x166"
+        android:layout_height="@dimen/x166"
+        android:onClick="onClick"
+        android:scaleType="centerInside"
+        android:src="@drawable/show_video_play"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/show_save_btn"
+        android:layout_width="@dimen/x166"
+        android:layout_height="@dimen/x166"
+        android:layout_marginBottom="@dimen/x151"
+        android:onClick="onClick"
+        android:scaleType="centerInside"
+        android:src="@drawable/show_save_btn"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/fu_base_effect_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/x550"
+        android:gravity="center"
+        android:text=""
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/text_size_26"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <com.faceunity.fulivedemo.ui.BeautyControlView
+        android:id="@+id/fu_beauty_control"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x98"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fu_effect_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#99050f14"
+        android:padding="@dimen/x14"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+</android.support.constraint.ConstraintLayout>

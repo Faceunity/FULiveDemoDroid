@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <uses-feature android:name="android.hardware.camera"/>
-
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true"/>
@@ -36,6 +35,18 @@
             android:theme="@style/FullScreenTheme"/>
         <activity
             android:name=".FUEffectActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme"/>
+        <activity
+            android:name=".SelectDataActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/ActivityBaseTheme"/>
+        <activity
+            android:name=".ShowPhotoActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme"/>
+        <activity
+            android:name=".ShowVideoActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme"/>
     </application>

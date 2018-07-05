@@ -21,18 +21,23 @@ import com.faceunity.fulivedemo.R;
  */
 public class BeautyBox extends LinearLayout implements Checkable {
 
-    private boolean isSelect;
-    private boolean mChecked;
+    private boolean mIsOpen = false;
+    private boolean mIsChecked = false;
+    private boolean mIsDouble = false;
 
     private boolean mBroadcasting;
     private OnCheckedChangeListener mOnCheckedChangeListener;
+    private OnOpenChangeListener mOnOpenChangeListener;
+    private OnDoubleChangeListener mOnDoubleChangeListener;
 
     private int checkedModel;
-    private Drawable drawableNormal;
-    private Drawable drawableChecked;
+    private Drawable drawableOpenNormal;
+    private Drawable drawableOpenChecked;
+    private Drawable drawableCloseNormal;
+    private Drawable drawableCloseChecked;
 
     private String textNormalStr;
-    private String textCheckedStr;
+    private String textDoubleStr;
 
     private int textNormalColor;
     private int textCheckedColor;
@@ -59,13 +64,15 @@ public class BeautyBox extends LinearLayout implements Checkable {
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.BeautyBox, defStyleAttr, 0);
 
-        drawableNormal = a.getDrawable(R.styleable.BeautyBox_drawable_normal);
-        drawableChecked = a.getDrawable(R.styleable.BeautyBox_drawable_checked);
+        drawableOpenNormal = a.getDrawable(R.styleable.BeautyBox_drawable_open_normal);
+        drawableOpenChecked = a.getDrawable(R.styleable.BeautyBox_drawable_open_checked);
+        drawableCloseNormal = a.getDrawable(R.styleable.BeautyBox_drawable_close_normal);
+        drawableCloseChecked = a.getDrawable(R.styleable.BeautyBox_drawable_close_checked);
 
         textNormalStr = a.getString(R.styleable.BeautyBox_text_normal);
-        textCheckedStr = a.getString(R.styleable.BeautyBox_text_checked);
-        if (TextUtils.isEmpty(textCheckedStr))
-            textCheckedStr = textNormalStr;
+        textDoubleStr = a.getString(R.styleable.BeautyBox_text_double);
+        if (TextUtils.isEmpty(textDoubleStr))
+            textDoubleStr = textNormalStr;
 
         textNormalColor = a.getColor(R.styleable.BeautyBox_textColor_normal, getResources().getColor(R.color.main_color_c5c5c5));
         textCheckedColor = a.getColor(R.styleable.BeautyBox_textColor_checked, getResources().getColor(R.color.main_color));
@@ -76,7 +83,6 @@ public class BeautyBox extends LinearLayout implements Checkable {
 
         boxText.setText(textNormalStr);
         boxText.setTextColor(getResources().getColor(R.color.main_color_c5c5c5));
-        boxImg.setImageDrawable(drawableNormal);
 
         setChecked(checked);
 
@@ -85,7 +91,6 @@ public class BeautyBox extends LinearLayout implements Checkable {
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
             }
         });
     }
@@ -106,7 +111,8 @@ public class BeautyBox extends LinearLayout implements Checkable {
 
     @Override
     public void setChecked(boolean checked) {
-        updateView(mChecked = checked);
+        if (mIsChecked == checked) return;
+        updateView(mIsChecked = checked);
 
         // Avoid infinite recursions if setChecked() is called from a listener
         if (mBroadcasting) {
@@ -115,32 +121,56 @@ public class BeautyBox extends LinearLayout implements Checkable {
 
         mBroadcasting = true;
         if (mOnCheckedChangeListener != null) {
-            mOnCheckedChangeListener.onCheckedChanged(this, mChecked);
+            mOnCheckedChangeListener.onCheckedChanged(this, mIsChecked);
         }
-
         mBroadcasting = false;
     }
 
-    public void updateView(boolean checked) {
-        boxImg.setImageDrawable(checked ? drawableChecked : drawableNormal);
-        boxText.setText(checked ? textCheckedStr : textNormalStr);
+    private void updateView(boolean checked) {
+        updateImg(checked, mIsOpen);
         boxText.setTextColor(checked ? textCheckedColor : textNormalColor);
+    }
+
+    public void updateImg(boolean checked, boolean isOpen) {
+        if (isOpen) {
+            boxImg.setImageDrawable(checked ? drawableOpenChecked : drawableOpenNormal);
+        } else {
+            boxImg.setImageDrawable(checked ? drawableCloseChecked : drawableCloseNormal);
+        }
     }
 
     @Override
     public boolean isChecked() {
-        return mChecked;
+        return mIsChecked;
     }
 
     @Override
     public void toggle() {
-        if (checkedModel == 1) setChecked(!isSelect && mChecked ? mChecked : !mChecked);
-        else if (checkedModel == 2) setChecked(!mChecked);
-        else if (checkedModel == 3) setChecked(mChecked);
+        if (checkedModel == 1) setChecked(true);
+        else if (checkedModel == 2) {
+            if (mIsChecked) {
+                setOpen(!mIsOpen);
+                if (mOnOpenChangeListener != null) {
+                    mOnOpenChangeListener.onOpenChanged(this, mIsOpen);
+                }
+            } else {
+                setChecked(true);
+            }
+        } else if (checkedModel == 3) {
+            if (mIsChecked) {
+                mIsDouble = !mIsDouble;
+                boxText.setText(mIsDouble ? textDoubleStr : textNormalStr);
+                if (mOnDoubleChangeListener != null) {
+                    mOnDoubleChangeListener.onDoubleChanged(this, mIsDouble);
+                }
+            } else {
+                setChecked(true);
+            }
+        }
     }
 
-    public void setSelect(boolean select) {
-        isSelect = select;
+    public void setOpen(boolean open) {
+        updateImg(mIsChecked, mIsOpen = open);
     }
 
     public void setBackgroundImg(int resId) {
@@ -167,5 +197,21 @@ public class BeautyBox extends LinearLayout implements Checkable {
          * @param isChecked The new checked state of buttonView.
          */
         void onCheckedChanged(BeautyBox beautyBox, boolean isChecked);
+    }
+
+    public static interface OnOpenChangeListener {
+        void onOpenChanged(BeautyBox beautyBox, boolean isOpen);
+    }
+
+    public void setOnOpenChangeListener(OnOpenChangeListener onOpenChangeListener) {
+        mOnOpenChangeListener = onOpenChangeListener;
+    }
+
+    public static interface OnDoubleChangeListener {
+        void onDoubleChanged(BeautyBox beautyBox, boolean isDouble);
+    }
+
+    public void setOnDoubleChangeListener(OnDoubleChangeListener onDoubleChangeListener) {
+        mOnDoubleChangeListener = onDoubleChangeListener;
     }
 }

@@ -1,27 +1,24 @@
 package com.faceunity.fulivedemo.ui;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.annotation.IdRes;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.faceunity.fulivedemo.R;
-
 /**
  * Created by tujh on 2018/4/17.
  */
 public class BeautyBoxGroup extends LinearLayout {
-    private static final String LOG_TAG = BeautyBoxGroup.class.getSimpleName();
-
     // holds the checked id; the selection is empty by default
-    private int mCheckedId = View.NO_ID;
+    private int mCheckedId = -1;
     // tracks children radio buttons checked state
     private BeautyBox.OnCheckedChangeListener mChildOnCheckedChangeListener;
     // when true, mOnCheckedChangeListener discards events
     private boolean mProtectFromCheckedChange = false;
-    private OnCheckedChangeListener mOnCheckedChangeListener;
+    private BeautyBoxGroup.OnCheckedChangeListener mOnCheckedChangeListener;
     private PassThroughHierarchyChangeListener mPassThroughListener;
 
     /**
@@ -64,11 +61,11 @@ public class BeautyBoxGroup extends LinearLayout {
         super.onFinishInflate();
 
         // checks the appropriate radio button as requested in the XML file
-        if (mCheckedId != View.NO_ID) {
+        if (mCheckedId != -1) {
             mProtectFromCheckedChange = true;
             setCheckedStateForView(mCheckedId, true);
             mProtectFromCheckedChange = false;
-            setCheckedId(mCheckedId, true);
+            setCheckedId(mCheckedId);
         }
     }
 
@@ -78,11 +75,11 @@ public class BeautyBoxGroup extends LinearLayout {
             final BeautyBox button = (BeautyBox) child;
             if (button.isChecked()) {
                 mProtectFromCheckedChange = true;
-                if (mCheckedId != View.NO_ID) {
+                if (mCheckedId != -1) {
                     setCheckedStateForView(mCheckedId, false);
                 }
                 mProtectFromCheckedChange = false;
-                setCheckedId(button.getId(), false);
+                setCheckedId(button.getId());
             }
         }
 
@@ -91,60 +88,55 @@ public class BeautyBoxGroup extends LinearLayout {
 
     /**
      * <p>Sets the selection to the radio button whose identifier is passed in
-     * parameter. Using View.NO_ID as the selection identifier clears the selection;
+     * parameter. Using -1 as the selection identifier clears the selection;
      * such an operation is equivalent to invoking {@link #clearCheck()}.</p>
      *
      * @param id the unique id of the radio button to select in this group
+     *
      * @see #getCheckedBeautyBoxId()
      * @see #clearCheck()
      */
     public void check(@IdRes int id) {
         // don't even bother
-        if (id != View.NO_ID && (id == mCheckedId)) {
+        if (id != -1 && (id == mCheckedId)) {
             return;
         }
 
-        if (mCheckedId != View.NO_ID) {
+        if (mCheckedId != -1) {
             setCheckedStateForView(mCheckedId, false);
         }
 
-        if (id != View.NO_ID) {
+        if (id != -1) {
             setCheckedStateForView(id, true);
         }
 
-        setCheckedId(id, true);
+        setCheckedId(id);
     }
 
-    private void setCheckedId(@IdRes int id, boolean isChecked) {
+    private void setCheckedId(@IdRes int id) {
         mCheckedId = id;
-        setCheckedStateForView(mCheckedId, true);
         if (mOnCheckedChangeListener != null) {
-            mOnCheckedChangeListener.onCheckedChanged(this, mCheckedId, isChecked);
+            mOnCheckedChangeListener.onCheckedChanged(this, mCheckedId);
         }
     }
 
     private void setCheckedStateForView(int viewId, boolean checked) {
         View checkedView = findViewById(viewId);
         if (checkedView != null && checkedView instanceof BeautyBox) {
-            BeautyBox box = (BeautyBox) checkedView;
-            if (checked) {
-                box.setBackgroundImg(R.drawable.control_beauty_select);
-                box.setSelect(true);
-            } else {
-                box.clearBackgroundImg();
-                box.setSelect(false);
-            }
+            ((BeautyBox) checkedView).setChecked(checked);
         }
     }
 
     /**
      * <p>Returns the identifier of the selected radio button in this group.
-     * Upon empty selection, the returned value is View.NO_ID.</p>
+     * Upon empty selection, the returned value is -1.</p>
      *
      * @return the unique id of the selected radio button in this group
-     * @attr ref android.R.styleable#CheckGroup_checkedButton
+     *
      * @see #check(int)
      * @see #clearCheck()
+     *
+     * @attr ref android.R.styleable#BeautyBoxGroup_checkedButton
      */
     @IdRes
     public int getCheckedBeautyBoxId() {
@@ -160,7 +152,7 @@ public class BeautyBoxGroup extends LinearLayout {
      * @see #getCheckedBeautyBoxId()
      */
     public void clearCheck() {
-        check(View.NO_ID);
+        check(-1);
     }
 
     /**
@@ -173,11 +165,95 @@ public class BeautyBoxGroup extends LinearLayout {
         mOnCheckedChangeListener = listener;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BeautyBoxGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
+        return new BeautyBoxGroup.LayoutParams(getContext(), attrs);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+        return p instanceof BeautyBoxGroup.LayoutParams;
+    }
+
+    @Override
+    protected LinearLayout.LayoutParams generateDefaultLayoutParams() {
+        return new BeautyBoxGroup.LayoutParams(BeautyBoxGroup.LayoutParams.WRAP_CONTENT, BeautyBoxGroup.LayoutParams.WRAP_CONTENT);
+    }
+
     @Override
     public CharSequence getAccessibilityClassName() {
         return BeautyBoxGroup.class.getName();
     }
 
+    public static class LayoutParams extends LinearLayout.LayoutParams {
+        /**
+         * {@inheritDoc}
+         */
+        public LayoutParams(Context c, AttributeSet attrs) {
+            super(c, attrs);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public LayoutParams(int w, int h) {
+            super(w, h);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public LayoutParams(int w, int h, float initWeight) {
+            super(w, h, initWeight);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public LayoutParams(ViewGroup.LayoutParams p) {
+            super(p);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public LayoutParams(MarginLayoutParams source) {
+            super(source);
+        }
+
+        /**
+         * <p>Fixes the child's width to
+         * {@link android.view.ViewGroup.LayoutParams#WRAP_CONTENT} and the child's
+         * height to  {@link android.view.ViewGroup.LayoutParams#WRAP_CONTENT}
+         * when not specified in the XML file.</p>
+         *
+         * @param a the styled attributes set
+         * @param widthAttr the width attribute to fetch
+         * @param heightAttr the height attribute to fetch
+         */
+        @Override
+        protected void setBaseAttributes(TypedArray a,
+                                         int widthAttr, int heightAttr) {
+
+            if (a.hasValue(widthAttr)) {
+                width = a.getLayoutDimension(widthAttr, "layout_width");
+            } else {
+                width = WRAP_CONTENT;
+            }
+
+            if (a.hasValue(heightAttr)) {
+                height = a.getLayoutDimension(heightAttr, "layout_height");
+            } else {
+                height = WRAP_CONTENT;
+            }
+        }
+    }
 
     /**
      * <p>Interface definition for a callback to be invoked when the checked
@@ -186,30 +262,31 @@ public class BeautyBoxGroup extends LinearLayout {
     public interface OnCheckedChangeListener {
         /**
          * <p>Called when the checked radio button has changed. When the
-         * selection is cleared, checkedId is View.NO_ID.</p>
+         * selection is cleared, checkedId is -1.</p>
          *
-         * @param group     the group in which the checked radio button has changed
+         * @param group the group in which the checked radio button has changed
          * @param checkedId the unique identifier of the newly checked radio button
          */
-        public void onCheckedChanged(BeautyBoxGroup group, @IdRes int checkedId, boolean isChecked);
+        public void onCheckedChanged(BeautyBoxGroup group, @IdRes int checkedId);
     }
 
     private class CheckedStateTracker implements BeautyBox.OnCheckedChangeListener {
+
         @Override
-        public void onCheckedChanged(BeautyBox buttonView, boolean isChecked) {
+        public void onCheckedChanged(BeautyBox beautyBox, boolean isChecked) {
             // prevents from infinite recursion
             if (mProtectFromCheckedChange) {
                 return;
             }
 
-            int id = buttonView.getId();
             mProtectFromCheckedChange = true;
-            if (mCheckedId != View.NO_ID && mCheckedId != id) {
+            if (mCheckedId != -1) {
                 setCheckedStateForView(mCheckedId, false);
             }
             mProtectFromCheckedChange = false;
 
-            setCheckedId(id, isChecked);
+            int id = beautyBox.getId();
+            setCheckedId(id);
         }
     }
 
@@ -219,13 +296,12 @@ public class BeautyBoxGroup extends LinearLayout {
      * hierarchy change listener without preventing the user to setup his.</p>
      */
     private class PassThroughHierarchyChangeListener implements
-            OnHierarchyChangeListener {
-        private OnHierarchyChangeListener mOnHierarchyChangeListener;
+            ViewGroup.OnHierarchyChangeListener {
+        private ViewGroup.OnHierarchyChangeListener mOnHierarchyChangeListener;
 
         /**
          * {@inheritDoc}
          */
-        @Override
         public void onChildViewAdded(View parent, View child) {
             if (parent == BeautyBoxGroup.this && child instanceof BeautyBox) {
                 int id = child.getId();
@@ -234,8 +310,8 @@ public class BeautyBoxGroup extends LinearLayout {
                     id = View.generateViewId();
                     child.setId(id);
                 }
-                BeautyBox box = (BeautyBox) child;
-                box.setOnCheckedChangeListener(mChildOnCheckedChangeListener);
+                ((BeautyBox) child).setOnCheckedChangeListener(
+                        mChildOnCheckedChangeListener);
             }
 
             if (mOnHierarchyChangeListener != null) {
@@ -246,7 +322,6 @@ public class BeautyBoxGroup extends LinearLayout {
         /**
          * {@inheritDoc}
          */
-        @Override
         public void onChildViewRemoved(View parent, View child) {
             if (parent == BeautyBoxGroup.this && child instanceof BeautyBox) {
                 ((BeautyBox) child).setOnCheckedChangeListener(null);
