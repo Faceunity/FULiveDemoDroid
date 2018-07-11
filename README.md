@@ -31,6 +31,8 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 不含深度学习的版本（lite版）：[Faceunity-Android-v5.3-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.3-dev/Faceunity-Android-v5.3-dev-lite.zip)
 
+**Tip：含有深度学习的版本支持背景分割、手势识别功能**
+
 ## 文件说明
 
 ### 一、库文件
@@ -320,7 +322,7 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "red_level"
 
 新版美颜中，控制磨皮的参数有五个：blur_level，skin_detect，nonshin_blur_scale，heavy_blur，blur_blend_ratio。
 
-`blur_level` 指定磨皮程度。该参数的推荐取值范围为[0, 6]，0为无效果，对应7个不同的磨皮程度。
+`blur_level` 指定磨皮程度。该参数的推荐取值范围为[0, 6]，0为无效果。
 
 `skin_detect`  指定是否开启皮肤检测，开启后，将自动检测是否皮肤，是皮肤的区域将直接根据blur_level指定的磨皮程度进行磨皮，非皮肤区域将减轻磨皮导致模糊的效果。该参数的推荐取值为0-1，0为无效果，1为开启皮肤检测，默认不开启。
 
@@ -425,7 +427,7 @@ __使用方法__：
 __使用方法__：
 - 加载face_beautification.bundle
 - 调整如下参数
-  facewarp_version: 1,   // 1为开启新脸型模式，0为旧变形
+  face_shape: 4,   // 4为开启高级美型模式，0～3为基本美型
   eye_enlarging: 0.0,   // 使用了原有参数eye_enlarging控制大眼，范围0 - 1
 
 ##### 额头调整
