@@ -9,6 +9,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.support.v7.app.AlertDialog;
 
+import com.faceunity.fulivedemo.R;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.ProgramTextureOES;
 import com.faceunity.gles.core.GlUtil;
@@ -63,6 +64,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     private int mCameraWidth = 1280;
     private int mCameraHeight = 720;
 
+    private boolean isDraw = false;
     private byte[] mCameraNV21Byte;
     private SurfaceTexture mSurfaceTexture;
     private int mCameraTextureId;
@@ -134,6 +136,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
         mOnCameraRendererStatusListener.onSurfaceChanged(gl, width, height);
         mFPSUtil.resetLimit();
+        isDraw = false;
     }
 
     @Override
@@ -158,9 +161,12 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
         mFPSUtil.limit();
         mGLSurfaceView.requestRender();
+
+        isDraw = true;
     }
 
     private void onSurfaceDestroy() {
+        isDraw = false;
         if (mSurfaceTexture != null) {
             mSurfaceTexture.release();
             mSurfaceTexture = null;
@@ -192,8 +198,18 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                     if (info.facing == cameraType) {
                         cameraId = i;
                         mCamera = Camera.open(i);
-                        mCurrentCameraType = cameraType;
+                        mCurrentCameraType = info.facing;
                         break;
+                    }
+                }
+                if (mCamera == null) {
+                    if (numCameras > 0) {
+                        cameraId = 0;
+                        Camera.getCameraInfo(cameraId, info);
+                        mCamera = Camera.open(cameraId);
+                        mCurrentCameraType = info.facing;
+                    } else {
+                        throw new Exception("No camera");
                     }
                 }
 
@@ -220,16 +236,16 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
             e.printStackTrace();
             releaseCamera();
             new AlertDialog.Builder(mActivity)
-                    .setTitle("警告")
-                    .setMessage("相机权限被禁用或者相机被别的应用占用！")
-                    .setNegativeButton("重试", new DialogInterface.OnClickListener() {
+                    .setTitle(R.string.camera_dialog_title)
+                    .setMessage(R.string.camera_dialog_message)
+                    .setNegativeButton(R.string.camera_dialog_open, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                             openCamera(cameraType);
                         }
                     })
-                    .setNeutralButton("退出", new DialogInterface.OnClickListener() {
+                    .setNeutralButton(R.string.camera_dialog_back, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -281,9 +297,10 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     }
 
     public void changeCamera() {
-        if (mCameraNV21Byte == null) {
+        if (mCameraNV21Byte == null && isDraw) {
             return;
         }
+        isDraw = false;
         releaseCamera();
         openCamera(mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? Camera.CameraInfo.CAMERA_FACING_BACK : Camera.CameraInfo.CAMERA_FACING_FRONT);
     }

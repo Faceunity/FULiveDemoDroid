@@ -1,9 +1,6 @@
 package com.faceunity.fulivedemo;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -14,13 +11,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
+import com.faceunity.fulivedemo.utils.FullScreenUtils;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.utils.MiscUtil;
 
@@ -35,8 +31,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int[] home_function_type = {
             Effect.EFFECT_TYPE_NONE,
-            Effect.EFFECT_TYPE_ANIMOJI,
+//            Effect.EFFECT_TYPE_NONE,
             Effect.EFFECT_TYPE_NORMAL,
+            Effect.EFFECT_TYPE_ANIMOJI,
             Effect.EFFECT_TYPE_AR,
             Effect.EFFECT_TYPE_FACE_CHANGE,
             Effect.EFFECT_TYPE_EXPRESSION,
@@ -44,14 +41,14 @@ public class MainActivity extends AppCompatActivity {
             Effect.EFFECT_TYPE_BACKGROUND,
             Effect.EFFECT_TYPE_GESTURE,
             Effect.EFFECT_TYPE_FACE_WARP,
-//            Effect.EFFECT_TYPE_PORTRAIT_LIGHT,
             Effect.EFFECT_TYPE_PORTRAIT_DRIVE,
     };
 
     private static final int[] home_function_permissions_code = {
             0x1,                    //美颜
-            0x10,                    //Animoji
+//            0x80000,                //美妆
             0x2 | 0x4,              //道具贴纸
+            0x10,                   //Animoji
             0x20 | 0x40,            //AR面具
             0x80,                   //换脸
             0x800,                  //表情识别
@@ -59,29 +56,29 @@ public class MainActivity extends AppCompatActivity {
             0x100,                  //背景分割
             0x200,                  //手势识别
             0x10000,                //哈哈镜
-//            0x4000,                 //人像光效
-            0x8000                  //人像驱动
+            0x8000,                 //人像驱动
     };
 
-    private static final String[] home_function_name = {
-            "美颜",
-            "Animoji",
-            "道具贴纸",
-            "AR面具",
-            "换脸",
-            "表情识别",
-            "音乐滤镜",
-            "背景分割",
-            "手势识别",
-            "哈哈镜",
-//            "人像光效",
-            "人像驱动"
+    private static final int[] home_function_name = {
+            R.string.home_function_name_beauty,
+//            R.string.home_function_name_makeup,
+            R.string.home_function_name_normal,
+            R.string.home_function_name_animoji,
+            R.string.home_function_name_ar,
+            R.string.home_function_name_face_change,
+            R.string.home_function_name_expression,
+            R.string.home_function_name_music_filter,
+            R.string.home_function_name_background,
+            R.string.home_function_name_gesture,
+            R.string.home_function_name_face_warp,
+            R.string.home_function_name_portrait_drive,
     };
 
     private static final int[] home_function_res = {
             R.drawable.main_beauty,
-            R.drawable.main_avatar,
+//            R.drawable.main_makeup,
             R.drawable.main_effect,
+            R.drawable.main_avatar,
             R.drawable.main_ar_mask,
             R.drawable.main_change_face,
             R.drawable.main_expression,
@@ -89,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.main_background,
             R.drawable.main_gesture,
             R.drawable.main_face_warp,
-            R.drawable.main_portrait_drive
+            R.drawable.main_portrait_drive,
     };
 
     private List<Integer> hasFaceUnityPermissionsList = new ArrayList<>();
@@ -106,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
-        fullScreen(this);
+        FullScreenUtils.fullScreen(this);
         MiscUtil.checkPermission(this);
 
         String version = FURenderer.getVersion();
@@ -168,12 +165,15 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (!hasFaceUnityPermissions[position]) {
-                            ToastUtil.showToast(MainActivity.this, "抱歉，你所使用的证书权限或SDK不包括该功能。");
+                            ToastUtil.showToast(MainActivity.this, R.string.sorry_no_permission);
                             return;
                         }
                         Intent intent;
                         if (home_function_res[position] == R.drawable.main_beauty) {
                             intent = new Intent(MainActivity.this, FUBeautyActivity.class);
+                            startActivity(intent);
+                        } else if (home_function_res[position] == R.drawable.main_makeup) {
+                            intent = new Intent(MainActivity.this, FUMakeupActivity.class);
                             startActivity(intent);
                         } else {
                             intent = new Intent(MainActivity.this, FUEffectActivity.class);
@@ -215,23 +215,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void fullScreen(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
-            Window window = activity.getWindow();
-            View decorView = window.getDecorView();
-            //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-            //导航栏颜色也可以正常设置
-//                window.setNavigationBarColor(Color.TRANSPARENT);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window window = activity.getWindow();
-            WindowManager.LayoutParams attributes = window.getAttributes();
-            attributes.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-//                attributes.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
-            window.setAttributes(attributes);
-        }
-    }
 }

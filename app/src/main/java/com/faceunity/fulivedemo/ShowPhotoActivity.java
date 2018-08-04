@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -99,7 +98,7 @@ public class ShowPhotoActivity extends AppCompatActivity
             });
             mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
                 @Override
-                public void onDescriptionShowListener(String str) {
+                public void onDescriptionShowListener(int str) {
                     showDescription(str, 1500);
                 }
             });
@@ -118,7 +117,7 @@ public class ShowPhotoActivity extends AppCompatActivity
             mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(Effect.EFFECT_TYPE_NORMAL).get(1));
             mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
                 @Override
-                public void onDescriptionChangeListener(String description) {
+                public void onDescriptionChangeListener(int description) {
                     showDescription(description, 1500);
                 }
             });
@@ -205,13 +204,13 @@ public class ShowPhotoActivity extends AppCompatActivity
         BitmapUtil.glReadBitmap(textureId, PhotoRenderer.imgDataMatrix, PhotoRenderer.ROTATE_90, texWidth, texHeight, new BitmapUtil.OnReadBitmapListener() {
             @Override
             public void onReadBitmapListener(Bitmap bitmap) {
-                String name = "FULiveDemo_" + MiscUtil.getCurrentDate() + ".jpg";
+                String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
                 String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
                 if (result != null) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ToastUtil.showToast(ShowPhotoActivity.this, "保存照片成功！");
+                            ToastUtil.showToast(ShowPhotoActivity.this, R.string.save_photo_success);
                         }
                     });
                     File resultFile = new File(result);
@@ -231,8 +230,8 @@ public class ShowPhotoActivity extends AppCompatActivity
         }
     };
 
-    protected void showDescription(String str, int time) {
-        if (TextUtils.isEmpty(str)) {
+    protected void showDescription(int str, int time) {
+        if (0 == str) {
             return;
         }
         mEffectDescription.removeCallbacks(effectDescriptionHide);

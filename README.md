@@ -4,14 +4,12 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 注：demo第一次运行会报一个缺少返回语句的error，这是因为在本demo中缺少我司颁发的证书。如果您已拥有我司颁发的证书，将证书替换到工程中重新运行即可。如您还没有我司颁发的证书，可以查看[这里](#导入证书)获取证书
 
-## SDK v5.3 更新
+## SDK v5.4 更新
 
 更新内容
 
-- 新增物理模拟动效功能
-- 新增阴影效果渲染功能
-- 修复ARmesh以及换脸自适应美型后脸型
-- 优化手势识别，支持同时多个手势，减少卡顿问题
+- 绘制性能进一步优化提升
+- 新增美妆贴纸功能
 
 ## SDK集成
 
@@ -19,17 +17,17 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 含有深度学习的版本：
 
-	compile 'com.faceunity:nama:5.3.0'
+	compile 'com.faceunity:nama:5.4.0'
 
 不含深度学习的版本（lite版）：
 
-	compile 'com.faceunity:nama:5.3.0-lite'
+	compile 'com.faceunity:nama:5.4.0-lite'
 
 ### 二、通过 github 下载集成
 
-含有深度学习的版本：[Faceunity-Android-v5.3-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.3-dev/Faceunity-Android-v5.3-dev.zip)
+含有深度学习的版本：[Faceunity-Android-v5.4-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.4-dev/Faceunity-Android-v5.4-dev.zip)
 
-不含深度学习的版本（lite版）：[Faceunity-Android-v5.3-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.3-dev/Faceunity-Android-v5.3-dev-lite.zip)
+不含深度学习的版本（lite版）：[Faceunity-Android-v5.4-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.4-dev/Faceunity-Android-v5.4-dev-lite.zip)
 
 **Tip：含有深度学习的版本支持背景分割、手势识别功能**
 

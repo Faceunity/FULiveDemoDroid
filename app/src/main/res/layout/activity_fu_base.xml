@@ -53,7 +53,7 @@
             android:checked="true"
             android:gravity="center"
             app:text_size_xfermode="@dimen/text_size_22"
-            app:text_xfermode="双输入"/>
+            app:text_xfermode="@string/fu_base_input_type_double"/>
 
         <com.faceunity.fulivedemo.ui.XfermodeRadioButton
             android:id="@+id/fu_base_input_type_single"
@@ -65,7 +65,7 @@
             android:checked="false"
             android:gravity="center"
             app:text_size_xfermode="@dimen/text_size_22"
-            app:text_xfermode="单输入"/>
+            app:text_xfermode="@string/fu_base_input_type_single"/>
     </RadioGroup>
 
     <ImageButton
@@ -129,7 +129,7 @@
         android:layout_marginRight="@dimen/x34"
         android:button="@null"
         android:checked="false"
-        android:text="性能优先"
+        android:text="@string/fu_base_height"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/text_size_24"
         android:visibility="gone"
@@ -157,7 +157,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x558"
         android:gravity="center"
-        android:text="未检测到人脸"
+        android:text="@string/fu_base_is_tracking_text"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/text_size_26"
         app:layout_constraintLeft_toLeftOf="parent"

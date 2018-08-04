@@ -3,6 +3,7 @@ package com.faceunity;
 
 import com.faceunity.entity.Effect;
 import com.faceunity.entity.Filter;
+import com.faceunity.entity.Makeup;
 
 /**
  * FURenderer与界面之间的交互接口
@@ -36,6 +37,21 @@ public interface OnFUControlListener {
      * @param filterName 滤镜名称
      */
     void onFilterNameSelected(Filter filterName);
+
+    /**
+     * 美妆选择
+     *
+     * @param makeup
+     */
+    void onMakeupSelected(Makeup makeup);
+
+    /**
+     * 美妆程度
+     *
+     * @param makeupType
+     * @param level
+     */
+    void onMakeupLevelSelected(int makeupType, float level);
 
     /**
      * 精准磨皮

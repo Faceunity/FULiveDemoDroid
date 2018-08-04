@@ -174,6 +174,6 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
     }
 
     public interface OnDescriptionChangeListener {
-        void onDescriptionChangeListener(String description);
+        void onDescriptionChangeListener(int description);
     }
 }

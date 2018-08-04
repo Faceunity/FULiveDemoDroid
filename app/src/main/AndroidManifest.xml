@@ -34,6 +34,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme"/>
         <activity
+            android:name=".FUMakeupActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme"/>
+        <activity
             android:name=".FUEffectActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme"/>

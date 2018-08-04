@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
 
 public abstract class Constant {
 
-
     public static int NANO_IN_ONE_MILLI_SECOND = 1000000;
 
+    public static final String APP_NAME = "FULiveDemo";
     public static final String filePath = Environment.getExternalStoragePublicDirectory("")
-            + File.separator + "FaceUnity" + File.separator + "FULiveDemo" + File.separator;
+            + File.separator + "FaceUnity" + File.separator + APP_NAME + File.separator;
 
     public static final String DICMFilePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getPath();
     public static final String photoFilePath;

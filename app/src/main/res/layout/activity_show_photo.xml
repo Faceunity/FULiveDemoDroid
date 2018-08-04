@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x558"
         android:gravity="center"
-        android:text="未检测到人脸"
+        android:text="@string/fu_base_is_tracking_text"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/text_size_26"
         app:layout_constraintLeft_toLeftOf="parent"

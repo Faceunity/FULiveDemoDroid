@@ -13,13 +13,13 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -56,6 +56,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
     protected CameraRenderer mCameraRenderer;
     protected boolean isDoubleInputType = true;
     protected RadioGroup mInputTypeRadioGroup;
+    private ImageButton mCameraChange;
     private CheckBox mDebugBox;
     protected TextView mDebugText;
     protected TextView mIsTrackingText;
@@ -80,6 +81,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_fu_base);
+        MiscUtil.checkPermission(this);
 
         mTopBackground = (ImageView) findViewById(R.id.fu_base_top_background);
 
@@ -93,6 +95,8 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         mInputTypeRadioGroup = (RadioGroup) findViewById(R.id.fu_base_input_type_radio_group);
+
+        mCameraChange = (ImageButton) findViewById(R.id.fu_base_camera_change);
 
         mDebugBox = (CheckBox) findViewById(R.id.fu_base_debug);
         mDebugText = (TextView) findViewById(R.id.fu_base_debug_text);
@@ -159,6 +163,13 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         super.onDestroy();
     }
 
+    private Runnable ChangeCamera = new Runnable() {
+        @Override
+        public void run() {
+            mCameraRenderer.changeCamera();
+        }
+    };
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -166,7 +177,8 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
                 onBackPressed();
                 break;
             case R.id.fu_base_camera_change:
-                mCameraRenderer.changeCamera();
+                mCameraChange.removeCallbacks(ChangeCamera);
+                mCameraChange.post(ChangeCamera);
                 break;
         }
     }
@@ -179,8 +191,8 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         }
     };
 
-    protected void showDescription(String str, int time) {
-        if (TextUtils.isEmpty(str)) {
+    protected void showDescription(int str, int time) {
+        if (str == 0) {
             return;
         }
         mEffectDescription.removeCallbacks(effectDescriptionHide);
@@ -227,13 +239,13 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, new BitmapUtil.OnReadBitmapListener() {
             @Override
             public void onReadBitmapListener(Bitmap bitmap) {
-                String name = "FULiveDemo_" + MiscUtil.getCurrentDate() + ".jpg";
+                String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
                 String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
                 if (result != null) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ToastUtil.showToast(FUBaseUIActivity.this, "保存照片成功！");
+                            ToastUtil.showToast(FUBaseUIActivity.this, R.string.save_photo_success);
                         }
                     });
                     File resultFile = new File(result);
@@ -294,7 +306,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     Log.e(TAG, "stop encoder success");
-                    ToastUtil.showToast(FUBaseUIActivity.this, "保存视频成功！");
+                    ToastUtil.showToast(FUBaseUIActivity.this, R.string.save_video_success);
                     mTakePicBtn.setSecond(mStartTime = 0);
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mOutFile)));
                 }
@@ -306,7 +318,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
 
     private void startRecording() {
         try {
-            String videoFileName = "FULiveDemo_" + MiscUtil.getCurrentDate() + ".mp4";
+            String videoFileName = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".mp4";
             mOutFile = new File(Constant.cameraFilePath, videoFileName);
             mMuxer = new MediaMuxerWrapper(mOutFile.getAbsolutePath());
 

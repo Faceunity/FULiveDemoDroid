@@ -7,12 +7,17 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.faceunity.entity.Effect;
 import com.faceunity.entity.Filter;
+import com.faceunity.entity.Makeup;
+import com.faceunity.utils.Constant;
 import com.faceunity.wrapper.faceunity;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -51,11 +56,12 @@ public class FURenderer implements OnFUControlListener {
     public static final String BUNDLE_face_beautification = "face_beautification.bundle";
     public static final String BUNDLE_ardata_ex = "ardata_ex.bundle";
     public static final String BUNDLE_animoji_3d = "fxaa.bundle";
+    public static final String BUNDLE_lipstick_high_light = "lipstick/lipstick_high_light.png";
 
     //美颜和滤镜的默认参数
     private boolean isNeedUpdateFaceBeauty = true;
     private static float mFilterLevel = 1.0f;//滤镜强度
-    private static Filter mFilterName = new Filter("origin", 0, "原图", Filter.FILTER_TYPE_BEAUTY_FILTER);
+    private static Filter mFilterName = new Filter("origin");
 
     private static float mSkinDetect = 1.0f;//精准磨皮
     private static float mHeavyBlur = 0.0f;//美肤类型
@@ -79,7 +85,15 @@ public class FURenderer implements OnFUControlListener {
     private static final int ITEM_ARRAYS_FACE_BEAUTY_INDEX = 0;
     private static final int ITEM_ARRAYS_EFFECT = 1;
     private static final int ITEM_ARRAYS_EFFECT_ABIMOJI_3D = 2;
-    private static final int ITEM_ARRAYS_COUNT = 3;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYE_SHADOW_INDEX = 3;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYE_LINER_INDEX = 4;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYELASH_INDEX = 5;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_CONTACT_LENS_INDEX = 6;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYEBROW_INDEX = 7;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_LIPSTICK_INDEX = 8;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_BLUSHER_INDEX = 9;
+
+    private static final int ITEM_ARRAYS_COUNT = 10;
     //美颜和其他道具的handle数组
     private final int[] mItemsArray = new int[ITEM_ARRAYS_COUNT];
     //用于和异步加载道具的线程交互
@@ -202,18 +216,15 @@ public class FURenderer implements OnFUControlListener {
         faceunity.fuSetMaxFaces(mMaxFaces);//设置多脸，目前最多支持8人。
 
         if (isNeedFaceBeauty) {
-            mFuItemHandler.sendEmptyMessage(FUItemHandler.HANDLE_CREATE_BEAUTY_ITEM);
+            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_FACE_BEAUTY_INDEX);
         }
 
         if (isNeedAnimoji3D) {
-            mFuItemHandler.sendEmptyMessage(FUItemHandler.HANDLE_CREATE_ANIMOJI3D_ITEM);
+            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_ABIMOJI_3D);
         }
 
         //加载默认道具
-        if (mDefaultEffect != null) {
-            mItemsArray[ITEM_ARRAYS_EFFECT] = loadItem(mDefaultEffect);
-            faceunity.fuSetMaxFaces(mDefaultEffect.maxFace());
-        }
+        loadEffect(mDefaultEffect);
     }
 
     /**
@@ -444,7 +455,9 @@ public class FURenderer implements OnFUControlListener {
      */
     public void onSurfaceDestroyed() {
         Log.e(TAG, "onSurfaceDestroyed");
-        mFuItemHandler.removeMessages(FUItemHandler.HANDLE_CREATE_ITEM);
+        for (int i = 0; i < ITEM_ARRAYS_COUNT; i++) {
+            mFuItemHandler.removeMessages(i);
+        }
 
         mFrameId = 0;
         isNeedUpdateFaceBeauty = true;
@@ -567,6 +580,7 @@ public class FURenderer implements OnFUControlListener {
         queueEvent(new Runnable() {
             @Override
             public void run() {
+                mFrameId = 0;
                 mCurrentCameraType = currentCameraType;
                 mInputImageOrientation = inputImageOrientation;
                 faceunity.fuOnCameraChange();
@@ -616,7 +630,10 @@ public class FURenderer implements OnFUControlListener {
 
     @Override
     public void onEffectSelected(Effect effectItemName) {
-        createItem(mDefaultEffect = effectItemName);
+        mDefaultEffect = effectItemName;
+        if (mDefaultEffect == null) return;
+        mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT);
+        mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_EFFECT, mDefaultEffect));
     }
 
     @Override
@@ -628,7 +645,25 @@ public class FURenderer implements OnFUControlListener {
     @Override
     public void onFilterNameSelected(Filter filterName) {
         isNeedUpdateFaceBeauty = true;
-        this.mFilterName = filterName;
+        mFilterName = filterName;
+    }
+
+    @Override
+    public void onMakeupSelected(Makeup makeup) {
+        if (makeup == null) return;
+        int what = getIndexMakeup(makeup.makeupType());
+        mFuItemHandler.removeMessages(what);
+        mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, what, makeup));
+    }
+
+    @Override
+    public void onMakeupLevelSelected(final int makeupType, final float level) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[getIndexMakeup(makeupType)], "makeup_intensity", level);
+            }
+        });
     }
 
     @Override
@@ -677,7 +712,7 @@ public class FURenderer implements OnFUControlListener {
     @Override
     public void onFaceShapeSelected(float faceShape) {
         isNeedUpdateFaceBeauty = true;
-        this.mFaceShape = faceShape;
+        mFaceShape = faceShape;
     }
 
     @Override
@@ -768,17 +803,7 @@ public class FURenderer implements OnFUControlListener {
 
     //--------------------------------------道具（异步加载道具）----------------------------------------
 
-    public void createItem(Effect item) {
-        if (item == null) return;
-        mFuItemHandler.removeMessages(FUItemHandler.HANDLE_CREATE_ITEM);
-        mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, FUItemHandler.HANDLE_CREATE_ITEM, item));
-    }
-
     class FUItemHandler extends Handler {
-
-        static final int HANDLE_CREATE_ITEM = 1;
-        static final int HANDLE_CREATE_BEAUTY_ITEM = 2;
-        static final int HANDLE_CREATE_ANIMOJI3D_ITEM = 3;
 
         FUItemHandler(Looper looper) {
             super(looper);
@@ -789,46 +814,21 @@ public class FURenderer implements OnFUControlListener {
             super.handleMessage(msg);
             switch (msg.what) {
                 //加载道具
-                case HANDLE_CREATE_ITEM:
-                    final Effect effect = (Effect) msg.obj;
-                    final int newEffectItem = loadItem(effect);
-                    queueEvent(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mItemsArray[ITEM_ARRAYS_EFFECT] > 0) {
-                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT]);
-                            }
-                            mItemsArray[ITEM_ARRAYS_EFFECT] = newEffectItem;
-                            if (mItemsArray[ITEM_ARRAYS_EFFECT] > 0)
-                                setMaxFaces(effect.maxFace());
-                        }
-                    });
+                case ITEM_ARRAYS_EFFECT:
+                    loadEffect((Effect) msg.obj);
                     break;
                 //加载美颜bundle
-                case HANDLE_CREATE_BEAUTY_ITEM:
-                    try {
-                        InputStream beauty = mContext.getAssets().open(BUNDLE_face_beautification);
-                        byte[] beautyData = new byte[beauty.available()];
-                        beauty.read(beautyData);
-                        beauty.close();
-                        mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX] = faceunity.fuCreateItemFromPackage(beautyData);
-                        isNeedUpdateFaceBeauty = true;
-                        Log.e(TAG, "face beauty item handle " + mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX]);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                case ITEM_ARRAYS_FACE_BEAUTY_INDEX:
+                    mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX] = loadItem(BUNDLE_face_beautification);
+                    isNeedUpdateFaceBeauty = true;
                     break;
                 //加载animoji道具3D抗锯齿bundle
-                case HANDLE_CREATE_ANIMOJI3D_ITEM:
-                    try {
-                        InputStream animoji3D = mContext.getAssets().open(BUNDLE_animoji_3d);
-                        byte[] animoji3DData = new byte[animoji3D.available()];
-                        animoji3D.read(animoji3DData);
-                        animoji3D.close();
-                        mItemsArray[ITEM_ARRAYS_EFFECT_ABIMOJI_3D] = faceunity.fuCreateItemFromPackage(animoji3DData);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                case ITEM_ARRAYS_EFFECT_ABIMOJI_3D:
+                    mItemsArray[ITEM_ARRAYS_EFFECT_ABIMOJI_3D] = loadItem(BUNDLE_animoji_3d);
+                    break;
+                //加载美妆bundle
+                default:
+                    loadMakeup((Makeup) msg.obj);
                     break;
             }
         }
@@ -840,28 +840,99 @@ public class FURenderer implements OnFUControlListener {
      * @param bundle（Effect本demo定义的道具实体类）
      * @return 大于0时加载成功
      */
-    private int loadItem(final Effect bundle) {
+    private void loadEffect(final Effect bundle) {
+        if (bundle == null) return;
+        int item = 0;
+        if (bundle.effectType() == Effect.EFFECT_TYPE_NONE) {
+            item = 0;
+        } else {
+            item = loadItem(bundle.path());
+        }
+        final int finalItem = item;
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (mItemsArray[ITEM_ARRAYS_EFFECT] > 0) {
+                    faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT]);
+                }
+                if (finalItem > 0) {
+                    updateEffectItemParams(bundle, finalItem);
+                    setMaxFaces(bundle.maxFace());
+                }
+                mItemsArray[ITEM_ARRAYS_EFFECT] = finalItem;
+            }
+        });
+    }
+
+    /**
+     * fuCreateItemFromPackage 加载道具
+     *
+     * @param bundle（Effect本demo定义的道具实体类）
+     * @return 大于0时加载成功
+     */
+    private void loadMakeup(final Makeup bundle) {
+        if (TextUtils.isEmpty(bundle.path())) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    faceunity.fuItemSetParam(mItemsArray[getIndexMakeup(bundle.makeupType())], "makeup_intensity", 0);
+                }
+            });
+        } else {
+            final int item = loadItem(bundle.path());
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mItemsArray[getIndexMakeup(bundle.makeupType())] = item;
+                    faceunity.fuItemSetParam(item, "makeup_intensity", bundle.getLevel());
+                }
+            });
+        }
+    }
+
+    private int getIndexMakeup(int makeType) {
+        switch (makeType) {
+            case Makeup.MAKEUP_TYPE_LIPSTICK:
+                return ITEM_ARRAYS_FACE_MAKEUP_LIPSTICK_INDEX;
+            case Makeup.MAKEUP_TYPE_EYEBROW:
+                return ITEM_ARRAYS_FACE_MAKEUP_EYEBROW_INDEX;
+            case Makeup.MAKEUP_TYPE_EYE_SHADOW:
+                return ITEM_ARRAYS_FACE_MAKEUP_EYE_SHADOW_INDEX;
+            case Makeup.MAKEUP_TYPE_EYE_LINER:
+                return ITEM_ARRAYS_FACE_MAKEUP_EYE_LINER_INDEX;
+            case Makeup.MAKEUP_TYPE_EYELASH:
+                return ITEM_ARRAYS_FACE_MAKEUP_EYELASH_INDEX;
+            case Makeup.MAKEUP_TYPE_CONTACT_LENS:
+                return ITEM_ARRAYS_FACE_MAKEUP_CONTACT_LENS_INDEX;
+            case Makeup.MAKEUP_TYPE_BLUSHER:
+                return ITEM_ARRAYS_FACE_MAKEUP_BLUSHER_INDEX;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * fuCreateItemFromPackage 加载道具
+     *
+     * @param bundle（Effect本demo定义的道具实体类）
+     * @return 大于0时加载成功
+     */
+    private int loadItem(String bundle) {
         int item = 0;
         try {
-            if (bundle.effectType() == Effect.EFFECT_TYPE_NONE) {
+            if (TextUtils.isEmpty(bundle)) {
                 item = 0;
             } else {
-                InputStream is = mContext.getAssets().open(bundle.path());
+                InputStream is = bundle.startsWith(Constant.filePath) ? new FileInputStream(new File(bundle)) : mContext.getAssets().open(bundle);
                 byte[] itemData = new byte[is.available()];
                 int len = is.read(itemData);
-                Log.e(TAG, bundle.path() + " len " + len);
+                Log.e(TAG, bundle + " len " + len);
                 is.close();
                 item = faceunity.fuCreateItemFromPackage(itemData);
-                final int finalItem = item;
-                queueEvent(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateEffectItemParams(bundle, finalItem);
-                    }
-                });
             }
         } catch (IOException e) {
             e.printStackTrace();
+            item = 0;
         }
         return item;
     }
@@ -883,12 +954,8 @@ public class FURenderer implements OnFUControlListener {
             //这两句代码用于识别人脸默认方向的修改，主要针对animoji道具的切换摄像头倒置问题
             faceunity.fuItemSetParam(itemHandle, "camera_change", 1.0);
             faceunity.fuSetDefaultRotationMode((360 - mInputImageOrientation) / 90);
-        }
-        if (effect.effectType() == Effect.EFFECT_TYPE_PORTRAIT_DRIVE) {
             //is3DFlipH 参数是用于对3D道具的镜像
             faceunity.fuItemSetParam(itemHandle, "is3DFlipH", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
-        }
-        if (effect.effectType() == Effect.EFFECT_TYPE_PORTRAIT_DRIVE) {
             //isFlipExpr 参数是用于对人像驱动道具的镜像
             faceunity.fuItemSetParam(itemHandle, "isFlipExpr", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
         }

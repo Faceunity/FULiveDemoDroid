@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -111,7 +110,7 @@ public class ShowVideoActivity extends AppCompatActivity
             });
             mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
                 @Override
-                public void onDescriptionShowListener(String str) {
+                public void onDescriptionShowListener(int str) {
                     showDescription(str, 1500);
                 }
             });
@@ -130,7 +129,7 @@ public class ShowVideoActivity extends AppCompatActivity
             mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(Effect.EFFECT_TYPE_NORMAL).get(1));
             mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
                 @Override
-                public void onDescriptionChangeListener(String description) {
+                public void onDescriptionChangeListener(int description) {
                     showDescription(description, 1500);
                 }
             });
@@ -203,7 +202,7 @@ public class ShowVideoActivity extends AppCompatActivity
                 break;
             case R.id.show_save_btn:
                 if (mOutVideoFile != null && mOutVideoFile.exists()) {
-                    ToastUtil.showToast(ShowVideoActivity.this, "保存视频成功！");
+                    ToastUtil.showToast(ShowVideoActivity.this, R.string.save_video_success);
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mOutVideoFile)));
                     mOutVideoFile = null;
                 }
@@ -247,7 +246,7 @@ public class ShowVideoActivity extends AppCompatActivity
 
     private void startRecording() {
         try {
-            String videoFileName = "FULiveDemo_" + MiscUtil.getCurrentDate() + ".mp4";
+            String videoFileName = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".mp4";
             mOutVideoFile = new File(Constant.cameraFilePath, videoFileName);
             mMuxer = new MediaMuxerWrapper(mOutVideoFile.getAbsolutePath());
 
@@ -276,8 +275,8 @@ public class ShowVideoActivity extends AppCompatActivity
         }
     };
 
-    protected void showDescription(String str, int time) {
-        if (TextUtils.isEmpty(str)) {
+    protected void showDescription(int str, int time) {
+        if (0 == str) {
             return;
         }
         mEffectDescription.removeCallbacks(effectDescriptionHide);

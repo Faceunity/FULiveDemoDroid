@@ -7,8 +7,8 @@ android {
         applicationId "com.faceunity.fulivedemo"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 9
-        versionName "5.3"
+        versionCode 10
+        versionName "5.4"
     }
     buildTypes {
         release {
@@ -18,8 +18,8 @@ android {
     }
 
     sourceSets {
-        main.assets.srcDirs += ['src/main/assets', 'src/main/effects/bundle']
-        main.res.srcDirs += ['src/mian/res', 'src/main/effects/res', 'src/main/filters/res']
+        main.assets.srcDirs += ['src/main/assets', 'src/main/effects/bundle', 'src/main/makeup/bundle']
+        main.res.srcDirs += ['src/mian/res', 'src/main/effects/res', 'src/main/filters/res', 'src/main/makeup/res']
     }
 }
 

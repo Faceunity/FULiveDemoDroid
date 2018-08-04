@@ -84,7 +84,7 @@ public class FUEffectActivity extends FUBaseUIActivity
         ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
             @Override
-            public void onDescriptionChangeListener(String description) {
+            public void onDescriptionChangeListener(int description) {
                 showDescription(description, 1500);
             }
         });
@@ -130,7 +130,7 @@ public class FUEffectActivity extends FUBaseUIActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mDebugText.setText(String.format("resolution:\n\t%dX%d\nfps:%d\nrender time:\n\t\t\t\t\t%dms", mCameraRenderer.getCameraWidth(), mCameraRenderer.getCameraHeight(), (int) fps, (int) renderTime));
+                mDebugText.setText(String.format(getString(R.string.fu_base_debug), mCameraRenderer.getCameraWidth(), mCameraRenderer.getCameraHeight(), (int) fps, (int) renderTime));
             }
         });
     }

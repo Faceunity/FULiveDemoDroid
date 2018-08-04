@@ -28,8 +28,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/x379"
+        android:gravity="center"
         android:padding="@dimen/x50"
-        android:text="请从相册中选择图片或视频"
+        android:text="@string/select_data_title"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/text_size_32"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -59,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/x26"
-            android:text="选择图片"
+            android:text="@string/select_data_photo"
             android:textColor="@color/colorWhite"
             android:textSize="@dimen/text_size_32"/>
     </LinearLayout>
@@ -87,7 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/x26"
-            android:text="选择视频"
+            android:text="@string/select_data_video"
             android:textColor="@color/colorWhite"
             android:textSize="@dimen/text_size_32"/>
     </LinearLayout>

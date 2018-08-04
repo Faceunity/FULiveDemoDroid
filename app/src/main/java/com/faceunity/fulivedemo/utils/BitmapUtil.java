@@ -23,23 +23,26 @@ public abstract class BitmapUtil {
      * 读取图片（glReadPixels）
      *
      * @param textureId
-     * @param mtx
-     * @param mvp
      * @param texWidth
      * @param texHeight
      * @param listener
      */
     public static void glReadBitmap(int textureId, float[] mtx, float[] mvp, final int texWidth, final int texHeight, final OnReadBitmapListener listener) {
-
+        final IntBuffer intBuffer = IntBuffer.allocate(texWidth * texHeight);
+        int[] textures = new int[1];
+        GLES20.glGenTextures(1, textures, 0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, texWidth, texHeight, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        int[] mFrameBuffers = new int[1];
+        GLES20.glGenFramebuffers(1, mFrameBuffers, 0);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[0]);
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, textures[0], 0);
         int viewport[] = new int[4];
         GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
         GLES20.glViewport(0, 0, texWidth, texHeight);
-
         new ProgramTexture2d().drawFrame(textureId, mtx, mvp);
-
-        final int bitmapBuffer[] = new int[texWidth * texHeight];
-        IntBuffer intBuffer = IntBuffer.wrap(bitmapBuffer);
-        intBuffer.position(0);
         GLES20.glReadPixels(0, 0, texWidth, texHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, intBuffer);
         GLES20.glFinish();
         AsyncTask.execute(new Runnable() {
@@ -47,11 +50,12 @@ public abstract class BitmapUtil {
             public void run() {
                 final int bitmapSource[] = new int[texWidth * texHeight];
                 int offset1, offset2;
+                int[] data = intBuffer.array();
                 for (int i = 0; i < texHeight; i++) {
                     offset1 = i * texWidth;
                     offset2 = (texHeight - i - 1) * texWidth;
                     for (int j = 0; j < texWidth; j++) {
-                        int texturePixel = bitmapBuffer[offset1 + j];
+                        int texturePixel = data[offset1 + j];
                         int blue = (texturePixel >> 16) & 0xff;
                         int red = (texturePixel << 16) & 0x00ff0000;
                         int pixel = (texturePixel & 0xff00ff00) | red | blue;
@@ -64,8 +68,9 @@ public abstract class BitmapUtil {
                 }
             }
         });
-
         GLES20.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
     }
 
     public interface OnReadBitmapListener {

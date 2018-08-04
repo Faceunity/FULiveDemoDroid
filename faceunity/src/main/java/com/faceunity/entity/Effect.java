@@ -26,9 +26,9 @@ public class Effect {
     private String path;
     private int maxFace;
     private int effectType;
-    private String description;
+    private int description;
 
-    public Effect(String bundleName, int resId, String path, int maxFace, int effectType, String description) {
+    public Effect(String bundleName, int resId, String path, int maxFace, int effectType, int description) {
         this.bundleName = bundleName;
         this.resId = resId;
         this.path = path;
@@ -57,7 +57,7 @@ public class Effect {
         return effectType;
     }
 
-    public String description() {
+    public int description() {
         return description;
     }
 
@@ -66,11 +66,11 @@ public class Effect {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Effect effect = (Effect) o;
-        return !TextUtils.isEmpty(bundleName) && bundleName.equals(effect.bundleName());
+        return !TextUtils.isEmpty(path) && path.equals(effect.path());
     }
 
     @Override
     public int hashCode() {
-        return !TextUtils.isEmpty(bundleName) ? bundleName.hashCode() : 0;
+        return !TextUtils.isEmpty(path) ? path.hashCode() : 0;
     }
 }

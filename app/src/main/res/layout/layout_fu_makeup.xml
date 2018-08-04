@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/fu_makeup_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x98"
+        android:layout_gravity="bottom"
+        android:background="#BD050F14">
+
+        <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
+            android:id="@+id/makeup_seek_bar"
+            android:layout_width="@dimen/x528"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/x196"
+            android:visibility="gone"
+            app:dsb_indicatorColor="@color/main_color"
+            app:dsb_indicatorElevation="0dp"
+            app:dsb_indicatorPopupEnabled="true"
+            app:dsb_max="100"
+            app:dsb_min="0"
+            app:dsb_progressColor="@color/main_color"
+            app:dsb_rippleColor="@color/main_color"
+            app:dsb_scrubberHeight="@dimen/x4"
+            app:dsb_thumbSize="@dimen/x32"
+            app:dsb_trackBaseHeight="@dimen/x16"
+            app:dsb_trackColor="@color/colorWhite"
+            app:dsb_value="0"
+            app:layout_constraintBottom_toTopOf="@+id/makeup_line"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
+
+        <ImageView
+            android:id="@+id/makeup_none"
+            android:layout_width="@dimen/x108"
+            android:layout_height="@dimen/x108"
+            android:layout_marginBottom="@dimen/x49"
+            android:layout_marginLeft="@dimen/x34"
+            android:scaleType="centerInside"
+            android:src="@drawable/makeup_none_normal"
+            app:layout_constraintBottom_toTopOf="@+id/makeup_line"
+            app:layout_constraintLeft_toLeftOf="parent"/>
+
+        <View
+            android:id="@+id/makeup_mid_line"
+            android:layout_width="@dimen/x1"
+            android:layout_height="@dimen/x80"
+            android:layout_marginLeft="@dimen/x20"
+            android:background="#33E5E5E5"
+            app:layout_constraintBottom_toBottomOf="@+id/makeup_none"
+            app:layout_constraintLeft_toRightOf="@+id/makeup_none"
+            app:layout_constraintTop_toTopOf="@+id/makeup_none"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/makeup_mid_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x116"
+            android:layout_marginLeft="@dimen/x163"
+            android:paddingLeft="@dimen/x5"
+            android:paddingRight="@dimen/x5"
+            app:layout_constraintBottom_toBottomOf="@+id/makeup_none"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/makeup_none"/>
+
+        <View
+            android:id="@+id/makeup_line"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x1"
+            android:background="#33E5E5E5"
+            app:layout_constraintBottom_toTopOf="@+id/makeup_radio_group_layout"/>
+
+        <HorizontalScrollView
+            android:id="@+id/makeup_radio_group_layout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x98"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <com.faceunity.fulivedemo.ui.CheckGroup
+                android:id="@+id/makeup_radio_group"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/x98"
+                android:orientation="horizontal">
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/makeup_radio_lipstick"
+                    android:layout_width="@dimen/x125"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:paddingRight="@dimen/x9"
+                    android:text="@string/makeup_radio_lipstick"
+                    android:textColor="@drawable/beauty_control_bottom_radio_color"
+                    android:textSize="@dimen/text_size_26"/>
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/makeup_radio_blusher"
+                    android:layout_width="@dimen/x136"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/makeup_radio_blusher"
+                    android:textColor="@drawable/beauty_control_bottom_radio_color"
+                    android:textSize="@dimen/text_size_26"/>
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/makeup_radio_eyebrow"
+                    android:layout_width="@dimen/x136"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/makeup_radio_eyebrow"
+                    android:textColor="@drawable/beauty_control_bottom_radio_color"
+                    android:textSize="@dimen/text_size_26"/>
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/makeup_radio_eye_shadow"
+                    android:layout_width="@dimen/x136"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/makeup_radio_eye_shadow"
+                    android:textColor="@drawable/beauty_control_bottom_radio_color"
+                    android:textSize="@dimen/text_size_26"/>
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/makeup_radio_eye_liner"
+                    android:layout_width="@dimen/x136"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/makeup_radio_eye_liner"
+                    android:textColor="@drawable/beauty_control_bottom_radio_color"
+                    android:textSize="@dimen/text_size_26"/>
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/makeup_radio_eyelash"
+                    android:layout_width="@dimen/x136"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/makeup_radio_eyelash"
+                    android:textColor="@drawable/beauty_control_bottom_radio_color"
+                    android:textSize="@dimen/text_size_26"/>
+
+                <android.support.v7.widget.AppCompatCheckBox
+                    android:id="@+id/makeup_radio_contact_lens"
+                    android:layout_width="@dimen/x125"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:paddingLeft="@dimen/x9"
+                    android:text="@string/makeup_radio_contact_lens"
+                    android:textColor="@drawable/beauty_control_bottom_radio_color"
+                    android:textSize="@dimen/text_size_26"/>
+            </com.faceunity.fulivedemo.ui.CheckGroup>
+        </HorizontalScrollView>
+
+    </android.support.constraint.ConstraintLayout>
+</FrameLayout>

@@ -14,4 +14,10 @@ public abstract class ToastUtil {
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
+
+    public static void showToast(Context context, int str) {
+        Toast toast = Toast.makeText(context, str, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
 }

@@ -41,7 +41,7 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
                 if (data == null) return;
                 String fileImgPath = MiscUtil.getFileAbsolutePath(this, data.getData());
                 if (!new File(fileImgPath).exists()) {
-                    ToastUtil.showToast(this, "所选图片文件不存在。");
+                    ToastUtil.showToast(this, R.string.image_file_does_not_exist);
                     return;
                 }
                 Intent intentPhoto = new Intent(SelectDataActivity.this, ShowPhotoActivity.class);
@@ -59,7 +59,7 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
                 if (data == null) return;
                 String fileVideoPath = MiscUtil.getFileAbsolutePath(this, data.getData());
                 if (!new File(fileVideoPath).exists()) {
-                    ToastUtil.showToast(this, "所选视频文件不存在。");
+                    ToastUtil.showToast(this, R.string.video_file_does_not_exist);
                     return;
                 }
                 Intent intentVideo = new Intent(SelectDataActivity.this, ShowVideoActivity.class);
@@ -95,7 +95,7 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
 //                    intentCamera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); //添加这一句表示对目标应用临时授权该Uri所代表的文件
 //                }
 //                intentCamera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-//                String name = "FULiveDemo_" + MiscUtil.getCurrentDate() + ".jpg";
+//                String name = Constant.APP_NAME+"_" + MiscUtil.getCurrentDate() + ".jpg";
 //                File file = new File(Constant.photoFilePath, name);
 //                if (!file.exists()) {
 //                    try {

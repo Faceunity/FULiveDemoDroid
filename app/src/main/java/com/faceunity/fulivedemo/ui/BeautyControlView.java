@@ -172,7 +172,7 @@ public class BeautyControlView extends FrameLayout {
             @Override
             public void onOpenChanged(BeautyBox beautyBox, boolean isOpen) {
                 sSkinDetect = isOpen ? 1 : 0;
-                setDescriptionShowStr(sSkinDetect == 0 ? "精准美肤 关闭" : "精准美肤 开启");
+                setDescriptionShowStr(sSkinDetect == 0 ? R.string.beauty_box_skin_detect_close : R.string.beauty_box_skin_detect_open);
                 onChangeFaceBeautyLevel(R.id.beauty_box_skin_detect);
             }
         });
@@ -181,7 +181,7 @@ public class BeautyControlView extends FrameLayout {
             @Override
             public void onDoubleChanged(BeautyBox beautyBox, boolean isDouble) {
                 sHeavyBlur = isDouble ? 1 : 0;
-                setDescriptionShowStr(sHeavyBlur == 0 ? "当前为 清晰磨皮 模式" : "当前为 朦胧磨皮 模式");
+                setDescriptionShowStr(sHeavyBlur == 0 ? R.string.beauty_box_heavy_blur_normal_text : R.string.beauty_box_heavy_blur_double_text);
                 seekToSeekBar(R.id.beauty_box_heavy_blur);
                 onChangeFaceBeautyLevel(R.id.beauty_box_heavy_blur);
                 if (mOnFUControlListener != null)
@@ -572,7 +572,7 @@ public class BeautyControlView extends FrameLayout {
     }
 
     public interface OnDescriptionShowListener {
-        void onDescriptionShowListener(String str);
+        void onDescriptionShowListener(int str);
     }
 
     public void setOnDescriptionShowListener(OnDescriptionShowListener onDescriptionShowListener) {
@@ -581,7 +581,7 @@ public class BeautyControlView extends FrameLayout {
 
     private OnDescriptionShowListener mOnDescriptionShowListener;
 
-    private void setDescriptionShowStr(String str) {
+    private void setDescriptionShowStr(int str) {
         if (mOnDescriptionShowListener != null)
             mOnDescriptionShowListener.onDescriptionShowListener(str);
     }

@@ -14,10 +14,14 @@ public class Filter {
 
     private String filterName;
     private int resId;
-    private String description;
+    private int description;
     private int filterType;
 
-    public Filter(String filterName, int resId, String description, int filterType) {
+    public Filter(String filterName) {
+        this.filterName = filterName;
+    }
+
+    public Filter(String filterName, int resId, int description, int filterType) {
         this.filterName = filterName;
         this.resId = resId;
         this.description = description;
@@ -32,7 +36,7 @@ public class Filter {
         return resId;
     }
 
-    public String description() {
+    public int description() {
         return description;
     }
 

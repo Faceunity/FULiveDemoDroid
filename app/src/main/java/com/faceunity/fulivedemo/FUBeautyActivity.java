@@ -65,7 +65,7 @@ public class FUBeautyActivity extends FUBaseUIActivity
         });
         mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
             @Override
-            public void onDescriptionShowListener(String str) {
+            public void onDescriptionShowListener(int str) {
                 showDescription(str, 1000);
             }
         });
@@ -130,7 +130,7 @@ public class FUBeautyActivity extends FUBaseUIActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mDebugText.setText(String.format("resolution:\n\t%dX%d\nfps:%d\nrender time:\n\t\t\t\t\t%dms", mCameraRenderer.getCameraWidth(), mCameraRenderer.getCameraHeight(), (int) fps, (int) renderTime));
+                mDebugText.setText(String.format(getString(R.string.fu_base_debug), mCameraRenderer.getCameraWidth(), mCameraRenderer.getCameraHeight(), (int) fps, (int) renderTime));
             }
         });
     }

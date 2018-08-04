@@ -1,0 +1,103 @@
+<resources>
+    <string name="app_name">FULiveDemo</string>
+    <string name="fu_live_demo">FU Live Demo</string>
+
+    <string name="home_function_name_beauty">Beautification</string>
+    <string name="home_function_name_animoji">Animoji</string>
+    <string name="home_function_name_normal">Sticker</string>
+    <string name="home_function_name_ar">AR Mesh</string>
+    <string name="home_function_name_face_change">Face Transfer</string>
+    <string name="home_function_name_expression">Expression</string>
+    <string name="home_function_name_music_filter">Music Filter</string>
+    <string name="home_function_name_background">Background</string>
+    <string name="home_function_name_gesture">Gesture</string>
+    <string name="home_function_name_face_warp">FaceWarp</string>
+    <string name="home_function_name_portrait_drive">Dynamic Portrait</string>
+    <string name="home_function_name_makeup">Make Up</string>
+    <string name="sorry_no_permission">Sorry ,Your license is not supported for these functions.</string>
+    <string name="camera_dialog_title">warning</string>
+    <string name="camera_dialog_message">Camera permissions are disabled or the camera is occupied by another app!</string>
+    <string name="camera_dialog_open">Retry</string>
+    <string name="camera_dialog_back">quit</string>
+
+    <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS:%d\nRender time:\n\t\t\t\t\t%dms</string>
+    <string name="save_photo_success">Save photo successfully!</string>
+    <string name="save_video_success">Save video successfully!</string>
+    <string name="fu_base_is_tracking_text">No Face Tracking</string>
+    <string name="fu_base_height">Performance preferred</string>
+    <string name="fu_base_input_type_single">Single Input</string>
+    <string name="fu_base_input_type_double">Dual Input</string>
+
+    <string name="face_shape_4">Customize</string>
+    <string name="face_shape_3_default">Default</string>
+    <string name="face_shape_0_nvshen">Fairy</string>
+    <string name="face_shape_1_wanghong">Belle</string>
+    <string name="face_shape_2_ziran">Nature</string>
+    <string name="beauty_box_skin_detect">Skin Detect</string>
+    <string name="beauty_box_skin_detect_close">Skin Detect off</string>
+    <string name="beauty_box_skin_detect_open">Skin Detect on</string>
+    <string name="beauty_box_heavy_blur_double">Heavy Blur</string>
+    <string name="beauty_box_heavy_blur_normal">Light Blur</string>
+    <string name="beauty_box_heavy_blur_double_text">Heavy Blur mode</string>
+    <string name="beauty_box_heavy_blur_normal_text">Light Blur mode</string>
+    <string name="beauty_box_blur_level">Blur</string>
+    <string name="beauty_box_color_level">Whiten</string>
+    <string name="beauty_box_red_level">Ruddy</string>
+    <string name="beauty_box_eye_bright">Eye Brighten</string>
+    <string name="beauty_box_tooth_whiten">Tooth Whiten</string>
+    <string name="beauty_box_face_shape">Face Shape</string>
+    <string name="beauty_box_eye_enlarge">Eye Enlarge</string>
+    <string name="beauty_box_cheek_thinning">Cheek Thin</string>
+    <string name="beauty_box_intensity_chin">Chin</string>
+    <string name="beauty_box_intensity_forehead">Forehead</string>
+    <string name="beauty_box_intensity_nose">Nose</string>
+    <string name="beauty_box_intensity_mouth">Mouth</string>
+    <string name="beauty_radio_skin_beauty">Skin</string>
+    <string name="beauty_radio_face_shape">Style</string>
+    <string name="beauty_radio_beauty_filter">Beauty Filter</string>
+    <string name="beauty_radio_filter">Filter</string>
+    <string name="makeup_radio_lipstick">Lipstick</string>
+    <string name="makeup_radio_blusher">Blush</string>
+    <string name="makeup_radio_eyebrow">Eyebrow</string>
+    <string name="makeup_radio_eye_shadow">Eye Shadow</string>
+    <string name="makeup_radio_eye_liner">Eye Liner</string>
+    <string name="makeup_radio_eyelash">Eyelash</string>
+    <string name="makeup_radio_contact_lens">Contact Lens</string>
+
+    <string name="select_data_photo">Photo</string>
+    <string name="select_data_video">Video</string>
+    <string name="select_data_title">Choose photo or video from your album</string>
+    <string name="image_file_does_not_exist">The selected image file does not exist.</string>
+    <string name="video_file_does_not_exist">The selected video file does not exist.</string>
+
+    <string name="armesh_ex">High-Precision AR Mesh</string>
+    <string name="future_warrior">Open Your Mouth</string>
+    <string name="jet_mask">Puff Your Cheeks</string>
+    <string name="sdx2">Frown</string>
+    <string name="luhantongkuan_ztt_fu">Blink</string>
+    <string name="qingqing_ztt_fu">Give me a kiss</string>
+    <string name="xiaobianzi_zh_fu">Have a Smile</string>
+    <string name="xiaoxueshen_ztt_fu">Whistle</string>
+    <string name="hez_ztt_fu">Open Your Mouth</string>
+    <string name="fu_lm_koreaheart">Heart_a</string>
+    <string name="fu_zh_baoquan">Fist</string>
+    <string name="fu_zh_hezxiong">Namaste</string>
+    <string name="fu_ztt_live520">Heart_b</string>
+    <string name="ssd_thread_thumb">Thumb_up</string>
+    <string name="ssd_thread_six">Shaka sign</string>
+    <string name="ssd_thread_cute">Be cute</string>
+
+    <string name="origin">Origin</string>
+    <string name="delta">Delta</string>
+    <string name="electric">Electric</string>
+    <string name="slowlived">Slowlived</string>
+    <string name="tokyo">Tokyo</string>
+    <string name="warm">Warm</string>
+    <string name="origin_beauty">Origin</string>
+    <string name="ziran">Nature</string>
+    <string name="danya">Elegant</string>
+    <string name="fennen">Pink</string>
+    <string name="qingxin">Fresh</string>
+    <string name="hongrun">Ruddy</string>
+
+</resources>

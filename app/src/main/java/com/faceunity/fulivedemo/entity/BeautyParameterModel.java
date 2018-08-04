@@ -2,6 +2,7 @@ package com.faceunity.fulivedemo.entity;
 
 
 import com.faceunity.entity.Filter;
+import com.faceunity.entity.Makeup;
 import com.faceunity.fulivedemo.R;
 
 import java.util.HashMap;
@@ -21,6 +22,9 @@ public abstract class BeautyParameterModel {
     public static final String sStrFilterLevel = "FilterLevel_";
     public static Map<String, Float> sFilterLevel = new HashMap<>();
     public static Filter sFilterName = FilterEnum.nature_beauty.filter();
+
+    public static Map<String, Float> sMakeupLevel = new HashMap<>();
+    public static Makeup[] sMakeups = {MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup()};
 
     public static float sSkinDetect = 1.0f;//精准磨皮
     public static float sHeavyBlur = 0.0f;//美肤类型
