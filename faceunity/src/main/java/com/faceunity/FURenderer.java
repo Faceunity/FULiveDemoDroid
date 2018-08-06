@@ -56,7 +56,6 @@ public class FURenderer implements OnFUControlListener {
     public static final String BUNDLE_face_beautification = "face_beautification.bundle";
     public static final String BUNDLE_ardata_ex = "ardata_ex.bundle";
     public static final String BUNDLE_animoji_3d = "fxaa.bundle";
-    public static final String BUNDLE_lipstick_high_light = "lipstick/lipstick_high_light.png";
 
     //美颜和滤镜的默认参数
     private boolean isNeedUpdateFaceBeauty = true;
