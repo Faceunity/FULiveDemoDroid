@@ -10,7 +10,6 @@ import com.faceunity.fulivedemo.utils.FPSUtil;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
 
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -128,13 +127,9 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
 
     private void loadImgData(String path) {
         Log.e(TAG, "loadImgData");
-        try {
-            Bitmap src = BitmapUtil.loadBitmap(path, 720);
-            mImgTextureId = GlUtil.createImageTexture(src);
-            mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth() / 2 * 2, mPhotoHeight = src.getHeight() / 2 * 2, src);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Bitmap src = BitmapUtil.loadBitmap(path, 720);
+        mImgTextureId = GlUtil.createImageTexture(src);
+        mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth() / 2 * 2, mPhotoHeight = src.getHeight() / 2 * 2, src);
     }
 
 }

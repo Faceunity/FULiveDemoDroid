@@ -57,6 +57,9 @@ public enum MakeupEnum {
     Makeup_contact_lens_04("contact_lens_04", R.drawable.contact_lens_04, "contact_lens/MU_ContactLenses_04.bundle", Makeup.MAKEUP_TYPE_CONTACT_LENS, 0),
     Makeup_contact_lens_05("contact_lens_05", R.drawable.contact_lens_05, "contact_lens/MU_ContactLenses_05.bundle", Makeup.MAKEUP_TYPE_CONTACT_LENS, 0),
     Makeup_contact_lens_06("contact_lens_06", R.drawable.contact_lens_06, "contact_lens/MU_ContactLenses_06.bundle", Makeup.MAKEUP_TYPE_CONTACT_LENS, 0),
+    Makeup_contact_lens_07("contact_lens_07", R.drawable.contact_lens_07, "contact_lens/MU_ContactLenses_07.bundle", Makeup.MAKEUP_TYPE_CONTACT_LENS, 0),
+    Makeup_contact_lens_08("contact_lens_08", R.drawable.contact_lens_08, "contact_lens/MU_ContactLenses_08.bundle", Makeup.MAKEUP_TYPE_CONTACT_LENS, 0),
+    Makeup_contact_lens_09("contact_lens_09", R.drawable.contact_lens_09, "contact_lens/MU_ContactLenses_09.bundle", Makeup.MAKEUP_TYPE_CONTACT_LENS, 0),
 
     Makeup_eye_shadow_01("eye_shadow_01", R.drawable.eye_shadow_01, "eye_shadow/MU_EyeShadow_01.bundle", Makeup.MAKEUP_TYPE_EYE_SHADOW, 0),
     Makeup_eye_shadow_02("eye_shadow_02", R.drawable.eye_shadow_02, "eye_shadow/MU_EyeShadow_02.bundle", Makeup.MAKEUP_TYPE_EYE_SHADOW, 0),

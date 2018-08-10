@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int[] home_function_type = {
             Effect.EFFECT_TYPE_NONE,
-//            Effect.EFFECT_TYPE_NONE,
+            Effect.EFFECT_TYPE_NONE,
             Effect.EFFECT_TYPE_NORMAL,
             Effect.EFFECT_TYPE_ANIMOJI,
             Effect.EFFECT_TYPE_AR,
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int[] home_function_permissions_code = {
             0x1,                    //美颜
-//            0x80000,                //美妆
+            0x80000,                //美妆
             0x2 | 0x4,              //道具贴纸
             0x10,                   //Animoji
             0x20 | 0x40,            //AR面具
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int[] home_function_name = {
             R.string.home_function_name_beauty,
-//            R.string.home_function_name_makeup,
+            R.string.home_function_name_makeup,
             R.string.home_function_name_normal,
             R.string.home_function_name_animoji,
             R.string.home_function_name_ar,
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int[] home_function_res = {
             R.drawable.main_beauty,
-//            R.drawable.main_makeup,
+            R.drawable.main_makeup,
             R.drawable.main_effect,
             R.drawable.main_avatar,
             R.drawable.main_ar_mask,

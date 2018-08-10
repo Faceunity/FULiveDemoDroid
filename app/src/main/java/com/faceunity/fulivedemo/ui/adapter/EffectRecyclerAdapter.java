@@ -157,10 +157,18 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
                 public void onPrepared(MediaPlayer mp) {
                     // 装载完毕回调
                     //mediaPlayer.setVolume(1f, 1f);
-                    mediaPlayer.setLooping(true);
+                    mediaPlayer.setLooping(false);
+                    mediaPlayer.seekTo(0);
                     mediaPlayer.start();
 
                     mMusicHandler.postDelayed(mMusicRunnable, MUSIC_TIME);
+                }
+            });
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mediaPlayer.seekTo(0);
+                    mediaPlayer.start();
                 }
             });
         } catch (IOException e) {

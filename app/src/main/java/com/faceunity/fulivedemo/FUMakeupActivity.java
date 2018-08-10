@@ -336,7 +336,7 @@ public class FUMakeupActivity extends FUBaseUIActivity
 
         public float getMakeupLevel(String makeupName) {
             Float level = sMakeupLevel.get(makeupName);
-            float l = level == null ? 1.0f : level;
+            float l = level == null ? 0.5f : level;
             return l;
         }
 

@@ -85,9 +85,14 @@ public abstract class BitmapUtil {
      * @return
      * @throws IOException
      */
-    public static Bitmap loadBitmap(String path, int screenWidth) throws IOException {
+    public static Bitmap loadBitmap(String path, int screenWidth) {
         int degree = 0;
-        int orientation = new ExifInterface(path).getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
+        int orientation;
+        try {
+            orientation = new ExifInterface(path).getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+        } catch (IOException e) {
+            orientation = 0;
+        }
         if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
             degree = 90;
         } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {

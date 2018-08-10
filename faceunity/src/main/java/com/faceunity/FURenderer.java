@@ -992,66 +992,146 @@ public class FURenderer implements OnFUControlListener {
             this.context = context;
         }
 
+        /**
+         * 是否需要自己创建EGLContext
+         *
+         * @param createEGLContext
+         * @return
+         */
         public Builder createEGLContext(boolean createEGLContext) {
             this.createEGLContext = createEGLContext;
             return this;
         }
 
+        /**
+         * 是否需要立即加载道具
+         *
+         * @param defaultEffect
+         * @return
+         */
         public Builder defaultEffect(Effect defaultEffect) {
             this.defaultEffect = defaultEffect;
             return this;
         }
 
+        /**
+         * 识别最大人脸数
+         *
+         * @param maxFaces
+         * @return
+         */
         public Builder maxFaces(int maxFaces) {
             this.maxFaces = maxFaces;
             return this;
         }
 
+        /**
+         * 传入纹理的类型（传入数据没有纹理则无需调用）
+         * camera OES纹理：1
+         * 普通2D纹理：2
+         *
+         * @param textureType
+         * @return
+         */
         public Builder inputTextureType(int textureType) {
             this.inputTextureType = textureType;
             return this;
         }
 
+        /**
+         * 是否需要把处理后的数据回写到byte[]中
+         *
+         * @param needReadBackImage
+         * @return
+         */
         public Builder needReadBackImage(boolean needReadBackImage) {
             this.needReadBackImage = needReadBackImage;
             return this;
         }
 
+        /**
+         * 输入的byte[]数据类型
+         *
+         * @param inputImageFormat
+         * @return
+         */
         public Builder inputImageFormat(int inputImageFormat) {
             this.inputImageFormat = inputImageFormat;
             return this;
         }
 
+        /**
+         * 输入的画面数据方向
+         *
+         * @param inputImageRotation
+         * @return
+         */
         public Builder inputImageOrientation(int inputImageRotation) {
             this.inputImageRotation = inputImageRotation;
             return this;
         }
 
+        /**
+         * 是否需要3D道具的抗锯齿功能
+         *
+         * @param needAnimoji3D
+         * @return
+         */
         public Builder setNeedAnimoji3D(boolean needAnimoji3D) {
             this.isNeedAnimoji3D = needAnimoji3D;
             return this;
         }
 
+        /**
+         * 是否需要美颜效果
+         *
+         * @param needFaceBeauty
+         * @return
+         */
         public Builder setNeedFaceBeauty(boolean needFaceBeauty) {
             isNeedFaceBeauty = needFaceBeauty;
             return this;
         }
 
+        /**
+         * 当前的摄像头（前后置摄像头）
+         *
+         * @param cameraType
+         * @return
+         */
         public Builder setCurrentCameraType(int cameraType) {
             currentCameraType = cameraType;
             return this;
         }
 
+        /**
+         * 设置debug数据回调
+         *
+         * @param onFUDebugListener
+         * @return
+         */
         public Builder setOnFUDebugListener(OnFUDebugListener onFUDebugListener) {
             this.onFUDebugListener = onFUDebugListener;
             return this;
         }
 
+        /**
+         * 设置是否检查到人脸的回调
+         *
+         * @param onTrackingStatusChangedListener
+         * @return
+         */
         public Builder setOnTrackingStatusChangedListener(OnTrackingStatusChangedListener onTrackingStatusChangedListener) {
             this.onTrackingStatusChangedListener = onTrackingStatusChangedListener;
             return this;
         }
 
+        /**
+         * 设置SDK使用错误回调
+         *
+         * @param onSystemErrorListener
+         * @return
+         */
         public Builder setOnSystemErrorListener(OnSystemErrorListener onSystemErrorListener) {
             this.onSystemErrorListener = onSystemErrorListener;
             return this;
