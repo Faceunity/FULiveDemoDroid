@@ -129,21 +129,11 @@ public class FUMakeupActivity extends FUBaseUIActivity
         });
 
         mBeautySeekBar = (DiscreteSeekBar) findViewById(R.id.makeup_seek_bar);
-        mBeautySeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+        mBeautySeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
             @Override
             public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
                 if (!fromUser) return;
                 mMakeupAdapter.setMakeupLevel(1.0f * value / 100);
-            }
-
-            @Override
-            public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
-
             }
         });
 
@@ -161,22 +151,6 @@ public class FUMakeupActivity extends FUBaseUIActivity
                 mFURenderer.changeInputType();
             }
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        for (int i = 0; i < sMakeups.length; i++) {
-            mMakeupAdapter.selectPos[i] = MakeupEnum.getMakeupsByMakeupType(i).lastIndexOf(sMakeups[i]);
-            sMakeups[i].setLevel(mMakeupAdapter.getMakeupLevel(sMakeups[i].bundleName()));
-            mFURenderer.onMakeupSelected(sMakeups[i]);
-        }
-        mMakeupAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override
@@ -212,6 +186,17 @@ public class FUMakeupActivity extends FUBaseUIActivity
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         mFURenderer.onSurfaceCreated();
+        for (int i = 0; i < sMakeups.length; i++) {
+            mMakeupAdapter.selectPos[i] = MakeupEnum.getMakeupsByMakeupType(i).lastIndexOf(sMakeups[i]);
+            sMakeups[i].setLevel(mMakeupAdapter.getMakeupLevel(sMakeups[i].bundleName()));
+            mFURenderer.onMakeupSelected(sMakeups[i]);
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMakeupAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override

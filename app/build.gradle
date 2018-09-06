@@ -7,8 +7,8 @@ android {
         applicationId "com.faceunity.fulivedemo"
         minSdkVersion 18
         targetSdkVersion 25
-        versionCode 10
-        versionName "5.4"
+        versionCode 20
+        versionName "5.5"
     }
     buildTypes {
         release {
@@ -29,5 +29,4 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.android.support:appcompat-v7:25.4.0'
     implementation 'com.android.support:recyclerview-v7:25.4.0'
-    implementation 'de.hdodenhof:circleimageview:2.2.0'
 }

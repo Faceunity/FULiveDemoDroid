@@ -54,6 +54,20 @@ public class DiscreteSeekBar extends View {
         public void onStopTrackingTouch(DiscreteSeekBar seekBar);
     }
 
+    public static class OnSimpleProgressChangeListener implements OnProgressChangeListener {
+        public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+
+        }
+
+        public void onStartTrackingTouch(DiscreteSeekBar seekBar) {
+
+        }
+
+        public void onStopTrackingTouch(DiscreteSeekBar seekBar) {
+
+        }
+    }
+
     /**
      * Interface to transform the current internal value of this DiscreteSeekBar to anther one for the visualization.
      * <p/>
@@ -185,8 +199,7 @@ public class DiscreteSeekBar extends View {
         int separation = a.getDimensionPixelSize(R.styleable.DiscreteSeekBar_dsb_indicatorSeparation,
                 (int) (SEPARATION_DP * density));
 
-        //Extra pixels for a minimum touch area of 32dp
-        int touchBounds = (int) (density * 32);
+        int touchBounds = thumbSize * 3 / 2;
         mAddedTouchBounds = Math.max(0, (touchBounds - thumbSize) / 2);
 
         int indexMax = R.styleable.DiscreteSeekBar_dsb_max;

@@ -14,11 +14,11 @@ import com.faceunity.OnFUControlListener;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.EffectEnum;
+import com.faceunity.fulivedemo.ui.CircleImageView;
 
 import java.io.IOException;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by tujh on 2018/6/29.
@@ -106,7 +106,6 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
         public void run() {
             if (mediaPlayer != null && mediaPlayer.isPlaying())
                 mOnFUControlListener.onMusicFilterTime(mediaPlayer.getCurrentPosition());
-
             mMusicHandler.postDelayed(mMusicRunnable, MUSIC_TIME);
         }
     };

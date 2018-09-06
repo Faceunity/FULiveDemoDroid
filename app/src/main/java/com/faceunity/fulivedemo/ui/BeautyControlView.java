@@ -301,7 +301,7 @@ public class BeautyControlView extends FrameLayout {
         mFaceShape4Radio = (RadioButton) findViewById(R.id.face_shape_4);
 
         mBeautySeekBar = (DiscreteSeekBar) findViewById(R.id.beauty_seek_bar);
-        mBeautySeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnProgressChangeListener() {
+        mBeautySeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
             @Override
             public void onProgressChanged(DiscreteSeekBar SeekBar, int value, boolean fromUser) {
                 if (!fromUser) return;
@@ -315,16 +315,6 @@ public class BeautyControlView extends FrameLayout {
                 } else if (mBottomCheckGroup.getCheckedCheckBoxId() == R.id.beauty_radio_beauty_filter || mBottomCheckGroup.getCheckedCheckBoxId() == R.id.beauty_radio_filter) {
                     mFilterRecyclerAdapter.setFilterLevels(valueF);
                 }
-            }
-
-            @Override
-            public void onStartTrackingTouch(DiscreteSeekBar SeekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(DiscreteSeekBar SeekBar) {
-
             }
         });
     }
