@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
  * Created by tujh on 2018/7/4.
  */
 public abstract class NotchInScreenUtil {
+    private static final String TAG = NotchInScreenUtil.class.getSimpleName();
+
     public static boolean hasNotch(Context context) {
         return hasNotchInHW(context) || hasNotchInOppo(context) || hasNotchInVoio(context);
     }
@@ -21,11 +23,11 @@ public abstract class NotchInScreenUtil {
             Method get = HwNotchSizeUtil.getMethod("hasNotchInScreen");
             ret = (boolean) get.invoke(HwNotchSizeUtil);
         } catch (ClassNotFoundException e) {
-            Log.e("test", "hasNotchInScreen ClassNotFoundException");
+            Log.e(TAG, "hasNotchInScreen ClassNotFoundException");
         } catch (NoSuchMethodException e) {
-            Log.e("test", "hasNotchInScreen NoSuchMethodException");
+            Log.e(TAG, "hasNotchInScreen NoSuchMethodException");
         } catch (Exception e) {
-            Log.e("test", "hasNotchInScreen Exception");
+            Log.e(TAG, "hasNotchInScreen Exception");
         } finally {
             return ret;
         }
@@ -46,11 +48,11 @@ public abstract class NotchInScreenUtil {
             Method get = FtFeature.getMethod("isFeatureSupport", int.class);
             ret = (boolean) get.invoke(FtFeature, NOTCH_IN_SCREEN_VOIO);
         } catch (ClassNotFoundException e) {
-            Log.e("test", "hasNotchInScreen ClassNotFoundException");
+            Log.e(TAG, "hasNotchInScreen ClassNotFoundException");
         } catch (NoSuchMethodException e) {
-            Log.e("test", "hasNotchInScreen NoSuchMethodException");
+            Log.e(TAG, "hasNotchInScreen NoSuchMethodException");
         } catch (Exception e) {
-            Log.e("test", "hasNotchInScreen Exception");
+            Log.e(TAG, "hasNotchInScreen Exception");
         } finally {
             return ret;
         }

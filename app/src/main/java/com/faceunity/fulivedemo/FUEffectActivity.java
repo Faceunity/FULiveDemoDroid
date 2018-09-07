@@ -162,11 +162,11 @@ public class FUEffectActivity extends FUBaseUIActivity
 
     @Override
     public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mtx, long timeStamp) {
-        int fuTextureId;
+        int fuTextureId = 0;
         if (isDoubleInputType) {
             fuTextureId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
-        } else {
-            if (mFuNV21Byte == null) {
+        } else if (cameraNV21Byte != null) {
+            if (mFuNV21Byte == null || mFuNV21Byte.length != cameraNV21Byte.length) {
                 mFuNV21Byte = new byte[cameraNV21Byte.length];
             }
             System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);

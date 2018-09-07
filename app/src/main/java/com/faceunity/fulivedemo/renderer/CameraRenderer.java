@@ -141,16 +141,19 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        try {
-            mSurfaceTexture.updateTexImage();
-            mSurfaceTexture.getTransformMatrix(mtx);
-        } catch (Exception e) {
-            return;
-        }
+        if (mTextureOES == null || mFullFrameRectTexture2D == null) return;
         if (mCameraNV21Byte == null) {
             mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
             return;
+        } else {
+            try {
+                mSurfaceTexture.updateTexImage();
+                mSurfaceTexture.getTransformMatrix(mtx);
+            } catch (Exception e) {
+                return;
+            }
         }
+
         mFuTextureId = mOnCameraRendererStatusListener.onDrawFrame(mCameraNV21Byte, mCameraTextureId, mCameraWidth, mCameraHeight, mtx, mSurfaceTexture.getTimestamp());
         //用于屏蔽切换调用SDK处理数据方法导致的绿屏（切换SDK处理数据方法是用于展示，实际使用中无需切换，故无需调用做这个判断,直接使用else分支绘制即可）
         if (mFuTextureId <= 0) {
@@ -181,6 +184,11 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         if (mFullFrameRectTexture2D != null) {
             mFullFrameRectTexture2D.release();
             mFullFrameRectTexture2D = null;
+        }
+
+        if (mTextureOES != null) {
+            mTextureOES.release();
+            mTextureOES = null;
         }
 
         mOnCameraRendererStatusListener.onSurfaceDestroy();
