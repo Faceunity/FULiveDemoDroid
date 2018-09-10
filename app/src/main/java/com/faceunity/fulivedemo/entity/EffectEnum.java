@@ -62,20 +62,13 @@ public enum EffectEnum {
     Effect_ssd_thread_six("ssd_thread_six", R.drawable.ssd_thread_six, "gesture/ssd_thread_six.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_six),
     Effect_ssd_thread_thumb("ssd_thread_thumb", R.drawable.ssd_thread_thumb, "gesture/ssd_thread_thumb.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_thumb),
 
-//    Effect_portraitLighting_effect_0("PortraitLighting_effect_0", R.drawable.portrait_lighting_effect_0, "portrait_light/PortraitLighting_effect_0.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_LIGHT, 0),
-//    Effect_portraitLighting_effect_1("PortraitLighting_effect_1", R.drawable.portrait_lighting_effect_1, "portrait_light/PortraitLighting_effect_1.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_LIGHT, 0),
-//    Effect_portraitLighting_effect_2("PortraitLighting_effect_2", R.drawable.portrait_lighting_effect_2, "portrait_light/PortraitLighting_effect_2.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_LIGHT, 0),
-//    Effect_portraitLighting_effect_3("PortraitLighting_effect_3", R.drawable.portrait_lighting_effect_3, "portrait_light/PortraitLighting_effect_3.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_LIGHT, 0),
-//    Effect_portraitLighting_X_rim("PortraitLighting_X_rim", R.drawable.portrait_lighting_x_rim, "portrait_light/PortraitLighting_X_rim.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_LIGHT, 0),
-//    Effect_portraitLighting_X_studio("PortraitLighting_X_studio", R.drawable.portrait_lighting_x_studio, "portrait_light/PortraitLighting_X_studio.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_LIGHT, 0),
-
 //    Effect_huangya_Animoji("huangya_Animoji", R.drawable.huangya_animoji, "animoji/huangya_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_douniuquan_Animoji("douniuquan_Animoji", R.drawable.douniuquan_animoji, "animoji/douniuquan_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_hashiqi_Animoji("hashiqi_Animoji", R.drawable.hashiqi_animoji, "animoji/hashiqi_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_hetun_Animoji("hetun_Animoji", R.drawable.hetun_animoji, "animoji/hetun_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_baimao_Animoji("baimao_Animoji", R.drawable.baimao_animoji, "animoji/baimao_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_chaiquan_Animoji("chaiquan_Animoji", R.drawable.chaiquan_animoji, "animoji/chaiquan_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_kulutou_Animoji("kulutou_Animoji", R.drawable.kulutou_animoji, "animoji/kulutou_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_kuloutou_Animoji("kuloutou_Animoji", R.drawable.kuloutou_animoji, "animoji/kuloutou_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_maotouying_Animoji("maotouying_Animoji", R.drawable.maotouying_animoji, "animoji/maotouying_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
 
     Effect_picasso_e1("picasso_e1", R.drawable.picasso_e1, "portrait_drive/picasso_e1.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_DRIVE, 0),
