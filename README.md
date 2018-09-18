@@ -546,7 +546,7 @@ __使用方法__：
 
 ## 接口说明
 
-[Android java层接口说明](https://github.com/Faceunity/FULiveDemoDroid/blob/release/docs/Nama%20API%20Android%20Reference.md)
+[Android java层接口说明](https://github.com/Faceunity/FULiveDemoDroid/blob/master/docs/Nama%20API%20Android%20Reference.md)
 
 ## 鉴权
 
