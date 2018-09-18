@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#090017"
+    tools:context=".SelectDataActivity">
+
+    <ImageView
+        android:id="@+id/back"
+        android:layout_width="@dimen/x93"
+        android:layout_height="@dimen/x90"
+        android:layout_marginTop="@dimen/x40"
+        android:onClick="onClick"
+        android:paddingBottom="@dimen/x20"
+        android:paddingLeft="@dimen/x32"
+        android:paddingRight="@dimen/x32"
+        android:paddingTop="@dimen/x20"
+        android:scaleType="centerInside"
+        android:src="@drawable/back_select_data"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/select_data_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x379"
+        android:padding="@dimen/x50"
+        android:text="请从相册中选择图片或视频"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/text_size_32"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/select_data_photo_layout"
+        android:layout_width="@dimen/x470"
+        android:layout_height="@dimen/x96"
+        android:background="@drawable/select_data_btn_background"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="@dimen/x52"
+            android:layout_height="@dimen/x50"
+            android:scaleType="centerInside"
+            android:src="@drawable/select_data_photo_img"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x26"
+            android:text="选择图片"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/text_size_32"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/select_data_video_layout"
+        android:layout_width="@dimen/x470"
+        android:layout_height="@dimen/x96"
+        android:layout_marginTop="@dimen/x88"
+        android:background="@drawable/select_data_btn_background"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/select_data_photo_layout">
+
+        <ImageView
+            android:layout_width="@dimen/x52"
+            android:layout_height="@dimen/x42"
+            android:scaleType="centerInside"
+            android:src="@drawable/select_data_video_img"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x26"
+            android:text="选择视频"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/text_size_32"/>
+    </LinearLayout>
+
+
+</android.support.constraint.ConstraintLayout>

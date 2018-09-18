@@ -1,159 +1,237 @@
 package com.faceunity.fulivedemo;
 
-import android.Manifest;
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.faceunity.FURenderer;
+import com.faceunity.entity.Effect;
+import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.utils.MiscUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import static android.content.ContentValues.TAG;
 
 /**
- * 本Demo展示了独立使用FU SDK API的用法.
- * <p>
- * FU SDK和任何三方无耦合，
- * FU SDK负责范围本质上只是接收输入的图像，输出处理后的图像,
- * 如果有对接三方SDK如推流的需求，可以参考本Demo对FU SDK API的使用.
- * FU SDK不涉及视频编码，网络，使用者可以自由选择.
- * <p>
- * 本着演示输入输出API的原则，演示Activity为FUDualInputToTextureExampleActivity和FURenderToNV21ImageExampleActivity
- * <p>
- * Tips:
- * 有FU SDK具体问题,参考详细文档https://github.com/Faceunity/FUQiniuDemoDroid
- * 有Android Graphics,OpenGL ES及Camera问题，参考https://github.com/google/grafika
- * <p>
- * Created by lirui on 2016/12/13.
+ * 主页面，区分了SDK各个功能，并且获取权限码验证证书是否能够使用该功能
  */
+public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
-public class MainActivity extends ListActivity {
-
-    //map keys
-    private static final String TITLE = "title";
-    private static final String DESCRIPTION = "description";
-    private static final String CLASS_NAME = "class_name";
-
-    private static final String[][] EXAMPLES = {
-            {"fuDualInputToTexture",
-                    "示例：双输入，输入摄像头nv21格式内容和surface texture，输出添加美颜和道具后的texture",
-                    "FUDualInputToTextureExampleActivity"},
-            {"fuRenderToNV21Image",
-                    "示例：单输入，输入摄像头nv21格式内容，输出添加美颜和道具后的nv21 bytes和texture",
-                    "FURenderToNV21ImageExampleActivity"},
+    private static final int[] home_function_type = {
+            Effect.EFFECT_TYPE_NONE,
+            Effect.EFFECT_TYPE_ANIMOJI,
+            Effect.EFFECT_TYPE_NORMAL,
+            Effect.EFFECT_TYPE_AR,
+            Effect.EFFECT_TYPE_FACE_CHANGE,
+            Effect.EFFECT_TYPE_EXPRESSION,
+            Effect.EFFECT_TYPE_MUSIC_FILTER,
+            Effect.EFFECT_TYPE_BACKGROUND,
+            Effect.EFFECT_TYPE_GESTURE,
+            Effect.EFFECT_TYPE_FACE_WARP,
+//            Effect.EFFECT_TYPE_PORTRAIT_LIGHT,
+            Effect.EFFECT_TYPE_PORTRAIT_DRIVE,
     };
 
+    private static final int[] home_function_permissions_code = {
+            0x1,                    //美颜
+            0x10,                    //Animoji
+            0x2 | 0x4,              //道具贴纸
+            0x20 | 0x40,            //AR面具
+            0x80,                   //换脸
+            0x800,                  //表情识别
+            0x20000,                //音乐滤镜
+            0x100,                  //背景分割
+            0x200,                  //手势识别
+            0x10000,                //哈哈镜
+//            0x4000,                 //人像光效
+            0x8000                  //人像驱动
+    };
+
+    private static final String[] home_function_name = {
+            "美颜",
+            "Animoji",
+            "道具贴纸",
+            "AR面具",
+            "换脸",
+            "表情识别",
+            "音乐滤镜",
+            "背景分割",
+            "手势识别",
+            "哈哈镜",
+//            "人像光效",
+            "人像驱动"
+    };
+
+    private static final int[] home_function_res = {
+            R.drawable.main_beauty,
+            R.drawable.main_avatar,
+            R.drawable.main_effect,
+            R.drawable.main_ar_mask,
+            R.drawable.main_change_face,
+            R.drawable.main_expression,
+            R.drawable.main_music_fiter,
+            R.drawable.main_background,
+            R.drawable.main_gesture,
+            R.drawable.main_face_warp,
+            R.drawable.main_portrait_drive
+    };
+
+    private List<Integer> hasFaceUnityPermissionsList = new ArrayList<>();
+    private final boolean[] hasFaceUnityPermissions = new boolean[home_function_name.length];
+
+    private RecyclerView mRecyclerView;
+    private HomeRecyclerAdapter mHomeRecyclerAdapter;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         if (!isTaskRoot()) {
             finish();
             return;
         }
-        setContentView(R.layout.activity_main);
+        fullScreen(this);
+        MiscUtil.checkPermission(this);
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        WindowManager.LayoutParams params = getWindow().getAttributes();
-        params.screenBrightness = 0.7f;
-        getWindow().setAttributes(params);
-
-        setListAdapter(new SimpleAdapter(
-                this,
-                createActivityList(),
-                android.R.layout.two_line_list_item,
-                new String[]{TITLE, DESCRIPTION},
-                new int[]{android.R.id.text1, android.R.id.text2}
-        ));
-    }
-
-    /**
-     * Creates the list of activities from the string arrays.
-     */
-    private List<Map<String, Object>> createActivityList() {
-        List<Map<String, Object>> testList = new ArrayList<>();
-
-        for (String[] example : EXAMPLES) {
-            Map<String, Object> tmp = new HashMap<>();
-            tmp.put(TITLE, example[0]);
-            tmp.put(DESCRIPTION, example[1]);
-            Intent intent = new Intent();
-            // Do the class name resolution here, so we crash up front rather than when the
-            // activity list item is selected if the class name is wrong.
-            try {
-                Class cls = Class.forName("com.faceunity.fulivedemo." + example[2]);
-                intent.setClass(this, cls);
-                tmp.put(CLASS_NAME, intent);
-            } catch (ClassNotFoundException cnfe) {
-                throw new RuntimeException("Unable to find " + example[2], cnfe);
+        String version = FURenderer.getVersion();
+        boolean isLite = version.contains("lite");
+        int moduleCode = FURenderer.getModuleCode();
+        Log.e(TAG, "ModuleCode " + moduleCode);
+        int count = 0;
+        for (int i = 0; i < home_function_name.length; i++) {
+            hasFaceUnityPermissions[i] = moduleCode == 0 || (home_function_permissions_code[i] & moduleCode) > 0;
+            if (isLite && (home_function_type[i] == Effect.EFFECT_TYPE_BACKGROUND || home_function_type[i] == Effect.EFFECT_TYPE_GESTURE)) {
+                hasFaceUnityPermissions[i] = false;
             }
-            testList.add(tmp);
+            if (hasFaceUnityPermissions[i]) {
+                hasFaceUnityPermissionsList.add(count++, i);
+            } else {
+                hasFaceUnityPermissionsList.add(i);
+            }
         }
-        return testList;
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.home_recycler);
+        GridLayoutManager manager = new GridLayoutManager(this, 3);
+        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                int type = mRecyclerView.getAdapter().getItemViewType(position);
+                if (type == 0) {
+                    return 3;
+                }
+                return 1;
+            }
+        });
+        mRecyclerView.setLayoutManager(manager);
+        mRecyclerView.setAdapter(mHomeRecyclerAdapter = new HomeRecyclerAdapter());
+        ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
+    class HomeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        //Meizu behaves wired in requestPermission, just ignore here
-        boolean isMeizu = false;
-        if (Build.FINGERPRINT.contains("Flyme")
-                || Pattern.compile("Flyme", Pattern.CASE_INSENSITIVE).matcher(Build.DISPLAY).find()
-                || Build.MANUFACTURER.contains("Meizu")
-                || Build.MANUFACTURER.contains("MeiZu")) {
-            Log.i(TAG, "the phone is meizu");
-            isMeizu = true;
-        }
-        if (!isMeizu && (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)) {
-            Log.e(TAG, "no permission");
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.RECORD_AUDIO}, 0);
-            return;
-        } else {
-            Log.e(TAG, "has permission or is Meizu");
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            if (viewType > 0)
+                return new HomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler, parent, false));
+            else
+                return new TopHomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler_top, parent, false));
         }
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> map = (Map<String, Object>) l.getItemAtPosition(position);
-        Intent intent = (Intent) map.get(CLASS_NAME);
-        startActivity(intent);
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int p) {
+            if (viewHolder instanceof HomeRecyclerHolder) {
+                HomeRecyclerHolder holder = (HomeRecyclerHolder) viewHolder;
+                final int pos = p - 1;
+                final int position = hasFaceUnityPermissionsList.get(pos);
+
+                holder.homeFunctionImg.setImageResource(home_function_res[position]);
+                holder.homeFunctionName.setText(home_function_name[position]);
+                holder.homeFunctionName.setBackgroundResource(hasFaceUnityPermissions[position] ? R.drawable.main_recycler_item_text_background : R.drawable.main_recycler_item_text_background_unable);
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!hasFaceUnityPermissions[position]) {
+                            ToastUtil.showToast(MainActivity.this, "抱歉，你所使用的证书权限或SDK不包括该功能。");
+                            return;
+                        }
+                        Intent intent;
+                        if (home_function_res[position] == R.drawable.main_beauty) {
+                            intent = new Intent(MainActivity.this, FUBeautyActivity.class);
+                            startActivity(intent);
+                        } else {
+                            intent = new Intent(MainActivity.this, FUEffectActivity.class);
+                            intent.putExtra("EffectType", home_function_type[position]);
+                            startActivity(intent);
+                        }
+                    }
+                });
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return hasFaceUnityPermissionsList.size() + 1;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return position;
+        }
+
+        class HomeRecyclerHolder extends RecyclerView.ViewHolder {
+
+            ImageView homeFunctionImg;
+            TextView homeFunctionName;
+
+            public HomeRecyclerHolder(View itemView) {
+                super(itemView);
+                homeFunctionImg = (ImageView) itemView.findViewById(R.id.home_recycler_img);
+                homeFunctionName = (TextView) itemView.findViewById(R.id.home_recycler_text);
+            }
+        }
+
+        class TopHomeRecyclerHolder extends RecyclerView.ViewHolder {
+
+            public TopHomeRecyclerHolder(View itemView) {
+                super(itemView);
+            }
+        }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        //now i just regard it as CAMERA
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "已拥有权限，请再次点击",
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "you must permit the camera permission!",
-                    Toast.LENGTH_SHORT).show();
+    private void fullScreen(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
+            Window window = activity.getWindow();
+            View decorView = window.getDecorView();
+            //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            //导航栏颜色也可以正常设置
+//                window.setNavigationBarColor(Color.TRANSPARENT);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            Window window = activity.getWindow();
+            WindowManager.LayoutParams attributes = window.getAttributes();
+            attributes.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+//                attributes.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+            window.setAttributes(attributes);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.e(TAG, "onDestroy");
     }
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/x16"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/home_recycler_img"
+        android:layout_width="@dimen/x202"
+        android:layout_height="@dimen/x182"
+        android:background="@drawable/main_recycler_item_background"
+        android:padding="@dimen/x50"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toTopOf="@+id/home_recycler_text"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/home_recycler_text"
+        android:layout_width="@dimen/x202"
+        android:layout_height="@dimen/x62"
+        android:background="@drawable/main_recycler_item_text_background"
+        android:gravity="center"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/text_size_26"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/home_recycler_img"/>
+</android.support.constraint.ConstraintLayout>
