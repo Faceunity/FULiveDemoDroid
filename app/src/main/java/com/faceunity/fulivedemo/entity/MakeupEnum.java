@@ -10,6 +10,9 @@ import java.util.ArrayList;
  */
 
 public enum MakeupEnum {
+    /**
+     *
+     */
     MakeupNone("", 0, "", Makeup.MAKEUP_TYPE_NONE, 0),
 
     Makeup_blusher_01_923_sh("blusher_01_923_sh", R.drawable.blusher_01_923_sh, "blusher/MU_Blush_01.bundle", Makeup.MAKEUP_TYPE_BLUSHER, 0),

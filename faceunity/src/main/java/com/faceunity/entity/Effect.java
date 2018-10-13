@@ -20,6 +20,7 @@ public class Effect {
     public static final int EFFECT_TYPE_PORTRAIT_DRIVE = 9;
     public static final int EFFECT_TYPE_FACE_WARP = 10;
     public static final int EFFECT_TYPE_MUSIC_FILTER = 11;
+    public static final int EFFECT_TYPE_HAIR = 12;
 
     private String bundleName;
     private int resId;

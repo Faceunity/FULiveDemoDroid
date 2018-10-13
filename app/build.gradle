@@ -21,6 +21,11 @@ android {
         main.assets.srcDirs += ['src/main/assets', 'src/main/effects/bundle', 'src/main/makeup/bundle']
         main.res.srcDirs += ['src/mian/res', 'src/main/effects/res', 'src/main/filters/res', 'src/main/makeup/res']
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
 }
 
 dependencies {

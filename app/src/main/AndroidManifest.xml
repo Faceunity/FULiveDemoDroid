@@ -42,6 +42,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme"/>
         <activity
+            android:name=".FUHairActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme"/>
+        <activity
             android:name=".SelectDataActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ActivityBaseTheme"/>

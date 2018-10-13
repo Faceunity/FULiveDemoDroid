@@ -11,9 +11,12 @@ import android.net.Uri;
 import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.WindowManager;
@@ -21,15 +24,20 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.faceunity.FURenderer;
 import com.faceunity.encoder.MediaAudioEncoder;
 import com.faceunity.encoder.MediaEncoder;
 import com.faceunity.encoder.MediaMuxerWrapper;
 import com.faceunity.encoder.MediaVideoEncoder;
 import com.faceunity.fulivedemo.renderer.CameraRenderer;
+import com.faceunity.fulivedemo.ui.CameraFocus;
 import com.faceunity.fulivedemo.ui.RecordBtn;
+import com.faceunity.fulivedemo.ui.VerticalSeekBar;
 import com.faceunity.fulivedemo.utils.BitmapUtil;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.ToastUtil;
@@ -40,38 +48,52 @@ import com.faceunity.utils.MiscUtil;
 import java.io.File;
 import java.io.IOException;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
 /**
  * Base Activity, 主要封装FUBeautyActivity与FUEffectActivity的公用界面与方法
  * CameraRenderer相关回调实现
  * Created by tujh on 2018/1/31.
  */
-public abstract class FUBaseUIActivity extends AppCompatActivity
+public abstract class FUBaseActivity extends AppCompatActivity
         implements View.OnClickListener,
         CameraRenderer.OnRendererStatusListener,
-        SensorEventListener {
-    public final static String TAG = FUBaseUIActivity.class.getSimpleName();
+        SensorEventListener,
+        FURenderer.OnFUDebugListener,
+        FURenderer.OnTrackingStatusChangedListener {
+    public final static String TAG = FUBaseActivity.class.getSimpleName();
 
     protected ImageView mTopBackground;
     protected GLSurfaceView mGLSurfaceView;
-    protected CameraRenderer mCameraRenderer;
-    protected boolean isDoubleInputType = true;
-    protected RadioGroup mInputTypeRadioGroup;
+    private CameraRenderer mCameraRenderer;
+    private boolean isDoubleInputType = true;
     private ImageButton mCameraChange;
-    private CheckBox mDebugBox;
-    protected TextView mDebugText;
-    protected TextView mIsTrackingText;
-    protected TextView mEffectDescription;
+    private TextView mDebugText;
+    private TextView mIsTrackingText;
+    private TextView mEffectDescription;
     protected RecordBtn mTakePicBtn;
     protected ViewStub mBottomViewStub;
     protected CheckBox mHeightCheckBox;
     protected ImageView mHeightImg;
     protected ImageView mSelectDataBtn;
+    private LinearLayout mLlLight;
+    private VerticalSeekBar mVerticalSeekBar;
+    private CameraFocus mCameraFocus;
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
+    private final Runnable mCameraFocusDismiss = new Runnable() {
+        @Override
+        public void run() {
+            mCameraFocus.layout(0, 0, 0, 0);
+            mLlLight.setVisibility(View.INVISIBLE);
+        }
+    };
 
-    private boolean mTakePicing = false;
-    private boolean mIsNeedTakePic = false;
+    protected FURenderer mFURenderer;
+    private byte[] mFuNV21Byte;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -94,13 +116,28 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        mInputTypeRadioGroup = (RadioGroup) findViewById(R.id.fu_base_input_type_radio_group);
+        RadioGroup inputTypeRadioGroup = (RadioGroup) findViewById(R.id.fu_base_input_type_radio_group);
+        inputTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.fu_base_input_type_double:
+                        isDoubleInputType = true;
+                        break;
+                    case R.id.fu_base_input_type_single:
+                        isDoubleInputType = false;
+                        break;
+                    default:
+                }
+                mFURenderer.changeInputType();
+            }
+        });
 
         mCameraChange = (ImageButton) findViewById(R.id.fu_base_camera_change);
 
-        mDebugBox = (CheckBox) findViewById(R.id.fu_base_debug);
+        CheckBox debugBox = (CheckBox) findViewById(R.id.fu_base_debug);
         mDebugText = (TextView) findViewById(R.id.fu_base_debug_text);
-        mDebugBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        debugBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mDebugText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
@@ -113,7 +150,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         mTakePicBtn.setOnRecordListener(new RecordBtn.OnRecordListener() {
             @Override
             public void takePic() {
-                FUBaseUIActivity.this.takePic();
+                FUBaseActivity.this.takePic();
             }
 
             @Override
@@ -137,10 +174,60 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         mSelectDataBtn = (ImageView) findViewById(R.id.fu_base_select_data);
         mBottomViewStub = (ViewStub) findViewById(R.id.fu_base_bottom);
         mBottomViewStub.setInflatedId(R.id.fu_base_bottom);
+        mLlLight = (LinearLayout) findViewById(R.id.photograph_light_layout);
+        mVerticalSeekBar = (VerticalSeekBar) findViewById(R.id.photograph_light_seek);
+        mCameraFocus = (CameraFocus) findViewById(R.id.photograph_focus);
+        mVerticalSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mCameraRenderer.setExposureCompensation((float) progress / 100);
+                mHandler.removeCallbacks(mCameraFocusDismiss);
+                mHandler.postDelayed(mCameraFocusDismiss, 1300);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        mFURenderer = initFURenderer();
         onCreate();
     }
 
     protected abstract void onCreate();
+
+    protected abstract FURenderer initFURenderer();
+
+    // 默认全部使用对焦
+    protected boolean showAutoFocus() {
+        return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (super.onTouchEvent(event)) {
+            return true;
+        }
+
+        if (!showAutoFocus()) {
+            return false;
+        }
+        if (event.getPointerCount() == 1 && event.getAction() == MotionEvent.ACTION_DOWN) {
+            mCameraRenderer.handleFocus(event.getRawX(), event.getRawY());
+            mCameraFocus.showCameraFocus(event.getRawX(), event.getRawY());
+            mLlLight.setVisibility(View.VISIBLE);
+            mVerticalSeekBar.setProgress((int) (100 * mCameraRenderer.getExposureCompensation()));
+
+            mHandler.removeCallbacks(mCameraFocusDismiss);
+            mHandler.postDelayed(mCameraFocusDismiss, 1300);
+            return true;
+        }
+        return false;
+    }
 
     @Override
     protected void onResume() {
@@ -180,6 +267,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
                 mCameraChange.removeCallbacks(ChangeCamera);
                 mCameraChange.post(ChangeCamera);
                 break;
+            default:
         }
     }
 
@@ -201,6 +289,8 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         mEffectDescription.postDelayed(effectDescriptionHide, time);
     }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Sensor部分~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -209,19 +299,83 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
             float z = event.values[2];
             if (Math.abs(x) > 3 || Math.abs(y) > 3) {
                 if (Math.abs(x) > Math.abs(y)) {
-                    onSensorChanged(x > 0 ? 0 : 180);
+                    mFURenderer.setTrackOrientation(x > 0 ? 0 : 180);
                 } else {
-                    onSensorChanged(y > 0 ? 90 : 270);
+                    mFURenderer.setTrackOrientation(y > 0 ? 90 : 270);
                 }
             }
         }
     }
 
-    protected abstract void onSensorChanged(int rotation);
-
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~FURenderer信息回调~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    @Override
+    public void onFpsChange(final double fps, final double renderTime) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDebugText.setText(String.format(getString(R.string.fu_base_debug), mCameraRenderer.getCameraWidth(), mCameraRenderer.getCameraHeight(), (int) fps, (int) renderTime));
+            }
+        });
+    }
+
+    @Override
+    public void onTrackingStatusChanged(final int status) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mIsTrackingText.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
+            }
+        });
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~FURenderer调用部分~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    @Override
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        mFURenderer.onSurfaceCreated();
+    }
+
+    @Override
+    public void onSurfaceChanged(GL10 gl, int width, int height) {
+    }
+
+    @Override
+    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mtx, long timeStamp) {
+        int fuTextureId = 0;
+        if (isDoubleInputType) {
+            fuTextureId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
+        } else if (cameraNV21Byte != null) {
+            if (mFuNV21Byte == null || mFuNV21Byte.length != cameraNV21Byte.length) {
+                mFuNV21Byte = new byte[cameraNV21Byte.length];
+            }
+            System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
+            fuTextureId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
+        }
+        sendRecordingData(fuTextureId, mtx, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
+        checkPic(fuTextureId, mtx, cameraHeight, cameraWidth);
+        return fuTextureId;
+    }
+
+    @Override
+    public void onSurfaceDestroy() {
+        mFURenderer.onSurfaceDestroyed();
+    }
+
+    @Override
+    public void onCameraChange(int currentCameraType, int cameraOrientation) {
+        mFURenderer.onCameraChange(currentCameraType, cameraOrientation);
+        mVerticalSeekBar.setProgress((int) (100 * mCameraRenderer.getExposureCompensation()));
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~拍照录制部分~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    private boolean mTakePicing = false;
+    private boolean mIsNeedTakePic = false;
 
     public void takePic() {
         if (mTakePicing) {
@@ -231,6 +385,14 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         mTakePicing = true;
     }
 
+    /**
+     * 拍照
+     *
+     * @param textureId
+     * @param mtx
+     * @param texWidth
+     * @param texHeight
+     */
     public void checkPic(int textureId, float[] mtx, final int texWidth, final int texHeight) {
         if (!mIsNeedTakePic) {
             return;
@@ -245,7 +407,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ToastUtil.showToast(FUBaseUIActivity.this, R.string.save_photo_success);
+                            ToastUtil.showToast(FUBaseActivity.this, R.string.save_photo_success);
                         }
                     });
                     File resultFile = new File(result);
@@ -259,6 +421,13 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
 
     private long mStartTime = 0;
 
+    /**
+     * 发送录制数据
+     *
+     * @param texId
+     * @param tex_matrix
+     * @param timeStamp
+     */
     protected void sendRecordingData(int texId, final float[] tex_matrix, final long timeStamp) {
         if (mVideoEncoder != null) {
             mVideoEncoder.frameAvailableSoon(texId, tex_matrix);
@@ -275,7 +444,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
     private File mOutFile;
     private MediaVideoEncoder mVideoEncoder;
     /**
-     * callback methods from encoder
+     * 录制封装回调
      */
     private final MediaEncoder.MediaEncoderListener mMediaEncoderListener = new MediaEncoder.MediaEncoderListener() {
         @Override
@@ -306,7 +475,7 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     Log.e(TAG, "stop encoder success");
-                    ToastUtil.showToast(FUBaseUIActivity.this, R.string.save_video_success);
+                    ToastUtil.showToast(FUBaseActivity.this, R.string.save_video_success);
                     mTakePicBtn.setSecond(mStartTime = 0);
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mOutFile)));
                 }
@@ -316,6 +485,9 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
 
     private MediaMuxerWrapper mMuxer;
 
+    /**
+     * 开始录制
+     */
     private void startRecording() {
         try {
             String videoFileName = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".mp4";
@@ -333,6 +505,9 @@ public abstract class FUBaseUIActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * 停止录制
+     */
     private void stopRecording() {
         if (mMuxer != null) {
             mMuxer.stopRecording();

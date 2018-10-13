@@ -11,6 +11,9 @@ import java.util.ArrayList;
 
 public enum FilterEnum {
 
+    /**
+     *
+     */
     nature("origin", R.drawable.nature, R.string.origin, Filter.FILTER_TYPE_FILTER),
     delta("delta", R.drawable.delta, R.string.delta, Filter.FILTER_TYPE_FILTER),
     electric("electric", R.drawable.electric, R.string.electric, Filter.FILTER_TYPE_FILTER),

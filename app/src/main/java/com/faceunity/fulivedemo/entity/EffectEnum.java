@@ -11,8 +11,12 @@ import java.util.ArrayList;
 
 public enum EffectEnum {
 
+    /**
+     *
+     */
     EffectNone("none", R.drawable.ic_delete_all, "none", 1, Effect.EFFECT_TYPE_NONE, 0),
 
+    Effect_bling("bling", R.drawable.bling, "normal/bling.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
     Effect_fengya_ztt_fu("fengya_ztt_fu", R.drawable.fengya_ztt_fu, "normal/fengya_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
     Effect_hudie_lm_fu("hudie_lm_fu", R.drawable.hudie_lm_fu, "normal/hudie_lm_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
     Effect_touhua_ztt_fu("touhua_ztt_fu", R.drawable.touhua_ztt_fu, "normal/touhua_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
@@ -49,12 +53,12 @@ public enum EffectEnum {
     Effect_xiaobianzi_zh_fu("xiaobianzi_zh_fu", R.drawable.xiaobianzi_zh_fu, "expression/xiaobianzi_zh_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.xiaobianzi_zh_fu),
     Effect_xiaoxueshen_ztt_fu("xiaoxueshen_ztt_fu", R.drawable.xiaoxueshen_ztt_fu, "expression/xiaoxueshen_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.xiaoxueshen_ztt_fu),
 
-    Effect_chiji_lm_fu("chiji_lm_fu", R.drawable.chiji_lm_fu, "background/chiji_lm_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
-    Effect_ice_lm_fu("ice_lm_fu", R.drawable.ice_lm_fu, "background/ice_lm_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
-    Effect_jingongmen_zh_fu("jingongmen_zh_fu", R.drawable.jingongmen_zh_fu, "background/jingongmen_zh_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
+    Effect_hez_ztt_fu("hez_ztt_fu", R.drawable.hez_ztt_fu, "background/hez_ztt_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, R.string.hez_ztt_fu),
     Effect_gufeng_zh_fu("gufeng_zh_fu", R.drawable.gufeng_zh_fu, "background/gufeng_zh_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
     Effect_men_ztt_fu("men_ztt_fu", R.drawable.men_ztt_fu, "background/men_ztt_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
-    Effect_hez_ztt_fu("hez_ztt_fu", R.drawable.hez_ztt_fu, "background/hez_ztt_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, R.string.hez_ztt_fu),
+    Effect_xiandai_ztt_fu("xiandai_ztt_fu", R.drawable.xiandai_ztt_fu, "background/xiandai_ztt_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
+    Effect_sea_lm_fu("sea_lm_fu", R.drawable.sea_lm_fu, "background/sea_lm_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
+    Effect_ice_lm_fu("ice_lm_fu", R.drawable.ice_lm_fu, "background/ice_lm_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
 
     Effect_fu_lm_koreaheart("fu_lm_koreaheart", R.drawable.fu_lm_koreaheart, "gesture/ssd_thread_korheart.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.fu_lm_koreaheart),
     Effect_fu_ztt_live520("fu_ztt_live520", R.drawable.fu_ztt_live520, "gesture/fu_ztt_live520.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.fu_ztt_live520),
@@ -62,14 +66,15 @@ public enum EffectEnum {
     Effect_ssd_thread_six("ssd_thread_six", R.drawable.ssd_thread_six, "gesture/ssd_thread_six.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_six),
     Effect_ssd_thread_thumb("ssd_thread_thumb", R.drawable.ssd_thread_thumb, "gesture/ssd_thread_thumb.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_thumb),
 
-//    Effect_huangya_Animoji("huangya_Animoji", R.drawable.huangya_animoji, "animoji/huangya_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_frog_Animoji("frog_Animoji", R.drawable.frog_animoji, "animoji/frog_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_huangya_Animoji("huangya_Animoji", R.drawable.huangya_animoji, "animoji/huangya_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_hetun_Animoji("hetun_Animoji", R.drawable.hetun_animoji, "animoji/hetun_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_buoutuzi_Animoji("buoutuzi_Animoji", R.drawable.buoutuzi_animoji, "animoji/buoutuzi_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_douniuquan_Animoji("douniuquan_Animoji", R.drawable.douniuquan_animoji, "animoji/douniuquan_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_hashiqi_Animoji("hashiqi_Animoji", R.drawable.hashiqi_animoji, "animoji/hashiqi_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_hetun_Animoji("hetun_Animoji", R.drawable.hetun_animoji, "animoji/hetun_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_baimao_Animoji("baimao_Animoji", R.drawable.baimao_animoji, "animoji/baimao_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_chaiquan_Animoji("chaiquan_Animoji", R.drawable.chaiquan_animoji, "animoji/chaiquan_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_kuloutou_Animoji("kuloutou_Animoji", R.drawable.kuloutou_animoji, "animoji/kuloutou_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_maotouying_Animoji("maotouying_Animoji", R.drawable.maotouying_animoji, "animoji/maotouying_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
 
     Effect_picasso_e1("picasso_e1", R.drawable.picasso_e1, "portrait_drive/picasso_e1.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_DRIVE, 0),
     Effect_picasso_e2("picasso_e2", R.drawable.picasso_e2, "portrait_drive/picasso_e2.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_DRIVE, 0),
@@ -82,7 +87,16 @@ public enum EffectEnum {
     Effect_facewarp6("facewarp6", R.drawable.facewarp6, "facewarp/facewarp6.bundle", 4, Effect.EFFECT_TYPE_FACE_WARP, 0),
 
     Effect_douyin_old("douyin_01", R.drawable.douyin_old, "musicfilter/douyin_01.bundle", 4, Effect.EFFECT_TYPE_MUSIC_FILTER, 0),
-    Effect_douyin("douyin_02", R.drawable.douyin, "musicfilter/douyin_02.bundle", 4, Effect.EFFECT_TYPE_MUSIC_FILTER, 0);
+    Effect_douyin("douyin_02", R.drawable.douyin, "musicfilter/douyin_02.bundle", 4, Effect.EFFECT_TYPE_MUSIC_FILTER, 0),
+
+    Hair_01("Hair_01", R.drawable.icon_beautymakeup_hairsalon_01, "hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
+    Hair_02("Hair_02", R.drawable.icon_beautymakeup_hairsalon_02, "hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
+    Hair_03("Hair_03", R.drawable.icon_beautymakeup_hairsalon_03, "hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
+    Hair_04("Hair_04", R.drawable.icon_beautymakeup_hairsalon_04, "hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
+    Hair_05("Hair_05", R.drawable.icon_beautymakeup_hairsalon_05, "hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
+    Hair_06("Hair_06", R.drawable.icon_beautymakeup_hairsalon_06, "hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
+    Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
+    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0);
 
     private String bundleName;
     private int resId;

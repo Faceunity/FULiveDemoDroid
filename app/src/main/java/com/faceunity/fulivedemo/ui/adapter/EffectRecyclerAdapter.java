@@ -111,9 +111,6 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
     };
 
     public void stopMusic() {
-        if (mEffectType != Effect.EFFECT_TYPE_MUSIC_FILTER) {
-            return;
-        }
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();

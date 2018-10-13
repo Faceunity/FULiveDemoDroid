@@ -56,19 +56,21 @@ public class FURenderer implements OnFUControlListener {
     public static final String BUNDLE_v3 = "v3.bundle";
     public static final String BUNDLE_anim_model = "anim_model.bundle";
     public static final String BUNDLE_face_beautification = "face_beautification.bundle";
+    public static final String BUNDLE_hair = "hair_color.bundle";
     public static final String BUNDLE_ardata_ex = "ardata_ex.bundle";
+    public static final String BUNDLE_tongue = "tongue.bundle";
     public static final String BUNDLE_animoji_3d = "fxaa.bundle";
 
     //美颜和滤镜的默认参数
     private boolean isNeedUpdateFaceBeauty = true;
     private static float mFilterLevel = 1.0f;//滤镜强度
-    private static Filter mFilterName = new Filter("origin");
+    private static Filter mFilterName = new Filter("danya");
 
     private static float mSkinDetect = 1.0f;//精准磨皮
     private static float mHeavyBlur = 0.0f;//美肤类型
     private static float mBlurLevel = 0.7f;//磨皮
-    private static float mColorLevel = 0.5f;//美白
-    private static float mRedLevel = 0.5f;//红润
+    private static float mColorLevel = 0.2f;//美白
+    private static float mRedLevel = 0.0f;//红润
     private static float mEyeBright = 0.0f;//亮眼
     private static float mToothWhiten = 0.0f;//美牙
 
@@ -85,22 +87,24 @@ public class FURenderer implements OnFUControlListener {
 
     private static final int ITEM_ARRAYS_FACE_BEAUTY_INDEX = 0;
     private static final int ITEM_ARRAYS_EFFECT = 1;
-    private static final int ITEM_ARRAYS_EFFECT_ABIMOJI_3D = 2;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYE_SHADOW_INDEX = 3;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYE_LINER_INDEX = 4;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYELASH_INDEX = 5;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_CONTACT_LENS_INDEX = 6;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYEBROW_INDEX = 7;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_LIPSTICK_INDEX = 8;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_BLUSHER_INDEX = 9;
+    private static final int ITEM_ARRAYS_EFFECT_HAIR = 2;
+    private static final int ITEM_ARRAYS_EFFECT_ABIMOJI_3D = 3;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYE_SHADOW_INDEX = 4;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYE_LINER_INDEX = 5;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYELASH_INDEX = 6;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_CONTACT_LENS_INDEX = 7;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYEBROW_INDEX = 8;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_LIPSTICK_INDEX = 9;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_BLUSHER_INDEX = 10;
 
-    private static final int ITEM_ARRAYS_COUNT = 10;
+    private static final int ITEM_ARRAYS_COUNT = 11;
     //美颜和其他道具的handle数组
     private final int[] mItemsArray = new int[ITEM_ARRAYS_COUNT];
     //用于和异步加载道具的线程交互
     private HandlerThread mFuItemHandlerThread;
     private Handler mFuItemHandler;
 
+    private boolean isNeedBeautyHair = false;
     private boolean isNeedFaceBeauty = true;
     private boolean isNeedAnimoji3D = false;
     private Effect mDefaultEffect;//默认道具（同步加载）
@@ -112,6 +116,9 @@ public class FURenderer implements OnFUControlListener {
 
     private int mInputImageOrientation = 270;
     private int mCurrentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
+
+    private int mHairColorIndex = 0;
+    private float mHairColorStrength = 0.6f;
 
     private float[] landmarksData = new float[150];
     private float[] expressionData = new float[46];
@@ -162,6 +169,12 @@ public class FURenderer implements OnFUControlListener {
             ar.read(arDate);
             ar.close();
             faceunity.fuLoadExtendedARData(arDate);
+
+            InputStream tongue = context.getAssets().open(BUNDLE_tongue);
+            byte[] tongueDate = new byte[tongue.available()];
+            tongue.read(tongueDate);
+            tongue.close();
+            faceunity.fuLoadTongueModel(tongueDate);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -222,7 +235,9 @@ public class FURenderer implements OnFUControlListener {
         if (isNeedFaceBeauty) {
             mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_FACE_BEAUTY_INDEX);
         }
-
+        if (isNeedBeautyHair) {
+            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR);
+        }
         if (isNeedAnimoji3D) {
             mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_ABIMOJI_3D);
         }
@@ -679,6 +694,17 @@ public class FURenderer implements OnFUControlListener {
     }
 
     @Override
+    public void onHairSelected(final int hair_color_index, final float hair_color_level) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR], "Index", mHairColorIndex = hair_color_index);
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR], "Strength", mHairColorStrength = hair_color_level);
+            }
+        });
+    }
+
+    @Override
     public void onMakeupSelected(final Makeup makeup) {
         if (makeup == null) return;
         final int what = getIndexMakeup(makeup.makeupType());
@@ -854,7 +880,7 @@ public class FURenderer implements OnFUControlListener {
             super.handleMessage(msg);
             switch (msg.what) {
                 //加载道具
-                case ITEM_ARRAYS_EFFECT:
+                case ITEM_ARRAYS_EFFECT: {
                     final Effect effect = (Effect) msg.obj;
                     if (effect == null) break;
                     final int finalItem = effect.effectType() == Effect.EFFECT_TYPE_NONE ? 0 : loadItem(effect.path());
@@ -872,8 +898,9 @@ public class FURenderer implements OnFUControlListener {
                         }
                     });
                     break;
+                }
                 //加载美颜bundle
-                case ITEM_ARRAYS_FACE_BEAUTY_INDEX:
+                case ITEM_ARRAYS_FACE_BEAUTY_INDEX: {
                     final int itemBeauty = loadItem(BUNDLE_face_beautification);
                     queueEventItemHandle(new Runnable() {
                         @Override
@@ -883,8 +910,22 @@ public class FURenderer implements OnFUControlListener {
                         }
                     });
                     break;
+                }
+                //加载美发bundle
+                case ITEM_ARRAYS_EFFECT_HAIR: {
+                    final int finalItem = loadItem(BUNDLE_hair);
+                    queueEventItemHandle(new Runnable() {
+                        @Override
+                        public void run() {
+                            mItemsArray[ITEM_ARRAYS_EFFECT_HAIR] = finalItem;
+                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR], "index", mHairColorIndex);
+                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR], "Strength", mHairColorStrength);
+                        }
+                    });
+                    break;
+                }
                 //加载animoji道具3D抗锯齿bundle
-                case ITEM_ARRAYS_EFFECT_ABIMOJI_3D:
+                case ITEM_ARRAYS_EFFECT_ABIMOJI_3D: {
                     final int itemAnimoji = loadItem(BUNDLE_animoji_3d);
                     queueEventItemHandle(new Runnable() {
                         @Override
@@ -893,8 +934,9 @@ public class FURenderer implements OnFUControlListener {
                         }
                     });
                     break;
+                }
                 //加载美妆bundle
-                default:
+                default: {
                     final Makeup makeup = (Makeup) msg.obj;
                     if (TextUtils.isEmpty(makeup.path())) {
                         queueEventItemHandle(new Runnable() {
@@ -914,6 +956,7 @@ public class FURenderer implements OnFUControlListener {
                         });
                     }
                     break;
+                }
             }
         }
     }
@@ -994,7 +1037,7 @@ public class FURenderer implements OnFUControlListener {
         }
     }
 
-    //--------------------------------------Builder----------------------------------------
+//--------------------------------------Builder----------------------------------------
 
     /**
      * FURenderer Builder
@@ -1010,6 +1053,7 @@ public class FURenderer implements OnFUControlListener {
         private int inputImageFormat = 0;
         private int inputImageRotation = 270;
         private boolean isNeedAnimoji3D = false;
+        private boolean isNeedBeautyHair = false;
         private boolean isNeedFaceBeauty = true;
         private int currentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
@@ -1112,6 +1156,17 @@ public class FURenderer implements OnFUControlListener {
         }
 
         /**
+         * 是否需要美发功能
+         *
+         * @param needBeautyHair
+         * @return
+         */
+        public Builder setNeedBeautyHair(boolean needBeautyHair) {
+            isNeedBeautyHair = needBeautyHair;
+            return this;
+        }
+
+        /**
          * 是否需要美颜效果
          *
          * @param needFaceBeauty
@@ -1175,6 +1230,7 @@ public class FURenderer implements OnFUControlListener {
             fuRenderer.mInputImageOrientation = inputImageRotation;
             fuRenderer.mDefaultEffect = defaultEffect;
             fuRenderer.isNeedAnimoji3D = isNeedAnimoji3D;
+            fuRenderer.isNeedBeautyHair = isNeedBeautyHair;
             fuRenderer.isNeedFaceBeauty = isNeedFaceBeauty;
             fuRenderer.mCurrentCameraType = currentCameraType;
 

@@ -87,6 +87,8 @@ public class BeautyControlView extends FrameLayout {
     private RadioGroup mFaceShapeRadioGroup;
     private RadioButton mFaceShape4Radio;
 
+    private boolean isShown;
+
     public BeautyControlView(Context context) {
         this(context, null);
     }
@@ -142,14 +144,21 @@ public class BeautyControlView extends FrameLayout {
                     int endHeight = (int) getResources().getDimension(R.dimen.x98);
                     int startHeight = getHeight();
                     changeBottomLayoutAnimator(startHeight, endHeight);
+                    isShown = false;
                 } else if (checkedId != View.NO_ID && checkedId_old == View.NO_ID) {
                     int startHeight = (int) getResources().getDimension(R.dimen.x98);
                     int endHeight = (int) getResources().getDimension(R.dimen.x366);
                     changeBottomLayoutAnimator(startHeight, endHeight);
+                    isShown = true;
                 }
                 checkedId_old = checkedId;
             }
         });
+    }
+
+    @Override
+    public boolean isShown() {
+        return isShown;
     }
 
     private void initViewSkinBeauty() {
@@ -380,6 +389,7 @@ public class BeautyControlView extends FrameLayout {
             case R.id.beauty_box_intensity_mouth:
                 mOnFUControlListener.onIntensityMouthSelected(getValue(viewId));
                 break;
+            default:
         }
     }
 

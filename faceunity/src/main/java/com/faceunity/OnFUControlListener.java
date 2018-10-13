@@ -39,6 +39,14 @@ public interface OnFUControlListener {
     void onFilterNameSelected(Filter filterName);
 
     /**
+     * 美发颜色
+     *
+     * @param hair_color_index 美发颜色
+     * @param hair_color_level 美发颜色强度
+     */
+    void onHairSelected(int hair_color_index, float hair_color_level);
+
+    /**
      * 美妆选择
      *
      * @param makeup

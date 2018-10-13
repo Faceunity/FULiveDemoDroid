@@ -10,11 +10,11 @@ import android.opengl.GLSurfaceView;
 import android.support.v7.app.AlertDialog;
 
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.utils.CameraUtils;
+import com.faceunity.fulivedemo.utils.FPSUtil;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.ProgramTextureOES;
 import com.faceunity.gles.core.GlUtil;
-import com.faceunity.fulivedemo.utils.CameraUtils;
-import com.faceunity.fulivedemo.utils.FPSUtil;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -319,5 +319,17 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     public int getCameraHeight() {
         return mCameraHeight;
+    }
+
+    public void handleFocus(float x, float y) {
+        CameraUtils.handleFocus(mCamera, x, y, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+    }
+
+    public float getExposureCompensation() {
+        return CameraUtils.getExposureCompensation(mCamera);
+    }
+
+    public void setExposureCompensation(float v) {
+        CameraUtils.setExposureCompensation(mCamera, v);
     }
 }

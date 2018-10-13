@@ -5,6 +5,7 @@ import com.faceunity.entity.Filter;
 import com.faceunity.entity.Makeup;
 import com.faceunity.fulivedemo.R;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,17 +22,24 @@ public abstract class BeautyParameterModel {
 
     public static final String sStrFilterLevel = "FilterLevel_";
     public static Map<String, Float> sFilterLevel = new HashMap<>();
-    public static Filter sFilterName = FilterEnum.nature_beauty.filter();
+    public static Filter sFilterName = FilterEnum.danya.filter();
 
     public static Map<String, Float> sMakeupLevel = new HashMap<>();
     public static Makeup[] sMakeups = {MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup()};
+
+    public static float[] sHairLevel = new float[8];
+
+    static {
+        Arrays.fill(sHairLevel, 0.6f);
+        sFilterLevel.put(sStrFilterLevel + FilterEnum.danya.filterName(), 0.5f);
+    }
 
     public static float sSkinDetect = 1.0f;//精准磨皮
     public static float sHeavyBlur = 0.0f;//美肤类型
     public static float sHeavyBlurLevel = 0.7f;//磨皮
     public static float sBlurLevel = 0.7f;//磨皮
-    public static float sColorLevel = 0.5f;//美白
-    public static float sRedLevel = 0.5f;//红润
+    public static float sColorLevel = 0.2f;//美白
+    public static float sRedLevel = 0.0f;//红润
     public static float sEyeBright = 0.0f;//亮眼
     public static float sToothWhiten = 0.0f;//美牙
 

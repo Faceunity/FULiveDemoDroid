@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
             Effect.EFFECT_TYPE_NONE,
             Effect.EFFECT_TYPE_NORMAL,
             Effect.EFFECT_TYPE_ANIMOJI,
+            Effect.EFFECT_TYPE_NONE,
             Effect.EFFECT_TYPE_AR,
             Effect.EFFECT_TYPE_FACE_CHANGE,
             Effect.EFFECT_TYPE_EXPRESSION,
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             0x80000,                //美妆
             0x2 | 0x4,              //道具贴纸
             0x10,                   //Animoji
+            0x100000,               //美发
             0x20 | 0x40,            //AR面具
             0x80,                   //换脸
             0x800,                  //表情识别
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             R.string.home_function_name_makeup,
             R.string.home_function_name_normal,
             R.string.home_function_name_animoji,
+            R.string.home_function_name_hair,
             R.string.home_function_name_ar,
             R.string.home_function_name_face_change,
             R.string.home_function_name_expression,
@@ -79,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.main_makeup,
             R.drawable.main_effect,
             R.drawable.main_avatar,
+            R.drawable.main_hair,
             R.drawable.main_ar_mask,
             R.drawable.main_change_face,
             R.drawable.main_expression,
@@ -174,6 +178,9 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_makeup) {
                             intent = new Intent(MainActivity.this, FUMakeupActivity.class);
+                            startActivity(intent);
+                        } else if (home_function_res[position] == R.drawable.main_hair) {
+                            intent = new Intent(MainActivity.this, FUHairActivity.class);
                             startActivity(intent);
                         } else {
                             intent = new Intent(MainActivity.this, FUEffectActivity.class);

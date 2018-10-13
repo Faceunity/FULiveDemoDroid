@@ -23,6 +23,9 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
      * 画笔对象的引用
      */
     private Paint paint;
+    private Paint mPaintFill;
+    private RectF mOvalRectF;
+    private int mShadowPadding;
 
     /**
      * btn 需要绘制的宽度
@@ -66,6 +69,7 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
 
     public RecordBtn(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        setLayerType(LAYER_TYPE_SOFTWARE, null);
 
         ringSecondColor = context.getResources().getColor(R.color.main_color);
 
@@ -73,7 +77,14 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
         setOnLongClickListener(this);
         setOnTouchListener(this);
 
-        paint = new Paint();
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setStyle(Paint.Style.STROKE); //设置空心
+        mPaintFill = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaintFill.setStyle(Paint.Style.FILL);
+        mPaintFill.setColor(Color.parseColor("#47FFFFFF"));
+        mShadowPadding = getResources().getDimensionPixelSize(R.dimen.x2);
+        paint.setShadowLayer(mShadowPadding, 0, 0, Color.parseColor("#802D2D2D"));
+        mOvalRectF = new RectF();
     }
 
     @Override
@@ -87,22 +98,18 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
         ringWidth = 15f * drawWidth / 228;
         int centreX = getWidth() / 2; //获取圆心的x坐标
         int centreY = getHeight() - drawWidth / 2;
-        int radius = (int) (drawWidth / 2 - ringWidth / 2); //圆环的半径
+        int radius = (int) (drawWidth / 2 - ringWidth / 2) - mShadowPadding; //圆环的半径
         paint.setColor(ringColor); //设置圆环的颜色
-        paint.setStyle(Paint.Style.STROKE); //设置空心
         paint.setStrokeWidth(ringWidth); //设置圆环的宽度
-        paint.setAntiAlias(true);  //消除锯齿
+        canvas.drawCircle(centreX, centreY, radius, mPaintFill);
         canvas.drawCircle(centreX, centreY, radius, paint); //画出圆环
-
         /**
          * 画圆弧 ，画圆环的进度
          */
         paint.setStrokeWidth(ringWidth * 0.75f); //设置圆环的宽度
         paint.setColor(ringSecondColor);  //设置进度的颜色
-        RectF oval = new RectF(centreX - radius, centreY - radius, centreX + radius, centreY + radius);  //用于定义的圆弧的形状和大小的界限
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setAntiAlias(true);  //消除锯齿
-        canvas.drawArc(oval, 270, 360 * mSecond / max, false, paint);  //根据进度画圆弧
+        mOvalRectF.set(centreX - radius, centreY - radius, centreX + radius, centreY + radius);  //用于定义的圆弧的形状和大小的界限
+        canvas.drawArc(mOvalRectF, 270, 360 * mSecond / max, false, paint);  //根据进度画圆弧
 
         if (mSecond >= max && mOnRecordListener != null) {
             mOnRecordListener.stopRecord();
