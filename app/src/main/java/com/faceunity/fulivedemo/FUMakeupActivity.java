@@ -231,6 +231,7 @@ public class FUMakeupActivity extends FUBaseActivity {
         }
 
         private void clickPosition(int position) {
+            if (selectMakeupType < 0) return;
             selectPos[selectMakeupType] = position;
             Makeup select;
             if (position >= 0) {

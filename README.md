@@ -4,13 +4,11 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 注：demo第一次运行会报一个缺少返回语句的error，这是因为在本demo中缺少我司颁发的证书。如果您已拥有我司颁发的证书，将证书替换到工程中重新运行即可。如您还没有我司颁发的证书，可以查看[这里](#导入证书)获取证书
 
-## SDK v5.6 更新
+## SDK v5.6.1 更新
 
 更新内容
 
--优化背景分割
--animoji舌头功能
--animoji物理动效优化模型
+-优化跟踪抖动
 
 ## SDK集成
 
@@ -18,17 +16,17 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 含有深度学习的版本：
 
-	compile 'com.faceunity:nama:5.6.0'
+	compile 'com.faceunity:nama:5.6.1'
 
 不含深度学习的版本（lite版）：
 
-	compile 'com.faceunity:nama:5.6.0-lite'
+	compile 'com.faceunity:nama:5.6.1-lite'
 
 ### 二、通过 github 下载集成
 
-含有深度学习的版本：[Faceunity-Android-v5.6-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.6-dev/Faceunity-Android-v5.6-dev.zip)
+含有深度学习的版本：[Faceunity-Android-v5.6.1-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.6.1-dev/Faceunity-Android-v5.6.1-dev.zip)
 
-不含深度学习的版本（lite版）：[Faceunity-Android-v5.6-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.6-dev/Faceunity-Android-v5.6-dev-lite.zip)
+不含深度学习的版本（lite版）：[Faceunity-Android-v5.6.1-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.6.1-dev/Faceunity-Android-v5.6.1-dev-lite.zip)
 
 **Tip：含有深度学习的版本支持背景分割、手势识别功能**
 

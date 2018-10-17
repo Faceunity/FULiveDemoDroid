@@ -232,6 +232,13 @@ public class FURenderer implements OnFUControlListener {
         faceunity.fuSetExpressionCalibration(2);
         faceunity.fuSetMaxFaces(mMaxFaces);//设置多脸，目前最多支持8人。
 
+        //加载默认道具
+        if (mDefaultEffect != null) {
+            mItemsArray[ITEM_ARRAYS_EFFECT] = mDefaultEffect.effectType() == Effect.EFFECT_TYPE_NONE ? 0 : loadItem(mDefaultEffect.path());
+            updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT]);
+            setMaxFaces(mDefaultEffect.maxFace());
+        }
+
         if (isNeedFaceBeauty) {
             mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_FACE_BEAUTY_INDEX);
         }
@@ -240,13 +247,6 @@ public class FURenderer implements OnFUControlListener {
         }
         if (isNeedAnimoji3D) {
             mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_ABIMOJI_3D);
-        }
-
-        //加载默认道具
-        if (mDefaultEffect != null) {
-            mItemsArray[ITEM_ARRAYS_EFFECT] = mDefaultEffect.effectType() == Effect.EFFECT_TYPE_NONE ? 0 : loadItem(mDefaultEffect.path());
-            updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT]);
-            setMaxFaces(mDefaultEffect.maxFace());
         }
     }
 
