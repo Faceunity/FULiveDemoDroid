@@ -27,7 +27,7 @@ public abstract class BeautyParameterModel {
     public static Map<String, Float> sMakeupLevel = new HashMap<>();
     public static Makeup[] sMakeups = {MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup()};
 
-    public static float[] sHairLevel = new float[8];
+    public static float[] sHairLevel = new float[14];
 
     static {
         Arrays.fill(sHairLevel, 0.6f);

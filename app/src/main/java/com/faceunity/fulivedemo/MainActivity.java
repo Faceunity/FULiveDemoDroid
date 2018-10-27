@@ -37,14 +37,16 @@ public class MainActivity extends AppCompatActivity {
             Effect.EFFECT_TYPE_NONE,
             Effect.EFFECT_TYPE_AR,
             Effect.EFFECT_TYPE_FACE_CHANGE,
+            Effect.EFFECT_TYPE_POSTER_FACE,
             Effect.EFFECT_TYPE_EXPRESSION,
             Effect.EFFECT_TYPE_MUSIC_FILTER,
             Effect.EFFECT_TYPE_BACKGROUND,
             Effect.EFFECT_TYPE_GESTURE,
             Effect.EFFECT_TYPE_FACE_WARP,
-            Effect.EFFECT_TYPE_PORTRAIT_DRIVE,
+            Effect.EFFECT_TYPE_PORTRAIT_DRIVE
     };
 
+    // TODO: 2018/10/9 0009 海报的权限码
     private static final int[] home_function_permissions_code = {
             0x1,                    //美颜
             0x80000,                //美妆
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
             0x100000,               //美发
             0x20 | 0x40,            //AR面具
             0x80,                   //换脸
+            0x1000,                  //海报换脸
             0x800,                  //表情识别
             0x20000,                //音乐滤镜
             0x100,                  //背景分割
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             R.string.home_function_name_hair,
             R.string.home_function_name_ar,
             R.string.home_function_name_face_change,
+            R.string.home_function_name_poster_face,
             R.string.home_function_name_expression,
             R.string.home_function_name_music_filter,
             R.string.home_function_name_background,
@@ -85,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.main_hair,
             R.drawable.main_ar_mask,
             R.drawable.main_change_face,
+            R.drawable.main_poster_face,
             R.drawable.main_expression,
             R.drawable.main_music_fiter,
             R.drawable.main_background,
@@ -97,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
     private final boolean[] hasFaceUnityPermissions = new boolean[home_function_name.length];
 
     private RecyclerView mRecyclerView;
-    private HomeRecyclerAdapter mHomeRecyclerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -140,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mRecyclerView.setLayoutManager(manager);
-        mRecyclerView.setAdapter(mHomeRecyclerAdapter = new HomeRecyclerAdapter());
+        mRecyclerView.setAdapter(new HomeRecyclerAdapter());
         ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
@@ -181,6 +185,9 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_hair) {
                             intent = new Intent(MainActivity.this, FUHairActivity.class);
+                            startActivity(intent);
+                        } else if (home_function_res[position] == R.drawable.main_poster_face) {
+                            intent = new Intent(MainActivity.this, PosterListActivity.class);
                             startActivity(intent);
                         } else {
                             intent = new Intent(MainActivity.this, FUEffectActivity.class);

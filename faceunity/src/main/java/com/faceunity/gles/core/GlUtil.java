@@ -16,6 +16,9 @@
 
 package com.faceunity.gles.core;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.pm.ConfigurationInfo;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
@@ -210,6 +213,14 @@ public abstract class GlUtil {
         return fb;
     }
 
+    public static float[] changeMVPMatrixCrop(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
+        float scale = viewWidth * textureHeight / viewHeight / textureWidth;
+        float[] mvp = new float[16];
+        Matrix.setIdentityM(mvp, 0);
+        Matrix.scaleM(mvp, 0, scale > 1 ? 1F : (1F / scale), scale > 1 ? scale : 1F, 1F);
+        return mvp;
+    }
+
     /**
      * Writes GL version info to the log.
      */
@@ -288,6 +299,7 @@ public abstract class GlUtil {
             GLES20.glDeleteFramebuffers(fboId.length, fboId, 0);
         }
     }
+
     public static float[] changeMVPMatrix(float[] mvpMatrix, float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
         float scale = viewWidth * textureHeight / viewHeight / textureWidth;
         if (scale == 1) {
@@ -300,5 +312,21 @@ public abstract class GlUtil {
             Matrix.multiplyMM(mvp, 0, tmp, 0, mvpMatrix, 0);
             return mvp;
         }
+    }
+
+    public static float[] changeMVPMatrixInside(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
+        float scale = viewWidth * textureHeight / viewHeight / textureWidth;
+        float[] mvp = new float[16];
+        Matrix.setIdentityM(mvp, 0);
+        Matrix.scaleM(mvp, 0, scale > 1 ? (1F / scale) : 1F, scale > 1 ? 1F : scale, 1F);
+        return mvp;
+    }
+
+    public static int getSupportGLVersion(Context context) {
+        final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
+        Log.e(TAG, "getSupportGLVersion: " + Integer.toHexString(configurationInfo.reqGlEsVersion));
+        int version = configurationInfo.reqGlEsVersion >= 0x30000 ? 3 : 2;
+        return version;
     }
 }

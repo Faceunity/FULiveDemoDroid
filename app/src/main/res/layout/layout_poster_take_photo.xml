@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent">
+
+    <ImageView
+        android:id="@+id/iv_poster_rect"
+        android:layout_width="@dimen/x484"
+        android:layout_height="@dimen/x608"
+        android:layout_marginTop="@dimen/x236"
+        android:scaleType="centerInside"
+        android:src="@drawable/poster_take_rect"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_tip_take_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x60"
+        android:text="@string/poster_take_photo"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/text_size_26"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_poster_rect" />
+
+</android.support.constraint.ConstraintLayout>

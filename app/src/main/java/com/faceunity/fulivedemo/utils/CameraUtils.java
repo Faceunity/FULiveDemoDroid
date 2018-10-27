@@ -34,6 +34,20 @@ public class CameraUtils {
     private static final String TAG = CameraUtils.class.getSimpleName();
     private static final boolean DEBUG = false;
 
+    public static int getFrontCameraOrientation() {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        int cameraId = 1;
+        int numCameras = Camera.getNumberOfCameras();
+        for (int i = 0; i < numCameras; i++) {
+            Camera.getCameraInfo(i, info);
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                cameraId = i;
+                break;
+            }
+        }
+        return getCameraOrientation(cameraId);
+    }
+
     public static int getCameraOrientation(int cameraId) {
         Camera.CameraInfo info = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, info);
@@ -58,6 +72,7 @@ public class CameraUtils {
             case Surface.ROTATION_270:
                 degrees = 270;
                 break;
+            default:
         }
 
         int result;
@@ -190,10 +205,15 @@ public class CameraUtils {
     public static float getExposureCompensation(Camera camera) {
         if (camera == null)
             return 0;
-        float progress = camera.getParameters().getExposureCompensation();
-        float min = camera.getParameters().getMinExposureCompensation();
-        float max = camera.getParameters().getMaxExposureCompensation();
-        return (progress - min) / (max - min);
+        try {
+            float progress = camera.getParameters().getExposureCompensation();
+            float min = camera.getParameters().getMinExposureCompensation();
+            float max = camera.getParameters().getMaxExposureCompensation();
+            return (progress - min) / (max - min);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     private static Rect calculateTapArea(float x, float y, int width, int height) {

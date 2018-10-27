@@ -6,6 +6,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.opengl.GLES20;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.faceunity.gles.ProgramTexture2d;
 
@@ -18,7 +19,7 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by tujh on 2018/6/28.
  */
 public abstract class BitmapUtil {
-
+    private static final String TAG = "BitmapUtil";
     /**
      * 读取图片（glReadPixels）
      *
@@ -91,6 +92,7 @@ public abstract class BitmapUtil {
         try {
             orientation = new ExifInterface(path).getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
         } catch (IOException e) {
+            Log.e(TAG, "loadBitmap: ", e);
             orientation = 0;
         }
         if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {

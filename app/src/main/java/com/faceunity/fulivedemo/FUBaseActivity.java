@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -48,7 +49,10 @@ import com.faceunity.utils.MiscUtil;
 import java.io.File;
 import java.io.IOException;
 
+import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
@@ -66,7 +70,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
     protected ImageView mTopBackground;
     protected GLSurfaceView mGLSurfaceView;
-    private CameraRenderer mCameraRenderer;
+    protected CameraRenderer mCameraRenderer;
     private boolean isDoubleInputType = true;
     private ImageButton mCameraChange;
     private TextView mDebugText;
@@ -80,6 +84,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
     private LinearLayout mLlLight;
     private VerticalSeekBar mVerticalSeekBar;
     private CameraFocus mCameraFocus;
+    protected ConstraintLayout mClOperationView;
+    protected ConstraintLayout mRootView;
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
@@ -94,109 +100,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     protected FURenderer mFURenderer;
     private byte[] mFuNV21Byte;
     private Handler mHandler = new Handler(Looper.getMainLooper());
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (NotchInScreenUtil.hasNotch(this)) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_fu_base);
-        MiscUtil.checkPermission(this);
-
-        mTopBackground = (ImageView) findViewById(R.id.fu_base_top_background);
-
-        mGLSurfaceView = (GLSurfaceView) findViewById(R.id.fu_base_gl_surface);
-        mGLSurfaceView.setEGLContextClientVersion(2);
-        mCameraRenderer = new CameraRenderer(this, mGLSurfaceView, this);
-        mGLSurfaceView.setRenderer(mCameraRenderer);
-        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
-        RadioGroup inputTypeRadioGroup = (RadioGroup) findViewById(R.id.fu_base_input_type_radio_group);
-        inputTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.fu_base_input_type_double:
-                        isDoubleInputType = true;
-                        break;
-                    case R.id.fu_base_input_type_single:
-                        isDoubleInputType = false;
-                        break;
-                    default:
-                }
-                mFURenderer.changeInputType();
-            }
-        });
-
-        mCameraChange = (ImageButton) findViewById(R.id.fu_base_camera_change);
-
-        CheckBox debugBox = (CheckBox) findViewById(R.id.fu_base_debug);
-        mDebugText = (TextView) findViewById(R.id.fu_base_debug_text);
-        debugBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mDebugText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-            }
-        });
-
-        mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
-        mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
-        mTakePicBtn = (RecordBtn) findViewById(R.id.fu_base_take_pic);
-        mTakePicBtn.setOnRecordListener(new RecordBtn.OnRecordListener() {
-            @Override
-            public void takePic() {
-                FUBaseActivity.this.takePic();
-            }
-
-            @Override
-            public void startRecord() {
-                startRecording();
-            }
-
-            @Override
-            public void stopRecord() {
-                stopRecording();
-            }
-        });
-        mHeightCheckBox = (CheckBox) findViewById(R.id.fu_base_height);
-        mHeightImg = (ImageView) findViewById(R.id.fu_base_height_img);
-        mHeightImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mHeightCheckBox.setChecked(!mHeightCheckBox.isChecked());
-            }
-        });
-        mSelectDataBtn = (ImageView) findViewById(R.id.fu_base_select_data);
-        mBottomViewStub = (ViewStub) findViewById(R.id.fu_base_bottom);
-        mBottomViewStub.setInflatedId(R.id.fu_base_bottom);
-        mLlLight = (LinearLayout) findViewById(R.id.photograph_light_layout);
-        mVerticalSeekBar = (VerticalSeekBar) findViewById(R.id.photograph_light_seek);
-        mCameraFocus = (CameraFocus) findViewById(R.id.photograph_focus);
-        mVerticalSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mCameraRenderer.setExposureCompensation((float) progress / 100);
-                mHandler.removeCallbacks(mCameraFocusDismiss);
-                mHandler.postDelayed(mCameraFocusDismiss, 1300);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-
-        mFURenderer = initFURenderer();
-        onCreate();
-    }
+    protected boolean mTakePicing = false;
 
     protected abstract void onCreate();
 
@@ -373,9 +277,27 @@ public abstract class FUBaseActivity extends AppCompatActivity
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~拍照录制部分~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    protected BitmapUtil.OnReadBitmapListener mOnReadBitmapListener = new BitmapUtil.OnReadBitmapListener() {
 
-    private boolean mTakePicing = false;
-    private boolean mIsNeedTakePic = false;
+        @Override
+        public void onReadBitmapListener(Bitmap bitmap) {
+            String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
+            String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
+            if (result != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.showToast(FUBaseActivity.this, R.string.save_photo_success);
+                    }
+                });
+                File resultFile = new File(result);
+                // 最后通知图库更新
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
+            }
+            mTakePicing = false;
+        }
+    };
+    protected boolean mIsNeedTakePic = false;
 
     public void takePic() {
         if (mTakePicing) {
@@ -383,6 +305,140 @@ public abstract class FUBaseActivity extends AppCompatActivity
         }
         mIsNeedTakePic = true;
         mTakePicing = true;
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (NotchInScreenUtil.hasNotch(this)) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setContentView(R.layout.activity_fu_base);
+        MiscUtil.checkPermission(this);
+
+        mTopBackground = (ImageView) findViewById(R.id.fu_base_top_background);
+
+        mGLSurfaceView = (GLSurfaceView) findViewById(R.id.fu_base_gl_surface);
+//        mGLSurfaceView.setEGLContextFactory(new ContextFactory());
+//        int supportGLVersion = GlUtil.getSupportGLVersion(this);
+//        Log.e(TAG, "onCreate: glVersion:" + supportGLVersion);
+        mGLSurfaceView.setEGLContextClientVersion(2);
+        mCameraRenderer = new CameraRenderer(this, mGLSurfaceView, this);
+        mGLSurfaceView.setRenderer(mCameraRenderer);
+        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        RadioGroup inputTypeRadioGroup = (RadioGroup) findViewById(R.id.fu_base_input_type_radio_group);
+        inputTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.fu_base_input_type_double:
+                        isDoubleInputType = true;
+                        break;
+                    case R.id.fu_base_input_type_single:
+                        isDoubleInputType = false;
+                        break;
+                    default:
+                }
+                mFURenderer.changeInputType();
+            }
+        });
+
+        mCameraChange = (ImageButton) findViewById(R.id.fu_base_camera_change);
+
+        CheckBox debugBox = (CheckBox) findViewById(R.id.fu_base_debug);
+        mDebugText = (TextView) findViewById(R.id.fu_base_debug_text);
+        debugBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mDebugText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
+        mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
+        mTakePicBtn = (RecordBtn) findViewById(R.id.fu_base_take_pic);
+        mTakePicBtn.setOnRecordListener(new RecordBtn.OnRecordListener() {
+            @Override
+            public void takePic() {
+                FUBaseActivity.this.takePic();
+            }
+
+            @Override
+            public void startRecord() {
+                startRecording();
+            }
+
+            @Override
+            public void stopRecord() {
+                stopRecording();
+            }
+        });
+        mClOperationView = (ConstraintLayout) findViewById(R.id.cl_operation_view);
+        mRootView = (ConstraintLayout) findViewById(R.id.cl_root);
+        mHeightCheckBox = (CheckBox) findViewById(R.id.fu_base_height);
+        mHeightImg = (ImageView) findViewById(R.id.fu_base_height_img);
+        mHeightImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mHeightCheckBox.setChecked(!mHeightCheckBox.isChecked());
+            }
+        });
+        mSelectDataBtn = (ImageView) findViewById(R.id.fu_base_select_data);
+        mBottomViewStub = (ViewStub) findViewById(R.id.fu_base_bottom);
+        mBottomViewStub.setInflatedId(R.id.fu_base_bottom);
+        mLlLight = (LinearLayout) findViewById(R.id.photograph_light_layout);
+        mVerticalSeekBar = (VerticalSeekBar) findViewById(R.id.photograph_light_seek);
+        mCameraFocus = (CameraFocus) findViewById(R.id.photograph_focus);
+        mVerticalSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mCameraRenderer.setExposureCompensation((float) progress / 100);
+                mHandler.removeCallbacks(mCameraFocusDismiss);
+                mHandler.postDelayed(mCameraFocusDismiss, 1300);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        mFURenderer = initFURenderer();
+        onCreate();
+    }
+
+    /**
+     * 自定义 EGLContext
+     */
+    private static class ContextFactory implements GLSurfaceView.EGLContextFactory {
+
+        private static double glVersion = 3.0;
+        private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+
+        @Override
+        public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
+            Log.w(TAG, "creating OpenGL ES " + glVersion + " context");
+            int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, (int) glVersion, EGL10.EGL_NONE};
+            // attempt to create a OpenGL ES 3.0 context
+            EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
+            Log.d(TAG, "createContext: ctx:" + context);
+            return context; // returns null if 3.0 is not supported;
+        }
+
+        @Override
+        public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
+            if (!egl.eglDestroyContext(display, context)) {
+                Log.e("DefaultContextFactory", "display:" + display + " context: " + context);
+            }
+        }
     }
 
     /**
@@ -393,30 +449,12 @@ public abstract class FUBaseActivity extends AppCompatActivity
      * @param texWidth
      * @param texHeight
      */
-    public void checkPic(int textureId, float[] mtx, final int texWidth, final int texHeight) {
+    protected void checkPic(int textureId, float[] mtx, final int texWidth, final int texHeight) {
         if (!mIsNeedTakePic) {
             return;
         }
         mIsNeedTakePic = false;
-        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, new BitmapUtil.OnReadBitmapListener() {
-            @Override
-            public void onReadBitmapListener(Bitmap bitmap) {
-                String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
-                String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
-                if (result != null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ToastUtil.showToast(FUBaseActivity.this, R.string.save_photo_success);
-                        }
-                    });
-                    File resultFile = new File(result);
-                    // 最后通知图库更新
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
-                }
-                mTakePicing = false;
-            }
-        });
+        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener);
     }
 
     private long mStartTime = 0;

@@ -9,6 +9,7 @@
     <string name="home_function_name_hair">美发</string>
     <string name="home_function_name_face_change">换脸</string>
     <string name="home_function_name_expression">表情识别</string>
+    <string name="home_function_name_poster_face">海报换脸</string>
     <string name="home_function_name_music_filter">音乐滤镜</string>
     <string name="home_function_name_background">背景分割</string>
     <string name="home_function_name_gesture">手势识别</string>
@@ -80,6 +81,9 @@
     <string name="xiaobianzi_zh_fu">微笑触发</string>
     <string name="xiaoxueshen_ztt_fu">吹气触发</string>
     <string name="hez_ztt_fu">张嘴试试</string>
+    <string name="ctrl_rain">控雨</string>
+    <string name="ctrl_snow">控雪</string>
+    <string name="ctrl_flower">控花</string>
     <string name="fu_lm_koreaheart">单手手指比心</string>
     <string name="fu_zh_baoquan">双手抱拳</string>
     <string name="fu_zh_hezxiong">双手合十</string>
@@ -100,5 +104,11 @@
     <string name="fennen">粉嫩</string>
     <string name="qingxin">清新</string>
     <string name="hongrun">红润</string>
+
+    <string name="poster_take_photo">对准线框 正脸拍摄</string>
+    <string name="dialog_no_track_face">未检测到人脸，请重新拍摄</string>
+    <string name="dialog_face_rotation_not_valid">人脸偏转角度过大，请正脸拍摄。</string>
+    <string name="dialog_got">知道啦</string>
+    <string name="tip_dual_face">检测到多人，请选择一人进行换脸</string>
 
 </resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x238"
+    android:background="@drawable/poster_take_bottom_bg">
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <ImageView
+        android:id="@+id/iv_poster_take_back"
+        android:layout_width="@dimen/x134"
+        android:layout_height="@dimen/x134"
+        android:layout_marginTop="@dimen/x38"
+        android:layout_marginRight="@dimen/x104"
+        android:src="@drawable/poster_take_close"
+        app:layout_constraintRight_toLeftOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_poster_take_confirm"
+        android:layout_width="@dimen/x134"
+        android:layout_height="@dimen/x134"
+        android:layout_marginLeft="@dimen/x104"
+        android:src="@drawable/poster_take_confirm"
+        app:layout_constraintLeft_toRightOf="@id/guideline"
+        app:layout_constraintTop_toTopOf="@id/iv_poster_take_back" />
+
+</android.support.constraint.ConstraintLayout>

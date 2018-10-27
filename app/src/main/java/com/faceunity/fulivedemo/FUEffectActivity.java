@@ -1,15 +1,20 @@
 package com.faceunity.fulivedemo;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
+import com.faceunity.fulivedemo.utils.CameraUtils;
 
 import java.util.ArrayList;
 
@@ -25,24 +30,44 @@ public class FUEffectActivity extends FUBaseActivity {
     public final static String TAG = FUEffectActivity.class.getSimpleName();
 
     private EffectRecyclerAdapter mEffectRecyclerAdapter;
-    private RecyclerView mRecyclerView;
 
     private int mEffectType;
-    private ArrayList<Effect> mEffects;
+    private boolean mIsAnimFilterOpen;
+    private ImageView mImageView;
 
     @Override
     protected void onCreate() {
+        // Animoji 增加滤镜开关
         if (mEffectType == Effect.EFFECT_TYPE_ANIMOJI) {
             mTopBackground.setVisibility(View.VISIBLE);
+            mImageView = new ImageView(this);
+            Resources resources = getResources();
+            int ivWidth = resources.getDimensionPixelSize(R.dimen.x172);
+            int ivHeight = resources.getDimensionPixelSize(R.dimen.x60);
+            ConstraintLayout.LayoutParams ivParams = new ConstraintLayout.LayoutParams(ivWidth, ivHeight);
+            mImageView.setImageResource(R.drawable.btn_automaticl_nor);
+            ivParams.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID;
+            ivParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+            ivParams.leftMargin = resources.getDimensionPixelSize(R.dimen.x34);
+            ivParams.bottomMargin = resources.getDimensionPixelSize(R.dimen.x202);
+            mClOperationView.addView(mImageView, ivParams);
+            mImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mIsAnimFilterOpen = !mIsAnimFilterOpen;
+                    mImageView.setImageResource(mIsAnimFilterOpen ? R.drawable.btn_automaticl_sel : R.drawable.btn_automaticl_nor);
+                    mFURenderer.onLoadAnimFilter(mIsAnimFilterOpen);
+                }
+            });
         }
 
         mBottomViewStub.setLayoutResource(R.layout.layout_fu_effect);
         mBottomViewStub.inflate();
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mRecyclerView.setAdapter(mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer));
-        ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setAdapter(mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer));
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
             @Override
             public void onDescriptionChangeListener(int description) {
@@ -66,14 +91,17 @@ public class FUEffectActivity extends FUBaseActivity {
     @Override
     protected FURenderer initFURenderer() {
         mEffectType = getIntent().getIntExtra("EffectType", 0);
-        mEffects = EffectEnum.getEffectsByEffectType(mEffectType);
+        ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(mEffectType);
+        int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
+        Log.d(TAG, "front camera orientation:" + frontCameraOrientation);
         return new FURenderer
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .createEGLContext(false)
                 .needReadBackImage(false)
-                .defaultEffect(mEffects.size() > 1 ? mEffects.get(1) : null)
+                .defaultEffect(effects.size() > 1 ? effects.get(1) : null)
                 .setOnFUDebugListener(this)
+                .inputImageOrientation(frontCameraOrientation)
                 .setOnTrackingStatusChangedListener(this)
                 .setNeedAnimoji3D(mEffectType == Effect.EFFECT_TYPE_ANIMOJI)
                 .setNeedFaceBeauty(mEffectType != Effect.EFFECT_TYPE_ANIMOJI && mEffectType != Effect.EFFECT_TYPE_PORTRAIT_DRIVE)

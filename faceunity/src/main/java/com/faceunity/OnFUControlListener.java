@@ -41,10 +41,20 @@ public interface OnFUControlListener {
     /**
      * 美发颜色
      *
-     * @param hair_color_index 美发颜色
-     * @param hair_color_level 美发颜色强度
+     * @param type
+     * @param hairColorIndex 美发颜色
+     * @param hairColorLevel 美发颜色强度
      */
-    void onHairSelected(int hair_color_index, float hair_color_level);
+    void onHairSelected(int type, int hairColorIndex, float hairColorLevel);
+
+    /**
+     * 调整美发强度
+     *
+     * @param type
+     * @param hairColorIndex
+     * @param hairColorLevel
+     */
+    void onHairLevelSelected(int type, int hairColorIndex, float hairColorLevel);
 
     /**
      * 美妆选择
@@ -144,5 +154,35 @@ public interface OnFUControlListener {
      */
     void onIntensityMouthSelected(float level);
 
+    /**
+     * 海报换脸，切换模板
+     */
+    void onPosterTemplateChanged();
 
+    /**
+     * 切换海报模板
+     *
+     * @param tempWidth
+     * @param tempHeight
+     * @param temp
+     * @param landmark
+     */
+    void onPosterTemplateSelected(int tempWidth, int tempHeight, byte[] temp, float[] landmark);
+
+    /**
+     * 海报换脸输入照片
+     *
+     * @param inputWidth
+     * @param inputHeight
+     * @param input
+     * @param landmark
+     */
+    void onPosterInputPhoto(int inputWidth, int inputHeight, byte[] input, float[] landmark);
+
+    /**
+     * 加载 Animoji 风格滤镜
+     *
+     * @param enable
+     */
+    void onLoadAnimFilter(boolean enable);
 }

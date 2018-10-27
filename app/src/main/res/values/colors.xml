@@ -21,4 +21,6 @@
     <color name="main_color_090017">#FF090017</color>
 
     <color name="line_302D33">#FF302D33</color>
+
+    <color name="black_dialog_text">#31373E</color>
 </resources>
