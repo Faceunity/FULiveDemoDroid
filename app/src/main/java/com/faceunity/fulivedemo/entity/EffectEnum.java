@@ -114,7 +114,7 @@ public enum EffectEnum {
     Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
     Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
 
-    Poster_face("poster_face", R.drawable.ic_delete_all, "change_face_test.bundle", 4, Effect.EFFECT_TYPE_POSTER_FACE, 0);
+    Poster_face("poster_face", R.drawable.ic_delete_all, "change_face.bundle", 4, Effect.EFFECT_TYPE_POSTER_FACE, 0);
 
     private String bundleName;
     private int resId;

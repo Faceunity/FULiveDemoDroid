@@ -61,7 +61,7 @@ public class FURenderer implements OnFUControlListener {
     public static final String BUNDLE_ardata_ex = "ardata_ex.bundle";
     public static final String BUNDLE_tongue = "tongue.bundle";
     public static final String BUNDLE_animoji_3d = "fxaa.bundle";
-    public static final String BUNDLE_poster_face = "change_face_test.bundle";
+    public static final String BUNDLE_poster_face = "change_face.bundle";
     public static final String BUNDLE_TOON_FILTER = "fuzzytoonfilter.bundle";
 
     public static final int HAIR_NORMAL = 1;
@@ -680,6 +680,8 @@ public class FURenderer implements OnFUControlListener {
         }
     }
 
+    private int mDefaultOrientation = 90;
+
     /**
      * camera切换时需要调用
      *
@@ -695,25 +697,43 @@ public class FURenderer implements OnFUControlListener {
                 mFrameId = 0;
                 mCurrentCameraType = currentCameraType;
                 mInputImageOrientation = inputImageOrientation;
+                setRotMode(mItemsArray[ITEM_ARRAYS_EFFECT]);
                 faceunity.fuOnCameraChange();
                 updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT]);
             }
         });
     }
 
-    private int mDefaultOrientation;
-
     public void setTrackOrientation(final int rotation) {
-        if (mTrackingStatus == 0 && mDefaultOrientation != rotation) {
+        if (mDefaultOrientation != rotation) {
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
                     mDefaultOrientation = rotation;
-                    faceunity.fuSetDefaultOrientation(rotation / 90);//设置识别人脸默认方向，能够提高首次识别的速度
-                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT], "rotMode", rotation / 90);
+                    setRotMode(mItemsArray[ITEM_ARRAYS_EFFECT]);
                 }
             });
         }
+    }
+
+    private void setRotMode(int item) {
+        int mode;
+        if (mInputImageOrientation == 270) {
+            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                mode = mDefaultOrientation / 90;
+            } else {
+                mode = (mDefaultOrientation - 180) / 90;
+            }
+        } else {
+            if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                mode = (mDefaultOrientation + 180) / 90;
+            } else {
+                mode = (mDefaultOrientation) / 90;
+            }
+        }
+        Log.d(TAG, "setTrackOrientation: rot:" + mDefaultOrientation + ", mode:" + mode);
+        faceunity.fuSetDefaultOrientation(mDefaultOrientation / 90);//设置识别人脸默认方向，能够提高首次识别的速度
+        faceunity.fuItemSetParam(item, "rotMode", mode);
     }
 
     public void changeInputType() {
@@ -1351,6 +1371,7 @@ public class FURenderer implements OnFUControlListener {
                                 if (mItemsArray[ITEM_ARRAYS_ANIMOJI_FILTER] > 0) {
                                     faceunity.fuItemSetParam(finalItem, "{\"thing\":\"<global>\",\"param\":\"follow\"}", 1);
                                 }
+                                setRotMode(finalItem);
                             }
                             mItemsArray[ITEM_ARRAYS_EFFECT] = finalItem;
                         }

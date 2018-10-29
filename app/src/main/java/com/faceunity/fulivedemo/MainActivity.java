@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
             Effect.EFFECT_TYPE_PORTRAIT_DRIVE
     };
 
-    // TODO: 2018/10/9 0009 海报的权限码
     private static final int[] home_function_permissions_code = {
             0x1,                    //美颜
             0x80000,                //美妆
@@ -55,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             0x100000,               //美发
             0x20 | 0x40,            //AR面具
             0x80,                   //换脸
-            0x1000,                  //海报换脸
+            0x800000,               //海报换脸
             0x800,                  //表情识别
             0x20000,                //音乐滤镜
             0x100,                  //背景分割
