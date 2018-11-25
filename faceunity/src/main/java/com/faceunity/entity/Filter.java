@@ -56,4 +56,14 @@ public class Filter {
     public int hashCode() {
         return !TextUtils.isEmpty(filterName) ? filterName.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "Filter{" +
+                "filterName='" + filterName + '\'' +
+                ", resId=" + resId +
+                ", description=" + description +
+                ", filterType=" + filterType +
+                '}';
+    }
 }

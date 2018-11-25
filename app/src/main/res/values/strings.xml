@@ -65,6 +65,11 @@
     <string name="makeup_radio_eye_liner">眼线</string>
     <string name="makeup_radio_eyelash">睫毛</string>
     <string name="makeup_radio_contact_lens">美瞳</string>
+    <string name="makeup_radio_remove">卸妆</string>
+    <string name="makeup_customize">自定义</string>
+    <string name="makeup_peach">桃花妆</string>
+    <string name="makeup_freckles">雀斑妆</string>
+    <string name="makeup_punk">朋克妆</string>
 
     <string name="select_data_photo">选择图片</string>
     <string name="select_data_video">选择视频</string>
@@ -81,9 +86,7 @@
     <string name="xiaobianzi_zh_fu">微笑触发</string>
     <string name="xiaoxueshen_ztt_fu">吹气触发</string>
     <string name="hez_ztt_fu">张嘴试试</string>
-    <string name="ctrl_rain">控雨</string>
-    <string name="ctrl_snow">控雪</string>
-    <string name="ctrl_flower">控花</string>
+    <string name="push_hand">推出手掌</string>
     <string name="fu_lm_koreaheart">单手手指比心</string>
     <string name="fu_zh_baoquan">双手抱拳</string>
     <string name="fu_zh_hezxiong">双手合十</string>
@@ -110,5 +113,7 @@
     <string name="dialog_face_rotation_not_valid">人脸偏转角度过大，请正脸拍摄。</string>
     <string name="dialog_got">知道啦</string>
     <string name="tip_dual_face">检测到多人，请选择一人进行换脸</string>
+
+    <string name="cartoon_filter">动漫滤镜</string>
 
 </resources>

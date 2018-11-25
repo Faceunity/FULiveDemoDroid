@@ -1,29 +1,43 @@
 package com.faceunity;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import com.faceunity.entity.Effect;
+import com.faceunity.entity.FaceMakeup;
 import com.faceunity.entity.Filter;
-import com.faceunity.entity.Makeup;
+import com.faceunity.entity.MakeupItem;
 import com.faceunity.utils.Constant;
 import com.faceunity.wrapper.faceunity;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.faceunity.wrapper.faceunity.FU_ADM_FLAG_FLIP_X;
 
@@ -56,16 +70,18 @@ public class FURenderer implements OnFUControlListener {
     public static final String BUNDLE_v3 = "v3.bundle";
     public static final String BUNDLE_anim_model = "anim_model.bundle";
     public static final String BUNDLE_face_beautification = "face_beautification.bundle";
-    public static final String BUNDLE_hair = "hair/hair_color.bundle";
+    public static final String BUNDLE_HAIR_NORMAL = "hair/hair_normal.bundle";
     public static final String BUNDLE_HAIR_GRADIENT = "hair/hair_gradient.bundle";
     public static final String BUNDLE_ardata_ex = "ardata_ex.bundle";
+    // 舌头 bundle
     public static final String BUNDLE_tongue = "tongue.bundle";
     public static final String BUNDLE_animoji_3d = "fxaa.bundle";
+    // 海报换脸 bundle
     public static final String BUNDLE_poster_face = "change_face.bundle";
+    // 动漫滤镜 bundle
     public static final String BUNDLE_TOON_FILTER = "fuzzytoonfilter.bundle";
-
-    public static final int HAIR_NORMAL = 1;
-    public static final int HAIR_GRADIENT = 2;
+    // 新版美妆 bundle
+    public static final String BUNDLE_FACE_MAKEUP = "face_makeup.bundle";
 
     //美颜和滤镜的默认参数
     private boolean isNeedUpdateFaceBeauty = true;
@@ -90,24 +106,17 @@ public class FURenderer implements OnFUControlListener {
 
     private int mFrameId = 0;
 
+    // 句柄索引
     private static final int ITEM_ARRAYS_FACE_BEAUTY_INDEX = 0;
-    private static final int ITEM_ARRAYS_EFFECT = 1;
-    private static final int ITEM_ARRAYS_EFFECT_HAIR = 2;
-    private static final int ITEM_ARRAYS_EFFECT_ABIMOJI_3D = 3;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYE_SHADOW_INDEX = 4;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYE_LINER_INDEX = 5;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYELASH_INDEX = 6;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_CONTACT_LENS_INDEX = 7;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_EYEBROW_INDEX = 8;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_LIPSTICK_INDEX = 9;
-    private static final int ITEM_ARRAYS_FACE_MAKEUP_BLUSHER_INDEX = 10;
-    private static final int ITEM_ARRAYS_POSTER_FACE_INDEX = 11;
-    private static final int ITEM_ARRAYS_EFFECT_HAIR_GRADIENT = 12;
-    private static final int ITEM_ARRAYS_ANIMOJI_FILTER = 13;
-
-    private static final int ITEM_ARRAYS_COUNT = 14;
-
-    private static Filter mFilterName = new Filter("origin");
+    private static final int ITEM_ARRAYS_EFFECT_INDEX = 1;
+    private static final int ITEM_ARRAYS_FACE_MAKEUP_INDEX = 2;
+    private static final int ITEM_ARRAYS_EFFECT_ABIMOJI_3D_INDEX = 3;
+    private static final int ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX = 4;
+    private static final int ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX = 5;
+    private static final int ITEM_ARRAYS_POSTER_FACE_INDEX = 6;
+    private static final int ITEM_ARRAYS_CARTOON_FILTER_INDEX = 7;
+    // 头发
+    public static final int HAIR_NORMAL = 1;
     // 海报换脸 track 50次
     private static final int MAX_TRACK_COUNT = 50;
     //美颜和其他道具的handle数组
@@ -120,21 +129,26 @@ public class FURenderer implements OnFUControlListener {
     private boolean isNeedFaceBeauty = true;
     private boolean isNeedAnimoji3D = false;
     private boolean isNeedPosterFace = false;
-    private boolean isNeedAnimFilter = false;
     private Effect mDefaultEffect;//默认道具（同步加载）
     private int mMaxFaces = 4; //同时识别的最大人脸
     private boolean mIsCreateEGLContext; //是否需要手动创建EGLContext
     private int mInputTextureType = 0; //输入的图像texture类型，Camera提供的默认为EXTERNAL OES
     private int mInputImageFormat = 0;
     private boolean mNeedReadBackImage = false; //将传入的byte[]图像复写为具有道具效果的
+    // 句柄数量
+    private static final int ITEM_ARRAYS_COUNT = 8;
 
     private int mInputImageOrientation = 270;
     private int mCurrentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
-
-    // 渐变从第三个开始
-    private int mHairColorIndex = 3;
+    // 美发参数
     private float mHairColorStrength = 0.6f;
     private int mHairColorType = HAIR_GRADIENT;
+    private int mHairColorIndex = 0;
+    public static final int HAIR_GRADIENT = 2;
+    // 动漫滤镜
+    public static final int NO_FILTER = -1;
+    // 妆容集合
+    private Map<Integer, MakeupItem> mMakeupItemMap = new ConcurrentHashMap<>(64);
 
     private float[] landmarksData = new float[150];
     private float[] expressionData = new float[46];
@@ -147,6 +161,104 @@ public class FURenderer implements OnFUControlListener {
     private double[] posterFaceLandmark2 = new double[150];
 
     private List<Runnable> mEventQueue;
+    public static final int COMIC_FILTER = 0;
+    public static final int SKETCH_FILTER = 1;
+    public static final int PORTRAIT_EFFECT = 2;
+    // 默认滤镜，淡雅效果
+    private static Filter mFilterName = new Filter("danya");
+    // 动漫滤镜
+    private int mComicFilterStyle = NO_FILTER;
+    // 美妆程度，最大规定为 0.7
+    private float mMakeupIntensity = 1.0f;
+
+    /**
+     * 创建及初始化faceunity相应的资源
+     */
+    public void onSurfaceCreated() {
+        Log.e(TAG, "onSurfaceCreated");
+        onSurfaceDestroyed();
+
+        mEventQueue = Collections.synchronizedList(new ArrayList<Runnable>());
+
+        mFuItemHandlerThread = new HandlerThread("FUItemHandlerThread");
+        mFuItemHandlerThread.start();
+        mFuItemHandler = new FUItemHandler(mFuItemHandlerThread.getLooper());
+
+        /**
+         * fuCreateEGLContext 创建OpenGL环境
+         * 适用于没OpenGL环境时调用
+         * 如果调用了fuCreateEGLContext，在销毁时需要调用fuReleaseEGLContext
+         */
+        if (mIsCreateEGLContext)
+            faceunity.fuCreateEGLContext();
+
+        mFrameId = 0;
+        /**
+         *fuSetExpressionCalibration 控制表情校准功能的开关及不同模式，参数为0时关闭表情校准，2为被动校准。
+         * 被动校准：该种模式下会在整个用户使用过程中逐渐进行表情校准，用户对该过程没有明显感觉。
+         *
+         * 优化后的SDK只支持被动校准功能，即fuSetExpressionCalibration接口只支持0（关闭）或2（被动校准）这两个数字，设置为1时将不再有效果。
+         */
+        faceunity.fuSetExpressionCalibration(2);
+        faceunity.fuSetMaxFaces(mMaxFaces);//设置多脸，目前最多支持8人。
+
+        //加载默认道具
+        if (mDefaultEffect != null) {
+            mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] = mDefaultEffect.effectType() == Effect.EFFECT_TYPE_NONE ? 0 : loadItem(mDefaultEffect.path());
+            updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
+        }
+
+        if (isNeedFaceBeauty) {
+            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_FACE_BEAUTY_INDEX);
+        }
+        if (isNeedBeautyHair) {
+            if (mHairColorType == HAIR_NORMAL) {
+                mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX);
+            } else {
+                mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX);
+            }
+        }
+        if (isNeedAnimoji3D) {
+            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_ABIMOJI_3D_INDEX);
+        }
+        if (isNeedPosterFace) {
+            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_POSTER_FACE_INDEX);
+        }
+
+        // 设置动漫滤镜
+        int style = mComicFilterStyle;
+        mComicFilterStyle = NO_FILTER;
+        onCartoonFilterSelected(style);
+
+        if (mMakeupItemMap.size() > 0) {
+            Set<Map.Entry<Integer, MakeupItem>> entries = mMakeupItemMap.entrySet();
+            for (Map.Entry<Integer, MakeupItem> entry : entries) {
+                MakeupItem makeupItem = entry.getValue();
+                onMakeupSelected(makeupItem, makeupItem.getLevel());
+            }
+        }
+
+        // 设置同步
+        setAsyncTrackFace(true);
+    }
+
+    @Override
+    public void onHairLevelSelected(@HairType final int type, int hairColorIndex, float hairColorLevel) {
+        mHairColorIndex = hairColorIndex;
+        mHairColorStrength = hairColorLevel;
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (type == HAIR_NORMAL) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX], "Index", mHairColorIndex);
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX], "Strength", mHairColorStrength);
+                } else if (type == HAIR_GRADIENT) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "Index", mHairColorIndex);
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "Strength", mHairColorStrength);
+                }
+            }
+        });
+    }
 
     /**
      * 全局加载相应的底层数据包
@@ -223,61 +335,26 @@ public class FURenderer implements OnFUControlListener {
     }
 
     /**
-     * 创建及初始化faceunity相应的资源
+     * 设置相机滤镜的风格
+     *
+     * @param style
      */
-    public void onSurfaceCreated() {
-        Log.e(TAG, "onSurfaceCreated");
-        onSurfaceDestroyed();
-
-        mEventQueue = Collections.synchronizedList(new ArrayList<Runnable>());
-
-        mFuItemHandlerThread = new HandlerThread("FUItemHandlerThread");
-        mFuItemHandlerThread.start();
-        mFuItemHandler = new FUItemHandler(mFuItemHandlerThread.getLooper());
-
-        /**
-         * fuCreateEGLContext 创建OpenGL环境
-         * 适用于没OpenGL环境时调用
-         * 如果调用了fuCreateEGLContext，在销毁时需要调用fuReleaseEGLContext
-         */
-        if (mIsCreateEGLContext)
-            faceunity.fuCreateEGLContext();
-
-        mFrameId = 0;
-        /**
-         *fuSetExpressionCalibration 控制表情校准功能的开关及不同模式，参数为0时关闭表情校准，2为被动校准。
-         * 被动校准：该种模式下会在整个用户使用过程中逐渐进行表情校准，用户对该过程没有明显感觉。
-         *
-         * 优化后的SDK只支持被动校准功能，即fuSetExpressionCalibration接口只支持0（关闭）或2（被动校准）这两个数字，设置为1时将不再有效果。
-         */
-        faceunity.fuSetExpressionCalibration(2);
-        faceunity.fuSetMaxFaces(mMaxFaces);//设置多脸，目前最多支持8人。
-
-        //加载默认道具
-        if (mDefaultEffect != null) {
-            mItemsArray[ITEM_ARRAYS_EFFECT] = mDefaultEffect.effectType() == Effect.EFFECT_TYPE_NONE ? 0 : loadItem(mDefaultEffect.path());
-            updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT]);
-            setMaxFaces(mDefaultEffect.maxFace());
+    @Override
+    public void onCartoonFilterSelected(@ComicFilterType final int style) {
+        Log.d(TAG, "onCartoonFilterSelected: style:" + style + ", filter:" + mComicFilterStyle);
+        if (mComicFilterStyle == style) {
+            return;
         }
-
-        if (isNeedFaceBeauty) {
-            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_FACE_BEAUTY_INDEX);
-        }
-        if (isNeedBeautyHair) {
-            if (mHairColorType == HAIR_NORMAL) {
-                mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR);
-            } else {
-                mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR_GRADIENT);
-            }
-        }
-        if (isNeedAnimoji3D) {
-            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_ABIMOJI_3D);
-        }
-        if (isNeedPosterFace) {
-            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_POSTER_FACE_INDEX);
-        }
-        if (isNeedAnimFilter) {
-            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_ANIMOJI_FILTER, true));
+        mComicFilterStyle = style;
+        if (mFuItemHandler == null) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_CARTOON_FILTER_INDEX, mComicFilterStyle));
+                }
+            });
+        } else {
+            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_CARTOON_FILTER_INDEX, mComicFilterStyle));
         }
     }
 
@@ -537,6 +614,11 @@ public class FURenderer implements OnFUControlListener {
             mEventQueue = null;
         }
 
+        int posterIndex = mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX];
+        if (posterIndex > 0) {
+            faceunity.fuDeleteTexForItem(posterIndex, "tex_input");
+            faceunity.fuDeleteTexForItem(posterIndex, "tex_template");
+        }
         mFrameId = 0;
         isNeedUpdateFaceBeauty = true;
         Arrays.fill(mItemsArray, 0);
@@ -557,6 +639,9 @@ public class FURenderer implements OnFUControlListener {
     }
 
     public int trackFace(byte[] img, int w, int h) {
+        if (img == null) {
+            return 0;
+        }
         faceunity.fuOnCameraChange();
         int flags = mInputImageFormat;
         for (int i = 0; i < MAX_TRACK_COUNT; i++) {
@@ -606,7 +691,7 @@ public class FURenderer implements OnFUControlListener {
             //blur_level 磨皮 范围0~6 SDK默认为 6
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "blur_level", 6 * mBlurLevel);
             //blur_blend_ratio 磨皮结果和原图融合率 范围0~1 SDK默认为 1
-//          faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "blur_blend_ratio", 1);
+//          faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_], "blur_blend_ratio", 1);
 
             //color_level 美白 范围0~1 SDK默认为 1
             faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX], "color_level", mColorLevel);
@@ -664,6 +749,21 @@ public class FURenderer implements OnFUControlListener {
     }
 
     /**
+     * 设置同步和异步
+     *
+     * @param isAsync
+     */
+    public void setAsyncTrackFace(final boolean isAsync) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG, "setAsyncTrackFace " + isAsync);
+                faceunity.fuSetAsyncTrackFace(isAsync ? 0 : 1);
+            }
+        });
+    }
+
+    /**
      * 设置需要识别的人脸个数
      *
      * @param maxFaces
@@ -674,7 +774,7 @@ public class FURenderer implements OnFUControlListener {
                 @Override
                 public void run() {
                     mMaxFaces = maxFaces;
-                    faceunity.fuSetMaxFaces(maxFaces);
+                    faceunity.fuSetMaxFaces(mMaxFaces);
                 }
             });
         }
@@ -697,9 +797,9 @@ public class FURenderer implements OnFUControlListener {
                 mFrameId = 0;
                 mCurrentCameraType = currentCameraType;
                 mInputImageOrientation = inputImageOrientation;
-                setRotMode(mItemsArray[ITEM_ARRAYS_EFFECT]);
+//                setRotMode(mItemsArray[ITEM_ARRAYS_EFFECT_]);
                 faceunity.fuOnCameraChange();
-                updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT]);
+                updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
             }
         });
     }
@@ -710,7 +810,7 @@ public class FURenderer implements OnFUControlListener {
                 @Override
                 public void run() {
                     mDefaultOrientation = rotation;
-                    setRotMode(mItemsArray[ITEM_ARRAYS_EFFECT]);
+                    setRotMode(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
                 }
             });
         }
@@ -731,7 +831,6 @@ public class FURenderer implements OnFUControlListener {
                 mode = (mDefaultOrientation) / 90;
             }
         }
-        Log.d(TAG, "setTrackOrientation: rot:" + mDefaultOrientation + ", mode:" + mode);
         faceunity.fuSetDefaultOrientation(mDefaultOrientation / 90);//设置识别人脸默认方向，能够提高首次识别的速度
         faceunity.fuItemSetParam(item, "rotMode", mode);
     }
@@ -756,7 +855,7 @@ public class FURenderer implements OnFUControlListener {
         queueEvent(new Runnable() {
             @Override
             public void run() {
-                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT], "music_time", time);
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "music_time", time);
             }
         });
     }
@@ -770,13 +869,13 @@ public class FURenderer implements OnFUControlListener {
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
-                    mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT);
-                    mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_EFFECT, mDefaultEffect));
+                    mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT_INDEX);
+                    mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_EFFECT_INDEX, mDefaultEffect));
                 }
             });
         } else {
-            mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT);
-            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_EFFECT, mDefaultEffect));
+            mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT_INDEX);
+            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_EFFECT_INDEX, mDefaultEffect));
         }
     }
 
@@ -794,65 +893,59 @@ public class FURenderer implements OnFUControlListener {
 
     @Override
     public void onHairSelected(int type, int hairColorIndex, float hairColorLevel) {
-//        Log.d(TAG, "onHairSelected: type:" + type + ", index:" + hairColorIndex + ", level:" + hairColorLevel);
+        mHairColorIndex = hairColorIndex;
+        mHairColorStrength = hairColorLevel;
+        final int lastHairType = mHairColorType;
         mHairColorType = type;
-        mHairColorIndex = hairColorIndex;
-        mHairColorStrength = hairColorLevel;
-        if (type == HAIR_NORMAL) {
-            mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT_HAIR);
-            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR);
-        } else if (type == HAIR_GRADIENT) {
-            mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT_HAIR_GRADIENT);
-            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR_GRADIENT);
-        }
-    }
-
-    @Override
-    public void onHairLevelSelected(final int type, int hairColorIndex, float hairColorLevel) {
-//        Log.d(TAG, "onHairLevelSelected: type:" + type + ", index:" + hairColorIndex + ", level:" + hairColorLevel);
-        mHairColorIndex = hairColorIndex;
-        mHairColorStrength = hairColorLevel;
-        queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                if (type == HAIR_NORMAL) {
-                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR], "Index", mHairColorIndex);
-                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR], "Strength", mHairColorStrength);
-                } else if (type == HAIR_GRADIENT) {
-                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT], "Index", mHairColorIndex);
-                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT], "Strength", mHairColorStrength);
-                }
-            }
-        });
-    }
-
-    @Override
-    public void onMakeupSelected(final Makeup makeup) {
-        if (makeup == null)
-            return;
-        final int what = getIndexMakeup(makeup.makeupType());
-        if (mFuItemHandler == null) {
+//        Log.d(TAG, "onHairSelected. type:" + type + ", index:" + hairColorIndex + ", level:" +
+//                hairColorLevel + ", normalHandle:" + mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX] +
+//                ", gradientHandle:" + mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX]);
+        if (mHairColorType == lastHairType) {
+            onHairLevelSelected(mHairColorType, mHairColorIndex, mHairColorStrength);
+        } else {
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
-                    mFuItemHandler.removeMessages(what);
-                    mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, what, makeup));
+                    if (mHairColorType == HAIR_NORMAL) {
+                        mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX);
+                        mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX);
+                    } else if (mHairColorType == HAIR_GRADIENT) {
+                        mFuItemHandler.removeMessages(ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX);
+                        mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX);
+                    }
                 }
             });
-        } else {
-            mFuItemHandler.removeMessages(what);
-            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, what, makeup));
         }
     }
 
-    @Override
-    public void onMakeupLevelSelected(final int makeupType, final float level) {
-        queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                faceunity.fuItemSetParam(mItemsArray[getIndexMakeup(makeupType)], "makeup_intensity", level);
+    /**
+     * 加载美妆资源数据
+     *
+     * @param path
+     * @return bytes, width and height
+     * @throws Exception
+     */
+    private Pair<byte[], Pair<Integer, Integer>> loadMakeupResource(String path) throws Exception {
+        if (TextUtils.isEmpty(path)) {
+            return null;
+        }
+        InputStream is = null;
+        try {
+            is = mContext.getAssets().open(path);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
+            int bmpByteCount = bitmap.getByteCount();
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            byte[] bitmapBytes = new byte[bmpByteCount];
+            ByteBuffer byteBuffer = ByteBuffer.wrap(bitmapBytes);
+            bitmap.copyPixelsToBuffer(byteBuffer);
+            return Pair.create(bitmapBytes, Pair.create(width, height));
+        } finally {
+            if (is != null) {
+                is.close();
             }
-        });
+        }
     }
 
     @Override
@@ -941,16 +1034,10 @@ public class FURenderer implements OnFUControlListener {
     }
 
     @Override
-    public void onPosterTemplateChanged() {
-        if (mFuItemHandler != null) {
-            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_POSTER_FACE_INDEX);
-        }
-    }
-
-    @Override
     public void onPosterTemplateSelected(final int tempWidth, final int tempHeight, final byte[] temp, final float[] landmark) {
         Log.d(TAG, "onPosterTemplateSelected() called with: tempWidth = [" + tempWidth + "], tempHeight = ["
-                + tempHeight + ", temp:" + temp.length + "], handle = [" + mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX]);
+                + tempHeight + ", temp:" + temp.length + "], handle = [" + mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX]
+                + "] , landmark:" + Arrays.toString(landmark));
         Arrays.fill(posterFaceLandmark, 0);
         for (int i = 0; i < landmark.length; i++) {
             posterFaceLandmark[i] = landmark[i];
@@ -958,13 +1045,14 @@ public class FURenderer implements OnFUControlListener {
         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "template_width", tempWidth);
         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "template_height", tempHeight);
         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "template_face_points", posterFaceLandmark);
-        faceunity.fuItemSetParamu8v(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "tex_template", temp, temp.length);
+        faceunity.fuCreateTexForItem(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "tex_template", temp, tempWidth, tempHeight);
     }
 
     @Override
     public void onPosterInputPhoto(final int inputWidth, final int inputHeight, final byte[] input, final float[] landmark) {
         Log.d(TAG, "onPosterInputPhoto() called with: inputWidth = [" + inputWidth + "], inputHeight = ["
-                + inputHeight + ", input:" + input.length + "], handle = [" + mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX]);
+                + inputHeight + ", input:" + input.length + "], handle = [" + mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX]
+                + "] , landmark:" + Arrays.toString(landmark));
         Arrays.fill(posterFaceLandmark2, 0);
         for (int i = 0; i < landmark.length; i++) {
             posterFaceLandmark2[i] = landmark[i];
@@ -972,25 +1060,91 @@ public class FURenderer implements OnFUControlListener {
         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "input_width", inputWidth);
         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "input_height", inputHeight);
         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "input_face_points", posterFaceLandmark2);
-        faceunity.fuItemSetParamu8v(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "tex_input", input, input.length);
+        faceunity.fuCreateTexForItem(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "tex_input", input, inputWidth, inputHeight);
+    }
+
+    public void fixPosterFaceParam(float value) {
+        faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_POSTER_FACE_INDEX], "warp_intensity", value);
+    }
+
+    @IntDef(value = {HAIR_NORMAL, HAIR_GRADIENT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface HairType {
     }
 
     @Override
-    public void onLoadAnimFilter(final boolean enable) {
-        isNeedAnimFilter = enable;
-        if (mDefaultEffect == null)
-            return;
+    public void onMakeupSelected(final MakeupItem makeupItem, float level) {
+        int type = makeupItem.getType();
+        MakeupItem mp = mMakeupItemMap.get(type);
+        if (mp != null) {
+            mp.setLevel(level);
+        } else {
+            mMakeupItemMap.put(type, makeupItem.cloneSelf());
+        }
         if (mFuItemHandler == null) {
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
-                    mFuItemHandler.removeMessages(ITEM_ARRAYS_ANIMOJI_FILTER);
-                    mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_ANIMOJI_FILTER, enable));
+                    mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_FACE_MAKEUP_INDEX, makeupItem));
                 }
             });
         } else {
-            mFuItemHandler.removeMessages(ITEM_ARRAYS_ANIMOJI_FILTER);
-            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_ANIMOJI_FILTER, enable));
+            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_FACE_MAKEUP_INDEX, makeupItem));
+        }
+    }
+
+    @Override
+    public void onMakeupLevelChanged(final int makeupType, final float level) {
+        MakeupItem makeupItem = mMakeupItemMap.get(makeupType);
+        if (makeupItem != null) {
+            makeupItem.setLevel(level);
+        }
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX], getMakeupIntensityKeyByType(makeupType), level);
+            }
+        });
+    }
+
+    @Override
+    public void onMakeupOverallLevelChanged(final float level) {
+        if (mMakeupIntensity != level) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mMakeupIntensity = level;
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX], "makeup_intensity", mMakeupIntensity);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onBatchMakeupSelected(List<MakeupItem> makeupItems) {
+        Set<Integer> keySet = mMakeupItemMap.keySet();
+        for (final Integer integer : keySet) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX], getMakeupIntensityKeyByType(integer), 0);
+                }
+            });
+        }
+        mMakeupItemMap.clear();
+        if (makeupItems != null && makeupItems.size() > 0) {
+            int size = makeupItems.size();
+            for (int i = 0; i < size; i++) {
+                MakeupItem makeupItem = makeupItems.get(i);
+                onMakeupSelected(makeupItem, makeupItem.getLevel());
+            }
+        } else {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX], "is_makeup_on", 0.0);
+                }
+            });
         }
     }
 
@@ -1047,27 +1201,6 @@ public class FURenderer implements OnFUControlListener {
 
     //--------------------------------------道具（异步加载道具）----------------------------------------
 
-    private int getIndexMakeup(int makeType) {
-        switch (makeType) {
-            case Makeup.MAKEUP_TYPE_LIPSTICK:
-                return ITEM_ARRAYS_FACE_MAKEUP_LIPSTICK_INDEX;
-            case Makeup.MAKEUP_TYPE_EYEBROW:
-                return ITEM_ARRAYS_FACE_MAKEUP_EYEBROW_INDEX;
-            case Makeup.MAKEUP_TYPE_EYE_SHADOW:
-                return ITEM_ARRAYS_FACE_MAKEUP_EYE_SHADOW_INDEX;
-            case Makeup.MAKEUP_TYPE_EYE_LINER:
-                return ITEM_ARRAYS_FACE_MAKEUP_EYE_LINER_INDEX;
-            case Makeup.MAKEUP_TYPE_EYELASH:
-                return ITEM_ARRAYS_FACE_MAKEUP_EYELASH_INDEX;
-            case Makeup.MAKEUP_TYPE_CONTACT_LENS:
-                return ITEM_ARRAYS_FACE_MAKEUP_CONTACT_LENS_INDEX;
-            case Makeup.MAKEUP_TYPE_BLUSHER:
-                return ITEM_ARRAYS_FACE_MAKEUP_BLUSHER_INDEX;
-            default:
-                return 0;
-        }
-    }
-
     /**
      * fuCreateItemFromPackage 加载道具
      *
@@ -1094,6 +1227,42 @@ public class FURenderer implements OnFUControlListener {
         return item;
     }
 
+    @IntDef(value = {NO_FILTER, COMIC_FILTER, SKETCH_FILTER, PORTRAIT_EFFECT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ComicFilterType {
+    }
+
+    /**
+     * 从 assets 中读取颜色数据
+     *
+     * @param colorAssetPath
+     * @return rgba 数组
+     * @throws Exception
+     */
+    private double[] readMakeupLipColors(String colorAssetPath) throws Exception {
+        if (TextUtils.isEmpty(colorAssetPath)) {
+            return null;
+        }
+        InputStream is = null;
+        try {
+            is = mContext.getAssets().open(colorAssetPath);
+            byte[] bytes = new byte[is.available()];
+            is.read(bytes);
+            String s = new String(bytes);
+            JSONObject jsonObject = new JSONObject(s);
+            JSONArray jsonArray = jsonObject.getJSONArray("rgba");
+            double[] colors = new double[4];
+            for (int i = 0, length = jsonArray.length(); i < length; i++) {
+                colors[i] = jsonArray.getDouble(i);
+            }
+            return colors;
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+        }
+    }
+
     /**
      * 设置对道具设置相应的参数
      *
@@ -1104,11 +1273,12 @@ public class FURenderer implements OnFUControlListener {
             return;
         faceunity.fuItemSetParam(itemHandle, "isAndroid", 1.0);
 
-        if (effect.effectType() == Effect.EFFECT_TYPE_NORMAL) {
+        int effectType = effect.effectType();
+        if (effectType == Effect.EFFECT_TYPE_NORMAL) {
             //rotationAngle 参数是用于旋转普通道具
             faceunity.fuItemSetParam(itemHandle, "rotationAngle", 360 - mInputImageOrientation);
         }
-        if (effect.effectType() == Effect.EFFECT_TYPE_ANIMOJI || effect.effectType() == Effect.EFFECT_TYPE_PORTRAIT_DRIVE) {
+        if (effectType == Effect.EFFECT_TYPE_ANIMOJI || effectType == Effect.EFFECT_TYPE_PORTRAIT_DRIVE) {
             //is3DFlipH 参数是用于对3D道具的镜像
             faceunity.fuItemSetParam(itemHandle, "is3DFlipH", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
             //isFlipExpr 参数是用于对人像驱动道具的镜像
@@ -1117,13 +1287,66 @@ public class FURenderer implements OnFUControlListener {
             faceunity.fuItemSetParam(itemHandle, "camera_change", 1.0);
             faceunity.fuSetDefaultRotationMode((360 - mInputImageOrientation) / 90);
         }
-        if (effect.effectType() == Effect.EFFECT_TYPE_GESTURE) {
+        if (effectType == Effect.EFFECT_TYPE_GESTURE) {
             //loc_y_flip与loc_x_flip 参数是用于对手势识别道具的镜像
             faceunity.fuItemSetParam(itemHandle, "is3DFlipH", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
             faceunity.fuItemSetParam(itemHandle, "loc_y_flip", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
             faceunity.fuItemSetParam(itemHandle, "loc_x_flip", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
+            setRotMode(itemHandle);
+        }
+        if (effectType == Effect.EFFECT_TYPE_ANIMOJI) {
+            // 设置人转向的方向
+            faceunity.fuItemSetParam(itemHandle, "isFlipTrack", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
+            // 设置 Animoji 跟随人脸
+            faceunity.fuItemSetParam(itemHandle, "{\"thing\":\"<global>\",\"param\":\"follow\"}", 1);
+        }
+        setMaxFaces(effect.maxFace());
+    }
+
+    private String getFaceMakeupKeyByType(int type) {
+        switch (type) {
+            case FaceMakeup.FACE_MAKEUP_TYPE_LIPSTICK:
+                return "tex_lip";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_LINER:
+                return "tex_eyeLiner";
+            case FaceMakeup.FACE_MAKEUP_TYPE_BLUSHER:
+                return "tex_blusher";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_PUPIL:
+                return "tex_pupil";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYEBROW:
+                return "tex_brow";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_SHADOW:
+                return "tex_eye";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYELASH:
+                return "tex_eyeLash";
+            default:
+                return "";
         }
     }
+
+    private String getMakeupIntensityKeyByType(int type) {
+        switch (type) {
+            case FaceMakeup.FACE_MAKEUP_TYPE_LIPSTICK:
+                return "makeup_intensity_lip";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_LINER:
+                return "makeup_intensity_eyeLiner";
+            case FaceMakeup.FACE_MAKEUP_TYPE_BLUSHER:
+                return "makeup_intensity_blusher";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_PUPIL:
+                return "makeup_intensity_pupil";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYEBROW:
+                return "makeup_intensity_eyeBrow";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_SHADOW:
+                return "makeup_intensity_eye";
+            case FaceMakeup.FACE_MAKEUP_TYPE_EYELASH:
+                return "makeup_intensity_eyelash";
+            default:
+                return "";
+        }
+    }
+
+
+    /*----------------------------------Builder---------------------------------------*/
 
     /**
      * FURenderer Builder
@@ -1142,6 +1365,7 @@ public class FURenderer implements OnFUControlListener {
         private boolean isNeedBeautyHair = false;
         private boolean isNeedFaceBeauty = true;
         private boolean isNeedPosterFace = false;
+        private int filterStyle = FURenderer.NO_FILTER;
         private int currentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
         private OnFUDebugListener onFUDebugListener;
@@ -1265,7 +1489,18 @@ public class FURenderer implements OnFUControlListener {
         }
 
         /**
-         * 是否需要美颜效果
+         * 设置默认动漫滤镜
+         *
+         * @param filterStyle
+         * @return
+         */
+        public Builder setFilterStyle(int filterStyle) {
+            this.filterStyle = filterStyle;
+            return this;
+        }
+
+        /**
+         * 是否需要海报换脸
          *
          * @param needPosterFace
          * @return
@@ -1332,6 +1567,7 @@ public class FURenderer implements OnFUControlListener {
             fuRenderer.isNeedFaceBeauty = isNeedFaceBeauty;
             fuRenderer.isNeedPosterFace = isNeedPosterFace;
             fuRenderer.mCurrentCameraType = currentCameraType;
+            fuRenderer.mComicFilterStyle = filterStyle;
 
             fuRenderer.mOnFUDebugListener = onFUDebugListener;
             fuRenderer.mOnTrackingStatusChangedListener = onTrackingStatusChangedListener;
@@ -1354,26 +1590,22 @@ public class FURenderer implements OnFUControlListener {
             super.handleMessage(msg);
             switch (msg.what) {
                 //加载道具
-                case ITEM_ARRAYS_EFFECT: {
+                case ITEM_ARRAYS_EFFECT_INDEX: {
                     final Effect effect = (Effect) msg.obj;
-                    if (effect == null)
+                    if (effect == null) {
                         break;
+                    }
                     final int finalItem = effect.effectType() == Effect.EFFECT_TYPE_NONE ? 0 : loadItem(effect.path());
                     queueEventItemHandle(new Runnable() {
                         @Override
                         public void run() {
-                            if (mItemsArray[ITEM_ARRAYS_EFFECT] > 0) {
-                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT]);
+                            if (mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
                             }
                             if (finalItem > 0) {
                                 updateEffectItemParams(effect, finalItem);
-                                setMaxFaces(effect.maxFace());
-                                if (mItemsArray[ITEM_ARRAYS_ANIMOJI_FILTER] > 0) {
-                                    faceunity.fuItemSetParam(finalItem, "{\"thing\":\"<global>\",\"param\":\"follow\"}", 1);
-                                }
-                                setRotMode(finalItem);
                             }
-                            mItemsArray[ITEM_ARRAYS_EFFECT] = finalItem;
+                            mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] = finalItem;
                         }
                     });
                     break;
@@ -1391,85 +1623,85 @@ public class FURenderer implements OnFUControlListener {
                     break;
                 }
                 //加载美发bundle
-                case ITEM_ARRAYS_EFFECT_HAIR: {
-                    final int hairItem = loadItem(BUNDLE_hair);
+                case ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX: {
+                    final int hairItem = loadItem(BUNDLE_HAIR_NORMAL);
                     queueEventItemHandle(new Runnable() {
                         @Override
                         public void run() {
-                            if (mItemsArray[ITEM_ARRAYS_EFFECT_HAIR] > 0) {
-                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR]);
-                                mItemsArray[ITEM_ARRAYS_EFFECT_HAIR] = 0;
+                            if (mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX]);
+                                mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX] = 0;
                             }
-                            mItemsArray[ITEM_ARRAYS_EFFECT_HAIR] = hairItem;
-                            if (mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT] > 0) {
-                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT]);
-                                mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT] = 0;
+                            mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX] = hairItem;
+                            if (mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX]);
+                                mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX] = 0;
                             }
-//                            Log.i(TAG, "run: setParams hairIndex:" + mHairColorIndex + ", strength:" + mHairColorStrength
-//                                    + ", handle " + mItemsArray[ITEM_ARRAYS_EFFECT_HAIR]);
-                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR], "Index", mHairColorIndex);
-                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR], "Strength", mHairColorStrength);
+//                            Log.i(TAG, "setParams hairNormalIndex:" + mHairColorIndex + ", strength:" + mHairColorStrength
+//                                    + ", handle " + mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX]);
+                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX], "Index", mHairColorIndex);
+                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX], "Strength", mHairColorStrength);
                         }
                     });
                     break;
                 }
                 //加载渐变美发bundle
-                case ITEM_ARRAYS_EFFECT_HAIR_GRADIENT: {
+                case ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX: {
                     final int hairItem = loadItem(BUNDLE_HAIR_GRADIENT);
                     queueEventItemHandle(new Runnable() {
                         @Override
                         public void run() {
-                            if (mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT] > 0) {
-                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT]);
-                                mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT] = 0;
+                            if (mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX]);
+                                mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX] = 0;
                             }
-                            mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT] = hairItem;
-                            if (mItemsArray[ITEM_ARRAYS_EFFECT_HAIR] > 0) {
-                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR]);
-                                mItemsArray[ITEM_ARRAYS_EFFECT_HAIR] = 0;
+                            mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX] = hairItem;
+                            if (mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX]);
+                                mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX] = 0;
                             }
-//                            Log.i(TAG, "run: setParams hairGradientIndex:" + mHairColorIndex +
-//                                    ", strength:" + mHairColorStrength + ", handle:" + mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT]);
-                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT], "Index", mHairColorIndex);
-                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT], "Strength", mHairColorStrength);
+//                            Log.i(TAG, "setParams hairGradientIndex:" + mHairColorIndex + ", strength:" + mHairColorStrength
+//                                    + ", handle " + mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX]);
+                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "Index", mHairColorIndex);
+                            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "Strength", mHairColorStrength);
                         }
                     });
                     break;
                 }
                 //加载animoji道具3D抗锯齿bundle
-                case ITEM_ARRAYS_EFFECT_ABIMOJI_3D: {
+                case ITEM_ARRAYS_EFFECT_ABIMOJI_3D_INDEX: {
                     final int itemAnimoji = loadItem(BUNDLE_animoji_3d);
                     queueEventItemHandle(new Runnable() {
                         @Override
                         public void run() {
-                            mItemsArray[ITEM_ARRAYS_EFFECT_ABIMOJI_3D] = itemAnimoji;
+                            mItemsArray[ITEM_ARRAYS_EFFECT_ABIMOJI_3D_INDEX] = itemAnimoji;
                         }
                     });
                     break;
                 }
                 // 加载 animoji 风格滤镜
-                case ITEM_ARRAYS_ANIMOJI_FILTER: {
-                    final boolean enable = (boolean) msg.obj;
-                    if (enable) {
-                        if (mItemsArray[ITEM_ARRAYS_ANIMOJI_FILTER] <= 0) {
-                            mItemsArray[ITEM_ARRAYS_ANIMOJI_FILTER] = loadItem(BUNDLE_TOON_FILTER);
+                case ITEM_ARRAYS_CARTOON_FILTER_INDEX: {
+                    final int style = (int) msg.obj;
+                    if (style >= 0) {
+                        // 开启
+                        if (mItemsArray[ITEM_ARRAYS_CARTOON_FILTER_INDEX] <= 0) {
+                            final int i = loadItem(BUNDLE_TOON_FILTER);
+                            mItemsArray[ITEM_ARRAYS_CARTOON_FILTER_INDEX] = i;
                         }
                         queueEventItemHandle(new Runnable() {
                             @Override
                             public void run() {
-                                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT], "{\"thing\":\"<global>\",\"param\":\"follow\"}", 1);
-//                                int supportGLVersion = GlUtil.getSupportGLVersion(mContext);
-//                                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_ANIMOJI_FILTER], "glVer", supportGLVersion);
+                                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_CARTOON_FILTER_INDEX], "style", style);
                             }
                         });
                     } else {
-                        if (mItemsArray[ITEM_ARRAYS_ANIMOJI_FILTER] > 0) {
+                        // 关闭
+                        if (mItemsArray[ITEM_ARRAYS_CARTOON_FILTER_INDEX] > 0) {
                             queueEventItemHandle(new Runnable() {
                                 @Override
                                 public void run() {
-                                    faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_ANIMOJI_FILTER]);
-                                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT], "{\"thing\":\"<global>\",\"param\":\"follow\"}", 0);
-                                    mItemsArray[ITEM_ARRAYS_ANIMOJI_FILTER] = 0;
+                                    faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_CARTOON_FILTER_INDEX]);
+                                    mItemsArray[ITEM_ARRAYS_CARTOON_FILTER_INDEX] = 0;
                                 }
                             });
                         }
@@ -1489,28 +1721,70 @@ public class FURenderer implements OnFUControlListener {
                     });
                     break;
                 }
-                //加载美妆bundle
-                default: {
-                    final Makeup makeup = (Makeup) msg.obj;
-                    if (TextUtils.isEmpty(makeup.path())) {
-                        queueEventItemHandle(new Runnable() {
-                            @Override
-                            public void run() {
-                                faceunity.fuItemSetParam(mItemsArray[getIndexMakeup(makeup.makeupType())], "makeup_intensity", 0);
+                // 加载新版美妆
+                case ITEM_ARRAYS_FACE_MAKEUP_INDEX: {
+                    final MakeupItem makeupItem = (MakeupItem) msg.obj;
+                    Log.d(TAG, "handleMessage: " + makeupItem);
+                    String path = makeupItem.getPath();
+                    if (!TextUtils.isEmpty(path)) {
+                        if (mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX] <= 0) {
+                            int item = loadItem(BUNDLE_FACE_MAKEUP);
+                            mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX] = item;
+                        }
+                        final int itemHandle = mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX];
+                        try {
+                            byte[] itemBytes = null;
+                            double[] lipColor = null;
+                            int width = 0;
+                            int height = 0;
+                            if (makeupItem.getType() == FaceMakeup.FACE_MAKEUP_TYPE_LIPSTICK) {
+                                lipColor = readMakeupLipColors(path);
+                            } else {
+                                Pair<byte[], Pair<Integer, Integer>> pair = loadMakeupResource(path);
+                                itemBytes = pair.first;
+                                width = pair.second.first;
+                                height = pair.second.second;
                             }
-                        });
+                            final byte[] makeupItemBytes = itemBytes;
+                            final double[] lipStickColor = lipColor;
+                            final int finalHeight = height;
+                            final int finalWidth = width;
+                            queueEventItemHandle(new Runnable() {
+                                @Override
+                                public void run() {
+                                    long begin = System.currentTimeMillis();
+                                    String key = getFaceMakeupKeyByType(makeupItem.getType());
+                                    faceunity.fuItemSetParam(itemHandle, "is_makeup_on", 1);
+                                    faceunity.fuItemSetParam(itemHandle, "makeup_intensity", mMakeupIntensity);
+                                    faceunity.fuItemSetParam(itemHandle, "reverse_alpha", 1);
+                                    if (lipStickColor != null) {
+                                        faceunity.fuItemSetParam(itemHandle, "makeup_lip_color", lipStickColor);
+                                        faceunity.fuItemSetParam(itemHandle, "makeup_lip_mask", 1);
+                                    }
+                                    if (makeupItemBytes != null) {
+                                        faceunity.fuCreateTexForItem(itemHandle, key, makeupItemBytes, finalWidth, finalHeight);
+                                    }
+                                    faceunity.fuItemSetParam(itemHandle, getMakeupIntensityKeyByType(makeupItem.getType()), makeupItem.getLevel());
+                                    Log.i(TAG, "setParam. item:" + key + ", duration:" + (System.currentTimeMillis() - begin) + "ms, handle:" + itemHandle);
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e(TAG, "", e);
+                        }
                     } else {
-                        final int item = loadItem(makeup.path());
+                        // 卸某个妆
                         queueEventItemHandle(new Runnable() {
                             @Override
                             public void run() {
-                                mItemsArray[getIndexMakeup(makeup.makeupType())] = item;
-                                faceunity.fuItemSetParam(item, "makeup_intensity", makeup.getLevel());
+                                if (mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX] > 0) {
+                                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX], getMakeupIntensityKeyByType(makeupItem.getType()), 0.0);
+                                }
                             }
                         });
                     }
-                    break;
                 }
+                break;
+                default:
             }
         }
     }

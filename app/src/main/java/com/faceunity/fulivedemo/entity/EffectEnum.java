@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public enum EffectEnum {
 
     /**
-     *
+     * 效果道具
      */
     EffectNone("none", R.drawable.ic_delete_all, "none", 1, Effect.EFFECT_TYPE_NONE, 0),
 
@@ -60,24 +60,22 @@ public enum EffectEnum {
     Effect_sea_lm_fu("sea_lm_fu", R.drawable.sea_lm_fu, "background/sea_lm_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
     Effect_ice_lm_fu("ice_lm_fu", R.drawable.ice_lm_fu, "background/ice_lm_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
 
-    Effect_ctrl_rain("ctrl_rain", R.drawable.ctrl_rain, "gesture/ctrl_rain.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ctrl_rain),
-    Effect_ctrl_snow("ctrl_snow", R.drawable.ctrl_snow, "gesture/ctrl_snow.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ctrl_snow),
-    Effect_ctrl_flower("ctrl_flower", R.drawable.ctrl_flower, "gesture/ctrl_flower.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ctrl_flower),
+    Effect_ctrl_rain("ctrl_rain", R.drawable.ctrl_rain, "gesture/ctrl_rain.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.push_hand),
+    Effect_ctrl_snow("ctrl_snow", R.drawable.ctrl_snow, "gesture/ctrl_snow.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.push_hand),
+    Effect_ctrl_flower("ctrl_flower", R.drawable.ctrl_flower, "gesture/ctrl_flower.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.push_hand),
     Effect_fu_lm_koreaheart("fu_lm_koreaheart", R.drawable.fu_lm_koreaheart, "gesture/ssd_thread_korheart.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.fu_lm_koreaheart),
     Effect_fu_ztt_live520("fu_ztt_live520", R.drawable.fu_ztt_live520, "gesture/fu_ztt_live520.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.fu_ztt_live520),
     Effect_ssd_thread_cute("ssd_thread_cute", R.drawable.ssd_thread_cute, "gesture/ssd_thread_cute.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_cute),
     Effect_ssd_thread_six("ssd_thread_six", R.drawable.ssd_thread_six, "gesture/ssd_thread_six.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_six),
     Effect_ssd_thread_thumb("ssd_thread_thumb", R.drawable.ssd_thread_thumb, "gesture/ssd_thread_thumb.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_thumb),
 
-    Effect_frog_Animoji("frog_Animoji", R.drawable.frog_animoji, "animoji/frog_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_huangya_Animoji("huangya_Animoji", R.drawable.huangya_animoji, "animoji/huangya_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_hetun_Animoji("hetun_Animoji", R.drawable.hetun_animoji, "animoji/hetun_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    //    Effect_buoutuzi_Animoji("buoutuzi_Animoji", R.drawable.buoutuzi_animoji, "animoji/buoutuzi_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_douniuquan_Animoji("douniuquan_Animoji", R.drawable.douniuquan_animoji, "animoji/douniuquan_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_hashiqi_Animoji("hashiqi_Animoji", R.drawable.hashiqi_animoji, "animoji/hashiqi_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_baimao_Animoji("baimao_Animoji", R.drawable.baimao_animoji, "animoji/baimao_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    //    Effect_chaiquan_Animoji("chaiquan_Animoji", R.drawable.chaiquan_animoji, "animoji/chaiquan_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    Effect_kuloutou_Animoji("kuloutou_Animoji", R.drawable.kuloutou_animoji, "animoji/kuloutou_Animoji.bundle", 1, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_frog_Animoji("frog_Animoji", R.drawable.frog_st_animoji, "animoji/frog_st_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_huangya_Animoji("huangya_Animoji", R.drawable.huangya_animoji, "animoji/huangya_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_hetun_Animoji("hetun_Animoji", R.drawable.hetun_animoji, "animoji/hetun_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_douniuquan_Animoji("douniuquan_Animoji", R.drawable.douniuquan_animoji, "animoji/douniuquan_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_hashiqi_Animoji("hashiqi_Animoji", R.drawable.hashiqi_animoji, "animoji/hashiqi_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_baimao_Animoji("baimao_Animoji", R.drawable.baimao_animoji, "animoji/baimao_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
+    Effect_kuloutou_Animoji("kuloutou_Animoji", R.drawable.kuloutou_animoji, "animoji/kuloutou_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
 
     Effect_picasso_e1("picasso_e1", R.drawable.picasso_e1, "portrait_drive/picasso_e1.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_DRIVE, 0),
     Effect_picasso_e2("picasso_e2", R.drawable.picasso_e2, "portrait_drive/picasso_e2.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_DRIVE, 0),
@@ -95,24 +93,23 @@ public enum EffectEnum {
     /**
      * 渐变头发
      */
-//    Hair_Gradient_01("Gradient_Hair_01", R.drawable.icon_gradualchangehair_01, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-//    Hair_Gradient_02("Gradient_Hair_02", R.drawable.icon_gradualchangehair_02, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-//    Hair_Gradient_03("Gradient_Hair_03", R.drawable.icon_gradualchangehair_03, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_04("Gradient_Hair_04", R.drawable.icon_gradualchangehair_04, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_05("Gradient_Hair_05", R.drawable.icon_gradualchangehair_05, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_06("Gradient_Hair_06", R.drawable.icon_gradualchangehair_06, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_01("Gradient_Hair_01", R.drawable.icon_gradualchangehair_01, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_02("Gradient_Hair_02", R.drawable.icon_gradualchangehair_02, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_04("Gradient_Hair_03", R.drawable.icon_gradualchangehair_03, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_05("Gradient_Hair_04", R.drawable.icon_gradualchangehair_04, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_06("Gradient_Hair_05", R.drawable.icon_gradualchangehair_05, "hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
 
     /**
      * 普通头发
      */
-    Hair_01("Hair_01", R.drawable.icon_beautymakeup_hairsalon_01, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
-    Hair_02("Hair_02", R.drawable.icon_beautymakeup_hairsalon_02, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
-    Hair_03("Hair_03", R.drawable.icon_beautymakeup_hairsalon_03, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
-    Hair_04("Hair_04", R.drawable.icon_beautymakeup_hairsalon_04, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
-    Hair_05("Hair_05", R.drawable.icon_beautymakeup_hairsalon_05, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
-    Hair_06("Hair_06", R.drawable.icon_beautymakeup_hairsalon_06, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
-    Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
-    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "hair/hair_color.bundle", 4, Effect.EFFECT_TYPE_HAIR, 0),
+    Hair_01("Hair_01", R.drawable.icon_beautymakeup_hairsalon_01, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_02("Hair_02", R.drawable.icon_beautymakeup_hairsalon_02, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_03("Hair_03", R.drawable.icon_beautymakeup_hairsalon_03, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_04("Hair_04", R.drawable.icon_beautymakeup_hairsalon_04, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_05("Hair_05", R.drawable.icon_beautymakeup_hairsalon_05, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_06("Hair_06", R.drawable.icon_beautymakeup_hairsalon_06, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
 
     Poster_face("poster_face", R.drawable.ic_delete_all, "change_face.bundle", 4, Effect.EFFECT_TYPE_POSTER_FACE, 0);
 

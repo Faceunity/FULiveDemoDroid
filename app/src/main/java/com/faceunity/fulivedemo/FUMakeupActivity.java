@@ -1,29 +1,38 @@
 package com.faceunity.fulivedemo;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.view.LayoutInflater;
+import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.faceunity.FURenderer;
-import com.faceunity.entity.Makeup;
-import com.faceunity.fulivedemo.entity.MakeupEnum;
-import com.faceunity.fulivedemo.ui.CheckGroup;
+import com.faceunity.entity.FaceMakeup;
+import com.faceunity.entity.MakeupItem;
+import com.faceunity.fulivedemo.entity.BeautyParameterModel;
+import com.faceunity.fulivedemo.entity.FaceMakeupEnum;
+import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
+import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sMakeupLevel;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sMakeups;
 
 /**
  * 美妆界面
@@ -33,101 +42,21 @@ import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sMakeups;
 public class FUMakeupActivity extends FUBaseActivity {
     public final static String TAG = FUMakeupActivity.class.getSimpleName();
 
-    private ConstraintLayout mConstraintLayout;
-    private ImageView mMakeupNone;
-    private MakeupAdapter mMakeupAdapter;
+    private ConstraintLayout mClMakeupItem;
+    private ConstraintLayout mClFaceMakeup;
+    private MakeupItemAdapter mMakeupItemAdapter;
+    private DiscreteSeekBar mMakeupSeekBar;
+    // 所有二级美妆
+    private SparseArray<List<MakeupItem>> mMakeupItemMap = new SparseArray<>(16);
     private DiscreteSeekBar mBeautySeekBar;
-    private boolean isShown;
-    private CheckGroup mBottomCheckGroup;
-
-    @Override
-    protected void onCreate() {
-        mBottomViewStub.setLayoutResource(R.layout.layout_fu_makeup);
-        mBottomViewStub.inflate();
-
-        mConstraintLayout = (ConstraintLayout) findViewById(R.id.fu_makeup_layout);
-
-        mConstraintLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
-
-//        mGLSurfaceView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mBottomCheckGroup.check(View.NO_ID);
-//            }
-//        });
-
-        mBottomCheckGroup = (CheckGroup) findViewById(R.id.makeup_radio_group);
-        mBottomCheckGroup.setOnCheckedChangeListener(new CheckGroup.OnCheckedChangeListener() {
-            int checkedId_old = View.NO_ID;
-
-            @Override
-            public void onCheckedChanged(CheckGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.makeup_radio_lipstick:
-                        mMakeupAdapter.setMakeupType(Makeup.MAKEUP_TYPE_LIPSTICK);
-                        break;
-                    case R.id.makeup_radio_blusher:
-                        mMakeupAdapter.setMakeupType(Makeup.MAKEUP_TYPE_BLUSHER);
-                        break;
-                    case R.id.makeup_radio_eyebrow:
-                        mMakeupAdapter.setMakeupType(Makeup.MAKEUP_TYPE_EYEBROW);
-                        break;
-                    case R.id.makeup_radio_eye_shadow:
-                        mMakeupAdapter.setMakeupType(Makeup.MAKEUP_TYPE_EYE_SHADOW);
-                        break;
-                    case R.id.makeup_radio_eye_liner:
-                        mMakeupAdapter.setMakeupType(Makeup.MAKEUP_TYPE_EYE_LINER);
-                        break;
-                    case R.id.makeup_radio_eyelash:
-                        mMakeupAdapter.setMakeupType(Makeup.MAKEUP_TYPE_EYELASH);
-                        break;
-                    case R.id.makeup_radio_contact_lens:
-                        mMakeupAdapter.setMakeupType(Makeup.MAKEUP_TYPE_CONTACT_LENS);
-                        break;
-                    default:
-                }
-
-                if ((checkedId == View.NO_ID || checkedId == checkedId_old) && checkedId_old != View.NO_ID) {
-                    int endHeight = (int) getResources().getDimension(R.dimen.x98);
-                    int startHeight = mConstraintLayout.getHeight();
-                    changeBottomLayoutAnimator(startHeight, endHeight);
-                    isShown = false;
-                } else if (checkedId != View.NO_ID && checkedId_old == View.NO_ID) {
-                    int startHeight = (int) getResources().getDimension(R.dimen.x98);
-                    int endHeight = (int) getResources().getDimension(R.dimen.x366);
-                    changeBottomLayoutAnimator(startHeight, endHeight);
-                    isShown = true;
-                }
-                checkedId_old = checkedId;
-            }
-        });
-
-        RecyclerView makeupMidRecycler = (RecyclerView) findViewById(R.id.makeup_mid_recycler);
-        makeupMidRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        makeupMidRecycler.setAdapter(mMakeupAdapter = new MakeupAdapter());
-        ((SimpleItemAnimator) makeupMidRecycler.getItemAnimator()).setSupportsChangeAnimations(false);
-        mMakeupNone = (ImageView) findViewById(R.id.makeup_none);
-        mMakeupNone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMakeupAdapter.clickPosition(-1);
-            }
-        });
-
-        mBeautySeekBar = (DiscreteSeekBar) findViewById(R.id.makeup_seek_bar);
-        mBeautySeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
-            @Override
-            public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
-                if (!fromUser) return;
-                mMakeupAdapter.setMakeupLevel(1.0f * value / 100);
-            }
-        });
-    }
+    private ValueAnimator mFirstMpAnimator;
+    private ValueAnimator mSecondMpAnimator;
+    private RecyclerView mMakeupMidRecycler;
+    private MakeupItemTitleAdapter mMakeupItemTitleAdapter;
+    private OnFaceMakeupClickListener mOnMpItemClickListener;
+    private FaceMakeupAdapter mFaceMakeupAdapter;
+    // 选中的二级美妆
+    private SparseArray<MakeupItem> mSelectedItems = new SparseArray<>(8);
 
     @Override
     protected FURenderer initFURenderer() {
@@ -135,38 +64,314 @@ public class FUMakeupActivity extends FUBaseActivity {
                 .Builder(this)
                 .maxFaces(4)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
-                .createEGLContext(false)
-                .needReadBackImage(false)
-                .defaultEffect(null)
-                .setNeedFaceBeauty(true)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if (isShown) {
-            mBottomCheckGroup.check(View.NO_ID);
-        }
-        return super.onTouchEvent(event);
+    protected void onCreate() {
+        initDefaultValue();
+        mBottomViewStub.setLayoutResource(R.layout.layout_fu_makeup);
+        mBottomViewStub.inflate();
+
+        mClFaceMakeup = findViewById(R.id.cl_face_makeup);
+        mClFaceMakeup.findViewById(R.id.iv_custom_makeup).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 点击自定义
+                changeFirstViewWithAnimator(false);
+                int type = mMakeupItemTitleAdapter.getSelectedItems().valueAt(0).type;
+                FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
+                if (faceMakeup != null) {
+                    List<MakeupItem> makeupItems = faceMakeup.getMakeupItems();
+                    mMakeupItemTitleAdapter.setPositionsSelected(makeupItems);
+                    if (makeupItems != null) {
+                        for (MakeupItem makeupItem : makeupItems) {
+                            mSelectedItems.put(makeupItem.getType(), makeupItem);
+                        }
+                    }
+                }
+                replaceMakeupItem(type);
+            }
+        });
+        RecyclerView rvMakeupItems = mClFaceMakeup.findViewById(R.id.rv_face_makeup);
+        rvMakeupItems.setHasFixedSize(true);
+        ((SimpleItemAnimator) rvMakeupItems.getItemAnimator()).setSupportsChangeAnimations(false);
+        rvMakeupItems.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rvMakeupItems.addItemDecoration(new VHSpaceItemDecoration(0, getResources().getDimensionPixelSize(R.dimen.x15)));
+        mFaceMakeupAdapter = new FaceMakeupAdapter(FaceMakeupEnum.getDefaultMakeups());
+        mOnMpItemClickListener = new OnFaceMakeupClickListener();
+        mFaceMakeupAdapter.setOnItemClickListener(mOnMpItemClickListener);
+        rvMakeupItems.setAdapter(mFaceMakeupAdapter);
+        // 默认选中桃花妆
+        mFaceMakeupAdapter.setItemSelected(1);
+
+        mMakeupSeekBar = mClFaceMakeup.findViewById(R.id.seek_bar_makeup);
+        mMakeupSeekBar.setProgress(50);
+        mMakeupSeekBar.setVisibility(View.INVISIBLE);
+        mMakeupSeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
+            @Override
+            public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+                float level = 1.0f * value / 100;
+                FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
+                BeautyParameterModel.sBatchMakeupLevel.put(getResources().getString(faceMakeup.getNameId()), level);
+                mFURenderer.onMakeupOverallLevelChanged(level);
+            }
+        });
+
+        mClMakeupItem = findViewById(R.id.cl_makeup_item);
+        ((View) mClMakeupItem.getParent()).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+
+        mMakeupMidRecycler = mClMakeupItem.findViewById(R.id.makeup_mid_recycler);
+        mMakeupMidRecycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mMakeupMidRecycler.setHasFixedSize(true);
+        ((SimpleItemAnimator) mMakeupMidRecycler.getItemAnimator()).setSupportsChangeAnimations(false);
+        List<MakeupItem> makeupItems = new ArrayList<>(10);
+        mMakeupItemAdapter = new MakeupItemAdapter(makeupItems);
+        mMakeupItemAdapter.setOnItemClickListener(new OnMakeupItemClickListener());
+        mMakeupItemAdapter.setItemSelected(0);
+        mMakeupMidRecycler.setAdapter(mMakeupItemAdapter);
+        ImageView ivmMakeupBack = mClMakeupItem.findViewById(R.id.iv_makeup_back);
+        ivmMakeupBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 点击回退
+                changeSecondViewWithAnimator(false);
+                FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
+                if (faceMakeup != null) {
+                    List<MakeupItem> makeupItemList = faceMakeup.getMakeupItems();
+                    if (makeupItemList != null) {
+                        // 普通妆容
+                        boolean isChanged = false;
+                        out:
+                        for (int i = 0, j = mSelectedItems.size(); i < j; i++) {
+                            MakeupItem selMp = mSelectedItems.valueAt(i);
+                            if (BeautyParameterModel.sMakeupLevel.get(selMp.getName()) /
+                                    BeautyParameterModel.sBatchMakeupLevel.get(getResources().getString(faceMakeup.getNameId()))
+                                    != FaceMakeupEnum.DEFAULT_BATCH_MAKEUP_LEVEL) {
+                                isChanged = true;
+                                break;
+                            }
+                            if (!TextUtils.isEmpty(selMp.getPath())) {
+                                for (MakeupItem makeupItem : makeupItemList) {
+                                    if (makeupItem.getType() == selMp.getType() && !TextUtils.isEmpty(makeupItem.getPath())) {
+                                        if (!makeupItem.getName().equals(selMp.getName())) {
+                                            isChanged = true;
+                                            break out;
+                                        }
+                                    }
+                                }
+                            } else {
+                                isChanged = true;
+                            }
+                        }
+                        if (isChanged) {
+                            mFaceMakeupAdapter.clearSingleItemSelected();
+                            mMakeupSeekBar.setVisibility(View.INVISIBLE);
+                        }
+                    } else {
+                        // 卸妆
+                        if (mSelectedItems.size() > 0) {
+                            mFaceMakeupAdapter.clearSingleItemSelected();
+                            mMakeupSeekBar.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                }
+            }
+        });
+
+        RecyclerView rvMakeupItem = mClMakeupItem.findViewById(R.id.rv_makeup_item);
+        rvMakeupItem.setHasFixedSize(true);
+        rvMakeupItem.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        ((SimpleItemAnimator) rvMakeupItem.getItemAnimator()).setSupportsChangeAnimations(false);
+        mMakeupItemTitleAdapter = new MakeupItemTitleAdapter(getTitles());
+        rvMakeupItem.setAdapter(mMakeupItemTitleAdapter);
+        mMakeupItemTitleAdapter.setItemSelected(0);
+        OnTitleClickListener onTitleClickListener = new OnTitleClickListener();
+        mMakeupItemTitleAdapter.setOnItemClickListener(onTitleClickListener);
+
+        mBeautySeekBar = mClMakeupItem.findViewById(R.id.makeup_seek_bar);
+        mBeautySeekBar.setProgress(50);
+        mBeautySeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
+            @Override
+            public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+                if (!fromUser) {
+                    return;
+                }
+                mMakeupItemTitleAdapter.setPosSelected(value > 0);
+                float level = 1.0f * value / 100;
+                MakeupItem makeupItem = mMakeupItemAdapter.getSelectedItems().valueAt(0);
+                BeautyParameterModel.sMakeupLevel.put(makeupItem.getName(), level);
+                makeupItem.setLevel(level);
+                mFURenderer.onMakeupLevelChanged(makeupItem.getType(), level);
+            }
+        });
+
+        replaceMakeupItem(FaceMakeup.FACE_MAKEUP_TYPE_LIPSTICK);
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         super.onSurfaceCreated(gl, config);
-        for (int i = 0; i < sMakeups.length; i++) {
-            mMakeupAdapter.selectPos[i] = MakeupEnum.getMakeupsByMakeupType(i).lastIndexOf(sMakeups[i]);
-            sMakeups[i].setLevel(mMakeupAdapter.getMakeupLevel(sMakeups[i].bundleName()));
-            mFURenderer.onMakeupSelected(sMakeups[i]);
+        FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
+        if (faceMakeup != null) {
+            final int pos = mFaceMakeupAdapter.indexOf(faceMakeup);
+            if (faceMakeup.getMakeupItems() != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mOnMpItemClickListener.onItemClick(mFaceMakeupAdapter, null, pos);
+                    }
+                });
+            }
         }
-        runOnUiThread(new Runnable() {
+    }
+
+    private void initDefaultValue() {
+        Set<Map.Entry<String, Float>> batchEntries = BeautyParameterModel.sBatchMakeupLevel.entrySet();
+        for (Map.Entry<String, Float> entry : batchEntries) {
+            entry.setValue(1.0f);
+        }
+        Set<Map.Entry<String, Float>> mpEntries = BeautyParameterModel.sMakeupLevel.entrySet();
+        for (Map.Entry<String, Float> mpEntry : mpEntries) {
+            mpEntry.setValue(MakeupItem.DEFAULT_MAKEUP_LEVEL);
+        }
+    }
+
+    private void changeFirstViewWithAnimator(final boolean showFirstView) {
+        if (mFirstMpAnimator != null && mFirstMpAnimator.isRunning()) {
+            mFirstMpAnimator.cancel();
+        }
+        final int fmpHeight = getResources().getDimensionPixelSize(R.dimen.x268);
+        int start = showFirstView ? 0 : fmpHeight;
+        int end = showFirstView ? fmpHeight : 0;
+        mFirstMpAnimator = ValueAnimator.ofInt(start, end);
+        mFirstMpAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
-            public void run() {
-                mMakeupAdapter.notifyDataSetChanged();
+            public void onAnimationUpdate(ValueAnimator animation) {
+                FrameLayout.LayoutParams fmpLayoutParams = (FrameLayout.LayoutParams) mClFaceMakeup.getLayoutParams();
+                fmpLayoutParams.height = (int) animation.getAnimatedValue();
+                mClFaceMakeup.setLayoutParams(fmpLayoutParams);
             }
         });
+        mFirstMpAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (!showFirstView) {
+                    changeSecondViewWithAnimator(true);
+                }
+            }
+        });
+        mFirstMpAnimator.setDuration(150);
+        mFirstMpAnimator.start();
     }
+
+    private void changeSecondViewWithAnimator(final boolean showSecondView) {
+        if (mSecondMpAnimator != null && mSecondMpAnimator.isRunning()) {
+            mSecondMpAnimator.cancel();
+        }
+        final int mpItemHeight = getResources().getDimensionPixelSize(R.dimen.x366);
+        int start = showSecondView ? 0 : mpItemHeight;
+        int end = showSecondView ? mpItemHeight : 0;
+        mSecondMpAnimator = ValueAnimator.ofInt(start, end);
+        mSecondMpAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                FrameLayout.LayoutParams mpItemLayoutParams = (FrameLayout.LayoutParams) mClMakeupItem.getLayoutParams();
+                mpItemLayoutParams.height = (int) animation.getAnimatedValue();
+                mClMakeupItem.setLayoutParams(mpItemLayoutParams);
+            }
+        });
+        mSecondMpAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (!showSecondView) {
+                    changeFirstViewWithAnimator(true);
+                }
+            }
+        });
+        mSecondMpAnimator.setDuration(150);
+        mSecondMpAnimator.start();
+    }
+
+    private void replaceMakeupItem(int type) {
+        List<MakeupItem> makeupItems = mMakeupItemMap.get(type);
+        if (makeupItems == null) {
+            makeupItems = FaceMakeupEnum.getFaceMakeupByType(type);
+            mMakeupItemMap.put(type, makeupItems);
+            for (MakeupItem makeupItem : makeupItems) {
+                BeautyParameterModel.sMakeupLevel.put(makeupItem.getName(), makeupItem.getLevel());
+            }
+        }
+        mMakeupItemAdapter.replaceAll(makeupItems);
+        FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
+        if (faceMakeup != null && mFaceMakeupAdapter.indexOf(faceMakeup) > 0) {
+            // 具体的组合妆容，二级妆容恢复默认
+            List<MakeupItem> makeupItemsList = faceMakeup.getMakeupItems();
+            Set<Map.Entry<String, Float>> mpEntries = BeautyParameterModel.sMakeupLevel.entrySet();
+            for (Map.Entry<String, Float> mpEntry : mpEntries) {
+                mpEntry.setValue(MakeupItem.DEFAULT_MAKEUP_LEVEL);
+            }
+            for (MakeupItem makeupItem : makeupItemsList) {
+                String name = getResources().getString(faceMakeup.getNameId());
+                Float lev = BeautyParameterModel.sBatchMakeupLevel.get(name);
+                if (lev == null) {
+                    lev = 1.0f;
+                    BeautyParameterModel.sBatchMakeupLevel.put(name, lev);
+                }
+                float value = makeupItem.getLevel() * lev;
+                BeautyParameterModel.sMakeupLevel.put(makeupItem.getName(), value);
+            }
+        }
+        MakeupItem data = mSelectedItems.get(type);
+        int pos = -1;
+        if (data != null) {
+            pos = mMakeupItemAdapter.indexOf(data);
+        }
+        if (pos < 0) {
+            if (faceMakeup != null) {
+                List<MakeupItem> makeupItemList = faceMakeup.getMakeupItems();
+                if (makeupItemList != null) {
+                    for (int i = 0, j = makeupItemList.size(); i < j; i++) {
+                        MakeupItem makeupItem = makeupItemList.get(i);
+                        if (makeupItem.getType() == type && !TextUtils.isEmpty(makeupItem.getPath())) {
+                            pos = mMakeupItemAdapter.indexOf(makeupItem);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i < mSelectedItems.size(); i++) {
+                    MakeupItem makeupItem = mSelectedItems.valueAt(i);
+                    if (makeupItem.getType() == type && !TextUtils.isEmpty(makeupItem.getPath())) {
+                        pos = mMakeupItemAdapter.indexOf(makeupItem);
+                    }
+                }
+            }
+        }
+        if (pos < 0) {
+            pos = 0;
+        }
+        mMakeupItemAdapter.setItemSelected(pos);
+        MakeupItem selectedMp = mMakeupItemAdapter.getItem(pos);
+        float level;
+        if (selectedMp != null) {
+            level = BeautyParameterModel.sMakeupLevel.get(selectedMp.getName());
+        } else {
+            level = FaceMakeupEnum.DEFAULT_BATCH_MAKEUP_LEVEL;
+        }
+        mBeautySeekBar.setProgress((int) (1.0f * level * 100));
+        mMakeupItemTitleAdapter.setPosSelected(pos > 0);
+        mMakeupMidRecycler.scrollToPosition(pos);
+        mBeautySeekBar.setVisibility(pos > 0 ? View.VISIBLE : View.INVISIBLE);
+    }
+
 
     private ValueAnimator mBottomLayoutAnimator;
 
@@ -179,10 +384,9 @@ public class FUMakeupActivity extends FUBaseActivity {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 int height = (int) animation.getAnimatedValue();
-                ViewGroup.LayoutParams params = mConstraintLayout.getLayoutParams();
-                if (params == null) return;
+                ViewGroup.LayoutParams params = mClMakeupItem.getLayoutParams();
                 params.height = height;
-                mConstraintLayout.setLayoutParams(params);
+                mClMakeupItem.setLayoutParams(params);
                 float s = 1.0f * (height - startHeight) / (endHeight - startHeight);
                 float showRate = startHeight > endHeight ? 1 - s : s;
                 mTakePicBtn.setDrawWidth((int) (getResources().getDimensionPixelSize(R.dimen.x166) * (1 - showRate * 0.265)));
@@ -191,97 +395,199 @@ public class FUMakeupActivity extends FUBaseActivity {
         mBottomLayoutAnimator.start();
     }
 
-    class MakeupAdapter extends RecyclerView.Adapter<MakeupAdapter.MakeupHolder> {
+    private List<TitleEntity> getTitles() {
+        List<TitleEntity> titleEntities = new ArrayList<>();
+        titleEntities.add(new TitleEntity(getString(R.string.makeup_radio_lipstick), FaceMakeup.FACE_MAKEUP_TYPE_LIPSTICK, 0));
+        titleEntities.add(new TitleEntity(getString(R.string.makeup_radio_blusher), FaceMakeup.FACE_MAKEUP_TYPE_BLUSHER, 1));
+        titleEntities.add(new TitleEntity(getString(R.string.makeup_radio_eyebrow), FaceMakeup.FACE_MAKEUP_TYPE_EYEBROW, 2));
+        titleEntities.add(new TitleEntity(getString(R.string.makeup_radio_eye_shadow), FaceMakeup.FACE_MAKEUP_TYPE_EYE_SHADOW, 3));
+        titleEntities.add(new TitleEntity(getString(R.string.makeup_radio_eye_liner), FaceMakeup.FACE_MAKEUP_TYPE_EYE_LINER, 4));
+        titleEntities.add(new TitleEntity(getString(R.string.makeup_radio_eyelash), FaceMakeup.FACE_MAKEUP_TYPE_EYELASH, 5));
+        titleEntities.add(new TitleEntity(getString(R.string.makeup_radio_contact_lens), FaceMakeup.FACE_MAKEUP_TYPE_EYE_PUPIL, 6));
+        return titleEntities;
+    }
 
-        private int[] selectPos = {-1, -1, -1, -1, -1, -1, -1};
-        private int selectMakeupType = -1;
+    // 美妆标题适配器
+    private class MakeupItemTitleAdapter extends BaseRecyclerAdapter<TitleEntity> {
 
-        @Override
-        public MakeupHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new MakeupAdapter.MakeupHolder(LayoutInflater.from(FUMakeupActivity.this).inflate(R.layout.layout_makeup_recycler, parent, false));
+        MakeupItemTitleAdapter(@NonNull List<TitleEntity> data) {
+            super(data, R.layout.layout_makeup_recycler_mp);
         }
 
         @Override
-        public void onBindViewHolder(MakeupAdapter.MakeupHolder holder, final int position) {
-            final List<Makeup> makeups = getItems();
-            holder.makeupImg.setImageResource(makeups.get(position).resId());
-            if (selectMakeupType >= 0 && selectPos[selectMakeupType] == position) {
-                holder.makeupImg.setBackgroundResource(R.drawable.control_filter_select);
-            } else {
-                holder.makeupImg.setBackgroundResource(0);
+        protected void bindViewHolder(BaseViewHolder viewHolder, TitleEntity item) {
+            viewHolder.setText(R.id.tv_mp_title, item.name)
+                    .setVisibility(R.id.iv_mp_indicator, item.hasSelectedItem ? View.VISIBLE : View.INVISIBLE);
+        }
+
+        @Override
+        protected void handleSelectedState(BaseViewHolder viewHolder, TitleEntity data, boolean selected) {
+            viewHolder.setViewSelected(R.id.tv_mp_title, selected);
+        }
+
+        public void setPosSelected(boolean selected) {
+            TitleEntity titleEntity = getSelectedItems().valueAt(0);
+            if (titleEntity != null) {
+                titleEntity.hasSelectedItem = selected;
+                notifyItemChanged(indexOf(titleEntity));
             }
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clickPosition(position);
+        }
+
+        public void setPositionsSelected(List<MakeupItem> makeupItems) {
+            for (TitleEntity datum : mData) {
+                if (makeupItems != null) {
+                    boolean hint = false;
+                    for (MakeupItem makeupItem : makeupItems) {
+                        if (datum.type == makeupItem.getType()) {
+                            datum.hasSelectedItem = true;
+                            hint = true;
+                            break;
+                        }
+                    }
+                    if (!hint) {
+                        datum.hasSelectedItem = false;
+                    }
+                } else {
+                    datum.hasSelectedItem = false;
                 }
-            });
+            }
+            notifyDataSetChanged();
+        }
+    }
+
+    // 妆容组合适配器
+    private class FaceMakeupAdapter extends BaseRecyclerAdapter<FaceMakeup> {
+
+        FaceMakeupAdapter(@NonNull List<FaceMakeup> data) {
+            super(data, R.layout.layout_rv_makeup);
         }
 
         @Override
-        public int getItemCount() {
-            return getItems().size();
+        protected void bindViewHolder(BaseViewHolder viewHolder, FaceMakeup item) {
+            viewHolder.setText(R.id.tv_makeup, getResources().getString(item.getNameId()))
+                    .setImageResource(R.id.iv_makeup, item.getIconId());
         }
 
-        public void setMakeupType(int makeupType) {
-            this.selectMakeupType = makeupType;
-            notifyDataSetChanged();
-            mMakeupNone.setImageResource(selectPos[selectMakeupType] >= 0 ? R.drawable.makeup_none_normal : R.drawable.makeup_none_checked);
-            setMakeupProgress();
+        @Override
+        protected void handleSelectedState(BaseViewHolder viewHolder, FaceMakeup data, boolean selected) {
+            ((TextView) viewHolder.getViewById(R.id.tv_makeup)).setTextColor(selected ?
+                    getResources().getColor(R.color.main_color) : getResources().getColor(R.color.colorWhite));
+            viewHolder.setBackground(R.id.iv_makeup, selected ? R.drawable.control_filter_select : 0);
+        }
+    }
+
+    // 妆容单项适配器
+    private class MakeupItemAdapter extends BaseRecyclerAdapter<MakeupItem> {
+
+        MakeupItemAdapter(@NonNull List<MakeupItem> data) {
+            super(data, R.layout.layout_makeup_recycler);
         }
 
-        private void clickPosition(int position) {
-            if (selectMakeupType < 0) return;
-            selectPos[selectMakeupType] = position;
-            Makeup select;
-            if (position >= 0) {
-                select = getItems().get(position);
-                select.setLevel(getMakeupLevel(select.bundleName()));
-                mFURenderer.onMakeupSelected(select);
-            } else {
-                select = MakeupEnum.MakeupNone.makeup();
-                select.setMakeupType(selectMakeupType);
-                mFURenderer.onMakeupSelected(select);
+        @Override
+        protected void bindViewHolder(BaseViewHolder viewHolder, MakeupItem item) {
+            viewHolder.setImageResource(R.id.makeup_recycler_img, item.getIconId());
+        }
+
+        @Override
+        protected void handleSelectedState(BaseViewHolder viewHolder, MakeupItem data, boolean selected) {
+            viewHolder.setBackground(R.id.makeup_recycler_img, selected ? R.drawable.control_filter_select : 0);
+        }
+
+        @Override
+        public int indexOf(@NonNull MakeupItem data) {
+            for (int i = 0, j = mData.size(); i < j; i++) {
+                if (TextUtils.equals(data.getName(), mData.get(i).getName())) {
+                    return i;
+                }
             }
-            sMakeups[selectMakeupType] = select;
-            setMakeupProgress();
-            notifyDataSetChanged();
-            mMakeupNone.setImageResource(position >= 0 ? R.drawable.makeup_none_normal : R.drawable.makeup_none_checked);
+            return -1;
         }
+    }
 
-        public void setMakeupProgress() {
-            if (selectMakeupType == -1 || selectPos[selectMakeupType] == -1) {
-                mBeautySeekBar.setVisibility(View.GONE);
+    // 妆容标题点击事件
+    private class OnTitleClickListener implements BaseRecyclerAdapter.OnItemClickListener {
+        private int mLastSelectedPos = 0;
+        private boolean mIsShown = true;
+
+        @Override
+        public void onItemClick(BaseRecyclerAdapter adapter, View view, int position) {
+            TitleEntity titleEntity = (TitleEntity) adapter.getItem(position);
+            if (mLastSelectedPos != position) {
+                replaceMakeupItem(titleEntity.type);
+            }
+            if (mIsShown) {
+                if (mLastSelectedPos == position) {
+                    mIsShown = false;
+                    int startHeight = (int) getResources().getDimension(R.dimen.x366);
+                    int endHeight = (int) getResources().getDimension(R.dimen.x98);
+                    changeBottomLayoutAnimator(startHeight, endHeight);
+                }
+            } else {
+                mIsShown = true;
+                int startHeight = (int) getResources().getDimension(R.dimen.x98);
+                int endHeight = (int) getResources().getDimension(R.dimen.x366);
+                changeBottomLayoutAnimator(startHeight, endHeight);
+            }
+            mLastSelectedPos = position;
+        }
+    }
+
+    // 一级菜单点击事件
+    private class OnFaceMakeupClickListener implements BaseRecyclerAdapter.OnItemClickListener {
+
+        @Override
+        public void onItemClick(BaseRecyclerAdapter adapter, View view, int position) {
+            FaceMakeup faceMakeup = (FaceMakeup) adapter.getItem(position);
+            mSelectedItems.clear();
+            if (position == 0) {
+                mMakeupSeekBar.setVisibility(View.INVISIBLE);
+            } else {
+                mMakeupSeekBar.setVisibility(View.VISIBLE);
+                String name = getResources().getString(faceMakeup.getNameId());
+                Float level = BeautyParameterModel.sBatchMakeupLevel.get(name);
+                if (level == null) {
+                    level = 1.0f;
+                    BeautyParameterModel.sBatchMakeupLevel.put(name, level);
+                }
+                mMakeupSeekBar.setProgress((int) (1.0f * level * 100));
+                mFURenderer.onMakeupOverallLevelChanged(level);
+            }
+            List<MakeupItem> makeupItems = faceMakeup.getMakeupItems();
+            mFURenderer.onBatchMakeupSelected(makeupItems);
+        }
+    }
+
+    // 二级菜单点击事件
+    private class OnMakeupItemClickListener implements BaseRecyclerAdapter.OnItemClickListener {
+
+        @Override
+        public void onItemClick(BaseRecyclerAdapter adapter, View view, int position) {
+            MakeupItem makeupItem = (MakeupItem) adapter.getItem(position);
+            mSelectedItems.put(makeupItem.getType(), makeupItem);
+            Float level = 0f;
+            if (position == 0) {
+                mBeautySeekBar.setVisibility(View.INVISIBLE);
+                mMakeupItemTitleAdapter.setPosSelected(false);
             } else {
                 mBeautySeekBar.setVisibility(View.VISIBLE);
-                mBeautySeekBar.setProgress((int) (100 * getMakeupLevel(getItems().get(selectPos[selectMakeupType]).bundleName())));
+                mMakeupItemTitleAdapter.setPosSelected(true);
+                level = BeautyParameterModel.sMakeupLevel.get(makeupItem.getName());
+                mBeautySeekBar.setProgress((int) (1.0f * level * 100));
             }
+            mFURenderer.onMakeupSelected(makeupItem, level);
         }
+    }
 
-        private List<Makeup> getItems() {
-            return MakeupEnum.getMakeupsByMakeupType(selectMakeupType);
-        }
+    class TitleEntity {
+        String name;
+        int type;
+        int position;
+        boolean hasSelectedItem;
 
-        public float getMakeupLevel(String makeupName) {
-            Float level = sMakeupLevel.get(makeupName);
-            float l = level == null ? 0.5f : level;
-            return l;
-        }
-
-        public void setMakeupLevel(float makeupLevel) {
-            String makeupName = getItems().get(selectPos[selectMakeupType]).bundleName();
-            sMakeupLevel.put(makeupName, makeupLevel);
-            mFURenderer.onMakeupLevelSelected(selectMakeupType, makeupLevel);
-        }
-
-        class MakeupHolder extends RecyclerView.ViewHolder {
-
-            ImageView makeupImg;
-
-            public MakeupHolder(View itemView) {
-                super(itemView);
-                makeupImg = (ImageView) itemView.findViewById(R.id.makeup_recycler_img);
-            }
+        TitleEntity(String name, int type, int position) {
+            this.name = name;
+            this.type = type;
+            this.position = position;
         }
     }
 }

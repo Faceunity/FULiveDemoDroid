@@ -1,9 +1,9 @@
 package com.faceunity.fulivedemo;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +26,6 @@ import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sHairLevel;
  * 美发界面
  * Created by tujh on 2018/1/31.
  */
-
 public class FUHairActivity extends FUBaseActivity {
     public final static String TAG = FUHairActivity.class.getSimpleName();
 
@@ -34,32 +33,32 @@ public class FUHairActivity extends FUBaseActivity {
 
     private DiscreteSeekBar mDiscreteSeekBar;
     private ArrayList<Effect> mEffects;
-    private int mHairEffectCount = 3;
+    private int mHairGradientCount;
 
     @Override
     protected void onCreate() {
         mBottomViewStub.setLayoutResource(R.layout.layout_fu_hair);
         mBottomViewStub.inflate();
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.fu_hair_recycler);
+        RecyclerView recyclerView = findViewById(R.id.fu_hair_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(mHairAdapter = new HairAdapter());
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 
-        mDiscreteSeekBar = (DiscreteSeekBar) findViewById(R.id.fu_hair_recycler_seek_bar);
+        mDiscreteSeekBar = findViewById(R.id.fu_hair_recycler_seek_bar);
         mDiscreteSeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
             @Override
             public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
                 if (!fromUser) {
                     return;
                 }
-                if (mHairAdapter.mPositionSelect <= mHairEffectCount) {
-                    int hairIndex = mHairAdapter.mPositionSelect - 1 + mHairEffectCount;
+                if (mHairAdapter.mPositionSelect <= mHairGradientCount) {
+                    int hairIndex = mHairAdapter.mPositionSelect - 1;
                     mFURenderer.onHairLevelSelected(FURenderer.HAIR_GRADIENT, hairIndex,
-                            hairIndex < 0 ? 0 : (sHairLevel[hairIndex] = 1.0f * value / 100));
+                            hairIndex < 0 ? 0 : (sHairLevel[mHairAdapter.mPositionSelect - 1] = 1.0f * value / 100));
                 } else {
-                    int hairIndex = mHairAdapter.mPositionSelect - mHairEffectCount - 1;
+                    int hairIndex = mHairAdapter.mPositionSelect - mHairGradientCount - 1;
                     mFURenderer.onHairLevelSelected(FURenderer.HAIR_NORMAL, hairIndex,
                             sHairLevel[mHairAdapter.mPositionSelect - 1] = 1.0f * value / 100);
                 }
@@ -71,10 +70,10 @@ public class FUHairActivity extends FUBaseActivity {
 
     @Override
     protected FURenderer initFURenderer() {
-        ArrayList<Effect> hairEffects = EffectEnum.getEffectsByEffectType(Effect.EFFECT_TYPE_HAIR);
+        ArrayList<Effect> hairEffects = EffectEnum.getEffectsByEffectType(Effect.EFFECT_TYPE_HAIR_NORMAL);
         ArrayList<Effect> hairGradientEffects = EffectEnum.getEffectsByEffectType(Effect.EFFECT_TYPE_HAIR_GRADIENT);
-        mHairEffectCount = hairGradientEffects.size() - 1;
-        mEffects = new ArrayList<>();
+        mHairGradientCount = hairGradientEffects.size() - 1;
+        mEffects = new ArrayList<>(mHairGradientCount + hairEffects.size());
         mEffects.addAll(hairGradientEffects);
         hairEffects.remove(0);
         mEffects.addAll(hairEffects);
@@ -104,49 +103,61 @@ public class FUHairActivity extends FUBaseActivity {
         int mPositionSelect = 1;
 
         @Override
-        public HairAdapter.HomeRecyclerHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new HairAdapter.HomeRecyclerHolder(LayoutInflater.from(FUHairActivity.this).inflate(R.layout.layout_effect_recycler, parent, false));
+        @NonNull
+        public HairAdapter.HomeRecyclerHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new HairAdapter.HomeRecyclerHolder(LayoutInflater.from(FUHairActivity.this)
+                    .inflate(R.layout.layout_effect_recycler, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(HairAdapter.HomeRecyclerHolder holder, final int position) {
+        public void onBindViewHolder(@NonNull HairAdapter.HomeRecyclerHolder holder, int position) {
 
             holder.effectImg.setImageResource(mEffects.get(position).resId());
+            final int pos = position;
             holder.effectImg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mPositionSelect == position) {
+                    if (mPositionSelect == pos) {
                         return;
                     }
-                    Effect click = mEffects.get(mPositionSelect = position);
+                    int lastPos = mPositionSelect;
+                    mPositionSelect = pos;
                     int hairIndex;
                     float hairLevel;
                     if (mPositionSelect <= 0) {
                         hairIndex = mPositionSelect;
                         hairLevel = 0;
-                    } else if (mPositionSelect > mHairEffectCount) {
+                    } else if (mPositionSelect > mHairGradientCount) {
                         // 正常
-                        hairIndex = mPositionSelect - mHairEffectCount - 1;
+                        hairIndex = mPositionSelect - mHairGradientCount - 1;
                         hairLevel = sHairLevel[mPositionSelect - 1];
                     } else {
                         // 渐变
-                        hairIndex = mPositionSelect - 1 + mHairEffectCount;
-                        hairLevel = sHairLevel[hairIndex];
+                        hairIndex = mPositionSelect - 1;
+                        hairLevel = sHairLevel[mPositionSelect - 1];
                     }
-                    Log.d(TAG, "onClick: hairIndex:" + hairIndex + ", hairLevel:" + hairLevel +
-                            ", pos:" + mPositionSelect + ". lastPos:" + mPositionSelect);
-                    if (mPositionSelect <= mHairEffectCount) {
-                        mFURenderer.onHairSelected(FURenderer.HAIR_GRADIENT, hairIndex, hairLevel);
+//                    Log.d(TAG, "onClick: hairIndex:" + hairIndex + ", hairLevel:" + hairLevel +
+//                            ", pos:" + mPositionSelect + ". lastPos:" + mPositionSelect);
+                    if (mPositionSelect == 0) {
+                        if (lastPos <= mHairGradientCount) {
+                            mFURenderer.onHairSelected(FURenderer.HAIR_GRADIENT, hairIndex, 0.0f);
+                        } else {
+                            mFURenderer.onHairSelected(FURenderer.HAIR_NORMAL, hairIndex, 0.0f);
+                        }
                     } else {
-                        mFURenderer.onHairSelected(FURenderer.HAIR_NORMAL, hairIndex, hairLevel);
+                        if (mPositionSelect <= mHairGradientCount) {
+                            mFURenderer.onHairSelected(FURenderer.HAIR_GRADIENT, hairIndex, hairLevel);
+                        } else {
+                            mFURenderer.onHairSelected(FURenderer.HAIR_NORMAL, hairIndex, hairLevel);
+                        }
                     }
-                    showDescription(click.description(), 1500);
-                    if (position == 0) {
+                    if (mPositionSelect == 0) {
                         mDiscreteSeekBar.setVisibility(View.INVISIBLE);
                     } else {
                         mDiscreteSeekBar.setVisibility(View.VISIBLE);
                         mDiscreteSeekBar.setProgress((int) (hairLevel * 100));
                     }
+
                     notifyDataSetChanged();
                 }
             });
@@ -162,18 +173,18 @@ public class FUHairActivity extends FUBaseActivity {
             return mEffects.size();
         }
 
+        Effect getSelectEffect() {
+            return mEffects.get(mPositionSelect);
+        }
+
         class HomeRecyclerHolder extends RecyclerView.ViewHolder {
 
             CircleImageView effectImg;
 
-            public HomeRecyclerHolder(View itemView) {
+            HomeRecyclerHolder(View itemView) {
                 super(itemView);
-                effectImg = (CircleImageView) itemView.findViewById(R.id.effect_recycler_img);
+                effectImg = itemView.findViewById(R.id.effect_recycler_img);
             }
-        }
-
-        public Effect getSelectEffect() {
-            return mEffects.get(mPositionSelect);
         }
     }
 }

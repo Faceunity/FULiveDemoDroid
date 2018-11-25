@@ -71,7 +71,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     protected ImageView mTopBackground;
     protected GLSurfaceView mGLSurfaceView;
     protected CameraRenderer mCameraRenderer;
-    private boolean isDoubleInputType = true;
+    private volatile boolean isDoubleInputType = true;
     private ImageButton mCameraChange;
     private TextView mDebugText;
     private TextView mIsTrackingText;

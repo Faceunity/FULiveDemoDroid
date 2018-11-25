@@ -78,6 +78,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     private float[] mvp = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
     private ProgramTextureOES mTextureOES;
+//    private ProgramLandmarks mProgramLandmarks;
 
     private FPSUtil mFPSUtil;
 
@@ -131,6 +132,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         Log.d(TAG, "onSurfaceCreated()");
         mFullFrameRectTexture2D = new ProgramTexture2d();
         mTextureOES = new ProgramTextureOES();
+//        mProgramLandmarks = new ProgramLandmarks();
         mCameraTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         cameraStartPreview();
 
@@ -142,15 +144,17 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
         mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
         mOnCameraRendererStatusListener.onSurfaceChanged(gl, width, height);
-        Log.d(TAG, "onSurfaceChanged: width:" + width + ", height:" + height + ". orientation:" + mCameraOrientation);
+        Log.i(TAG, "onSurfaceChanged: viewWidth:" + mViewWidth + ", viewHeight:" + mViewHeight + ". cameraOrientation:" + mCameraOrientation
+                + ", cameraWidth:" + mCameraWidth + ", cameraHeight:" + mCameraHeight);
         mFPSUtil.resetLimit();
         isDraw = false;
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mTextureOES == null || mFullFrameRectTexture2D == null)
+        if (mTextureOES == null || mFullFrameRectTexture2D == null) {
             return;
+        }
         if (mCameraNV21Byte == null) {
             mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
             return;
@@ -173,6 +177,12 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         } else {
             mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
         }
+
+        // draw landmarks view
+//        if (!isNeedStopDrawFrame && drawCameraSurface) {
+//            mProgramLandmarks.refresh(landmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCurrentCameraType);
+//            mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
+//        }
 
         mFPSUtil.limit();
         if (!isNeedStopDrawFrame) {
@@ -332,8 +342,9 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                     previewCallbackBuffer = new byte[PREVIEW_BUFFER_COUNT][mCameraWidth * mCameraHeight * 3 / 2];
                 }
                 mCamera.setPreviewCallbackWithBuffer(this);
-                for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++)
+                for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++) {
                     mCamera.addCallbackBuffer(previewCallbackBuffer[i]);
+                }
                 if (mSurfaceTexture != null) {
                     mSurfaceTexture.release();
                 }
@@ -390,4 +401,5 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     public void setExposureCompensation(float v) {
         CameraUtils.setExposureCompensation(mCamera, v);
     }
+
 }

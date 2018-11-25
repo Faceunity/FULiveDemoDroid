@@ -92,28 +92,25 @@ public final class EglCore {
         }
 
         // Try to get a GLES3 context, if requested.
-        if ((flags & FLAG_TRY_GLES3) != 0) {
-            //Log.d(TAG, "Trying GLES 3");
-            EGLConfig config = getConfig(flags, 3);
-            if (config != null) {
-                int[] attrib3_list = {
-                        EGL14.EGL_CONTEXT_CLIENT_VERSION, 3,
-                        EGL14.EGL_NONE
-                };
-                EGLContext context = EGL14.eglCreateContext(mEGLDisplay, config, sharedContext,
-                        attrib3_list, 0);
+        EGLConfig config = getConfig(flags, 3);
+        if (config != null) {
+            int[] attrib3_list = {
+                    EGL14.EGL_CONTEXT_CLIENT_VERSION, 3,
+                    EGL14.EGL_NONE
+            };
+            EGLContext context = EGL14.eglCreateContext(mEGLDisplay, config, sharedContext,
+                    attrib3_list, 0);
 
-                if (EGL14.eglGetError() == EGL14.EGL_SUCCESS) {
-                    //Log.d(TAG, "Got GLES 3 config");
-                    mEGLConfig = config;
-                    mEGLContext = context;
-                    mGlVersion = 3;
-                }
+            if (EGL14.eglGetError() == EGL14.EGL_SUCCESS) {
+                //Log.d(TAG, "Got GLES 3 config");
+                mEGLConfig = config;
+                mEGLContext = context;
+                mGlVersion = 3;
             }
         }
         if (mEGLContext == EGL14.EGL_NO_CONTEXT) {  // GLES 2 only, or GLES 3 attempt failed
             //Log.d(TAG, "Trying GLES 2");
-            EGLConfig config = getConfig(flags, 2);
+            config = getConfig(flags, 2);
             if (config == null) {
                 throw new RuntimeException("Unable to find a suitable EGLConfig");
             }

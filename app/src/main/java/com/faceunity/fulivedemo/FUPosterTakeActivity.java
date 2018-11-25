@@ -24,8 +24,12 @@ import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.ui.RecordBtn;
 import com.faceunity.fulivedemo.utils.BitmapUtil;
 import com.faceunity.fulivedemo.utils.FileUtils;
+import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.gles.core.GlUtil;
+import com.faceunity.utils.Constant;
+import com.faceunity.utils.MiscUtil;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -249,6 +253,16 @@ public class FUPosterTakeActivity extends FUBaseActivity {
         public void onClick(View v) {
             int id = v.getId();
             if (id == R.id.iv_poster_take_confirm) {
+                ThreadHelper.getInstance().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
+                        String result = MiscUtil.saveBitmap(mShotBitmap, Constant.photoFilePath, name);
+                        if (result != null) {
+                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(result))));
+                        }
+                    }
+                });
                 try {
                     String photoPath = FileUtils.saveTempBitmap(mShotBitmap, FileUtils.getSavePathFile(FUPosterTakeActivity.this));
                     String templatePath = getIntent().getStringExtra(FUPosterFaceActivity.TEMPLATE_PATH);

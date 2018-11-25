@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x266"
+    android:layout_gravity="bottom"
+    android:background="#BD050F14">
+
+    <com.faceunity.fulivedemo.ui.CheckGroup
+        android:id="@+id/rg_anim"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x98"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/cb_animoji"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="@string/home_function_name_animoji"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/cb_filter"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/cartoon_filter"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+    </com.faceunity.fulivedemo.ui.CheckGroup>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_animoji"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x167"
+        android:layout_marginBottom="@dimen/x1"
+        android:scrollbars="none"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/rg_anim" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_filter"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x167"
+        android:layout_marginBottom="@dimen/x1"
+        android:scrollbars="none"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/rg_anim" />
+
+    <View
+        android:layout_width="@dimen/x1"
+        android:layout_height="@dimen/x50"
+        android:background="@color/divider_line_color"
+        app:layout_constraintBottom_toBottomOf="@id/rg_anim"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/rg_anim" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x1"
+        android:background="@color/divider_line_color"
+        app:layout_constraintBottom_toTopOf="@id/rg_anim" />
+
+</android.support.constraint.ConstraintLayout>

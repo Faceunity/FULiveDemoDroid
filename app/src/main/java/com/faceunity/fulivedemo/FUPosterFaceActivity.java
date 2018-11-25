@@ -63,29 +63,47 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
     private volatile boolean mIsSavingPhoto;
     private boolean mIsTrackedTemplate;
     private boolean mIsTrackedPhoto;
-    private volatile boolean mFirstDraw = true;
-    private boolean mReDrawFrame = true;
+    private volatile boolean mIsFirstDraw = true;
+    private boolean mIsNeedReInput = true;
     // 是否已经生成海报
     private volatile boolean mIsMixedPhoto;
     private int mTexId;
     private float[] mTemplateLandmarks;
     private float[] mPhotoLandmarks;
     private View mLoadingView;
-    private volatile boolean mMultiFace;
+    private volatile boolean mIsNotSelectedMultiFace;
+    // 检测到多人脸
+    private boolean mIsMultiFace;
     private ConstraintLayout mClContainerView;
+    // 模板路径
     private String mTemplatePath;
-    private volatile boolean mActivityStopped;
-    private String mMixedPhotoPath;
     // 混合后的海报不合法
     private boolean mMixTexIdInvalid;
-    private boolean mSavedPhoto;
-    private volatile boolean mLoadFromCache;
+    // 是否已经保存海报
+    private boolean mIsSavedPhoto;
+    // 矫正生成的口型参数
+    private volatile float mFixParams = 0.5f;
+    // 生成图保存路径
+    private String mMixedPhotoPath;
+    private int mLastPosition = -1;
+    private volatile int mFaceIndex;
+    // 一旦生成海报，就临时保存，Home 键退出再进入，不需要重新生成。用户点击保存时，把生成的复制到相册即可。
+
 
     public static void startSelfActivity(Activity activity, String templatePath, String photoPath) {
         Intent intent = new Intent(activity, FUPosterFaceActivity.class);
         intent.putExtra(TEMPLATE_PATH, templatePath);
         intent.putExtra(PHOTO_PATH, photoPath);
         activity.startActivityForResult(intent, REQ_TRACK_FACE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mIsMixedPhoto) {
+            mPosterPhotoRenderer.setMixedPhotoPath(mMixedPhotoPath);
+        }
+        mPosterPhotoRenderer.onCreate();
     }
 
     @Override
@@ -131,8 +149,12 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
         PosterTempListAdapter adapter = new PosterTempListAdapter(listPosterTemplates);
         adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
-        int selectedIndex = PosterTemplate.findSelectedIndex(listPosterTemplates, mTemplatePath);
-        adapter.setItemSelected(selectedIndex);
+        mLastPosition = PosterTemplate.findSelectedIndex(listPosterTemplates, mTemplatePath);
+        adapter.setItemSelected(mLastPosition);
+        // 只给毕业照模板设置，第 5 个。
+        if (mLastPosition == 5) {
+            mFixParams = 0.2f;
+        }
 
         mClContainerView = (ConstraintLayout) findViewById(R.id.cl_container);
         ImageView ivLoading = (ImageView) findViewById(R.id.iv_loading);
@@ -157,43 +179,9 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume: ");
-        mActivityStopped = false;
-        if (mIsMixedPhoto) {
-            mIsNeedSavePhoto = false;
-            mLoadFromCache = true;
-            mPosterPhotoRenderer.setMixedPhotoPath(mMixedPhotoPath);
-        }
-        mPosterPhotoRenderer.onCreate();
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause: ");
-        mActivityStopped = true;
-        if (mIsMixedPhoto) {
-            setSavePhotoFlag();
-        } else {
-            mPosterPhotoRenderer.onDestroy();
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        if (id == R.id.iv_poster_save) {
-            if (!mSavedPhoto) {
-                mSavedPhoto = true;
-                setSavePhotoFlag();
-            } else {
-                Toast.makeText(FUPosterFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
-            }
-        } else if (id == R.id.iv_poster_back) {
-            onBackPressed();
-        }
+        mPosterPhotoRenderer.onDestroy();
     }
 
     private void setSavePhotoFlag() {
@@ -204,13 +192,26 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        mFURenderer.onSurfaceCreated();
-        mFirstDraw = true;
-        mReDrawFrame = true;
-        mIsTrackedTemplate = false;
-        mIsTrackedPhoto = false;
-        mMixTexIdInvalid = false;
+    public void onClick(View v) {
+        int id = v.getId();
+        if (id == R.id.iv_poster_save) {
+            if (!mIsSavedPhoto) {
+                Toast.makeText(FUPosterFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
+                String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
+                try {
+                    File resultFile = new File(Constant.photoFilePath, name);
+                    FileUtils.copyFile(new File(mMixedPhotoPath), resultFile);
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
+                    mIsSavedPhoto = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Toast.makeText(FUPosterFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
+            }
+        } else if (id == R.id.iv_poster_back) {
+            onBackPressed();
+        }
     }
 
     @Override
@@ -219,24 +220,35 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        mFURenderer.onSurfaceCreated();
+        mIsFirstDraw = true;
+        mIsNeedReInput = true;
+        mIsTrackedTemplate = false;
+        mIsTrackedPhoto = false;
+        mMixTexIdInvalid = false;
+    }
+
+    @Override
     public int onDrawFrame(byte[] photoBytes, int photoTextureId, int photoWidth, int photoHeight) {
         int texId = mTexId;
-        if (mReDrawFrame) {
+        if (mIsNeedReInput) {
             Log.i(TAG, "onDrawFrame: input params. isTrackTemplate:" + mIsTrackedTemplate +
-                    ", isTrackPhoto:" + mIsTrackedPhoto + ", multiFace:" + mMultiFace);
-            if (!mMixTexIdInvalid) {
-                if (mIsTrackedTemplate && !mMultiFace) {
+                    ", isTrackPhoto:" + mIsTrackedPhoto + ", multiFace:" + mIsNotSelectedMultiFace);
+            if (!mMixTexIdInvalid && !mIsNotSelectedMultiFace) {
+                if (mIsTrackedTemplate) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mLoadingView.setVisibility(View.VISIBLE);
                         }
                     });
-                    mFURenderer.onPosterTemplateSelected(mPosterPhotoRenderer.getTemplateWidth(), mPosterPhotoRenderer.getTemplateHeight(),
-                            mPosterPhotoRenderer.getTemplateRGBABytes(), mTemplateLandmarks);
+                    mFURenderer.fixPosterFaceParam(mFixParams);
+                    mFURenderer.onPosterTemplateSelected(mPosterPhotoRenderer.getTemplateWidth(),
+                            mPosterPhotoRenderer.getTemplateHeight(), mPosterPhotoRenderer.getTemplateRGBABytes(), mTemplateLandmarks);
                 }
 
-                if (mIsTrackedPhoto && !mMultiFace) {
+                if (mIsTrackedPhoto) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -244,12 +256,13 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
                         }
                     });
                     if (mPhotoLandmarks != null) {
-                        mFURenderer.onPosterInputPhoto(photoWidth, photoHeight, mPosterPhotoRenderer.getPhotoRGBABytes(), mPhotoLandmarks);
+                        mFURenderer.onPosterInputPhoto(photoWidth, photoHeight, mPosterPhotoRenderer.getPhotoRGBABytes(),
+                                mPhotoLandmarks);
                         mPosterPhotoRenderer.setDrawPhoto(false);
                     }
                 }
 
-                if ((mIsTrackedPhoto || mIsTrackedTemplate) && !mMultiFace) {
+                if (mIsTrackedPhoto || mIsTrackedTemplate) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -259,29 +272,27 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
                 }
             }
 
-            if (!mFirstDraw && !mMultiFace) {
+            if (!mIsNotSelectedMultiFace && !mIsFirstDraw) {
                 texId = mFURenderer.onDrawFrame(mPosterPhotoRenderer.getTemplateBytes(), mPosterPhotoRenderer.getTemplateWidth(),
                         mPosterPhotoRenderer.getTemplateHeight());
                 if (texId == 0) {
-                    mReDrawFrame = true;
-                    if (!mLoadFromCache) {
-                        mIsMixedPhoto = false;
-                    }
+                    mIsNeedReInput = true;
+                    mIsMixedPhoto = false;
                     if (mPosterPhotoRenderer.getTemplateBytes() != null) {
                         mMixTexIdInvalid = true;
                     }
                 } else {
                     mIsMixedPhoto = true;
-                    mReDrawFrame = false;
+                    mIsNeedReInput = false;
                     mMixTexIdInvalid = false;
+                    setSavePhotoFlag();
                 }
-                mIsNeedSavePhoto = false;
                 mTexId = texId = texId > 0 ? texId : mTexId;
                 Log.i(TAG, "onDrawFrame: draw template:" + texId);
             } else {
                 mTexId = texId = photoTextureId;
                 mPosterPhotoRenderer.setDrawPhoto(true);
-                mFirstDraw = false;
+                mIsFirstDraw = false;
                 Log.i(TAG, "onDrawFrame: draw photo:" + texId);
             }
         }
@@ -294,31 +305,48 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
     public void onSurfaceDestroy() {
         mFURenderer.onSurfaceDestroyed();
         mTexId = 0;
-        mReDrawFrame = true;
         mIsTrackedTemplate = false;
         mIsTrackedPhoto = false;
-        mFirstDraw = true;
+        mIsFirstDraw = true;
+        mIsSavedPhoto = false;
     }
 
     @Override
     public void onPhotoLoaded(byte[] img, int width, int height) {
+        // 多人脸弹框过程中
+        if (mIsNotSelectedMultiFace) {
+            mFURenderer.trackFace(img, width, height);
+            return;
+        }
+        // Home 键再次返回后，
+        if (mIsMultiFace) {
+            mIsTrackedPhoto = true;
+            mIsNeedReInput = true;
+            mFURenderer.trackFace(img, width, height);
+            mPhotoLandmarks = mFURenderer.getLandmarksData(mFaceIndex);
+            mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
+            return;
+        }
         final int trackFace = mFURenderer.trackFace(img, width, height);
         if (trackFace > 0) {
             if (trackFace > 1) {
                 // 多人脸
-                mMultiFace = true;
+                mIsNotSelectedMultiFace = true;
+                mIsMultiFace = true;
+                mFaceIndex = 0;
                 final FaceMaskView faceMaskView = new FaceMaskView(this);
                 faceMaskView.setOnFaceSelectedListener(new FaceMaskView.OnFaceSelectedListener() {
                     @Override
-                    public void onFaceSelected(final View view, final int index) {
+                    public void onFaceSelected(final View view, int index) {
                         Log.i(TAG, "onFaceSelected: " + index);
-                        mMultiFace = false;
-                        mFirstDraw = true;
+                        mFaceIndex = index;
+                        mIsNotSelectedMultiFace = false;
+                        mIsFirstDraw = true;
                         mGlSurfaceView.queueEvent(new Runnable() {
                             @Override
                             public void run() {
-                                mPhotoLandmarks = mFURenderer.getLandmarksData(index);
-                                mReDrawFrame = true;
+                                mPhotoLandmarks = mFURenderer.getLandmarksData(mFaceIndex);
+                                mIsNeedReInput = true;
                                 mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
                             }
                         });
@@ -346,21 +374,23 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
                     }
                 });
             } else {
+                mFaceIndex = 0;
+                mIsMultiFace = false;
                 boolean ret = checkRotation();
                 if (ret) {
-                    mReDrawFrame = false;
+                    mIsNeedReInput = false;
                     mPosterPhotoRenderer.setDrawPhoto(true);
                     showPromptFragment(R.string.dialog_face_rotation_not_valid);
                 } else {
-                    mPhotoLandmarks = mFURenderer.getLandmarksData(0);
                     mIsTrackedPhoto = true;
-                    mReDrawFrame = true;
+                    mIsNeedReInput = true;
+                    mPhotoLandmarks = mFURenderer.getLandmarksData(mFaceIndex);
                     mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
                 }
             }
             Log.i(TAG, "onPhotoLoaded: tracking photo > 0--------- ");
         } else {
-            mReDrawFrame = false;
+            mIsNeedReInput = false;
             mPosterPhotoRenderer.setDrawPhoto(true);
             showPromptFragment(R.string.dialog_no_track_face);
         }
@@ -372,7 +402,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
             mTemplateLandmarks = mFURenderer.getLandmarksData(0);
             mIsTrackedTemplate = true;
             mIsTrackedPhoto = true;
-            mReDrawFrame = true;
+            mIsNeedReInput = true;
             Log.i(TAG, "onTemplateLoaded: tracking template > 0--------- ");
         } else {
             runOnUiThread(new Runnable() {
@@ -385,13 +415,21 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
-    public void onItemClick(BaseRecyclerAdapter adapter, View view, int position) {
+    public void onItemClick(BaseRecyclerAdapter adapter, View view, final int position) {
+        if (mLastPosition == position) {
+            return;
+        }
+        mLastPosition = position;
+        mIsTrackedTemplate = false;
+        mIsSavedPhoto = false;
         mLoadingView.setVisibility(View.VISIBLE);
         PosterTemplate posterTemplate = (PosterTemplate) adapter.getItem(position);
-        mIsTrackedTemplate = false;
-        mSavedPhoto = false;
+        if (position == 5) {
+            mFixParams = 0.2f;
+        } else {
+            mFixParams = 0.5f;
+        }
         mTemplatePath = posterTemplate.getPath();
-        mFURenderer.onPosterTemplateChanged();
         mGlSurfaceView.queueEvent(new Runnable() {
             @Override
             public void run() {
@@ -449,38 +487,11 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
                 new BitmapUtil.OnReadBitmapListener() {
                     @Override
                     public void onReadBitmapListener(final Bitmap bitmap) {
-                        if (mActivityStopped) {
-                            if (mIsMixedPhoto) {
-                                try {
-                                    mMixedPhotoPath = FileUtils.saveTempBitmap(bitmap, new File(FileUtils.getFileDir(FUPosterFaceActivity.this),
-                                            FileUtils.TMP_PHOTO_POSTER_NAME));
-                                    Log.i(TAG, "onReadBitmapListener: bmpPath:" + mMixedPhotoPath);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                if (mActivityStopped) {
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mPosterPhotoRenderer.onDestroy();
-                                        }
-                                    });
-                                }
-                            }
-                        } else {
-                            String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
-                            final String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
-                            if (result != null && !mActivityStopped) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(FUPosterFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
-                                        File resultFile = new File(result);
-                                        // 最后通知图库更新
-                                        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
-                                    }
-                                });
-                            }
+                        mMixedPhotoPath = FileUtils.getSavePath(FUPosterFaceActivity.this);
+                        try {
+                            FileUtils.saveTempBitmap(bitmap, new File(mMixedPhotoPath));
+                        } catch (IOException e) {
+                            Log.e(TAG, "onReadBitmapListener: ", e);
                         }
                         mIsSavingPhoto = false;
                         mIsNeedSavePhoto = false;

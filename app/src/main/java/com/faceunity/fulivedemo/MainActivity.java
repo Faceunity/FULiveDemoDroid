@@ -188,6 +188,9 @@ public class MainActivity extends AppCompatActivity {
                         } else if (home_function_res[position] == R.drawable.main_poster_face) {
                             intent = new Intent(MainActivity.this, PosterListActivity.class);
                             startActivity(intent);
+                        } else if (home_function_res[position] == R.drawable.main_avatar) {
+                            intent = new Intent(MainActivity.this, FUAnimojiActivity.class);
+                            startActivity(intent);
                         } else {
                             intent = new Intent(MainActivity.this, FUEffectActivity.class);
                             intent.putExtra("EffectType", home_function_type[position]);

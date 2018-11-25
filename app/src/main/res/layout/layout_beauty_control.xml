@@ -340,7 +340,7 @@
             android:button="@null"
             android:gravity="center"
             android:text="@string/beauty_radio_skin_beauty"
-            android:textColor="@drawable/beauty_control_bottom_radio_color"
+            android:textColor="@color/beauty_control_bottom_radio_color"
             android:textSize="@dimen/text_size_26"/>
 
         <android.support.v7.widget.AppCompatCheckBox
@@ -352,7 +352,7 @@
             android:button="@null"
             android:gravity="center"
             android:text="@string/beauty_radio_face_shape"
-            android:textColor="@drawable/beauty_control_bottom_radio_color"
+            android:textColor="@color/beauty_control_bottom_radio_color"
             android:textSize="@dimen/text_size_26"/>
 
         <android.support.v7.widget.AppCompatCheckBox
@@ -364,7 +364,7 @@
             android:button="@null"
             android:gravity="center"
             android:text="@string/beauty_radio_beauty_filter"
-            android:textColor="@drawable/beauty_control_bottom_radio_color"
+            android:textColor="@color/beauty_control_bottom_radio_color"
             android:textSize="@dimen/text_size_26"/>
 
         <android.support.v7.widget.AppCompatCheckBox
@@ -376,7 +376,7 @@
             android:button="@null"
             android:gravity="center"
             android:text="@string/beauty_radio_filter"
-            android:textColor="@drawable/beauty_control_bottom_radio_color"
+            android:textColor="@color/beauty_control_bottom_radio_color"
             android:textSize="@dimen/text_size_26"/>
     </com.faceunity.fulivedemo.ui.CheckGroup>
 </android.support.constraint.ConstraintLayout>

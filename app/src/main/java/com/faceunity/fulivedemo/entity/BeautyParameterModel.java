@@ -2,7 +2,6 @@ package com.faceunity.fulivedemo.entity;
 
 
 import com.faceunity.entity.Filter;
-import com.faceunity.entity.Makeup;
 import com.faceunity.fulivedemo.R;
 
 import java.util.Arrays;
@@ -17,15 +16,14 @@ import java.util.Map;
 public abstract class BeautyParameterModel {
     public static final String TAG = BeautyParameterModel.class.getSimpleName();
 
-
     public static boolean isHeightPerformance = false;
 
     public static final String sStrFilterLevel = "FilterLevel_";
-    public static Map<String, Float> sFilterLevel = new HashMap<>();
+    public static Map<String, Float> sFilterLevel = new HashMap<>(16);
     public static Filter sFilterName = FilterEnum.danya.filter();
 
-    public static Map<String, Float> sMakeupLevel = new HashMap<>();
-    public static Makeup[] sMakeups = {MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup(), MakeupEnum.MakeupNone.makeup()};
+    public static Map<String, Float> sMakeupLevel = new HashMap<>(64);
+    public static Map<String, Float> sBatchMakeupLevel = new HashMap<>(8);
 
     public static float[] sHairLevel = new float[14];
 
@@ -192,6 +190,7 @@ public abstract class BeautyParameterModel {
             case R.id.beauty_box_intensity_mouth:
                 sIntensityMouth = value;
                 break;
+            default:
         }
     }
 

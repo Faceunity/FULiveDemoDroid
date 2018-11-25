@@ -20,7 +20,7 @@ public class Effect {
     public static final int EFFECT_TYPE_PORTRAIT_DRIVE = 9;
     public static final int EFFECT_TYPE_FACE_WARP = 10;
     public static final int EFFECT_TYPE_MUSIC_FILTER = 11;
-    public static final int EFFECT_TYPE_HAIR = 12;
+    public static final int EFFECT_TYPE_HAIR_NORMAL = 12;
     public static final int EFFECT_TYPE_POSTER_FACE = 13;
     public static final int EFFECT_TYPE_HAIR_GRADIENT = 14;
 
@@ -75,5 +75,17 @@ public class Effect {
     @Override
     public int hashCode() {
         return !TextUtils.isEmpty(path) ? path.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Effect{" +
+                "bundleName='" + bundleName + '\'' +
+                ", resId=" + resId +
+                ", path='" + path + '\'' +
+                ", maxFace=" + maxFace +
+                ", effectType=" + effectType +
+                ", description=" + description +
+                '}';
     }
 }

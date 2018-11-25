@@ -27,8 +27,8 @@
     <string name="save_video_success">Save video successfully!</string>
     <string name="fu_base_is_tracking_text">No Face Tracking</string>
     <string name="fu_base_height">Performance preferred</string>
-    <string name="fu_base_input_type_single">Single Input</string>
-    <string name="fu_base_input_type_double">Dual Input</string>
+    <string name="fu_base_input_type_single">SingleInput</string>
+    <string name="fu_base_input_type_double">DualInput</string>
 
     <string name="face_shape_4">Customize</string>
     <string name="face_shape_3_default">Default</string>
@@ -65,6 +65,12 @@
     <string name="makeup_radio_eye_liner">Eye Liner</string>
     <string name="makeup_radio_eyelash">Eyelash</string>
     <string name="makeup_radio_contact_lens">Contact Lens</string>
+    <string name="makeup_radio_remove">Remove</string>
+    <string name="makeup_customize">Customize</string>
+    <string name="makeup_peach">Peach</string>
+    <string name="makeup_freckles">Freckles</string>
+    <string name="makeup_punk">Punk</string>
+
 
     <string name="select_data_photo">Photo</string>
     <string name="select_data_video">Video</string>
@@ -81,9 +87,7 @@
     <string name="xiaobianzi_zh_fu">Have a Smile</string>
     <string name="xiaoxueshen_ztt_fu">Whistle</string>
     <string name="hez_ztt_fu">Open Your Mouth</string>
-    <string name="ctrl_rain">Control Rain</string>
-    <string name="ctrl_snow">Control Snow</string>
-    <string name="ctrl_flower">Control Flower</string>
+    <string name="push_hand">Push hand</string>
     <string name="fu_lm_koreaheart">Heart_a</string>
     <string name="fu_zh_baoquan">Fist</string>
     <string name="fu_zh_hezxiong">Namaste</string>
@@ -110,5 +114,7 @@
     <string name="dialog_face_rotation_not_valid">Side face angle is too greater, please re-upload</string>
     <string name="dialog_got">OK</string>
     <string name="tip_dual_face">Multiple people detected, please choose one person for face fusion</string>
+
+    <string name="cartoon_filter">Cartoon Filter</string>
 
 </resources>

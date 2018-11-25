@@ -26,7 +26,6 @@
             android:theme="@style/ActivityBaseTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -70,6 +69,10 @@
         <activity
             android:name=".FUPosterFaceActivity"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme" />
+        <activity
+            android:name=".FUAnimojiActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
     </application>

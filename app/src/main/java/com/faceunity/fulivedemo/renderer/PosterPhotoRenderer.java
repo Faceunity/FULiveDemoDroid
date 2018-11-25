@@ -201,7 +201,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         mTemplateRGBABytes = new byte[src.getByteCount()];
         ByteBuffer rgbaBuffer = ByteBuffer.wrap(mTemplateRGBABytes);
         src.copyPixelsToBuffer(rgbaBuffer);
-        mTemplateBytes = BitmapUtil.getNV21(mTemplateWidth = src.getWidth() / 2 * 2, mTemplateHeight = src.getHeight() / 2 * 2, src);
+        mTemplateBytes = BitmapUtil.getNV21(mTemplateWidth = src.getWidth(), mTemplateHeight = src.getHeight(), src);
         mMvpTemplateMatrix = GlUtil.changeMVPMatrixInside(mViewWidth, mViewHeight, mTemplateWidth, mTemplateHeight);
         Matrix.rotateM(mMvpTemplateMatrix, 0, 90, 0, 0, 1);
     }
@@ -215,10 +215,11 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         mPhotoRGBABytes = new byte[src.getByteCount()];
         ByteBuffer rgbaBuffer = ByteBuffer.wrap(mPhotoRGBABytes);
         src.copyPixelsToBuffer(rgbaBuffer);
-        mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth() / 2 * 2, mPhotoHeight = src.getHeight() / 2 * 2, src);
+        mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth(), mPhotoHeight = src.getHeight(), src);
     }
 
     public void reloadTemplateData(String path) {
+        Log.d(TAG, "reloadTemplateData: " + path);
         if (mPhotoBytes == null) {
             loadPhotoData(mPhotoPath, false);
             mMvpPhotoMatrix = GlUtil.changeMVPMatrixInside(mViewWidth, mViewHeight, mPhotoWidth, mPhotoHeight);

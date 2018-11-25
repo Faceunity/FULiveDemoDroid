@@ -41,7 +41,7 @@
             android:id="@+id/fu_base_input_type_radio_group"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/x52"
-            android:layout_marginLeft="@dimen/x55"
+            android:layout_marginLeft="@dimen/x36"
             android:background="@drawable/fu_base_input_type_radio_group_background"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="@+id/fu_base_back"
@@ -56,11 +56,13 @@
                 android:background="@drawable/fu_base_input_type_radio_left_background"
                 android:button="@null"
                 android:checked="true"
+                android:maxLines="2"
                 android:gravity="center"
                 app:text_size_xfermode="@dimen/text_size_22"
                 app:text_xfermode="@string/fu_base_input_type_double" />
 
             <com.faceunity.fulivedemo.ui.XfermodeRadioButton
+                android:maxLines="2"
                 android:id="@+id/fu_base_input_type_single"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -222,7 +224,7 @@
             android:layout_width="@dimen/x174"
             android:layout_height="@dimen/x174"
             android:layout_marginBottom="@dimen/x46"
-            app:layout_constraintBottom_toTopOf="@+id/fu_base_bottom"
+            app:layout_constraintBottom_toTopOf="@id/fu_base_bottom"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_goneMarginBottom="@dimen/x46" />
@@ -243,4 +245,5 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent" />
     </android.support.constraint.ConstraintLayout>
+
 </android.support.constraint.ConstraintLayout>
