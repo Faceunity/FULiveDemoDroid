@@ -19,11 +19,11 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 ### 一、通过 gradle 集成
 
-含有深度学习的版本：
+全功能版本：
 
 	compile 'com.faceunity:nama:5.8.0'
 
-不含深度学习的版本（lite版）：
+不含机器学习以及物理引擎的版本（lite版）：
 
 	compile 'com.faceunity:nama:5.8.0-lite'
 
