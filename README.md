@@ -29,9 +29,9 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 ### 二、通过 github 下载集成
 
-含有深度学习的版本：[Faceunity-Android-v5.8-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.8-dev/Faceunity-Android-v5.8-dev.zip)
+全功能版本：[Faceunity-Android-v5.8-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.8-dev/Faceunity-Android-v5.8-dev.zip)
 
-不含深度学习的版本（lite版）：[Faceunity-Android-v5.8-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.8-dev/Faceunity-Android-v5.8-dev-lite.zip)
+不含机器学习以及物理引擎的版本（lite版）：[Faceunity-Android-v5.8-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.8-dev/Faceunity-Android-v5.8-dev-lite.zip)
 
 **Tip：含有深度学习的版本支持背景分割、手势识别功能**
 
@@ -44,13 +44,13 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 ### 二、数据文件
 
-  - v3.bundle 初始化必须的数据模型
+- v3.bundle 初始化必须的数据模型
 - face_beautification.bundle 我司美颜道具
 - anim_model.bundle 表情优化数据模型
 - ardata_ex.bundle 高精度数据模型
 - tongue.bundle 舌头驱动数据模型
 - fxaa.bundle 3D道具去锯齿道具
-  - effects 文件夹下的 *.bundle 文件是我司制作的特效贴纸文件，自定义特效贴纸制作的文档和工具请联系我司获取。
+- effects 文件夹下的 *.bundle 文件是我司制作的特效贴纸文件，自定义特效贴纸制作的文档和工具请联系我司获取。
 
 注：这些数据文件都是二进制数据，与扩展名无关。实际在app中使用时，打包在程序内或者从网络接口下载这些数据都是可行的，只要在相应的函数接口传入正确的文件路径即可。
 
