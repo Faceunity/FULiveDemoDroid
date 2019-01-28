@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.faceunity.fulivedemo.utils.FileUtils;
+import com.faceunity.utils.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,7 +17,6 @@ import java.util.List;
 public class PosterTemplate implements Comparable<PosterTemplate> {
     public static final String GRID_ITEM = "grid";
     public static final String LIST_ITEM = "list";
-    public static final String DIR_PREFIX = "template_";
     private String path;
     private String description;
     private String gridIconPath;
@@ -47,7 +46,7 @@ public class PosterTemplate implements Comparable<PosterTemplate> {
         File[] dirFiles = templatesDir.listFiles();
         PosterTemplate posterTemplate;
         for (File f : dirFiles) {
-            if (!f.getName().startsWith(DIR_PREFIX)) {
+            if (!f.getName().startsWith(FileUtils.TEMPLATE_PREFIX)) {
                 continue;
             }
             File[] tempFiles = f.listFiles();

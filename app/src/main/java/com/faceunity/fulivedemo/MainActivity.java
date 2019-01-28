@@ -43,9 +43,11 @@ public class MainActivity extends AppCompatActivity {
             Effect.EFFECT_TYPE_BACKGROUND,
             Effect.EFFECT_TYPE_GESTURE,
             Effect.EFFECT_TYPE_FACE_WARP,
-            Effect.EFFECT_TYPE_PORTRAIT_DRIVE
+            Effect.EFFECT_TYPE_PORTRAIT_DRIVE,
+//            Effect.EFFECT_TYPE_LIVE_PHOTO
     };
 
+    // 文档：http://confluence.faceunity.com/pages/viewpage.action?pageId=10453059
     private static final int[] home_function_permissions_code = {
             0x1,                    //美颜
             0x80000,                //美妆
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             0x200,                  //手势识别
             0x10000,                //哈哈镜
             0x8000,                 //人像驱动
+            0x1000000                 //表情动图
     };
 
     private static final int[] home_function_name = {
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
             R.string.home_function_name_gesture,
             R.string.home_function_name_face_warp,
             R.string.home_function_name_portrait_drive,
+//            R.string.home_function_name_live_photo
     };
 
     private static final int[] home_function_res = {
@@ -95,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.main_gesture,
             R.drawable.main_face_warp,
             R.drawable.main_portrait_drive,
+//            R.drawable.main_magic_photo
     };
 
     private List<Integer> hasFaceUnityPermissionsList = new ArrayList<>();
@@ -130,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.home_recycler);
+        mRecyclerView = findViewById(R.id.home_recycler);
         GridLayoutManager manager = new GridLayoutManager(this, 3);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -143,7 +148,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mRecyclerView.setLayoutManager(manager);
-        mRecyclerView.setAdapter(new HomeRecyclerAdapter());
+        HomeRecyclerAdapter homeRecyclerAdapter = new HomeRecyclerAdapter();
+        mRecyclerView.setAdapter(homeRecyclerAdapter);
         ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
@@ -151,10 +157,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if (viewType > 0)
+            if (viewType > 0) {
                 return new HomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler, parent, false));
-            else
+            } else {
                 return new TopHomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler_top, parent, false));
+            }
         }
 
         @Override
@@ -191,6 +198,9 @@ public class MainActivity extends AppCompatActivity {
                         } else if (home_function_res[position] == R.drawable.main_avatar) {
                             intent = new Intent(MainActivity.this, FUAnimojiActivity.class);
                             startActivity(intent);
+//                        } else if (home_function_res[position] == R.drawable.main_magic_photo) {
+//                            intent = new Intent(MainActivity.this, FUMagicDriveActivity.class);
+//                            startActivity(intent);
                         } else {
                             intent = new Intent(MainActivity.this, FUEffectActivity.class);
                             intent.putExtra("EffectType", home_function_type[position]);

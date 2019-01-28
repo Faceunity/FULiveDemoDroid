@@ -15,6 +15,7 @@
     <string name="home_function_name_gesture">手势识别</string>
     <string name="home_function_name_face_warp">哈哈镜</string>
     <string name="home_function_name_portrait_drive">人像驱动</string>
+    <string name="home_function_name_live_photo">表情动图</string>
     <string name="home_function_name_makeup">美妆</string>
     <string name="sorry_no_permission">抱歉，你所使用的证书权限或SDK不包括该功能。</string>
     <string name="camera_dialog_title">警告</string>
@@ -22,7 +23,7 @@
     <string name="camera_dialog_open">重试</string>
     <string name="camera_dialog_back">退出</string>
 
-    <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS:%d\nRender time:\n\t\t\t\t\t%dms</string>
+    <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS: %d\nRender time:\n\t%dms</string>
     <string name="save_photo_success">保存照片成功！</string>
     <string name="save_video_success">保存视频成功！</string>
     <string name="fu_base_is_tracking_text">未检测到人脸</string>
@@ -115,5 +116,34 @@
     <string name="tip_dual_face">检测到多人，请选择一人进行换脸</string>
 
     <string name="cartoon_filter">动漫滤镜</string>
+
+    <string name="magic_left_eye">左眼</string>
+    <string name="magic_right_eye">右眼</string>
+    <string name="magic_mouth">嘴巴</string>
+    <string name="magic_nose">鼻子</string>
+    <string name="magic_left_eyebrow">左眉</string>
+    <string name="magic_right_eyebrow">右眉</string>
+    <string name="magic_gen_tip_operate">请选择以下五官至上方调整</string>
+    <string name="magic_cant_add_more">不能添加更多了哦~</string>
+    <string name="magic_toast_action">动动你的五官</string>
+    <string name="magic_back_not_save">返回后当前操作将不会被保存哦</string>
+    <string name="magic_btn_adjust">精细调整</string>
+    <string name="magic_btn_back">返回上步</string>
+    <string name="magic_btn_delete">删除</string>
+    <string name="magic_btn_cancel">取消</string>
+    <string name="magic_btn_delete_">删除(%d)</string>
+    <string name="magic_delete_effect">删除道具</string>
+    <string name="magic_delete_all">全选</string>
+    <string name="magic_empty_tip">你还没有创建过道具哦</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+    <string name="dialog_confirm_delete">确定删除所选中的道具？</string>
+    <string name="toast_delete_succeed">删除成功</string>
+    <string name="toast_delete_failed">删除失败</string>
+    <string name="magic_save_succeed">道具保存成功</string>
+    <string name="magic_save_failed">道具保存失败</string>
+    <string name="magic_not_add_sticker">你还没有添加五官哦</string>
+    <string name="magic_not_add_sticker_cancel">不添加</string>
+    <string name="magic_not_add_sticker_confirm">去添加</string>
 
 </resources>

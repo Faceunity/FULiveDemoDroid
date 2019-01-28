@@ -111,9 +111,7 @@ public class FaceMaskView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mPopupWindow != null && mPopupWindow.isShowing()) {
-            mPopupWindow.dismiss();
-        }
+        dismissPopWindow();
         float x = event.getX();
         float y = event.getY();
         int action = event.getAction();
@@ -164,6 +162,12 @@ public class FaceMaskView extends View {
 
     public void setShowPopup(boolean showPopup) {
         mShowPopup = showPopup;
+    }
+
+    public void dismissPopWindow() {
+        if (mPopupWindow != null && mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
+        }
     }
 
     public void setOnFaceSelectedListener(OnFaceSelectedListener onFaceSelectedListener) {

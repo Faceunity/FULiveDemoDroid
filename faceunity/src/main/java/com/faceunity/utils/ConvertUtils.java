@@ -28,4 +28,8 @@ public class ConvertUtils {
         targets[3] = (byte) (res >>> 24);// 最高位,无符号右移。
         return targets;
     }
+
+    public static float fromByteArray(byte[] bytes) {
+        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    }
 }

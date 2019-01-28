@@ -3,6 +3,7 @@ package com.faceunity;
 
 import com.faceunity.entity.Effect;
 import com.faceunity.entity.Filter;
+import com.faceunity.entity.MagicPhotoEntity;
 import com.faceunity.entity.MakeupItem;
 
 import java.util.List;
@@ -163,6 +164,7 @@ public interface OnFUControlListener {
 
     /**
      * 设置风格滤镜
+     *
      * @param style
      */
     void onCartoonFilterSelected(int style);
@@ -196,4 +198,11 @@ public interface OnFUControlListener {
      * @param level
      */
     void onMakeupOverallLevelChanged(float level);
+
+    /**
+     * 设置异图的点位和图像数据，用来驱动图像
+     *
+     * @param magicPhotoEntity
+     */
+    void setMagicPhoto(final MagicPhotoEntity magicPhotoEntity);
 }

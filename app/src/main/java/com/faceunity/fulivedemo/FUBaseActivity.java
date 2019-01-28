@@ -39,10 +39,10 @@ import com.faceunity.fulivedemo.renderer.CameraRenderer;
 import com.faceunity.fulivedemo.ui.CameraFocus;
 import com.faceunity.fulivedemo.ui.RecordBtn;
 import com.faceunity.fulivedemo.ui.VerticalSeekBar;
-import com.faceunity.fulivedemo.utils.BitmapUtil;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.gles.core.GlUtil;
+import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.MiscUtil;
 
@@ -100,7 +100,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     protected FURenderer mFURenderer;
     private byte[] mFuNV21Byte;
     private Handler mHandler = new Handler(Looper.getMainLooper());
-    protected boolean mTakePicing = false;
+    protected volatile boolean mTakePicing = false;
 
     protected abstract void onCreate();
 
@@ -149,31 +149,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
         mCameraRenderer.onDestroy();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    private Runnable ChangeCamera = new Runnable() {
-        @Override
-        public void run() {
-            mCameraRenderer.changeCamera();
-        }
-    };
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.fu_base_back:
-                onBackPressed();
-                break;
-            case R.id.fu_base_camera_change:
-                mCameraChange.removeCallbacks(ChangeCamera);
-                mCameraChange.post(ChangeCamera);
-                break;
-            default:
-        }
-    }
+    protected volatile boolean mIsNeedTakePic = false;
+    private volatile long mStartTime = 0;
 
     private Runnable effectDescriptionHide = new Runnable() {
         @Override
@@ -291,13 +268,13 @@ public abstract class FUBaseActivity extends AppCompatActivity
                     }
                 });
                 File resultFile = new File(result);
-                // 最后通知图库更新
                 sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
             }
             mTakePicing = false;
         }
     };
-    protected boolean mIsNeedTakePic = false;
+
+    private MediaVideoEncoder mVideoEncoder;
 
     public void takePic() {
         if (mTakePicing) {
@@ -305,6 +282,69 @@ public abstract class FUBaseActivity extends AppCompatActivity
         }
         mIsNeedTakePic = true;
         mTakePicing = true;
+    }
+
+    private Runnable changeCamera = new Runnable() {
+        @Override
+        public void run() {
+            mCameraRenderer.changeCamera();
+        }
+    };
+
+    /**
+     * 自定义 EGLContext
+     */
+    private static class ContextFactory implements GLSurfaceView.EGLContextFactory {
+
+        private static double glVersion = 3.0;
+        private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+
+        @Override
+        public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
+            Log.w(TAG, "creating OpenGL ES " + glVersion + " context");
+            int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, (int) glVersion, EGL10.EGL_NONE};
+            // attempt to create a OpenGL ES 3.0 context
+            EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
+            Log.d(TAG, "createContext: ctx:" + context);
+            return context; // returns null if 3.0 is not supported;
+        }
+
+        @Override
+        public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
+            if (!egl.eglDestroyContext(display, context)) {
+                Log.e("DefaultContextFactory", "display:" + display + " context: " + context);
+            }
+        }
+    }
+
+    /**
+     * 拍照
+     *
+     * @param textureId
+     * @param mtx
+     * @param texWidth
+     * @param texHeight
+     */
+    protected void checkPic(int textureId, float[] mtx, final int texWidth, final int texHeight) {
+        if (!mIsNeedTakePic) {
+            return;
+        }
+        mIsNeedTakePic = false;
+        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fu_base_back:
+                onBackPressed();
+                break;
+            case R.id.fu_base_camera_change:
+                mCameraChange.removeCallbacks(changeCamera);
+                mCameraChange.post(changeCamera);
+                break;
+            default:
+        }
     }
 
     @Override
@@ -316,18 +356,13 @@ public abstract class FUBaseActivity extends AppCompatActivity
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_fu_base);
         MiscUtil.checkPermission(this);
-
-        mTopBackground = (ImageView) findViewById(R.id.fu_base_top_background);
-
         mGLSurfaceView = (GLSurfaceView) findViewById(R.id.fu_base_gl_surface);
-//        mGLSurfaceView.setEGLContextFactory(new ContextFactory());
-//        int supportGLVersion = GlUtil.getSupportGLVersion(this);
-//        Log.e(TAG, "onCreate: glVersion:" + supportGLVersion);
+        //        mGLSurfaceView.setEGLContextFactory(new ContextFactory());
         mGLSurfaceView.setEGLContextClientVersion(2);
         mCameraRenderer = new CameraRenderer(this, mGLSurfaceView, this);
         mGLSurfaceView.setRenderer(mCameraRenderer);
         mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-
+        mTopBackground = (ImageView) findViewById(R.id.fu_base_top_background);
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -416,59 +451,15 @@ public abstract class FUBaseActivity extends AppCompatActivity
     }
 
     /**
-     * 自定义 EGLContext
-     */
-    private static class ContextFactory implements GLSurfaceView.EGLContextFactory {
-
-        private static double glVersion = 3.0;
-        private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-
-        @Override
-        public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
-            Log.w(TAG, "creating OpenGL ES " + glVersion + " context");
-            int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, (int) glVersion, EGL10.EGL_NONE};
-            // attempt to create a OpenGL ES 3.0 context
-            EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
-            Log.d(TAG, "createContext: ctx:" + context);
-            return context; // returns null if 3.0 is not supported;
-        }
-
-        @Override
-        public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
-            if (!egl.eglDestroyContext(display, context)) {
-                Log.e("DefaultContextFactory", "display:" + display + " context: " + context);
-            }
-        }
-    }
-
-    /**
-     * 拍照
-     *
-     * @param textureId
-     * @param mtx
-     * @param texWidth
-     * @param texHeight
-     */
-    protected void checkPic(int textureId, float[] mtx, final int texWidth, final int texHeight) {
-        if (!mIsNeedTakePic) {
-            return;
-        }
-        mIsNeedTakePic = false;
-        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener);
-    }
-
-    private long mStartTime = 0;
-
-    /**
      * 发送录制数据
      *
      * @param texId
-     * @param tex_matrix
+     * @param texMatrix
      * @param timeStamp
      */
-    protected void sendRecordingData(int texId, final float[] tex_matrix, final long timeStamp) {
+    protected void sendRecordingData(int texId, final float[] texMatrix, final long timeStamp) {
         if (mVideoEncoder != null) {
-            mVideoEncoder.frameAvailableSoon(texId, tex_matrix);
+            mVideoEncoder.frameAvailableSoon(texId, texMatrix, GlUtil.IDENTITY_MATRIX);
             if (mStartTime == 0) mStartTime = timeStamp;
             runOnUiThread(new Runnable() {
                 @Override
@@ -480,7 +471,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     }
 
     private File mOutFile;
-    private MediaVideoEncoder mVideoEncoder;
+
     /**
      * 录制封装回调
      */

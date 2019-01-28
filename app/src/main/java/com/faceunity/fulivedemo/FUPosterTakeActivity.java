@@ -22,11 +22,11 @@ import android.widget.Toast;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.ui.RecordBtn;
-import com.faceunity.fulivedemo.utils.BitmapUtil;
-import com.faceunity.fulivedemo.utils.FileUtils;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.gles.core.GlUtil;
+import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
+import com.faceunity.utils.FileUtils;
 import com.faceunity.utils.MiscUtil;
 
 import java.io.File;

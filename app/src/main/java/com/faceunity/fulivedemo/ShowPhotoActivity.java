@@ -17,13 +17,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.faceunity.FURenderer;
-import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.renderer.PhotoRenderer;
-import com.faceunity.fulivedemo.ui.BeautyControlView;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
-import com.faceunity.fulivedemo.utils.BitmapUtil;
+import com.faceunity.fulivedemo.ui.control.AnimControlView;
+import com.faceunity.fulivedemo.ui.control.BeautyControlView;
+import com.faceunity.fulivedemo.ui.control.MakeupControlView;
 import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.MiscUtil;
 
@@ -39,6 +40,7 @@ public class ShowPhotoActivity extends AppCompatActivity
     public final static String TAG = ShowPhotoActivity.class.getSimpleName();
 
     private String mSelectDataType;
+    private int mSelectEffectType;
 
     private GLSurfaceView mGLSurfaceView;
     private PhotoRenderer mPhotoRenderer;
@@ -47,6 +49,8 @@ public class ShowPhotoActivity extends AppCompatActivity
     private TextView mEffectDescription;
     private ImageView mSaveImageView;
     private BeautyControlView mBeautyControlView;
+    private MakeupControlView mMakeupControlView;
+    private AnimControlView mAnimControlView;
     private RecyclerView mEffectRecyclerView;
     private EffectRecyclerAdapter mEffectRecyclerAdapter;
     private FURenderer mFURenderer;
@@ -58,7 +62,8 @@ public class ShowPhotoActivity extends AppCompatActivity
         setContentView(R.layout.activity_show_photo);
 
         Uri uri = getIntent().getData();
-        mSelectDataType = getIntent().getStringExtra("SelectData");
+        mSelectDataType = getIntent().getStringExtra(SelectDataActivity.SELECT_DATA_KEY);
+        mSelectEffectType = getIntent().getIntExtra(FUEffectActivity.SELECT_EFFECT_KEY, -1);
         if (uri == null) {
             onBackPressed();
             return;
@@ -79,6 +84,8 @@ public class ShowPhotoActivity extends AppCompatActivity
                 .createEGLContext(false)
                 .needReadBackImage(false)
                 .defaultEffect(null)
+                .inputImageOrientation(360)
+                .inputIsImage(1)
                 .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
@@ -108,13 +115,33 @@ public class ShowPhotoActivity extends AppCompatActivity
                     mBeautyControlView.hideBottomLayoutAnimator();
                 }
             });
+        } else if (FUMakeupActivity.TAG.equals(mSelectDataType)) {
+            mMakeupControlView = findViewById(R.id.fu_makeup_control);
+            mMakeupControlView.setVisibility(View.VISIBLE);
+            mMakeupControlView.setOnFUControlListener(mFURenderer);
+            mMakeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
+        } else if (FUAnimojiActivity.TAG.equals(mSelectDataType)) {
+            mAnimControlView = findViewById(R.id.fu_anim_control);
+            mAnimControlView.setVisibility(View.VISIBLE);
+            mAnimControlView.setOnFUControlListener(mFURenderer);
+            mAnimControlView.setOnBottomAnimatorChangeListener(new AnimControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
         } else {
             mEffectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
             mEffectRecyclerView.setVisibility(View.VISIBLE);
             mEffectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-            mEffectRecyclerView.setAdapter(mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, Effect.EFFECT_TYPE_NORMAL, mFURenderer));
+            mEffectRecyclerView.setAdapter(mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mSelectEffectType, mFURenderer));
             ((SimpleItemAnimator) mEffectRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-            mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(Effect.EFFECT_TYPE_NORMAL).get(1));
+            mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(mSelectEffectType).get(1));
             mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
                 @Override
                 public void onDescriptionChangeListener(int description) {

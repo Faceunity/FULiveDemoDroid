@@ -1,4 +1,4 @@
-package com.faceunity.fulivedemo.ui;
+package com.faceunity.fulivedemo.ui.control;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -21,6 +21,7 @@ import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.CartoonFilterEnum;
 import com.faceunity.fulivedemo.entity.EffectEnum;
+import com.faceunity.fulivedemo.ui.CheckGroup;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 
 import java.util.List;
@@ -79,14 +80,11 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
         mRvFilter.setAdapter(filterAdapter);
         // 默认选中 Animoji 页面无选中，开启第一个动漫滤镜
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            private boolean mFirst = true;
 
             @Override
             public void onGlobalLayout() {
-                if (mFirst) {
-                    mFirst = false;
-                    onCheckedChanged(mCheckGroup, R.id.cb_animoji);
-                }
+                getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                onCheckedChanged(mCheckGroup, R.id.cb_animoji);
             }
         });
     }
@@ -108,13 +106,11 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
         if ((checkedId == View.NO_ID || checkedId == mLastCheckedId) && mLastCheckedId != View.NO_ID) {
             int endHeight = (int) getResources().getDimension(R.dimen.x98);
             int startHeight = getMeasuredHeight();
-            Log.i(TAG, "NoID onCheckedChanged: start:" + startHeight + ", end:" + endHeight);
             changeBottomLayoutAnimator(startHeight, endHeight);
             mIsShown = false;
         } else if (checkedId != View.NO_ID && mLastCheckedId == View.NO_ID) {
             int startHeight = (int) getResources().getDimension(R.dimen.x98);
             int endHeight = (int) getResources().getDimension(R.dimen.x266);
-            Log.i(TAG, "ID onCheckedChanged: start:" + startHeight + ", end:" + endHeight);
             changeBottomLayoutAnimator(startHeight, endHeight);
             mIsShown = true;
         }
@@ -159,13 +155,12 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
         void onBottomAnimatorChangeListener(float showRate);
     }
 
-    private class OnFilterItemClickListener implements BaseRecyclerAdapter.OnItemClickListener {
+    private class OnFilterItemClickListener implements BaseRecyclerAdapter.OnItemClickListener<CartoonFilter> {
         private int mLastPosition = DEFAULT_FILTER_INDEX;
 
         @Override
-        public void onItemClick(BaseRecyclerAdapter adapter, View view, int position) {
-            CartoonFilter cartoonFilter = (CartoonFilter) adapter.getItem(position);
-            Log.d(TAG, "onItemClick: " + cartoonFilter);
+        public void onItemClick(BaseRecyclerAdapter<CartoonFilter> adapter, View view, int position) {
+            CartoonFilter cartoonFilter = adapter.getItem(position);
             if (mLastPosition != position) {
                 if (mOnFUControlListener != null) {
                     mOnFUControlListener.onCartoonFilterSelected(cartoonFilter.getStyle());
@@ -175,13 +170,12 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
         }
     }
 
-    private class OnAnimojiItemClickListener implements BaseRecyclerAdapter.OnItemClickListener {
+    private class OnAnimojiItemClickListener implements BaseRecyclerAdapter.OnItemClickListener<Effect> {
         private int mLastPosition = DEFAULT_ANIMOJI_INDEX;
 
         @Override
-        public void onItemClick(BaseRecyclerAdapter adapter, View view, int position) {
-            Effect effect = (Effect) adapter.getItem(position);
-            Log.d(TAG, "onAnimItemClick: " + effect);
+        public void onItemClick(BaseRecyclerAdapter<Effect> adapter, View view, int position) {
+            Effect effect = adapter.getItem(position);
             if (mLastPosition != position) {
                 if (mOnFUControlListener != null) {
                     mOnFUControlListener.onEffectSelected(effect);

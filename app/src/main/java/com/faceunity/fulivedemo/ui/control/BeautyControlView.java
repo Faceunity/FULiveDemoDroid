@@ -1,4 +1,4 @@
-package com.faceunity.fulivedemo.ui;
+package com.faceunity.fulivedemo.ui.control;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -23,6 +23,9 @@ import com.faceunity.OnFUControlListener;
 import com.faceunity.entity.Filter;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.FilterEnum;
+import com.faceunity.fulivedemo.ui.BeautyBox;
+import com.faceunity.fulivedemo.ui.BeautyBoxGroup;
+import com.faceunity.fulivedemo.ui.CheckGroup;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
 
 import java.util.Arrays;

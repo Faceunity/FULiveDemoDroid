@@ -26,9 +26,12 @@ import com.faceunity.encoder.MediaVideoEncoder;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.renderer.VideoRenderer;
-import com.faceunity.fulivedemo.ui.BeautyControlView;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
+import com.faceunity.fulivedemo.ui.control.AnimControlView;
+import com.faceunity.fulivedemo.ui.control.BeautyControlView;
+import com.faceunity.fulivedemo.ui.control.MakeupControlView;
 import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.MiscUtil;
 
@@ -45,6 +48,7 @@ public class ShowVideoActivity extends AppCompatActivity
     public final static String TAG = ShowVideoActivity.class.getSimpleName();
 
     private String mSelectDataType;
+    private int mSelectEffectType;
 
     private GLSurfaceView mGLSurfaceView;
     private VideoRenderer mVideoRenderer;
@@ -53,6 +57,8 @@ public class ShowVideoActivity extends AppCompatActivity
     private ImageView mPlayImageView;
     private ImageView mSaveImageView;
     private BeautyControlView mBeautyControlView;
+    private MakeupControlView mMakeupControlView;
+    private AnimControlView mAnimControlView;
     private RecyclerView mEffectRecyclerView;
     private EffectRecyclerAdapter mEffectRecyclerAdapter;
     private FURenderer mFURenderer;
@@ -65,7 +71,8 @@ public class ShowVideoActivity extends AppCompatActivity
         setContentView(R.layout.activity_show_video);
 
         Uri uri = getIntent().getData();
-        mSelectDataType = getIntent().getStringExtra("SelectData");
+        mSelectDataType = getIntent().getStringExtra(SelectDataActivity.SELECT_DATA_KEY);
+        mSelectEffectType = getIntent().getIntExtra(FUEffectActivity.SELECT_EFFECT_KEY, -1);
         if (uri == null) {
             onBackPressed();
             return;
@@ -118,6 +125,26 @@ public class ShowVideoActivity extends AppCompatActivity
                 @Override
                 public void onClick(View v) {
                     mBeautyControlView.hideBottomLayoutAnimator();
+                }
+            });
+        } else if (FUMakeupActivity.TAG.equals(mSelectDataType)) {
+            mMakeupControlView = findViewById(R.id.fu_makeup_control);
+            mMakeupControlView.setVisibility(View.VISIBLE);
+            mMakeupControlView.setOnFUControlListener(mFURenderer);
+            mMakeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
+        } else if (FUAnimojiActivity.TAG.equals(mSelectDataType)) {
+            mAnimControlView = findViewById(R.id.fu_anim_control);
+            mAnimControlView.setVisibility(View.VISIBLE);
+            mAnimControlView.setOnFUControlListener(mFURenderer);
+            mAnimControlView.setOnBottomAnimatorChangeListener(new AnimControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
                 }
             });
         } else {
@@ -238,7 +265,7 @@ public class ShowVideoActivity extends AppCompatActivity
 
     protected void sendRecordingData(int texId, final float[] tex_matrix) {
         if (mVideoEncoder != null) {
-            mVideoEncoder.frameAvailableSoon(texId, tex_matrix);
+            mVideoEncoder.frameAvailableSoon(texId, tex_matrix, GlUtil.IDENTITY_MATRIX);
         }
     }
 

@@ -5,10 +5,10 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
-import com.faceunity.fulivedemo.utils.BitmapUtil;
 import com.faceunity.fulivedemo.utils.FPSUtil;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
+import com.faceunity.utils.BitmapUtil;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +51,6 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     private int mPhotoWidth = 720;
     private int mPhotoHeight = 1280;
 
-    private int mFuTextureId;
     private float[] mvp = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
 
@@ -103,8 +102,8 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         if (mFullFrameRectTexture2D == null) return;
-        mFuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mPhotoBytes, mImgTextureId, mPhotoWidth, mPhotoHeight);
-        mFullFrameRectTexture2D.drawFrame(mFuTextureId, imgDataMatrix, mvp);
+        int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mPhotoBytes, mImgTextureId, mPhotoWidth, mPhotoHeight);
+        mFullFrameRectTexture2D.drawFrame(fuTextureId, imgDataMatrix, mvp);
 
         mFPSUtil.limit();
         mGLSurfaceView.requestRender();

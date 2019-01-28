@@ -14,6 +14,7 @@ import java.io.File;
 
 public class SelectDataActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String TAG = SelectDataActivity.class.getSimpleName();
+    public static final String SELECT_DATA_KEY = "select_data_key";
 
     public static final int IMAGE_RESULT_CODE = 0x200;
     private static final int IMAGE_REQUEST_CODE_PHOTO = 0x101;
@@ -21,13 +22,15 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
     private static final int IMAGE_REQUEST_CODE_VIDEO = 0x103;
     private static final int IMAGE_REQUEST_CODE_SHOW = 0x110;
     private String mSelectDataType;
+    private int mSelectEffectType;
     private Uri mImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_data);
-        mSelectDataType = getIntent().getStringExtra("SelectData");
+        mSelectDataType = getIntent().getStringExtra(SELECT_DATA_KEY);
+        mSelectEffectType = getIntent().getIntExtra(FUEffectActivity.SELECT_EFFECT_KEY, -1);
     }
 
     @Override
@@ -46,13 +49,15 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
                 }
                 Intent intentPhoto = new Intent(SelectDataActivity.this, ShowPhotoActivity.class);
                 intentPhoto.setData(data.getData());
-                intentPhoto.putExtra("SelectData", mSelectDataType);
+                intentPhoto.putExtra(SELECT_DATA_KEY, mSelectDataType);
+                intentPhoto.putExtra(FUEffectActivity.SELECT_EFFECT_KEY, mSelectEffectType);
                 startActivityForResult(intentPhoto, IMAGE_REQUEST_CODE_SHOW);
                 break;
             case IMAGE_REQUEST_CODE_TAKE_PHOTO:
                 Intent intentTakePhoto = new Intent(SelectDataActivity.this, ShowPhotoActivity.class);
                 intentTakePhoto.setData(mImageUri);
-                intentTakePhoto.putExtra("SelectData", mSelectDataType);
+                intentTakePhoto.putExtra(SELECT_DATA_KEY, mSelectDataType);
+                intentTakePhoto.putExtra(FUEffectActivity.SELECT_EFFECT_KEY, mSelectEffectType);
                 startActivityForResult(intentTakePhoto, IMAGE_REQUEST_CODE_SHOW);
                 break;
             case IMAGE_REQUEST_CODE_VIDEO:
@@ -64,7 +69,8 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
                 }
                 Intent intentVideo = new Intent(SelectDataActivity.this, ShowVideoActivity.class);
                 intentVideo.setData(data.getData());
-                intentVideo.putExtra("SelectData", mSelectDataType);
+                intentVideo.putExtra(SELECT_DATA_KEY, mSelectDataType);
+                intentVideo.putExtra(FUEffectActivity.SELECT_EFFECT_KEY, mSelectEffectType);
                 startActivityForResult(intentVideo, IMAGE_REQUEST_CODE_SHOW);
                 break;
             case IMAGE_REQUEST_CODE_SHOW:
@@ -72,6 +78,7 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
                     onBackPressed();
                 }
                 break;
+            default:
         }
     }
 
@@ -115,6 +122,7 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
                 intentVideo.setAction(Build.VERSION.SDK_INT < 19 ? Intent.ACTION_GET_CONTENT : Intent.ACTION_OPEN_DOCUMENT);
                 startActivityForResult(intentVideo, IMAGE_REQUEST_CODE_VIDEO);
                 break;
+            default:
         }
     }
 }

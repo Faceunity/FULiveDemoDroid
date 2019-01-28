@@ -15,6 +15,7 @@
     <string name="home_function_name_gesture">Gesture</string>
     <string name="home_function_name_face_warp">FaceWarp</string>
     <string name="home_function_name_portrait_drive">Dynamic Portrait</string>
+    <string name="home_function_name_live_photo">Live Photo</string>
     <string name="home_function_name_makeup">Make Up</string>
     <string name="sorry_no_permission">Sorry ,Your license is not supported for these functions.</string>
     <string name="camera_dialog_title">warning</string>
@@ -22,7 +23,7 @@
     <string name="camera_dialog_open">Retry</string>
     <string name="camera_dialog_back">quit</string>
 
-    <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS:%d\nRender time:\n\t\t\t\t\t%dms</string>
+    <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS: %d\nRender time:\n\t%dms</string>
     <string name="save_photo_success">Save photo successfully!</string>
     <string name="save_video_success">Save video successfully!</string>
     <string name="fu_base_is_tracking_text">No Face Tracking</string>
@@ -116,5 +117,34 @@
     <string name="tip_dual_face">Multiple people detected, please choose one person for face fusion</string>
 
     <string name="cartoon_filter">Cartoon Filter</string>
+
+    <string name="magic_left_eye">left eye</string>
+    <string name="magic_right_eye">right eye</string>
+    <string name="magic_mouth">mouth</string>
+    <string name="magic_nose">nose</string>
+    <string name="magic_left_eyebrow">left eyebrow</string>
+    <string name="magic_right_eyebrow">right eyebrow</string>
+    <string name="magic_gen_tip_operate">Please select the following features</string>
+    <string name="magic_cant_add_more">Can\'t add more</string>
+    <string name="magic_toast_action">Move your facial features</string>
+    <string name="magic_back_not_save">Not save model if you go back</string>
+    <string name="magic_btn_adjust">Fine adjustment</string>
+    <string name="magic_btn_back">Go back</string>
+    <string name="magic_btn_delete">Delete</string>
+    <string name="magic_btn_cancel">Cancel</string>
+    <string name="magic_btn_delete_">Delete(%d)</string>
+    <string name="magic_empty_tip">Not created model</string>
+    <string name="magic_delete_effect">Delete model</string>
+    <string name="magic_delete_all">All</string>
+    <string name="confirm">Yes</string>
+    <string name="cancel">No</string>
+    <string name="dialog_confirm_delete">Are you sure to delete?</string>
+    <string name="toast_delete_succeed">Delete succeed</string>
+    <string name="toast_delete_failed">Delete failed</string>
+    <string name="magic_save_succeed">Save succeed</string>
+    <string name="magic_save_failed">Save failed</string>
+    <string name="magic_not_add_sticker">You havent added five features yet.</string>
+    <string name="magic_not_add_sticker_cancel">Go Back</string>
+    <string name="magic_not_add_sticker_confirm">To add</string>
 
 </resources>

@@ -40,17 +40,17 @@ public class MediaVideoEncoder extends MediaEncoder {
         mRenderHandler = RenderHandler.createHandler(TAG);
     }
 
-    public boolean frameAvailableSoon(int texId, final float[] tex_matrix) {
+    public boolean frameAvailableSoon(int texId, final float[] texMatrix, float[] mvpMatrix) {
         boolean result;
         if (result = super.frameAvailableSoon()) {
             int[] viewPort = new int[4];
             GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewPort, 0);
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFBOId[0]);
             GLES20.glViewport(0, 0, mWidth, mHeight);
-            program.drawFrame(texId, tex_matrix, GlUtil.IDENTITY_MATRIX);
+            program.drawFrame(texId, texMatrix, mvpMatrix);
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
             GLES20.glViewport(viewPort[0], viewPort[1], viewPort[2], viewPort[3]);
-            mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX);
+            mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX, mvpMatrix);
         }
         return result;
     }

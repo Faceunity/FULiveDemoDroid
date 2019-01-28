@@ -325,8 +325,9 @@ public abstract class GlUtil {
     public static int getSupportGLVersion(Context context) {
         final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
-        Log.e(TAG, "getSupportGLVersion: " + Integer.toHexString(configurationInfo.reqGlEsVersion));
         int version = configurationInfo.reqGlEsVersion >= 0x30000 ? 3 : 2;
+        String glEsVersion = configurationInfo.getGlEsVersion();
+        Log.e(TAG, "reqGlEsVersion: " + Integer.toHexString(configurationInfo.reqGlEsVersion) + ", glEsVersion:" + glEsVersion);
         return version;
     }
 }

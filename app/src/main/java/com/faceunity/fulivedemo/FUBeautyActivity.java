@@ -7,7 +7,7 @@ import android.widget.CompoundButton;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.entity.BeautyParameterModel;
-import com.faceunity.fulivedemo.ui.BeautyControlView;
+import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 
 /**
  * 美颜界面
@@ -52,7 +52,7 @@ public class FUBeautyActivity extends FUBaseActivity {
 //        mGLSurfaceView.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-                mBeautyControlView.hideBottomLayoutAnimator();
+        mBeautyControlView.hideBottomLayoutAnimator();
 //            }
 //        });
 
@@ -62,7 +62,7 @@ public class FUBeautyActivity extends FUBaseActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(FUBeautyActivity.this, SelectDataActivity.class);
-                intent.putExtra("SelectData", TAG);
+                intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, TAG);
                 startActivity(intent);
             }
         });

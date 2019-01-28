@@ -33,7 +33,6 @@ import javax.microedition.khronos.opengles.GL10;
  * <p>
  * Created by tujh on 2018/3/2.
  */
-
 public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Renderer {
     public final static String TAG = CameraRenderer.class.getSimpleName();
 
@@ -56,16 +55,16 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     private OnRendererStatusListener mOnCameraRendererStatusListener;
 
-    private int mViewWidth = 1280;
-    private int mViewHeight = 720;
+    protected int mViewWidth = 1280;
+    protected int mViewHeight = 720;
 
     private final Object mCameraLock = new Object();
     private Camera mCamera;
     private static final int PREVIEW_BUFFER_COUNT = 3;
     private byte[][] previewCallbackBuffer;
     private int mCurrentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
-    private int mCameraWidth = 1280;
-    private int mCameraHeight = 720;
+    protected int mCameraWidth = 1280;
+    protected int mCameraHeight = 720;
 
     private boolean isDraw = false;
     private final float[] mtx = {0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
@@ -75,16 +74,15 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     private int mFuTextureId;
     private volatile boolean isNeedStopDrawFrame;
-    private float[] mvp = new float[16];
+    protected volatile float[] mMvpMatrix = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
     private ProgramTextureOES mTextureOES;
-//    private ProgramLandmarks mProgramLandmarks;
 
     private FPSUtil mFPSUtil;
 
-    public CameraRenderer(Activity activity, GLSurfaceView GLSurfaceView, OnRendererStatusListener onCameraRendererStatusListener) {
+    public CameraRenderer(Activity activity, GLSurfaceView glSurfaceView, OnRendererStatusListener onCameraRendererStatusListener) {
         mActivity = activity;
-        mGLSurfaceView = GLSurfaceView;
+        mGLSurfaceView = glSurfaceView;
         mOnCameraRendererStatusListener = onCameraRendererStatusListener;
         mFPSUtil = new FPSUtil();
     }
@@ -132,7 +130,6 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         Log.d(TAG, "onSurfaceCreated()");
         mFullFrameRectTexture2D = new ProgramTexture2d();
         mTextureOES = new ProgramTextureOES();
-//        mProgramLandmarks = new ProgramLandmarks();
         mCameraTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         cameraStartPreview();
 
@@ -142,7 +139,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
-        mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+        mMvpMatrix = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
         mOnCameraRendererStatusListener.onSurfaceChanged(gl, width, height);
         Log.i(TAG, "onSurfaceChanged: viewWidth:" + mViewWidth + ", viewHeight:" + mViewHeight + ". cameraOrientation:" + mCameraOrientation
                 + ", cameraWidth:" + mCameraWidth + ", cameraHeight:" + mCameraHeight);
@@ -156,7 +153,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
             return;
         }
         if (mCameraNV21Byte == null) {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
+            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mMvpMatrix);
             return;
         } else {
             try {
@@ -169,20 +166,15 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         }
 
         if (!isNeedStopDrawFrame) {
-            mFuTextureId = mOnCameraRendererStatusListener.onDrawFrame(mCameraNV21Byte, mCameraTextureId, mCameraWidth, mCameraHeight, mtx, mSurfaceTexture.getTimestamp());
+            mFuTextureId = mOnCameraRendererStatusListener.onDrawFrame(mCameraNV21Byte, mCameraTextureId,
+                    mCameraWidth, mCameraHeight, mtx, mSurfaceTexture.getTimestamp());
         }
         //用于屏蔽切换调用SDK处理数据方法导致的绿屏（切换SDK处理数据方法是用于展示，实际使用中无需切换，故无需调用做这个判断,直接使用else分支绘制即可）
         if (mFuTextureId <= 0) {
-            mTextureOES.drawFrame(mCameraTextureId, mtx, mvp);
+            mTextureOES.drawFrame(mCameraTextureId, mtx, mMvpMatrix);
         } else {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
+            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mMvpMatrix);
         }
-
-        // draw landmarks view
-//        if (!isNeedStopDrawFrame && drawCameraSurface) {
-//            mProgramLandmarks.refresh(landmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCurrentCameraType);
-//            mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
-//        }
 
         mFPSUtil.limit();
         if (!isNeedStopDrawFrame) {
@@ -198,7 +190,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     public void dismissImageTexture() {
         setNeedStopDrawFrame(false);
-        mvp = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+        mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
     }
 
     public void showImageTexture(final Bitmap bitmap) {
@@ -207,24 +199,24 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                 @Override
                 public void run() {
                     mFuTextureId = GlUtil.createImageTexture(bitmap);
-                    mvp = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, bitmap.getWidth(), bitmap.getHeight());
+                    mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, bitmap.getWidth(), bitmap.getHeight());
                     if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                         float[] tmp = new float[16];
                         Matrix.setIdentityM(tmp, 0);
                         Matrix.scaleM(tmp, 0, -1F, 1F, 1F);
-                        Matrix.multiplyMM(mvp, 0, tmp, 0, mvp, 0);
+                        Matrix.multiplyMM(mMvpMatrix, 0, tmp, 0, mMvpMatrix, 0);
                     }
                     if (mCameraOrientation == 90) {
                         if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                            Matrix.rotateM(mvp, 0, 270, 0F, 0F, 1F);
+                            Matrix.rotateM(mMvpMatrix, 0, 270, 0F, 0F, 1F);
                         } else {
-                            Matrix.rotateM(mvp, 0, 90, 0F, 0F, 1F);
+                            Matrix.rotateM(mMvpMatrix, 0, 90, 0F, 0F, 1F);
                         }
                     } else if (mCameraOrientation == 270) {
                         if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                            Matrix.rotateM(mvp, 0, 90, 0F, 0F, 1F);
+                            Matrix.rotateM(mMvpMatrix, 0, 90, 0F, 0F, 1F);
                         } else {
-                            Matrix.rotateM(mvp, 0, 270, 0F, 0F, 1F);
+                            Matrix.rotateM(mMvpMatrix, 0, 270, 0F, 0F, 1F);
                         }
                     }
                     mGLSurfaceView.requestRender();
@@ -298,7 +290,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                 mCameraWidth = size[0];
                 mCameraHeight = size[1];
                 if (mViewWidth != 0 && mViewHeight != 0) {
-                    mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+                    mMvpMatrix = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
                 }
 
                 mCamera.setParameters(parameters);
@@ -332,7 +324,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         }
     }
 
-    private void cameraStartPreview() {
+    protected void cameraStartPreview() {
         try {
             if (mCameraTextureId == 0 || mCamera == null) {
                 return;

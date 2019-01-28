@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/x88"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/iv_magic_item"
+        android:layout_width="@dimen/x88"
+        android:layout_height="@dimen/x88"
+        android:scaleType="centerInside"
+        tools:src="@drawable/icon_right_eye" />
+
+    <TextView
+        android:id="@+id/tv_magic_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x14"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/x20"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_magic_item"
+        tools:text="美貌" />
+
+</android.support.constraint.ConstraintLayout>

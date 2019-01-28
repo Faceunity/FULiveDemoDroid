@@ -7,10 +7,10 @@ import android.opengl.Matrix;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.faceunity.fulivedemo.utils.BitmapUtil;
 import com.faceunity.fulivedemo.utils.FPSUtil;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
+import com.faceunity.utils.BitmapUtil;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -52,7 +52,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
     private int mViewPortX;
     private int mViewPortY;
     private float mViewPortScale = 1F;
-    private String mMixedPhotoPath;
+    private volatile String mMixedPhotoPath;
     private int mFrameCount;
 
     public PosterPhotoRenderer(String photoPath, GLSurfaceView glSurfaceview, OnRendererStatusListener onPhotoRendererStatusListener) {
@@ -128,13 +128,14 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         if (mFullFrameRectTexture2D == null) {
             return;
         }
+
         float[] matrix;
         if (mDrawPhoto) {
             matrix = mMvpPhotoMatrix;
         } else {
             matrix = mMvpTemplateMatrix;
         }
-        int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mPhotoBytes, mImgTextureId, mPhotoWidth, mPhotoHeight);
+        int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mImgTextureId, mPhotoWidth, mPhotoHeight);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
         mFullFrameRectTexture2D.drawFrame(fuTextureId, IMG_DATA_MATRIX, matrix);
         // 解决前几帧黑屏问题
@@ -151,7 +152,6 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         }
 
         mFPSUtil.limit();
-        // TODO: 2018/10/16 0016 完成后不再 render
         mGLSurfaceView.requestRender();
     }
 
@@ -175,8 +175,6 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
             mFullFrameRectTexture2D.release();
             mFullFrameRectTexture2D = null;
         }
-        mOnPhotoRendererStatusListener.onSurfaceDestroy();
-
         mFirstDrawPhoto = true;
         mReRenderTemplate = false;
         mDrawPhoto = true;
@@ -185,6 +183,8 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         mTemplateRGBABytes = null;
         mTemplateBytes = null;
         mMixedPhotoPath = null;
+
+        mOnPhotoRendererStatusListener.onSurfaceDestroy();
     }
 
     private void destroyImageTexture() {
@@ -209,13 +209,15 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
     private void loadPhotoData(String path, boolean createTexture) {
         Log.d(TAG, "loadPhotoData: path:" + path + ", createTexture:" + createTexture);
         Bitmap src = BitmapUtil.loadBitmap(path, 720);
-        if (createTexture) {
-            mImgTextureId = GlUtil.createImageTexture(src);
+        if (src != null) {
+            if (createTexture) {
+                mImgTextureId = GlUtil.createImageTexture(src);
+            }
+            mPhotoRGBABytes = new byte[src.getByteCount()];
+            ByteBuffer rgbaBuffer = ByteBuffer.wrap(mPhotoRGBABytes);
+            src.copyPixelsToBuffer(rgbaBuffer);
+            mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth(), mPhotoHeight = src.getHeight(), src);
         }
-        mPhotoRGBABytes = new byte[src.getByteCount()];
-        ByteBuffer rgbaBuffer = ByteBuffer.wrap(mPhotoRGBABytes);
-        src.copyPixelsToBuffer(rgbaBuffer);
-        mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth(), mPhotoHeight = src.getHeight(), src);
     }
 
     public void reloadTemplateData(String path) {
@@ -272,7 +274,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
 
         void onSurfaceChanged(GL10 gl, int width, int height);
 
-        int onDrawFrame(byte[] photoBytes, int photoTextureId, int photoWidth, int photoHeight);
+        int onDrawFrame(int photoTextureId, int photoWidth, int photoHeight);
 
         void onSurfaceDestroy();
 

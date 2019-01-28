@@ -12,6 +12,7 @@
     <color name="percent40translucentBlack">#66000000</color>
     <color name="percent50translucentBlack">#80000000</color>
     <color name="percent60translucentBlack">#99000000</color>
+    <color name="percent70translucentWhite">#00FFFFFF</color>
 
     <color name="colorWhite">#FFFFFFFF</color>
     <color name="main_color">#FF5EC7FE</color>
@@ -24,4 +25,7 @@
     <color name="line_302D33">#FF302D33</color>
 
     <color name="black_dialog_text">#31373E</color>
+    <color name="btn_magic_text">#2C2E30</color>
+    <color name="magic_button_disable">#C6C6C6</color>
+    <color name="magic_button_enable">#869DFF</color>
 </resources>

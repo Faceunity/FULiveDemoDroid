@@ -46,8 +46,8 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
     // item 布局资源
     protected int mLayoutResId;
     // item 点击事件
-    private OnItemClickListener mOnItemClickListener;
-    private OnItemLongClickListener mOnItemLongClickListener;
+    private OnItemClickListener<T> mOnItemClickListener;
+    private OnItemLongClickListener<T> mOnItemLongClickListener;
     // 选中的 view 包含的数据，子 view 可点击时无效
     private SparseArray<T> mSelectedItems;
 
@@ -83,6 +83,10 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
     @Override
     public int getItemCount() {
         return mData.size();
+    }
+
+    public List<T> getData() {
+        return mData;
     }
 
     @Nullable
@@ -123,11 +127,15 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
      */
     protected abstract void bindViewHolder(BaseViewHolder viewHolder, T item);
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener) {
         this.mOnItemClickListener = onItemClickListener;
     }
 
-    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+    public OnItemClickListener<T> getOnItemClickListener() {
+        return mOnItemClickListener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener<T> onItemLongClickListener) {
         mOnItemLongClickListener = onItemLongClickListener;
     }
 
@@ -346,7 +354,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
     /**
      * View 点击事件监听器
      */
-    public interface OnItemClickListener {
+    public interface OnItemClickListener<T> {
         /**
          * 点击选项
          *
@@ -354,14 +362,14 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
          * @param view
          * @param position
          */
-        void onItemClick(BaseRecyclerAdapter adapter, View view, int position);
+        void onItemClick(BaseRecyclerAdapter<T> adapter, View view, int position);
     }
 
     /**
      * Interface definition for a callback to be invoked when an item in this
      * view has been clicked and held.
      */
-    public interface OnItemLongClickListener {
+    public interface OnItemLongClickListener<T> {
         /**
          * callback method to be invoked when an item in this view has been
          * click and held
@@ -371,7 +379,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
          * @param position The position of the view int the adapter
          * @return true if the callback consumed the long click ,false otherwise
          */
-        boolean onItemLongClick(BaseRecyclerAdapter adapter, View view, int position);
+        boolean onItemLongClick(BaseRecyclerAdapter<T> adapter, View view, int position);
     }
 
     public static class BaseViewHolder extends RecyclerView.ViewHolder {

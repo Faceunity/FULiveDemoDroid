@@ -25,7 +25,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -162,10 +161,8 @@ public class MiscUtil {
                     fos.write(data);
                     fos.flush();
                     fos.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "saveDataToFile", e);
                 }
             }
         });
@@ -190,10 +187,8 @@ public class MiscUtil {
                     fos.flush();
                     fos.close();
                     bitmap.recycle();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "saveBitmapToFile: ", e);
                 }
             }
         });
@@ -205,7 +200,7 @@ public class MiscUtil {
         if (!dirFile.exists()) {
             dirFile.mkdirs();
         }
-        final String path = dir + name;
+        final String path = new File(dir, name).getAbsolutePath();
         try {
             File file = new File(path);
             FileOutputStream fos = new FileOutputStream(file);
@@ -213,10 +208,8 @@ public class MiscUtil {
             fos.flush();
             fos.close();
             return path;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "saveBitmap: ", e);
         }
         return null;
     }
@@ -254,7 +247,7 @@ public class MiscUtil {
             }
             fos.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "saveInputStreamToFile: ", e);
         }
     }
 
@@ -429,7 +422,7 @@ public class MiscUtil {
             fos.close();
             fis.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "copyFileTo: ", e);
         }
         return true;
     }

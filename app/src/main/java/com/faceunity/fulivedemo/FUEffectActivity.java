@@ -24,6 +24,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class FUEffectActivity extends FUBaseActivity {
     public final static String TAG = FUEffectActivity.class.getSimpleName();
+    public static final String SELECT_EFFECT_KEY = "select_effect_key";
 
     private EffectRecyclerAdapter mEffectRecyclerAdapter;
 
@@ -52,7 +53,8 @@ public class FUEffectActivity extends FUBaseActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(FUEffectActivity.this, SelectDataActivity.class);
-                    intent.putExtra("SelectData", TAG);
+                    intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, TAG);
+                    intent.putExtra(SELECT_EFFECT_KEY, mEffectType);
                     startActivity(intent);
                 }
             });
@@ -65,7 +67,6 @@ public class FUEffectActivity extends FUBaseActivity {
         ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(mEffectType);
         int frontCameraOrientation = 270;
         if (mEffectType == Effect.EFFECT_TYPE_GESTURE) {
-            // nexus 手机方向倒置问题
             frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
         }
         return new FURenderer

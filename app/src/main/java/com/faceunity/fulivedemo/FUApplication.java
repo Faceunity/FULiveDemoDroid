@@ -3,9 +3,9 @@ package com.faceunity.fulivedemo;
 import android.app.Application;
 import android.content.Context;
 
-import com.faceunity.FURenderer;
-import com.faceunity.fulivedemo.utils.FileUtils;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
+import com.faceunity.greendao.GreenDaoUtils;
+import com.faceunity.utils.FileUtils;
 
 
 /**
@@ -21,19 +21,15 @@ public class FUApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
-//        用于解决Uri.fromFile(file)跳转系统拍摄页面的报错
-//        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-//        StrictMode.setVmPolicy(builder.build());
-//        builder.detectFileUriExposure();
-
         sContext = this;
-        FURenderer.initFURenderer(this);
-        // 拷贝 assets 资源
         ThreadHelper.getInstance().execute(new Runnable() {
             @Override
             public void run() {
+                // 拷贝 assets 资源
+                FileUtils.copyAssetsMagicPhoto(sContext);
                 FileUtils.copyAssetsTemplate(sContext);
+                // 初始化数据库，一定在拷贝文件之后
+                GreenDaoUtils.initGreenDao(sContext);
             }
         });
     }

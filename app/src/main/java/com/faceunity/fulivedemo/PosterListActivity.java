@@ -11,6 +11,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.faceunity.fulivedemo.entity.PosterTemplate;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
@@ -21,7 +23,8 @@ import java.util.List;
 /**
  * 海报换脸列表界面
  */
-public class PosterListActivity extends AppCompatActivity implements View.OnClickListener, BaseRecyclerAdapter.OnItemClickListener {
+public class PosterListActivity extends AppCompatActivity implements View.OnClickListener,
+        BaseRecyclerAdapter.OnItemClickListener<PosterTemplate> {
     private static final String TAG = "PosterListActivity";
 
     @Override
@@ -54,8 +57,8 @@ public class PosterListActivity extends AppCompatActivity implements View.OnClic
     }
 
     @Override
-    public void onItemClick(BaseRecyclerAdapter adapter, View view, int position) {
-        String tempPath = ((PosterTemplate) adapter.getItem(position)).getPath();
+    public void onItemClick(BaseRecyclerAdapter<PosterTemplate> adapter, View view, int position) {
+        String tempPath = adapter.getItem(position).getPath();
         FUPosterTakeActivity.startSelfActivity(this, tempPath);
     }
 
@@ -68,7 +71,9 @@ public class PosterListActivity extends AppCompatActivity implements View.OnClic
         @Override
         protected void bindViewHolder(BaseViewHolder viewHolder, PosterTemplate item) {
             ImageView imageView = viewHolder.getViewById(R.id.iv_poster_temp);
-            Glide.with(viewHolder.itemView.getContext()).load(item.getGridIconPath()).centerCrop().into(imageView);
+            Glide.with(viewHolder.itemView.getContext()).load(item.getGridIconPath())
+                    .apply(RequestOptions.bitmapTransform(new CenterCrop()))
+                    .into(imageView);
         }
     }
 

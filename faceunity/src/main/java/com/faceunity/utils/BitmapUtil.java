@@ -1,8 +1,10 @@
-package com.faceunity.fulivedemo.utils;
+package com.faceunity.utils;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.media.ExifInterface;
 import android.opengl.GLES20;
 import android.os.AsyncTask;
@@ -11,6 +13,8 @@ import android.util.Log;
 import com.faceunity.gles.ProgramTexture2d;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -20,6 +24,7 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public abstract class BitmapUtil {
     private static final String TAG = "BitmapUtil";
+
     /**
      * 读取图片（glReadPixels）
      *
@@ -83,6 +88,84 @@ public abstract class BitmapUtil {
      *
      * @param path
      * @param screenWidth
+     * @param screenHeight
+     * @return
+     */
+    public static Bitmap loadBitmap(String path, int screenWidth, int screenHeight) {
+        int degree = getBitmapDegree(path);
+        Bitmap bitmap = compressBitmapByScreen(path, screenWidth, screenHeight);
+        return rotateBitmap(bitmap, degree);
+    }
+
+    public static Bitmap compressBitmapByScreen(String path, int screenWidth, int screenHeight) {
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+        // 这个isjustdecodebounds很重要
+        opt.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, opt);
+        // 获取到这个图片的原始宽度和高度
+        int picWidth = opt.outWidth;
+        int picHeight = opt.outHeight;
+        // isSampleSize是表示对图片的缩放程度，比如值为2图片的宽度和高度都变为以前的1/2
+        opt.inSampleSize = 1;
+        // 根据屏的大小和图片大小计算出缩放比例
+        double radio = opt.outWidth / (double) opt.outHeight;
+        Log.i("PhotoRenderer", "loadBitmap: width:" + opt.outWidth + ", height:" + opt.outHeight);
+        if (radio == 3 / (double) 4) {
+            opt.inSampleSize = calculateInSampleSize(opt, screenWidth, screenHeight);
+        } else if (radio == 9 / (double) 16) {
+            opt.inSampleSize = calculateInSampleSize(opt, screenWidth, screenHeight);
+        } else if (radio == (double) 1) {
+            opt.inSampleSize = calculateInSampleSize(opt, screenWidth, screenHeight);
+        } else {
+            if (picWidth > picHeight) {
+                if (picHeight > screenWidth) {
+                    opt.inSampleSize = calculateInSampleSize(opt, screenWidth, screenHeight);
+                }
+            } else {
+                if (picWidth > screenWidth) {
+                    opt.inSampleSize = calculateInSampleSize(opt, screenWidth, screenHeight);
+                }
+            }
+        }
+        Log.i("PhotoRenderer", "loadBitmap: inSampleSize:" + opt.inSampleSize);
+        // 这次再真正地生成一个有像素的，经过缩放了的bitmap
+        opt.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, opt);
+    }
+
+    public static Bitmap rotateBitmap(Bitmap bitmap, int degree) {
+        if (degree == 90 || degree == 180 || degree == 270) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(degree);
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        }
+        return bitmap;
+    }
+
+    public static int getBitmapDegree(String path) {
+        int degree = 0;
+        int orientation;
+        try {
+            orientation = new ExifInterface(path).getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
+        } catch (IOException e) {
+            Log.e(TAG, "getBitmapDegree: ", e);
+            orientation = 0;
+        }
+        if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+            degree = 90;
+        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+            degree = 180;
+        } else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+            degree = 270;
+        }
+        return degree;
+    }
+
+    /**
+     * load本地图片
+     *
+     * @param path
+     * @param screenWidth
      * @return
      * @throws IOException
      */
@@ -128,6 +211,71 @@ public abstract class BitmapUtil {
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         }
         return bitmap;
+    }
+
+    private static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    public static Bitmap decodeSampledBitmapFromStream(InputStream is, int reqWidth, int reqHeight) {
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(is, null, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeStream(is, null, options);
+    }
+
+    public static Bitmap decodeSampledBitmapFromFile(String imagePath, int reqWidth, int reqHeight) {
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imagePath, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(imagePath, options);
+    }
+
+    public static Bitmap decodeSampledBitmapFromResource(Resources resource, int resId, int reqWidth, int reqHeight) {
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(resource, resId, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeResource(resource, resId, options);
     }
 
     /**
@@ -185,4 +333,25 @@ public abstract class BitmapUtil {
             }
         }
     }
+
+    public static byte[] loadPhotoRGBABytes(Bitmap bitmap) {
+        if (bitmap == null) {
+            return null;
+        }
+        byte[] bytes = new byte[bitmap.getByteCount()];
+        ByteBuffer rgbaBuffer = ByteBuffer.wrap(bytes);
+        bitmap.copyPixelsToBuffer(rgbaBuffer);
+        return bytes;
+    }
+
+    public static Point getBitmapSize(String path) {
+        Point point = new Point();
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+        opt.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, opt);
+        point.x = opt.outWidth;
+        point.y = opt.outHeight;
+        return point;
+    }
+
 }
