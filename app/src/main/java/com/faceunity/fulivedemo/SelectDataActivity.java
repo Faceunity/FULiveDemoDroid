@@ -12,7 +12,7 @@ import com.faceunity.utils.MiscUtil;
 
 import java.io.File;
 
-public class SelectDataActivity extends AppCompatActivity implements View.OnClickListener {
+public class SelectDataActivity extends AppCompatActivity {
     public static final String TAG = SelectDataActivity.class.getSimpleName();
     public static final String SELECT_DATA_KEY = "select_data_key";
 
@@ -41,7 +41,9 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
         }
         switch (requestCode) {
             case IMAGE_REQUEST_CODE_PHOTO:
-                if (data == null) return;
+                if (data == null) {
+                    return;
+                }
                 String fileImgPath = MiscUtil.getFileAbsolutePath(this, data.getData());
                 if (!new File(fileImgPath).exists()) {
                     ToastUtil.showToast(this, R.string.image_file_does_not_exist);
@@ -61,7 +63,9 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
                 startActivityForResult(intentTakePhoto, IMAGE_REQUEST_CODE_SHOW);
                 break;
             case IMAGE_REQUEST_CODE_VIDEO:
-                if (data == null) return;
+                if (data == null) {
+                    return;
+                }
                 String fileVideoPath = MiscUtil.getFileAbsolutePath(this, data.getData());
                 if (!new File(fileVideoPath).exists()) {
                     ToastUtil.showToast(this, R.string.video_file_does_not_exist);
@@ -82,7 +86,6 @@ public class SelectDataActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.back:

@@ -11,6 +11,7 @@ import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.utils.CameraUtils;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 import java.util.ArrayList;
 
@@ -47,11 +48,12 @@ public class FUEffectActivity extends FUBaseActivity {
             }
         });
 
+        // 普通贴纸和背景分割，使用本地相册载入
         if (mEffectType == Effect.EFFECT_TYPE_NORMAL) {
             mSelectDataBtn.setVisibility(View.VISIBLE);
-            mSelectDataBtn.setOnClickListener(new View.OnClickListener() {
+            mSelectDataBtn.setOnClickListener(new OnMultiClickListener() {
                 @Override
-                public void onClick(View v) {
+                protected void onMultiClick(View v) {
                     Intent intent = new Intent(FUEffectActivity.this, SelectDataActivity.class);
                     intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, TAG);
                     intent.putExtra(SELECT_EFFECT_KEY, mEffectType);

@@ -17,15 +17,14 @@ import com.faceunity.fulivedemo.entity.PosterTemplate;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 import java.util.List;
 
 /**
  * 海报换脸列表界面
  */
-public class PosterListActivity extends AppCompatActivity implements View.OnClickListener,
-        BaseRecyclerAdapter.OnItemClickListener<PosterTemplate> {
-    private static final String TAG = "PosterListActivity";
+public class PosterListActivity extends AppCompatActivity implements BaseRecyclerAdapter.OnItemClickListener<PosterTemplate> {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +33,12 @@ public class PosterListActivity extends AppCompatActivity implements View.OnClic
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
         setContentView(R.layout.activity_poster_list);
-        findViewById(R.id.iv_poster_list_back).setOnClickListener(this);
+        findViewById(R.id.iv_poster_list_back).setOnClickListener(new OnMultiClickListener() {
+            @Override
+            protected void onMultiClick(View v) {
+                finish();
+            }
+        });
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_poster_template);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
@@ -46,14 +50,6 @@ public class PosterListActivity extends AppCompatActivity implements View.OnClic
         PosterTempAdapter posterTempAdapter = new PosterTempAdapter(PosterTemplate.getPosterTemplates(this));
         posterTempAdapter.setOnItemClickListener(this);
         recyclerView.setAdapter(posterTempAdapter);
-    }
-
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        if (id == R.id.iv_poster_list_back) {
-            finish();
-        }
     }
 
     @Override

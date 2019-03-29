@@ -40,6 +40,7 @@ import com.faceunity.fulivedemo.ui.CameraFocus;
 import com.faceunity.fulivedemo.ui.RecordBtn;
 import com.faceunity.fulivedemo.ui.VerticalSeekBar;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
@@ -61,8 +62,7 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by tujh on 2018/1/31.
  */
 public abstract class FUBaseActivity extends AppCompatActivity
-        implements View.OnClickListener,
-        CameraRenderer.OnRendererStatusListener,
+        implements CameraRenderer.OnRendererStatusListener,
         SensorEventListener,
         FURenderer.OnFUDebugListener,
         FURenderer.OnTrackingStatusChangedListener {
@@ -139,11 +139,15 @@ public abstract class FUBaseActivity extends AppCompatActivity
         mCameraRenderer.onCreate();
         mCameraRenderer.onResume();
         mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//        audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+//        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//        audioManager.abandonAudioFocus(null);
         mSensorManager.unregisterListener(this);
         mCameraRenderer.onPause();
         mCameraRenderer.onDestroy();
@@ -330,10 +334,10 @@ public abstract class FUBaseActivity extends AppCompatActivity
             return;
         }
         mIsNeedTakePic = false;
-        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener);
+        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener
+                , false);
     }
 
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fu_base_back:
@@ -417,9 +421,9 @@ public abstract class FUBaseActivity extends AppCompatActivity
         mRootView = (ConstraintLayout) findViewById(R.id.cl_root);
         mHeightCheckBox = (CheckBox) findViewById(R.id.fu_base_height);
         mHeightImg = (ImageView) findViewById(R.id.fu_base_height_img);
-        mHeightImg.setOnClickListener(new View.OnClickListener() {
+        mHeightImg.setOnClickListener(new OnMultiClickListener() {
             @Override
-            public void onClick(View v) {
+            protected void onMultiClick(View v) {
                 mHeightCheckBox.setChecked(!mHeightCheckBox.isChecked());
             }
         });
@@ -460,7 +464,9 @@ public abstract class FUBaseActivity extends AppCompatActivity
     protected void sendRecordingData(int texId, final float[] texMatrix, final long timeStamp) {
         if (mVideoEncoder != null) {
             mVideoEncoder.frameAvailableSoon(texId, texMatrix, GlUtil.IDENTITY_MATRIX);
-            if (mStartTime == 0) mStartTime = timeStamp;
+            if (mStartTime == 0) {
+                mStartTime = timeStamp;
+            }
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

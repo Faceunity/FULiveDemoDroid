@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.ui.RecordBtn;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
@@ -70,16 +71,16 @@ public class FUPosterTakeActivity extends FUBaseActivity {
 
         ImageView ivBack = (ImageView) findViewById(R.id.fu_base_back);
         ivBack.setImageResource(R.drawable.back_show);
-        ivBack.setOnClickListener(new View.OnClickListener() {
+        ivBack.setOnClickListener(new OnMultiClickListener() {
             @Override
-            public void onClick(View v) {
+            protected void onMultiClick(View v) {
                 onBackPressed();
             }
         });
         mSelectDataBtn.setVisibility(View.VISIBLE);
-        mSelectDataBtn.setOnClickListener(new View.OnClickListener() {
+        mSelectDataBtn.setOnClickListener(new OnMultiClickListener() {
             @Override
-            public void onClick(View v) {
+            protected void onMultiClick(View v) {
                 Intent intentPhoto = new Intent();
                 intentPhoto.addCategory(Intent.CATEGORY_OPENABLE);
                 intentPhoto.setType("image/*");
@@ -232,7 +233,7 @@ public class FUPosterTakeActivity extends FUBaseActivity {
         }
         mIsNeedTakePic = false;
         mCameraRenderer.setNeedStopDrawFrame(true);
-        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener);
+        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener,false);
     }
 
     private void setTakeViewVisible(boolean visible) {
@@ -247,10 +248,10 @@ public class FUPosterTakeActivity extends FUBaseActivity {
         }
     }
 
-    private class OnOptionViewClickListener implements View.OnClickListener {
+    private class OnOptionViewClickListener extends OnMultiClickListener {
 
         @Override
-        public void onClick(View v) {
+        protected void onMultiClick(View v) {
             int id = v.getId();
             if (id == R.id.iv_poster_take_confirm) {
                 ThreadHelper.getInstance().execute(new Runnable() {

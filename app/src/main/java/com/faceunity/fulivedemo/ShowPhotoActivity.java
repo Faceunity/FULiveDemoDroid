@@ -6,6 +6,7 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +24,7 @@ import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.control.AnimControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
@@ -33,134 +35,26 @@ import java.io.File;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class ShowPhotoActivity extends AppCompatActivity
-        implements PhotoRenderer.OnRendererStatusListener,
-        View.OnClickListener,
+public class ShowPhotoActivity extends AppCompatActivity implements PhotoRenderer.OnRendererStatusListener,
         FURenderer.OnTrackingStatusChangedListener {
     public final static String TAG = ShowPhotoActivity.class.getSimpleName();
 
-    private String mSelectDataType;
-    private int mSelectEffectType;
-
-    private GLSurfaceView mGLSurfaceView;
     private PhotoRenderer mPhotoRenderer;
-
     private TextView mIsTrackingText;
     private TextView mEffectDescription;
     private ImageView mSaveImageView;
     private BeautyControlView mBeautyControlView;
-    private MakeupControlView mMakeupControlView;
-    private AnimControlView mAnimControlView;
-    private RecyclerView mEffectRecyclerView;
-    private EffectRecyclerAdapter mEffectRecyclerAdapter;
     private FURenderer mFURenderer;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_show_photo);
-
-        Uri uri = getIntent().getData();
-        mSelectDataType = getIntent().getStringExtra(SelectDataActivity.SELECT_DATA_KEY);
-        mSelectEffectType = getIntent().getIntExtra(FUEffectActivity.SELECT_EFFECT_KEY, -1);
-        if (uri == null) {
-            onBackPressed();
-            return;
-        }
-        String filePath = MiscUtil.getFileAbsolutePath(this, uri);
-
-        mGLSurfaceView = (GLSurfaceView) findViewById(R.id.show_gl_surface);
-        mGLSurfaceView.setEGLContextClientVersion(2);
-        mPhotoRenderer = new PhotoRenderer(filePath, mGLSurfaceView, this);
-        mGLSurfaceView.setRenderer(mPhotoRenderer);
-        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-
-        //初始化FU相关 authpack 为证书文件
-        mFURenderer = new FURenderer
-                .Builder(this)
-                .maxFaces(4)
-                .inputTextureType(0)
-                .createEGLContext(false)
-                .needReadBackImage(false)
-                .defaultEffect(null)
-                .inputImageOrientation(360)
-                .inputIsImage(1)
-                .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
-                .setOnTrackingStatusChangedListener(this)
-                .build();
-
-        mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
-        mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
-        mSaveImageView = (ImageView) findViewById(R.id.show_save_btn);
-        if (FUBeautyActivity.TAG.equals(mSelectDataType)) {
-            mBeautyControlView = (BeautyControlView) findViewById(R.id.fu_beauty_control);
-            mBeautyControlView.setVisibility(View.VISIBLE);
-            mBeautyControlView.setOnFUControlListener(mFURenderer);
-            mBeautyControlView.setOnBottomAnimatorChangeListener(new BeautyControlView.OnBottomAnimatorChangeListener() {
-                @Override
-                public void onBottomAnimatorChangeListener(float showRate) {
-                    mSaveImageView.setAlpha(1 - showRate);
-                }
-            });
-            mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
-                @Override
-                public void onDescriptionShowListener(int str) {
-                    showDescription(str, 1500);
-                }
-            });
-            mGLSurfaceView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mBeautyControlView.hideBottomLayoutAnimator();
-                }
-            });
-        } else if (FUMakeupActivity.TAG.equals(mSelectDataType)) {
-            mMakeupControlView = findViewById(R.id.fu_makeup_control);
-            mMakeupControlView.setVisibility(View.VISIBLE);
-            mMakeupControlView.setOnFUControlListener(mFURenderer);
-            mMakeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
-                @Override
-                public void onBottomAnimatorChangeListener(float showRate) {
-                    mSaveImageView.setAlpha(1 - showRate);
-                }
-            });
-        } else if (FUAnimojiActivity.TAG.equals(mSelectDataType)) {
-            mAnimControlView = findViewById(R.id.fu_anim_control);
-            mAnimControlView.setVisibility(View.VISIBLE);
-            mAnimControlView.setOnFUControlListener(mFURenderer);
-            mAnimControlView.setOnBottomAnimatorChangeListener(new AnimControlView.OnBottomAnimatorChangeListener() {
-                @Override
-                public void onBottomAnimatorChangeListener(float showRate) {
-                    mSaveImageView.setAlpha(1 - showRate);
-                }
-            });
-        } else {
-            mEffectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
-            mEffectRecyclerView.setVisibility(View.VISIBLE);
-            mEffectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-            mEffectRecyclerView.setAdapter(mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mSelectEffectType, mFURenderer));
-            ((SimpleItemAnimator) mEffectRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-            mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(mSelectEffectType).get(1));
-            mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
-                @Override
-                public void onDescriptionChangeListener(int description) {
-                    showDescription(description, 1500);
-                }
-            });
-        }
-
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mSaveImageView.getLayoutParams();
-        params.bottomMargin = (int) getResources().getDimension(FUBeautyActivity.TAG.equals(mSelectDataType) ? R.dimen.x151 : R.dimen.x199);
-        mSaveImageView.setLayoutParams(params);
-    }
+    private volatile boolean mTakePicing = false;
 
     @Override
     protected void onResume() {
         super.onResume();
         mPhotoRenderer.onCreate();
-        if (mBeautyControlView != null)
+        if (mBeautyControlView != null) {
             mBeautyControlView.onResume();
+        }
     }
 
     @Override
@@ -200,7 +94,125 @@ public class ShowPhotoActivity extends AppCompatActivity
         mFURenderer.onSurfaceDestroyed();
     }
 
+    private volatile boolean mIsNeedTakePic = false;
+
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        setContentView(R.layout.activity_show_photo);
+
+        Uri uri = getIntent().getData();
+        String selectDataType = getIntent().getStringExtra(SelectDataActivity.SELECT_DATA_KEY);
+        int selectEffectType = getIntent().getIntExtra(FUEffectActivity.SELECT_EFFECT_KEY, -1);
+        if (uri == null) {
+            onBackPressed();
+            return;
+        }
+        String filePath = MiscUtil.getFileAbsolutePath(this, uri);
+
+        GLSurfaceView glSurfaceView = (android.opengl.GLSurfaceView) findViewById(R.id.show_gl_surface);
+        glSurfaceView.setEGLContextClientVersion(2);
+        mPhotoRenderer = new PhotoRenderer(filePath, glSurfaceView, this);
+        glSurfaceView.setRenderer(mPhotoRenderer);
+        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+        //初始化FU相关 authpack 为证书文件
+        mFURenderer = new FURenderer
+                .Builder(this)
+                .maxFaces(4)
+                .inputTextureType(0)
+                .createEGLContext(false)
+                .needReadBackImage(false)
+                .defaultEffect(null)
+                .inputImageOrientation(360)
+                .inputIsImage(1)
+                .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
+                .setOnTrackingStatusChangedListener(this)
+                .build();
+
+        mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
+        mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
+        mSaveImageView = (ImageView) findViewById(R.id.show_save_btn);
+        if (FUBeautyActivity.TAG.equals(selectDataType)) {
+            mBeautyControlView = (BeautyControlView) findViewById(R.id.fu_beauty_control);
+            mBeautyControlView.setVisibility(View.VISIBLE);
+            mBeautyControlView.setOnFUControlListener(mFURenderer);
+            mBeautyControlView.setOnBottomAnimatorChangeListener(new BeautyControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
+            mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
+                @Override
+                public void onDescriptionShowListener(int str) {
+                    showDescription(str, 1500);
+                }
+            });
+            glSurfaceView.setOnClickListener(new OnMultiClickListener() {
+                @Override
+                protected void onMultiClick(View v) {
+                    mBeautyControlView.hideBottomLayoutAnimator();
+                }
+            });
+        } else if (FUMakeupActivity.TAG.equals(selectDataType)) {
+            MakeupControlView makeupControlView = findViewById(R.id.fu_makeup_control);
+            makeupControlView.setVisibility(View.VISIBLE);
+            makeupControlView.setOnFUControlListener(mFURenderer);
+            makeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
+        } else if (FUAnimojiActivity.TAG.equals(selectDataType)) {
+            AnimControlView animControlView = findViewById(R.id.fu_anim_control);
+            animControlView.setVisibility(View.VISIBLE);
+            animControlView.setOnFUControlListener(mFURenderer);
+            animControlView.setOnBottomAnimatorChangeListener(new AnimControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
+        } else {
+            RecyclerView effectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
+            effectRecyclerView.setVisibility(View.VISIBLE);
+            effectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            EffectRecyclerAdapter effectRecyclerAdapter;
+            effectRecyclerView.setAdapter(effectRecyclerAdapter = new EffectRecyclerAdapter(this, selectEffectType, mFURenderer));
+            ((SimpleItemAnimator) effectRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+            mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(selectEffectType).get(1));
+            effectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
+                @Override
+                public void onDescriptionChangeListener(int description) {
+                    showDescription(description, 1500);
+                }
+            });
+        }
+
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mSaveImageView.getLayoutParams();
+        params.bottomMargin = (int) getResources().getDimension(FUBeautyActivity.TAG.equals(selectDataType) ? R.dimen.x151 : R.dimen.x199);
+        mSaveImageView.setLayoutParams(params);
+    }
+
+    @Override
+    public void onLoadPhotoError(final String error) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.makeFineToast(ShowPhotoActivity.this, error, R.drawable.icon_fail).show();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ShowPhotoActivity.this.onBackPressed();
+                    }
+                }, 1500);
+            }
+        });
+    }
+
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.back:
@@ -209,11 +221,9 @@ public class ShowPhotoActivity extends AppCompatActivity
             case R.id.show_save_btn:
                 takePic();
                 break;
+            default:
         }
     }
-
-    private boolean mTakePicing = false;
-    private boolean mIsNeedTakePic = false;
 
     public void takePic() {
         if (mTakePicing) {
@@ -246,7 +256,7 @@ public class ShowPhotoActivity extends AppCompatActivity
                 }
                 mTakePicing = false;
             }
-        });
+        },false);
     }
 
     private Runnable effectDescriptionHide = new Runnable() {

@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
+
 import java.util.List;
 
 /**
@@ -626,7 +628,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
     /**
      * Item 点击事件监听器
      */
-    private class InnerItemViewClickListener implements View.OnClickListener {
+    private class InnerItemViewClickListener extends OnMultiClickListener {
         private BaseViewHolder mViewHolder;
 
         InnerItemViewClickListener(BaseViewHolder viewHolder) {
@@ -634,7 +636,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
         }
 
         @Override
-        public void onClick(View view) {
+        protected void onMultiClick(View view) {
             int position = mViewHolder.getAdapterPosition();
             if (position < 0) {
                 return;

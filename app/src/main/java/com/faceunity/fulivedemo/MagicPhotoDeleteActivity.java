@@ -22,6 +22,7 @@ import com.faceunity.entity.MagicPhotoEntity;
 import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.greendao.GreenDaoUtils;
 import com.faceunity.greendao.MagicPhotoEntityDao;
@@ -33,7 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MagicPhotoDeleteActivity extends AppCompatActivity implements View.OnClickListener {
+public class MagicPhotoDeleteActivity extends AppCompatActivity {
     private static final String TAG = "MagicPhotoDeleteActivit";
     private Button mBtnDelete;
     private Button mBtnAll;
@@ -45,12 +46,13 @@ public class MagicPhotoDeleteActivity extends AppCompatActivity implements View.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_magic_photo_delete);
-        findViewById(R.id.iv_delete_back).setOnClickListener(this);
+        ViewClickListener viewClickListener = new ViewClickListener();
+        findViewById(R.id.iv_delete_back).setOnClickListener(viewClickListener);
         mEmptyView = findViewById(R.id.ll_empty_view);
         mBtnAll = findViewById(R.id.btn_delete_all);
-        mBtnAll.setOnClickListener(this);
+        mBtnAll.setOnClickListener(viewClickListener);
         mBtnDelete = findViewById(R.id.btn_delete_bottom);
-        mBtnDelete.setOnClickListener(this);
+        mBtnDelete.setOnClickListener(viewClickListener);
         RecyclerView recyclerView = findViewById(R.id.rcv_delete_effect);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 4, GridLayoutManager.VERTICAL, false));
@@ -74,71 +76,74 @@ public class MagicPhotoDeleteActivity extends AppCompatActivity implements View.
         super.onBackPressed();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.iv_delete_back: {
-                setResult(Activity.RESULT_OK);
-                finish();
-            }
-            break;
-            case R.id.btn_delete_all: {
-                // 全选
-                int size = mDeleteMagicAdapter.mSelectedEntities.size();
-                if (size == mDeleteMagicAdapter.getItemCount()) {
-                    mBtnAll.setText(R.string.magic_delete_all);
-                    mBtnDelete.setEnabled(false);
-                    mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete));
-                    mDeleteMagicAdapter.mSelectedEntities.clear();
-                    mDeleteMagicAdapter.notifyDataSetChanged();
-                } else {
-                    mBtnAll.setText(R.string.magic_btn_cancel);
-                    mBtnDelete.setEnabled(true);
-                    mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete_, mDeleteMagicAdapter.getItemCount()));
-                    mDeleteMagicAdapter.mSelectedEntities.addAll(mDeleteMagicAdapter.mMagicPhotoEntities);
-                    mDeleteMagicAdapter.notifyDataSetChanged();
+    private class ViewClickListener extends OnMultiClickListener {
+
+        @Override
+        protected void onMultiClick(View v) {
+            switch (v.getId()) {
+                case R.id.iv_delete_back: {
+                    setResult(Activity.RESULT_OK);
+                    finish();
                 }
-            }
-            break;
-            case R.id.btn_delete_bottom: {
-                // 删除
-                ConfirmDialogFragment.newInstance(getString(R.string.dialog_confirm_delete), new BaseDialogFragment.OnClickListener() {
-                    @Override
-                    public void onConfirm() {
-                        Set<MagicPhotoEntity> selectedEntities = mDeleteMagicAdapter.mSelectedEntities;
-                        List<MagicPhotoEntity> toDelete = new ArrayList<>(selectedEntities.size());
-                        toDelete.addAll(selectedEntities);
+                break;
+                case R.id.btn_delete_all: {
+                    // 全选
+                    int size = mDeleteMagicAdapter.mSelectedEntities.size();
+                    if (size == mDeleteMagicAdapter.getItemCount()) {
                         mBtnAll.setText(R.string.magic_delete_all);
                         mBtnDelete.setEnabled(false);
                         mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete));
-                        try {
-                            MagicPhotoEntityDao magicPhotoEntityDao = GreenDaoUtils.getInstance().getDaoSession().getMagicPhotoEntityDao();
-                            magicPhotoEntityDao.deleteInTx(toDelete);
-                            for (MagicPhotoEntity magicPhotoEntity : toDelete) {
-                                FileUtils.deleteFile(new File(magicPhotoEntity.getImagePath()));
+                        mDeleteMagicAdapter.mSelectedEntities.clear();
+                        mDeleteMagicAdapter.notifyDataSetChanged();
+                    } else {
+                        mBtnAll.setText(R.string.magic_btn_cancel);
+                        mBtnDelete.setEnabled(true);
+                        mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete_, mDeleteMagicAdapter.getItemCount()));
+                        mDeleteMagicAdapter.mSelectedEntities.addAll(mDeleteMagicAdapter.mMagicPhotoEntities);
+                        mDeleteMagicAdapter.notifyDataSetChanged();
+                    }
+                }
+                break;
+                case R.id.btn_delete_bottom: {
+                    // 删除
+                    ConfirmDialogFragment.newInstance(getString(R.string.dialog_confirm_delete), new BaseDialogFragment.OnClickListener() {
+                        @Override
+                        public void onConfirm() {
+                            Set<MagicPhotoEntity> selectedEntities = mDeleteMagicAdapter.mSelectedEntities;
+                            List<MagicPhotoEntity> toDelete = new ArrayList<>(selectedEntities.size());
+                            toDelete.addAll(selectedEntities);
+                            mBtnAll.setText(R.string.magic_delete_all);
+                            mBtnDelete.setEnabled(false);
+                            mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete));
+                            try {
+                                MagicPhotoEntityDao magicPhotoEntityDao = GreenDaoUtils.getInstance().getDaoSession().getMagicPhotoEntityDao();
+                                magicPhotoEntityDao.deleteInTx(toDelete);
+                                for (MagicPhotoEntity magicPhotoEntity : toDelete) {
+                                    FileUtils.deleteFile(new File(magicPhotoEntity.getImagePath()));
+                                }
+                                ToastUtil.makeNormalToast(MagicPhotoDeleteActivity.this, getString(R.string.toast_delete_succeed)).show();
+                                mDeleteMagicAdapter.mSelectedEntities.clear();
+                                for (MagicPhotoEntity magicPhotoEntity : toDelete) {
+                                    mDeleteMagicAdapter.mMagicPhotoEntities.remove(magicPhotoEntity);
+                                }
+                                mDeleteMagicAdapter.notifyDataSetChanged();
+                                checkEmpty();
+                                mIsDeleted = true;
+                            } catch (Exception e) {
+                                Log.e(TAG, "delete photo:", e);
+                                ToastUtil.makeNormalToast(MagicPhotoDeleteActivity.this, getString(R.string.toast_delete_failed)).show();
                             }
-                            ToastUtil.makeNormalToast(MagicPhotoDeleteActivity.this, getString(R.string.toast_delete_succeed)).show();
-                            mDeleteMagicAdapter.mSelectedEntities.clear();
-                            for (MagicPhotoEntity magicPhotoEntity : toDelete) {
-                                mDeleteMagicAdapter.mMagicPhotoEntities.remove(magicPhotoEntity);
-                            }
-                            mDeleteMagicAdapter.notifyDataSetChanged();
-                            checkEmpty();
-                            mIsDeleted = true;
-                        } catch (Exception e) {
-                            Log.e(TAG, "delete photo:", e);
-                            ToastUtil.makeNormalToast(MagicPhotoDeleteActivity.this, getString(R.string.toast_delete_failed)).show();
                         }
-                    }
 
-                    @Override
-                    public void onCancel() {
+                        @Override
+                        public void onCancel() {
 
-                    }
-                }).show(getSupportFragmentManager(), "ConfirmDialogFragment");
+                        }
+                    }).show(getSupportFragmentManager(), "ConfirmDialogFragment");
+                }
+                break;
+                default:
             }
-            break;
-            default:
         }
     }
 
@@ -164,9 +169,9 @@ public class MagicPhotoDeleteActivity extends AppCompatActivity implements View.
         public DeleteMagicAdapter.VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_magic_delete, parent, false);
             final VH vh = new VH(view);
-            vh.itemView.setOnClickListener(new View.OnClickListener() {
+            vh.itemView.setOnClickListener(new OnMultiClickListener() {
                 @Override
-                public void onClick(View v) {
+                protected void onMultiClick(View v) {
                     MagicPhotoEntity magicPhotoEntity = (MagicPhotoEntity) vh.itemView.getTag();
                     boolean selected = mSelectedEntities.contains(magicPhotoEntity);
                     if (selected) {

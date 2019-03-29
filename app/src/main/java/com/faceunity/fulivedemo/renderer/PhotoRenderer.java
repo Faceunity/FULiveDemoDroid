@@ -28,15 +28,15 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     public static final float[] ROTATE_90 = {0.0F, 1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F};
     private GLSurfaceView mGLSurfaceView;
 
-    public interface OnRendererStatusListener {
-
-        void onSurfaceCreated(GL10 gl, EGLConfig config);
-
-        void onSurfaceChanged(GL10 gl, int width, int height);
-
-        int onDrawFrame(byte[] photoBytes, int photoTextureId, int photoWidth, int photoHeight);
-
-        void onSurfaceDestroy();
+    private void loadImgData(String path) {
+        Log.e(TAG, "loadImgData");
+        Bitmap src = BitmapUtil.loadBitmap(path, 720);
+        if (src == null) {
+            mOnPhotoRendererStatusListener.onLoadPhotoError("图片加载失败");
+            return;
+        }
+        mImgTextureId = GlUtil.createImageTexture(src);
+        mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth() / 2 * 2, mPhotoHeight = src.getHeight() / 2 * 2, src);
     }
 
     private OnRendererStatusListener mOnPhotoRendererStatusListener;
@@ -124,11 +124,17 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         mOnPhotoRendererStatusListener.onSurfaceDestroy();
     }
 
-    private void loadImgData(String path) {
-        Log.e(TAG, "loadImgData");
-        Bitmap src = BitmapUtil.loadBitmap(path, 720);
-        mImgTextureId = GlUtil.createImageTexture(src);
-        mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth() / 2 * 2, mPhotoHeight = src.getHeight() / 2 * 2, src);
+    public interface OnRendererStatusListener {
+
+        void onSurfaceCreated(GL10 gl, EGLConfig config);
+
+        void onSurfaceChanged(GL10 gl, int width, int height);
+
+        int onDrawFrame(byte[] photoBytes, int photoTextureId, int photoWidth, int photoHeight);
+
+        void onSurfaceDestroy();
+
+        void onLoadPhotoError(String error);
     }
 
 }

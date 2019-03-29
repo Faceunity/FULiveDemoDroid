@@ -116,11 +116,11 @@ public class FUMagicGenActivity extends AppCompatActivity implements MagicPhotoR
     }
 
     @Override
-    public void onLoadImageError() {
+    public void onLoadPhotoError(final String error) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ToastUtil.makeFineToast(FUMagicGenActivity.this, "图片加载出错", R.drawable.icon_fail).show();
+                ToastUtil.makeFineToast(FUMagicGenActivity.this, error, R.drawable.icon_fail).show();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -175,7 +175,7 @@ public class FUMagicGenActivity extends AppCompatActivity implements MagicPhotoR
                             });
                         }
                     }
-                });
+                }, false);
     }
 
     public void setNeedTakePic(boolean needTakePic, OnCheckPicListener onCheckPicListener) {
@@ -212,7 +212,7 @@ public class FUMagicGenActivity extends AppCompatActivity implements MagicPhotoR
                 }
             } else {
                 FaceAdjustFragment faceAdjustFragment = (FaceAdjustFragment) getSupportFragmentManager().findFragmentByTag(FaceAdjustFragment.TAG);
-                faceAdjustFragment.onClick(null);
+                faceAdjustFragment.onClick();
             }
         }
     }

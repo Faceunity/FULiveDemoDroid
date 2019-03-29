@@ -68,10 +68,15 @@
     <string name="makeup_radio_contact_lens">Contact Lens</string>
     <string name="makeup_radio_remove">Remove</string>
     <string name="makeup_customize">Customize</string>
-    <string name="makeup_peach">Peach</string>
     <string name="makeup_freckles">Freckles</string>
     <string name="makeup_punk">Punk</string>
-
+    <string name="makeup_peach_blossom">peach</string>
+    <string name="makeup_red_tea">redtea</string>
+    <string name="makeup_winter">winter</string>
+    <string name="makeup_boyfriend">boyfriend</string>
+    <string name="makeup_cream">cream</string>
+    <string name="makeup_clear">clear</string>
+    <string name="makeup_grapefruit">grapefruit</string>
 
     <string name="select_data_photo">Photo</string>
     <string name="select_data_video">Video</string>
@@ -79,7 +84,6 @@
     <string name="image_file_does_not_exist">The selected image file does not exist.</string>
     <string name="video_file_does_not_exist">The selected video file does not exist.</string>
 
-    <string name="armesh_ex">High-Precision AR Mesh</string>
     <string name="future_warrior">Open Your Mouth</string>
     <string name="jet_mask">Puff Your Cheeks</string>
     <string name="sdx2">Frown</string>
@@ -103,12 +107,15 @@
     <string name="slowlived">Slowlived</string>
     <string name="tokyo">Tokyo</string>
     <string name="warm">Warm</string>
-    <string name="origin_beauty">Origin</string>
     <string name="ziran">Nature</string>
     <string name="danya">Elegant</string>
     <string name="fennen">Pink</string>
     <string name="qingxin">Fresh</string>
     <string name="hongrun">Ruddy</string>
+    <string name="lengsediao">cool</string>
+    <string name="nuansediao">warm</string>
+    <string name="bailiang">light</string>
+
 
     <string name="poster_take_photo">Please take photos by positive face.</string>
     <string name="dialog_no_track_face">No face detected, please re-upload</string>
@@ -146,5 +153,6 @@
     <string name="magic_not_add_sticker">You havent added five features yet.</string>
     <string name="magic_not_add_sticker_cancel">Go Back</string>
     <string name="magic_not_add_sticker_confirm">To add</string>
+
 
 </resources>

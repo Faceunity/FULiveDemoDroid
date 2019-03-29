@@ -10,20 +10,26 @@ public class MakeupItem {
     private int type;
     private int iconId;
     private int strId;
-    public static final float DEFAULT_MAKEUP_LEVEL = 0.5f;
+    public static final float DEFAULT_MAKEUP_LEVEL = 0.4f;
     private float level;
+    private float defaultLevel;
 
     public MakeupItem(String name, String path, int type, int strId, int iconId) {
         this(name, path, type, strId, iconId, DEFAULT_MAKEUP_LEVEL);
     }
 
     public MakeupItem(String name, String path, int type, int strId, int iconId, float level) {
+        this(name, path, type, strId, iconId, level, level);
+    }
+
+    public MakeupItem(String name, String path, int type, int strId, int iconId, float level, float defaultLevel) {
         this.name = name;
         this.path = path;
         this.type = type;
         this.strId = strId;
         this.iconId = iconId;
         this.level = level;
+        this.defaultLevel = defaultLevel;
     }
 
     public MakeupItem cloneSelf() {
@@ -78,6 +84,14 @@ public class MakeupItem {
         this.level = level;
     }
 
+    public float getDefaultLevel() {
+        return defaultLevel;
+    }
+
+    public void setDefaultLevel(float defaultLevel) {
+        this.defaultLevel = defaultLevel;
+    }
+
     @Override
     public String toString() {
         return "MakeupItem{" +
@@ -87,6 +101,7 @@ public class MakeupItem {
                 ", iconId=" + iconId +
                 ", strId=" + strId +
                 ", level=" + level +
+                ", defaultLevel=" + defaultLevel +
                 '}';
     }
 }

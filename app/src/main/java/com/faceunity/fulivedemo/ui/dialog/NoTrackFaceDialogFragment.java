@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.faceunity.fulivedemo.FUApplication;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 
 /**
@@ -45,9 +46,9 @@ public class NoTrackFaceDialogFragment extends BaseDialogFragment {
         if (!TextUtils.isEmpty(message)) {
             textView.setText(message);
         }
-        view.findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.btn_done).setOnClickListener(new OnMultiClickListener() {
             @Override
-            public void onClick(View v) {
+            protected void onMultiClick(View v) {
                 dismiss();
                 if (mOnDismissListener != null) {
                     mOnDismissListener.onDismiss();

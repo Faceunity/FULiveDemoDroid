@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.utils.FullScreenUtils;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.utils.MiscUtil;
 
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             0x200,                  //手势识别
             0x10000,                //哈哈镜
             0x8000,                 //人像驱动
-            0x1000000                 //表情动图
+//            0x1000000                 //表情动图
     };
 
     private static final int[] home_function_name = {
@@ -118,16 +119,10 @@ public class MainActivity extends AppCompatActivity {
         FullScreenUtils.fullScreen(this);
         MiscUtil.checkPermission(this);
 
-        String version = FURenderer.getVersion();
-        boolean isLite = version.contains("lite");
         int moduleCode = FURenderer.getModuleCode();
         Log.e(TAG, "ModuleCode " + moduleCode);
-        int count = 0;
-        for (int i = 0; i < home_function_name.length; i++) {
+        for (int i = 0, count = 0; i < home_function_name.length; i++) {
             hasFaceUnityPermissions[i] = moduleCode == 0 || (home_function_permissions_code[i] & moduleCode) > 0;
-            if (isLite && (home_function_type[i] == Effect.EFFECT_TYPE_BACKGROUND || home_function_type[i] == Effect.EFFECT_TYPE_GESTURE)) {
-                hasFaceUnityPermissions[i] = false;
-            }
             if (hasFaceUnityPermissions[i]) {
                 hasFaceUnityPermissionsList.add(count++, i);
             } else {
@@ -175,13 +170,23 @@ public class MainActivity extends AppCompatActivity {
                 holder.homeFunctionName.setText(home_function_name[position]);
                 holder.homeFunctionName.setBackgroundResource(hasFaceUnityPermissions[position] ? R.drawable.main_recycler_item_text_background : R.drawable.main_recycler_item_text_background_unable);
 
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                holder.itemView.setOnClickListener(new OnMultiClickListener() {
+                    private long mLastClickTime;
+
                     @Override
-                    public void onClick(View v) {
+                    public void onMultiClick(View v) {
                         if (!hasFaceUnityPermissions[position]) {
                             ToastUtil.showToast(MainActivity.this, R.string.sorry_no_permission);
                             return;
                         }
+
+                        // 防止同时快速点击，因为启动相机非常慢
+                        if (System.currentTimeMillis() - mLastClickTime < 300) {
+                            return;
+                        }
+
+                        mLastClickTime = System.currentTimeMillis();
+
                         Intent intent;
                         if (home_function_res[position] == R.drawable.main_beauty) {
                             intent = new Intent(MainActivity.this, FUBeautyActivity.class);

@@ -4,14 +4,18 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 注：demo第一次运行会报一个缺少返回语句的error，这是因为在本demo中缺少我司颁发的证书。如果您已拥有我司颁发的证书，将证书替换到工程中重新运行即可。如您还没有我司颁发的证书，可以查看[这里](#导入证书)获取证书
 
-## SDK v5.9.0 更新
+## SDK v6.0.0 更新
 
 更新内容
 
-- 人脸大角度效果优化
-- 人脸检测跟踪优化，加强黑色人种检测，对眼镜反光更鲁棒等
-- 优化道具加载速度，需FUEditor5.9.0以上
-- 美颜亮眼功能优化
+- 优化人脸检测，提高检测率，提高性能。
+- 美颜滤镜优化。
+- 海报换脸(人脸融合)效果优化。
+- 背景分割分割精度优化。
+- 舌头跟踪trackface逻辑支持，Getfaceinfo支持。
+- 新增Avatar捏脸功能，需FUEditor 6.0.0以上。
+- 新增质感美颜功能。
+- 修复mebedtls符号冲突问题。
 
 ## SDK集成
 
@@ -19,17 +23,17 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 全功能版本：
 
-	compile 'com.faceunity:nama:5.9.0'
+	implementation 'com.faceunity:nama:6.0.0'
 
 不含机器学习以及物理引擎的版本（lite版）：
 
-	compile 'com.faceunity:nama:5.9.0-lite'
+	implementation 'com.faceunity:nama:6.0.0-lite'
 
 ### 二、通过 github 下载集成
 
-全功能版本：[Faceunity-Android-v5.9-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.9-dev/Faceunity-Android-v5.9-dev.zip)
+全功能版本：[Faceunity-Android-v6.0-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0-dev/Faceunity-Android-v6.0-dev.zip)
 
-不含机器学习以及物理引擎的版本（lite版）：[Faceunity-Android-v5.9-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.9-dev/Faceunity-Android-v5.9-dev-lite.zip)
+不含机器学习以及物理引擎的版本（lite版）：[Faceunity-Android-v6.0-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0-dev/Faceunity-Android-v6.0-dev-lite.zip)
 
 **Tip：含有深度学习的版本支持背景分割、手势识别功能**
 
@@ -93,6 +97,14 @@ v3.close();
 faceunity.fuSetup(v3Data, null, authpack.A());
 ```
 注：app启动后只需要setup一次faceunity即可，其中 authpack.A() 密钥数组声明在 authpack.java 中。
+
+#### 混淆规则
+
+```
+-keep class com.faceunity.wrapper.faceunity {*;}
+```
+
+对于项目依赖的第三方库，请自行添加混淆规则。或者参考 app 模块的 proguard-rules.pro 混淆配置。
 
 ### 道具创建、销毁与切换
 

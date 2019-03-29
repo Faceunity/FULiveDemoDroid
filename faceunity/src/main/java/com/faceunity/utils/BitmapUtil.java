@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.faceunity.gles.ProgramTexture2d;
+import com.faceunity.gles.ProgramTextureOES;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,18 +23,22 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by tujh on 2018/6/28.
  */
-public abstract class BitmapUtil {
+public class BitmapUtil {
     private static final String TAG = "BitmapUtil";
 
     /**
      * 读取图片（glReadPixels）
      *
      * @param textureId
+     * @param mtx
+     * @param mvp
      * @param texWidth
      * @param texHeight
      * @param listener
+     * @param isOes     是否是OES纹理
      */
-    public static void glReadBitmap(int textureId, float[] mtx, float[] mvp, final int texWidth, final int texHeight, final OnReadBitmapListener listener) {
+    public static void glReadBitmap(int textureId, float[] mtx, float[] mvp, final int texWidth, final int texHeight, final OnReadBitmapListener listener,
+                                    boolean isOes) {
         final IntBuffer intBuffer = IntBuffer.allocate(texWidth * texHeight);
         int[] textures = new int[1];
         GLES20.glGenTextures(1, textures, 0);
@@ -48,7 +53,10 @@ public abstract class BitmapUtil {
         int viewport[] = new int[4];
         GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
         GLES20.glViewport(0, 0, texWidth, texHeight);
-        new ProgramTexture2d().drawFrame(textureId, mtx, mvp);
+        if (isOes)
+            new ProgramTextureOES().drawFrame(textureId, mtx, mvp);
+        else
+            new ProgramTexture2d().drawFrame(textureId, mtx, mvp);
         GLES20.glReadPixels(0, 0, texWidth, texHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, intBuffer);
         GLES20.glFinish();
         AsyncTask.execute(new Runnable() {
@@ -64,7 +72,7 @@ public abstract class BitmapUtil {
                         int texturePixel = data[offset1 + j];
                         int blue = (texturePixel >> 16) & 0xff;
                         int red = (texturePixel << 16) & 0x00ff0000;
-                        int pixel = (texturePixel & 0xff00ff00) | red | blue;
+                        int pixel = (texturePixel & 0xff00ff00) | red | blue | 0xff000000;
                         bitmapSource[offset2 + j] = pixel;
                     }
                 }
@@ -77,6 +85,8 @@ public abstract class BitmapUtil {
         GLES20.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+        GLES20.glDeleteTextures(1, textures, 0);
+        GLES20.glDeleteFramebuffers(1, mFrameBuffers, 0);
     }
 
     public interface OnReadBitmapListener {
@@ -289,7 +299,7 @@ public abstract class BitmapUtil {
     public static byte[] getNV21(int inputWidth, int inputHeight, Bitmap scaled) {
         int[] argb = new int[inputWidth * inputHeight];
         scaled.getPixels(argb, 0, inputWidth, 0, 0, inputWidth, inputHeight);
-        byte[] yuv = new byte[inputWidth * inputHeight * 3 / 2];
+        byte[] yuv = new byte[inputHeight * inputWidth + 2 * (int) Math.ceil(inputHeight / 2.0) * (int) Math.ceil(inputWidth / 2.0)];
         encodeYUV420SP(yuv, argb, inputWidth, inputHeight);
         scaled.recycle();
         return yuv;

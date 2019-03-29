@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * Created by tujh on 2018/2/7.
  */
 
-public abstract class Constant {
+public class Constant {
 
     public static int NANO_IN_ONE_MILLI_SECOND = 1000000;
     public static final String SHARED_PREF_NAME = "fudemo";

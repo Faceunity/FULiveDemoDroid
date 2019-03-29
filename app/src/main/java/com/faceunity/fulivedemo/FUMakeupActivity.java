@@ -1,12 +1,7 @@
 package com.faceunity.fulivedemo;
 
 import com.faceunity.FURenderer;
-import com.faceunity.entity.MakeupItem;
-import com.faceunity.fulivedemo.entity.BeautyParameterModel;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
-
-import java.util.Map;
-import java.util.Set;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -35,7 +30,6 @@ public class FUMakeupActivity extends FUBaseActivity {
 
     @Override
     protected void onCreate() {
-        initDefaultValue();
         mBottomViewStub.setLayoutResource(R.layout.layout_fu_makeup);
         mBottomViewStub.inflate();
         mMakeupControlView = findViewById(R.id.makeup_control);
@@ -54,14 +48,4 @@ public class FUMakeupActivity extends FUBaseActivity {
         mMakeupControlView.initData();
     }
 
-    private void initDefaultValue() {
-        Set<Map.Entry<String, Float>> batchEntries = BeautyParameterModel.sBatchMakeupLevel.entrySet();
-        for (Map.Entry<String, Float> entry : batchEntries) {
-            entry.setValue(1.0f);
-        }
-        Set<Map.Entry<String, Float>> mpEntries = BeautyParameterModel.sMakeupLevel.entrySet();
-        for (Map.Entry<String, Float> mpEntry : mpEntries) {
-            mpEntry.setValue(MakeupItem.DEFAULT_MAKEUP_LEVEL);
-        }
-    }
 }

@@ -59,6 +59,7 @@
     <string name="beauty_radio_face_shape">美型</string>
     <string name="beauty_radio_beauty_filter">美颜滤镜</string>
     <string name="beauty_radio_filter">滤镜</string>
+    <string name="beauty_radio_beauty">质感美颜</string>
     <string name="makeup_radio_lipstick">口红</string>
     <string name="makeup_radio_blusher">腮红</string>
     <string name="makeup_radio_eyebrow">眉毛</string>
@@ -68,17 +69,28 @@
     <string name="makeup_radio_contact_lens">美瞳</string>
     <string name="makeup_radio_remove">卸妆</string>
     <string name="makeup_customize">自定义</string>
-    <string name="makeup_peach">桃花妆</string>
     <string name="makeup_freckles">雀斑妆</string>
     <string name="makeup_punk">朋克妆</string>
-
+    <string name="makeup_peach_blossom">桃花</string>
+    <string name="makeup_maple_leaf">枫叶妆</string>
+    <string name="makeup_brocade_carp">锦鲤妆</string>
+    <string name="makeup_classical">复古妆</string>
+    <string name="makeup_plum">梅子妆</string>
+    <string name="makeup_tipsy">宿醉妆</string>
+    <string name="makeup_red_tea">赤茶妆</string>
+    <string name="makeup_winter">冬日妆</string>
+    <string name="makeup_boyfriend">男友</string>
+    <string name="makeup_cream">奶油妆</string>
+    <string name="makeup_clear">清透</string>
+    <string name="makeup_grapefruit">西柚</string>
+    <string name="makeup_disgusting">厌世妆</string>
+    <string name="makeup_black_white">黑白妆</string>
     <string name="select_data_photo">选择图片</string>
     <string name="select_data_video">选择视频</string>
     <string name="select_data_title">请从相册中选择图片或视频</string>
     <string name="image_file_does_not_exist">所选图片文件不存在。</string>
     <string name="video_file_does_not_exist">所选视频文件不存在。</string>
 
-    <string name="armesh_ex">AR面具高精度版</string>
     <string name="future_warrior">张嘴试试</string>
     <string name="jet_mask">鼓腮帮子</string>
     <string name="sdx2">皱眉试试</string>
@@ -96,17 +108,19 @@
     <string name="ssd_thread_six">比个六</string>
     <string name="ssd_thread_cute">双拳靠近脸颊卖萌</string>
 
-    <string name="origin">Origin</string>
+    <string name="origin">原图</string>
     <string name="delta">Delta</string>
     <string name="electric">Electric</string>
     <string name="slowlived">Slowlived</string>
     <string name="tokyo">Tokyo</string>
     <string name="warm">Warm</string>
-    <string name="origin_beauty">原图</string>
     <string name="ziran">自然</string>
+    <string name="bailiang">白亮</string>
     <string name="danya">淡雅</string>
     <string name="fennen">粉嫩</string>
-    <string name="qingxin">清新</string>
+    <string name="qingxin">小清新</string>
+    <string name="lengsediao">冷色调</string>
+    <string name="nuansediao">暖色调</string>
     <string name="hongrun">红润</string>
 
     <string name="poster_take_photo">对准线框 正脸拍摄</string>

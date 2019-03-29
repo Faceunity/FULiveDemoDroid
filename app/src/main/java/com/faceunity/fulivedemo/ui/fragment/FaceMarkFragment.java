@@ -28,9 +28,9 @@ import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
 import com.faceunity.fulivedemo.ui.sticker.Sticker;
 import com.faceunity.fulivedemo.ui.sticker.StickerLayout;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.PointUtils;
 import com.faceunity.fulivedemo.utils.ToastUtil;
-import com.faceunity.fulivedemo.utils.ViewUtils;
 import com.faceunity.greendao.GreenDaoUtils;
 import com.faceunity.greendao.MagicPhotoEntityDao;
 import com.faceunity.utils.BitmapUtil;
@@ -44,8 +44,7 @@ import java.util.List;
  * @author LiuQiang on 2018.12.17
  * 五官标记页面
  */
-public class FaceMarkFragment extends Fragment implements View.OnClickListener,
-        BaseRecyclerAdapter.OnItemClickListener<MagicFloatingEntity> {
+public class FaceMarkFragment extends Fragment implements BaseRecyclerAdapter.OnItemClickListener<MagicFloatingEntity> {
     public static final String TAG = "FaceMarkFragment";
     private View mFlAdjust;
     private StickerLayout mStickerLayout;
@@ -59,10 +58,11 @@ public class FaceMarkFragment extends Fragment implements View.OnClickListener,
         mActivity = ((FUMagicGenActivity) getActivity());
         mMagicPhotoRenderer = ((FUMagicGenActivity) getActivity()).getMagicPhotoRenderer();
         View view = inflater.inflate(R.layout.fragment_face_mark, container, false);
-        view.findViewById(R.id.iv_magic_back).setOnClickListener(this);
-        view.findViewById(R.id.iv_magic_save).setOnClickListener(this);
+        ViewClickListener viewClickListener = new ViewClickListener();
+        view.findViewById(R.id.iv_magic_back).setOnClickListener(viewClickListener);
+        view.findViewById(R.id.iv_magic_save).setOnClickListener(viewClickListener);
         mFlAdjust = view.findViewById(R.id.fl_adjust);
-        mFlAdjust.setOnClickListener(this);
+        mFlAdjust.setOnClickListener(viewClickListener);
         mStickerLayout = view.findViewById(R.id.sticker_layout);
         mStickerLayout.setIncreaseRes(R.drawable.ic_magic_increase);
         mStickerLayout.setRemoveRes(R.drawable.ic_magic_close);
@@ -92,117 +92,118 @@ public class FaceMarkFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.fl_adjust: {
-                // 点击跳转精细调整
-                float[] mappedPoints = mStickerLayout.getMappedPoints();
-                if (mappedPoints != null) {
-                    setAdjustViewVisibility(1);
-                    FaceAdjustFragment fragment = (FaceAdjustFragment) mActivity.showFragment(FaceAdjustFragment.TAG);
-                    fragment.setViewPoints(mappedPoints);
-                } else {
-                    ToastUtil.makeNormalToast(mActivity, "请先选择五官").show();
-                }
-            }
-            break;
-            case R.id.iv_magic_back: {
-                mActivity.onBackPressed();
-            }
-            break;
-            case R.id.iv_magic_save: {
-                if (mIsSaving) {
-                    return;
-                }
-                mStickerLayout.setUnEditable();
-                final int stickerCount = mStickerLayout.getStickerCount();
-                if (stickerCount > 0) {
-                    mIsSaving = true;
-                    // 截取屏幕快照，图片是 1280*720 像素
-                    mActivity.setNeedTakePic(true, new FUMagicGenActivity.OnCheckPicListener() {
-                        @Override
-                        public void onPhotoChecked(String path) {
-                            File file = new File(path);
-                            List<Sticker> stickers = mStickerLayout.getStickers();
-                            float[] mappedPoints;
-                            List<Integer> gpPoints = new ArrayList<>(64);
-                            double[] groupType = new double[stickerCount];
-                            for (int i = 0; i < stickerCount; i++) {
-                                Sticker sticker = stickers.get(i);
-                                groupType[i] = sticker.getType();
-                                float[] landmarkPoints = sticker.getLandmarkPoints();
-                                if (landmarkPoints == null) {
-                                    // view 坐标系
-                                    float[] points = sticker.getPoints();
-                                    mappedPoints = new float[points.length];
-                                    PointUtils.getMappedPoints(points, mappedPoints, sticker.getMatrix());
-                                    for (int j = 0; j < mappedPoints.length; j += 2) {
-                                        PointF pointFLand = mMagicPhotoRenderer.changeViewToLandmark(mappedPoints[j], mappedPoints[j + 1]);
-                                        mappedPoints[j] = pointFLand.x;
-                                        mappedPoints[j + 1] = pointFLand.y;
-                                    }
-                                    for (float p : mappedPoints) {
-                                        gpPoints.add((int) p);
-                                    }
-                                } else {
-                                    for (float p : landmarkPoints) {
-                                        gpPoints.add((int) p);
-                                    }
-                                }
-                            }
-                            double[] groupPoints = new double[gpPoints.size()];
-                            for (int i = 0, j = gpPoints.size(); i < j; i++) {
-                                groupPoints[i] = gpPoints.get(i);
-                            }
-                            String imagePath = file.getAbsolutePath();
-                            Point bitmapSize = BitmapUtil.getBitmapSize(imagePath);
-                            MagicPhotoEntity magicPhotoEntity = new MagicPhotoEntity(bitmapSize.x, bitmapSize.y, groupPoints, groupType, imagePath);
-                            try {
-                                MagicPhotoEntityDao magicPhotoEntityDao = GreenDaoUtils.getInstance().getDaoSession().getMagicPhotoEntityDao();
-                                magicPhotoEntityDao.insert(magicPhotoEntity);
-                                mActivity.setSavedModel(true);
-                                ToastUtil.makeFineToast(mActivity, getString(R.string.magic_save_succeed), R.drawable.icon_confirm).show();
-                                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mIsSaving = false;
-                                        mActivity.onBackPressed();
-                                    }
-                                }, 1500);
-                            } catch (Exception e) {
-                                ToastUtil.makeFineToast(mActivity, getString(R.string.magic_save_failed), R.drawable.icon_fail).show();
-                                Log.e(TAG, "MagicPhotoEntityDao insert failed", e);
-                            }
-                        }
-                    });
-                } else {
-                    ConfirmDialogFragment.newInstance(
-                            getString(R.string.magic_not_add_sticker), getString(R.string.magic_not_add_sticker_confirm)
-                            , getString(R.string.magic_not_add_sticker_cancel), new BaseDialogFragment.OnClickListener() {
-                                @Override
-                                public void onConfirm() {
-
-                                }
-
-                                @Override
-                                public void onCancel() {
-                                    mActivity.onBackPressed();
-                                }
-                            }
-                    ).show(mActivity.getSupportFragmentManager(), "ConfirmDialogFragment");
-                }
-            }
-            break;
-            default:
-        }
+    public void onItemClick(BaseRecyclerAdapter<MagicFloatingEntity> adapter, View view, int position) {
+        MagicFloatingEntity item = adapter.getItem(position);
+        mStickerLayout.addSticker(item.getType(), item.getImageAssetsPath(), item.getDots());
+        setAdjustViewVisibility(mStickerLayout.getStickerCount());
     }
 
-    @Override
-    public void onItemClick(BaseRecyclerAdapter<MagicFloatingEntity> adapter, View view, int position) {
-        if (ViewUtils.isNormalClick()) {
-            MagicFloatingEntity item = adapter.getItem(position);
-            mStickerLayout.addSticker(item.getType(), item.getImageAssetsPath(), item.getDots());
-            setAdjustViewVisibility(mStickerLayout.getStickerCount());
+    private class ViewClickListener extends OnMultiClickListener {
+
+        @Override
+        protected void onMultiClick(View v) {
+            switch (v.getId()) {
+                case R.id.fl_adjust: {
+                    // 点击跳转精细调整
+                    float[] mappedPoints = mStickerLayout.getMappedPoints();
+                    if (mappedPoints != null) {
+                        setAdjustViewVisibility(1);
+                        FaceAdjustFragment fragment = (FaceAdjustFragment) mActivity.showFragment(FaceAdjustFragment.TAG);
+                        fragment.setViewPoints(mappedPoints);
+                    } else {
+                        ToastUtil.makeNormalToast(mActivity, "请先选择五官").show();
+                    }
+                }
+                break;
+                case R.id.iv_magic_back: {
+                    mActivity.onBackPressed();
+                }
+                break;
+                case R.id.iv_magic_save: {
+                    if (mIsSaving) {
+                        return;
+                    }
+                    mStickerLayout.setUnEditable();
+                    final int stickerCount = mStickerLayout.getStickerCount();
+                    if (stickerCount > 0) {
+                        mIsSaving = true;
+                        // 截取屏幕快照，图片是 1280*720 像素
+                        mActivity.setNeedTakePic(true, new FUMagicGenActivity.OnCheckPicListener() {
+                            @Override
+                            public void onPhotoChecked(String path) {
+                                File file = new File(path);
+                                List<Sticker> stickers = mStickerLayout.getStickers();
+                                float[] mappedPoints;
+                                List<Integer> gpPoints = new ArrayList<>(64);
+                                double[] groupType = new double[stickerCount];
+                                for (int i = 0; i < stickerCount; i++) {
+                                    Sticker sticker = stickers.get(i);
+                                    groupType[i] = sticker.getType();
+                                    float[] landmarkPoints = sticker.getLandmarkPoints();
+                                    if (landmarkPoints == null) {
+                                        // view 坐标系
+                                        float[] points = sticker.getPoints();
+                                        mappedPoints = new float[points.length];
+                                        PointUtils.getMappedPoints(points, mappedPoints, sticker.getMatrix());
+                                        for (int j = 0; j < mappedPoints.length; j += 2) {
+                                            PointF pointFLand = mMagicPhotoRenderer.changeViewToLandmark(mappedPoints[j], mappedPoints[j + 1]);
+                                            mappedPoints[j] = pointFLand.x;
+                                            mappedPoints[j + 1] = pointFLand.y;
+                                        }
+                                        for (float p : mappedPoints) {
+                                            gpPoints.add((int) p);
+                                        }
+                                    } else {
+                                        for (float p : landmarkPoints) {
+                                            gpPoints.add((int) p);
+                                        }
+                                    }
+                                }
+                                double[] groupPoints = new double[gpPoints.size()];
+                                for (int i = 0, j = gpPoints.size(); i < j; i++) {
+                                    groupPoints[i] = gpPoints.get(i);
+                                }
+                                String imagePath = file.getAbsolutePath();
+                                Point bitmapSize = BitmapUtil.getBitmapSize(imagePath);
+                                MagicPhotoEntity magicPhotoEntity = new MagicPhotoEntity(bitmapSize.x, bitmapSize.y, groupPoints, groupType, imagePath);
+                                try {
+                                    MagicPhotoEntityDao magicPhotoEntityDao = GreenDaoUtils.getInstance().getDaoSession().getMagicPhotoEntityDao();
+                                    magicPhotoEntityDao.insert(magicPhotoEntity);
+                                    mActivity.setSavedModel(true);
+                                    ToastUtil.makeFineToast(mActivity, getString(R.string.magic_save_succeed), R.drawable.icon_confirm).show();
+                                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mIsSaving = false;
+                                            mActivity.onBackPressed();
+                                        }
+                                    }, 1500);
+                                } catch (Exception e) {
+                                    ToastUtil.makeFineToast(mActivity, getString(R.string.magic_save_failed), R.drawable.icon_fail).show();
+                                    Log.e(TAG, "MagicPhotoEntityDao insert failed", e);
+                                }
+                            }
+                        });
+                    } else {
+                        ConfirmDialogFragment.newInstance(
+                                getString(R.string.magic_not_add_sticker), getString(R.string.magic_not_add_sticker_confirm)
+                                , getString(R.string.magic_not_add_sticker_cancel), new BaseDialogFragment.OnClickListener() {
+                                    @Override
+                                    public void onConfirm() {
+
+                                    }
+
+                                    @Override
+                                    public void onCancel() {
+                                        mActivity.onBackPressed();
+                                    }
+                                }
+                        ).show(mActivity.getSupportFragmentManager(), "ConfirmDialogFragment");
+                    }
+                }
+                break;
+                default:
+            }
         }
     }
 

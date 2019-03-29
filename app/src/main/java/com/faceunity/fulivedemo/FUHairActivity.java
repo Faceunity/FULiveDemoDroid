@@ -13,6 +13,7 @@ import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.CircleImageView;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,9 +115,9 @@ public class FUHairActivity extends FUBaseActivity {
 
             holder.effectImg.setImageResource(mEffects.get(position).resId());
             final int pos = position;
-            holder.effectImg.setOnClickListener(new View.OnClickListener() {
+            holder.effectImg.setOnClickListener(new OnMultiClickListener() {
                 @Override
-                public void onClick(View v) {
+                protected void onMultiClick(View v) {
                     if (mPositionSelect == pos) {
                         return;
                     }

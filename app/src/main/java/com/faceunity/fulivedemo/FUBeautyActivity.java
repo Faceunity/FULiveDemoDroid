@@ -8,6 +8,7 @@ import android.widget.CompoundButton;
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.entity.BeautyParameterModel;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 /**
  * 美颜界面
@@ -49,18 +50,12 @@ public class FUBeautyActivity extends FUBaseActivity {
                 showDescription(str, 1000);
             }
         });
-//        mGLSurfaceView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-        mBeautyControlView.hideBottomLayoutAnimator();
-//            }
-//        });
 
         mHeightCheckBox.setChecked(BeautyParameterModel.isHeightPerformance);
         mSelectDataBtn.setVisibility(View.VISIBLE);
-        mSelectDataBtn.setOnClickListener(new View.OnClickListener() {
+        mSelectDataBtn.setOnClickListener(new OnMultiClickListener() {
             @Override
-            public void onClick(View v) {
+            protected void onMultiClick(View v) {
                 Intent intent = new Intent(FUBeautyActivity.this, SelectDataActivity.class);
                 intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, TAG);
                 startActivity(intent);
@@ -93,8 +88,9 @@ public class FUBeautyActivity extends FUBaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mBeautyControlView != null)
+        if (mBeautyControlView != null) {
             mBeautyControlView.onResume();
+        }
     }
 
 }

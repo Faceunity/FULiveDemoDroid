@@ -70,11 +70,9 @@ public class FURenderer implements OnFUControlListener {
      * 目录effects下是我们打包签名好的道具
      */
     public static final String BUNDLE_v3 = "v3.bundle";
-    public static final String BUNDLE_anim_model = "anim_model.bundle";
     public static final String BUNDLE_face_beautification = "face_beautification.bundle";
     public static final String BUNDLE_HAIR_NORMAL = "hair_normal.bundle";
     public static final String BUNDLE_HAIR_GRADIENT = "hair_gradient.bundle";
-    public static final String BUNDLE_ardata_ex = "ardata_ex.bundle";
     // 舌头 bundle
     public static final String BUNDLE_tongue = "tongue.bundle";
     public static final String BUNDLE_animoji_3d = "fxaa.bundle";
@@ -83,7 +81,7 @@ public class FURenderer implements OnFUControlListener {
     // 动漫滤镜 bundle
     public static final String BUNDLE_TOON_FILTER = "fuzzytoonfilter.bundle";
     // 新版美妆 bundle
-    public static final String BUNDLE_FACE_MAKEUP = "face_makeup.bundle";
+    public static final String BUNDLE_FACE_MAKEUP = "light_makeup.bundle";
     // 异图
     public static final String BUNDLE_LIVE_PHOTO = "photolive.bundle";
 
@@ -93,8 +91,8 @@ public class FURenderer implements OnFUControlListener {
     private volatile static float mSkinDetect = 1.0f;//精准磨皮
     private volatile static float mHeavyBlur = 0.0f;//美肤类型
     private volatile static float mBlurLevel = 0.7f;//磨皮
-    private volatile static float mColorLevel = 0.2f;//美白
-    private volatile static float mRedLevel = 0.0f;//红润
+    private volatile static float mColorLevel = 0.3f;//美白
+    private volatile static float mRedLevel = 0.3f;//红润
     private volatile static float mEyeBright = 0.0f;//亮眼
     private volatile static float mToothWhiten = 0.0f;//美牙
     private volatile static float mFaceShape = 4.0f;//脸型
@@ -136,7 +134,7 @@ public class FURenderer implements OnFUControlListener {
     private volatile static float mIntensityMouth = 0.4f;//嘴形
     private volatile Effect mDefaultEffect;//默认道具（同步加载）
     // 默认滤镜，淡雅效果
-    private volatile static Filter mFilterName = new Filter("danya");
+    private volatile Filter mFilterName = new Filter(Filter.Key.FENNEN_1);
     private boolean mIsCreateEGLContext; //是否需要手动创建EGLContext
     private int mInputTextureType = 0; //输入的图像texture类型，Camera提供的默认为EXTERNAL OES
     private int mInputImageFormat = 0;
@@ -145,6 +143,7 @@ public class FURenderer implements OnFUControlListener {
     private volatile boolean isNeedUpdateFaceBeauty = true;
 
     private volatile int mInputImageOrientation = 270;
+    private volatile int mInputPropOrientation = 270;//道具方向（针对全屏道具）
     private volatile int mIsInputImage = 0;//输入的是否是图片
     private volatile int mCurrentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private volatile int mMaxFaces = 4; //同时识别的最大人脸
@@ -169,8 +168,6 @@ public class FURenderer implements OnFUControlListener {
     private volatile int mHairColorIndex = 0;
     private OnBundleLoadCompleteListener mOnBundleLoadCompleteListener;
     private volatile int mComicFilterStyle = CartoonFilter.NO_FILTER;
-    // 美妆程度
-    private volatile float mMakeupIntensity = 1.0f;
     private static boolean mIsInited;
     private volatile int mDefaultOrientation = 0;
 
@@ -506,11 +503,11 @@ public class FURenderer implements OnFUControlListener {
              */
             faceunity.fuGetFaceInfo(0, "expression", expressionData);
             /**
-             * pupil pos 人脸朝向，0-3分别对应手机四种朝向，长度1
+             * pupil pos 眼球旋转，长度2
              */
             faceunity.fuGetFaceInfo(0, "pupil_pos", pupilPosData);
             /**
-             * rotation mode
+             * rotation mode 人脸朝向，0-3分别对应手机四种朝向，长度1
              */
             faceunity.fuGetFaceInfo(0, "rotation_mode", rotationModeData);
         } else {
@@ -679,27 +676,9 @@ public class FURenderer implements OnFUControlListener {
             faceunity.fuSetup(v3Data, authpack.A());
 
             /**
-             * 加载优化表情跟踪功能所需要加载的动画数据文件anim_model.bundle；
-             * 启用该功能可以使表情系数及avatar驱动表情更加自然，减少异常表情、模型缺陷的出现。该功能对性能的影响较小。
-             * 启用该功能时，通过 fuLoadAnimModel 加载动画模型数据，加载成功即可启动。该功能会影响通过fuGetFaceInfo获取的expression表情系数，以及通过表情驱动的avatar模型。
-             * 适用于使用Animoji和avatar功能的用户，如果不是，可不加载
+             * fuLoadTongueModel 识别舌头动作数据包加载
+             * 其中 tongue.bundle：头动作驱动数据包；
              */
-            InputStream animModel = context.getAssets().open(BUNDLE_anim_model);
-            byte[] animModelData = new byte[animModel.available()];
-            animModel.read(animModelData);
-            animModel.close();
-            faceunity.fuLoadAnimModel(animModelData);
-
-            /**
-             * 加载高精度模式的三维张量数据文件ardata_ex.bundle。
-             * 适用于换脸功能，如果没用该功能可不加载；如果使用了换脸功能，必须加载，否则会报错
-             */
-            InputStream ar = context.getAssets().open(BUNDLE_ardata_ex);
-            byte[] arDate = new byte[ar.available()];
-            ar.read(arDate);
-            ar.close();
-            faceunity.fuLoadExtendedARData(arDate);
-
             InputStream tongue = context.getAssets().open(BUNDLE_tongue);
             byte[] tongueDate = new byte[tongue.available()];
             tongue.read(tongueDate);
@@ -804,6 +783,33 @@ public class FURenderer implements OnFUControlListener {
                 mFrameId = 0;
                 mCurrentCameraType = currentCameraType;
                 mInputImageOrientation = inputImageOrientation;
+                mInputPropOrientation = inputImageOrientation;
+                faceunity.fuOnCameraChange();
+                mRotMode = calculateRotMode();
+                updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
+            }
+        });
+    }
+
+    /**
+     * camera切换时需要调用
+     *
+     * @param currentCameraType     前后置摄像头ID
+     * @param inputImageOrientation
+     * @param inputPropOrientation
+     */
+    public void onCameraChange(final int currentCameraType, final int inputImageOrientation
+            , final int inputPropOrientation) {
+        if (mCurrentCameraType == currentCameraType && mInputImageOrientation == inputImageOrientation &&
+                mInputPropOrientation == inputPropOrientation)
+            return;
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mFrameId = 0;
+                mCurrentCameraType = currentCameraType;
+                mInputImageOrientation = inputImageOrientation;
+                mInputPropOrientation = inputPropOrientation;
                 faceunity.fuOnCameraChange();
                 mRotMode = calculateRotMode();
                 updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
@@ -1110,6 +1116,7 @@ public class FURenderer implements OnFUControlListener {
 
     @Override
     public void onMakeupLevelChanged(final int makeupType, final float level) {
+        Log.d(TAG, "onMakeupLevelChanged() called with: makeupType = [" + makeupType + "], level = [" + level + "]");
         MakeupItem makeupItem = mMakeupItemMap.get(makeupType);
         if (makeupItem != null) {
             makeupItem.setLevel(level);
@@ -1124,12 +1131,13 @@ public class FURenderer implements OnFUControlListener {
 
     @Override
     public void onMakeupOverallLevelChanged(final float level) {
-        if (mMakeupIntensity != level) {
+        Set<Map.Entry<Integer, MakeupItem>> entries = mMakeupItemMap.entrySet();
+        for (final Map.Entry<Integer, MakeupItem> entry : entries) {
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
-                    mMakeupIntensity = level;
-                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX], "makeup_intensity", mMakeupIntensity);
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX], getMakeupIntensityKeyByType(entry.getKey()), level);
+                    entry.getValue().setLevel(level);
                 }
             });
         }
@@ -1147,9 +1155,9 @@ public class FURenderer implements OnFUControlListener {
             });
         }
         mMakeupItemMap.clear();
+
         if (makeupItems != null && makeupItems.size() > 0) {
-            int size = makeupItems.size();
-            for (int i = 0; i < size; i++) {
+            for (int i = 0, size = makeupItems.size(); i < size; i++) {
                 MakeupItem makeupItem = makeupItems.get(i);
                 onMakeupSelected(makeupItem, makeupItem.getLevel());
             }
@@ -1343,7 +1351,11 @@ public class FURenderer implements OnFUControlListener {
         int effectType = effect.effectType();
         if (effectType == Effect.EFFECT_TYPE_NORMAL) {
             //rotationAngle 参数是用于旋转普通道具
-            faceunity.fuItemSetParam(itemHandle, "rotationAngle", 360 - mInputImageOrientation);
+            faceunity.fuItemSetParam(itemHandle, "rotationAngle", 360 - mInputPropOrientation);
+        }
+        if (effectType == Effect.EFFECT_TYPE_BACKGROUND) {
+            //计算角度（全屏背景分割，第一次未识别人脸）
+            faceunity.fuSetDefaultRotationMode((360 - mInputImageOrientation) / 90);
         }
         if (effectType == Effect.EFFECT_TYPE_ANIMOJI || effectType == Effect.EFFECT_TYPE_PORTRAIT_DRIVE) {
             //is3DFlipH 参数是用于对3D道具的镜像
@@ -1428,6 +1440,7 @@ public class FURenderer implements OnFUControlListener {
         private boolean needReadBackImage = false;
         private int inputImageFormat = 0;
         private int inputImageRotation = 270;
+        private int inputPropRotation = 270;
         private int isIputImage = 0;
         private boolean isNeedAnimoji3D = false;
         private boolean isNeedBeautyHair = false;
@@ -1532,6 +1545,17 @@ public class FURenderer implements OnFUControlListener {
          */
         public Builder inputImageOrientation(int inputImageRotation) {
             this.inputImageRotation = inputImageRotation;
+            return this;
+        }
+
+        /**
+         * 道具方向
+         *
+         * @param inputPropRotation
+         * @return
+         */
+        public Builder inputPropOrientation(int inputPropRotation) {
+            this.inputPropRotation = inputPropRotation;
             return this;
         }
 
@@ -1653,6 +1677,7 @@ public class FURenderer implements OnFUControlListener {
             fuRenderer.mNeedReadBackImage = needReadBackImage;
             fuRenderer.mInputImageFormat = inputImageFormat;
             fuRenderer.mInputImageOrientation = inputImageRotation;
+            fuRenderer.mInputPropOrientation = inputPropRotation;
             fuRenderer.mIsInputImage = isIputImage;
             fuRenderer.mDefaultEffect = defaultEffect;
             fuRenderer.isNeedAnimoji3D = isNeedAnimoji3D;
@@ -1834,7 +1859,7 @@ public class FURenderer implements OnFUControlListener {
                                 public void run() {
                                     String key = getFaceMakeupKeyByType(makeupItem.getType());
                                     faceunity.fuItemSetParam(itemHandle, "is_makeup_on", 1);
-                                    faceunity.fuItemSetParam(itemHandle, "makeup_intensity", mMakeupIntensity);
+                                    faceunity.fuItemSetParam(itemHandle, "makeup_intensity", 1.0f);
                                     faceunity.fuItemSetParam(itemHandle, "reverse_alpha", 1);
                                     if (mLipStickColor != null) {
                                         if (makeupItem.getType() == FaceMakeup.FACE_MAKEUP_TYPE_LIPSTICK) {

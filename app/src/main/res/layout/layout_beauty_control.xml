@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/x366"
@@ -27,7 +26,7 @@
         app:dsb_value="0"
         app:layout_constraintBottom_toTopOf="@+id/beauty_line"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <RelativeLayout
         android:id="@+id/face_shape_radio_layout"
@@ -54,7 +53,7 @@
                 android:paddingBottom="@dimen/x12"
                 android:text="@string/face_shape_4"
                 android:textColor="@drawable/beauty_control_bottom_shape_radio_color"
-                android:textSize="@dimen/text_size_24"/>
+                android:textSize="@dimen/text_size_24" />
 
             <android.support.v7.widget.AppCompatRadioButton
                 android:id="@+id/face_shape_3_default"
@@ -66,7 +65,7 @@
                 android:paddingBottom="@dimen/x12"
                 android:text="@string/face_shape_3_default"
                 android:textColor="@drawable/beauty_control_bottom_shape_radio_color"
-                android:textSize="@dimen/text_size_24"/>
+                android:textSize="@dimen/text_size_24" />
 
             <android.support.v7.widget.AppCompatRadioButton
                 android:id="@+id/face_shape_0_nvshen"
@@ -78,7 +77,7 @@
                 android:paddingBottom="@dimen/x12"
                 android:text="@string/face_shape_0_nvshen"
                 android:textColor="@drawable/beauty_control_bottom_shape_radio_color"
-                android:textSize="@dimen/text_size_24"/>
+                android:textSize="@dimen/text_size_24" />
 
             <android.support.v7.widget.AppCompatRadioButton
                 android:id="@+id/face_shape_1_wanghong"
@@ -90,7 +89,7 @@
                 android:paddingBottom="@dimen/x12"
                 android:text="@string/face_shape_1_wanghong"
                 android:textColor="@drawable/beauty_control_bottom_shape_radio_color"
-                android:textSize="@dimen/text_size_24"/>
+                android:textSize="@dimen/text_size_24" />
 
             <android.support.v7.widget.AppCompatRadioButton
                 android:id="@+id/face_shape_2_ziran"
@@ -102,7 +101,7 @@
                 android:paddingBottom="@dimen/x12"
                 android:text="@string/face_shape_2_ziran"
                 android:textColor="@drawable/beauty_control_bottom_shape_radio_color"
-                android:textSize="@dimen/text_size_24"/>
+                android:textSize="@dimen/text_size_24" />
         </RadioGroup>
 
         <View
@@ -112,14 +111,14 @@
             android:layout_above="@+id/beauty_face_shape_line"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="0dp"
-            android:background="@drawable/fu_beauty_face_shape_checked_line"/>
+            android:background="@drawable/fu_beauty_face_shape_checked_line" />
 
         <View
             android:id="@+id/beauty_face_shape_line"
             android:layout_width="match_parent"
             android:layout_height="@dimen/x1"
             android:layout_alignParentBottom="true"
-            android:background="#33E5E5E5"/>
+            android:background="#33E5E5E5" />
     </RelativeLayout>
 
     <HorizontalScrollView
@@ -148,7 +147,7 @@
                 app:drawable_close_normal="@drawable/beauty_skin_control_all_blur_close_normal"
                 app:drawable_open_checked="@drawable/beauty_skin_control_all_blur_open_checked"
                 app:drawable_open_normal="@drawable/beauty_skin_control_all_blur_open_normal"
-                app:text_normal="@string/beauty_box_skin_detect"/>
+                app:text_normal="@string/beauty_box_skin_detect" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_heavy_blur"
@@ -160,7 +159,7 @@
                 app:drawable_open_checked="@drawable/beauty_skin_control_type_open_checked"
                 app:drawable_open_normal="@drawable/beauty_skin_control_type_open_normal"
                 app:text_double="@string/beauty_box_heavy_blur_double"
-                app:text_normal="@string/beauty_box_heavy_blur_normal"/>
+                app:text_normal="@string/beauty_box_heavy_blur_normal" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_blur_level"
@@ -171,7 +170,7 @@
                 app:drawable_close_normal="@drawable/beauty_skin_control_blur_close_normal"
                 app:drawable_open_checked="@drawable/beauty_skin_control_blur_open_checked"
                 app:drawable_open_normal="@drawable/beauty_skin_control_blur_open_normal"
-                app:text_normal="@string/beauty_box_blur_level"/>
+                app:text_normal="@string/beauty_box_blur_level" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_color_level"
@@ -181,7 +180,7 @@
                 app:drawable_close_normal="@drawable/beauty_skin_control_color_close_normal"
                 app:drawable_open_checked="@drawable/beauty_skin_control_color_open_checked"
                 app:drawable_open_normal="@drawable/beauty_skin_control_color_open_normal"
-                app:text_normal="@string/beauty_box_color_level"/>
+                app:text_normal="@string/beauty_box_color_level" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_red_level"
@@ -191,7 +190,7 @@
                 app:drawable_close_normal="@drawable/beauty_skin_control_red_close_normal"
                 app:drawable_open_checked="@drawable/beauty_skin_control_red_open_checked"
                 app:drawable_open_normal="@drawable/beauty_skin_control_red_open_normal"
-                app:text_normal="@string/beauty_box_red_level"/>
+                app:text_normal="@string/beauty_box_red_level" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_eye_bright"
@@ -201,7 +200,7 @@
                 app:drawable_close_normal="@drawable/beauty_skin_control_bright_eyes_close_normal"
                 app:drawable_open_checked="@drawable/beauty_skin_control_bright_eyes_open_checked"
                 app:drawable_open_normal="@drawable/beauty_skin_control_bright_eyes_open_normal"
-                app:text_normal="@string/beauty_box_eye_bright"/>
+                app:text_normal="@string/beauty_box_eye_bright" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_tooth_whiten"
@@ -211,7 +210,7 @@
                 app:drawable_close_normal="@drawable/beauty_skin_control_teeth_close_normal"
                 app:drawable_open_checked="@drawable/beauty_skin_control_teeth_open_checked"
                 app:drawable_open_normal="@drawable/beauty_skin_control_teeth_open_normal"
-                app:text_normal="@string/beauty_box_tooth_whiten"/>
+                app:text_normal="@string/beauty_box_tooth_whiten" />
 
         </com.faceunity.fulivedemo.ui.BeautyBoxGroup>
     </HorizontalScrollView>
@@ -241,7 +240,7 @@
                 app:drawable_close_normal="@drawable/beauty_type_control_face_shape_normal"
                 app:drawable_open_checked="@drawable/beauty_type_control_face_shape_checked"
                 app:drawable_open_normal="@drawable/beauty_type_control_face_shape_normal"
-                app:text_normal="@string/beauty_box_face_shape"/>
+                app:text_normal="@string/beauty_box_face_shape" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_eye_enlarge"
@@ -251,7 +250,7 @@
                 app:drawable_close_normal="@drawable/beauty_type_control_enlarge_eye_level_close_normal"
                 app:drawable_open_checked="@drawable/beauty_type_control_enlarge_eye_level_open_checked"
                 app:drawable_open_normal="@drawable/beauty_type_control_enlarge_eye_level_open_normal"
-                app:text_normal="@string/beauty_box_eye_enlarge"/>
+                app:text_normal="@string/beauty_box_eye_enlarge" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_cheek_thinning"
@@ -261,7 +260,7 @@
                 app:drawable_close_normal="@drawable/beauty_type_control_cheekthin_level_close_normal"
                 app:drawable_open_checked="@drawable/beauty_type_control_cheekthin_level_open_checked"
                 app:drawable_open_normal="@drawable/beauty_type_control_cheekthin_level_open_normal"
-                app:text_normal="@string/beauty_box_cheek_thinning"/>
+                app:text_normal="@string/beauty_box_cheek_thinning" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_intensity_chin"
@@ -271,7 +270,7 @@
                 app:drawable_close_normal="@drawable/beauty_type_control_chin_level_close_normal"
                 app:drawable_open_checked="@drawable/beauty_type_control_chin_level_open_checked"
                 app:drawable_open_normal="@drawable/beauty_type_control_chin_level_open_normal"
-                app:text_normal="@string/beauty_box_intensity_chin"/>
+                app:text_normal="@string/beauty_box_intensity_chin" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_intensity_forehead"
@@ -281,7 +280,7 @@
                 app:drawable_close_normal="@drawable/beauty_type_control_forehead_level_close_normal"
                 app:drawable_open_checked="@drawable/beauty_type_control_forehead_level_open_checked"
                 app:drawable_open_normal="@drawable/beauty_type_control_forehead_level_open_normal"
-                app:text_normal="@string/beauty_box_intensity_forehead"/>
+                app:text_normal="@string/beauty_box_intensity_forehead" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_intensity_nose"
@@ -291,7 +290,7 @@
                 app:drawable_close_normal="@drawable/beauty_type_control_thin_nose_level_close_normal"
                 app:drawable_open_checked="@drawable/beauty_type_control_thin_nose_level_open_checked"
                 app:drawable_open_normal="@drawable/beauty_type_control_thin_nose_level_open_normal"
-                app:text_normal="@string/beauty_box_intensity_nose"/>
+                app:text_normal="@string/beauty_box_intensity_nose" />
 
             <com.faceunity.fulivedemo.ui.BeautyBox
                 android:id="@+id/beauty_box_intensity_mouth"
@@ -301,7 +300,7 @@
                 app:drawable_close_normal="@drawable/beauty_type_control_mouth_shape_close_normal"
                 app:drawable_open_checked="@drawable/beauty_type_control_mouth_shape_open_checked"
                 app:drawable_open_normal="@drawable/beauty_type_control_mouth_shape_open_normal"
-                app:text_normal="@string/beauty_box_intensity_mouth"/>
+                app:text_normal="@string/beauty_box_intensity_mouth" />
 
         </com.faceunity.fulivedemo.ui.BeautyBoxGroup>
     </HorizontalScrollView>
@@ -315,14 +314,24 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/beauty_line"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_face_makeup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/x20"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/beauty_line"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <View
         android:id="@+id/beauty_line"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x1"
         android:background="#33E5E5E5"
-        app:layout_constraintBottom_toTopOf="@+id/beauty_radio_group"/>
+        app:layout_constraintBottom_toTopOf="@+id/beauty_radio_group" />
 
     <com.faceunity.fulivedemo.ui.CheckGroup
         android:id="@+id/beauty_radio_group"
@@ -341,7 +350,7 @@
             android:gravity="center"
             android:text="@string/beauty_radio_skin_beauty"
             android:textColor="@color/beauty_control_bottom_radio_color"
-            android:textSize="@dimen/text_size_26"/>
+            android:textSize="@dimen/text_size_26" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/beauty_radio_face_shape"
@@ -353,19 +362,7 @@
             android:gravity="center"
             android:text="@string/beauty_radio_face_shape"
             android:textColor="@color/beauty_control_bottom_radio_color"
-            android:textSize="@dimen/text_size_26"/>
-
-        <android.support.v7.widget.AppCompatCheckBox
-            android:id="@+id/beauty_radio_beauty_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/transparent"
-            android:button="@null"
-            android:gravity="center"
-            android:text="@string/beauty_radio_beauty_filter"
-            android:textColor="@color/beauty_control_bottom_radio_color"
-            android:textSize="@dimen/text_size_26"/>
+            android:textSize="@dimen/text_size_26" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/beauty_radio_filter"
@@ -377,6 +374,18 @@
             android:gravity="center"
             android:text="@string/beauty_radio_filter"
             android:textColor="@color/beauty_control_bottom_radio_color"
-            android:textSize="@dimen/text_size_26"/>
+            android:textSize="@dimen/text_size_26" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/beauty_radio_face_beauty"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/beauty_radio_beauty"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
     </com.faceunity.fulivedemo.ui.CheckGroup>
 </android.support.constraint.ConstraintLayout>

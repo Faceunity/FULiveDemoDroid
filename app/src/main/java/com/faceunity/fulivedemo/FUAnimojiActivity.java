@@ -4,7 +4,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.faceunity.FURenderer;
-import com.faceunity.entity.CartoonFilter;
 import com.faceunity.fulivedemo.ui.control.AnimControlView;
 
 /**
@@ -43,7 +42,6 @@ public class FUAnimojiActivity extends FUBaseActivity {
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .setOnFUDebugListener(this)
                 .setNeedAnimoji3D(true)
-                .setFilterStyle(CartoonFilter.COMIC_FILTER)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
     }

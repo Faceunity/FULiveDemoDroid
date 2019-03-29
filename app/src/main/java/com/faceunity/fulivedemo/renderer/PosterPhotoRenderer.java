@@ -85,6 +85,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        Log.d(TAG, "onSurfaceCreated() called");
         mFullFrameRectTexture2D = new ProgramTexture2d();
         mDrawPhoto = true;
         mOnPhotoRendererStatusListener.onSurfaceCreated(gl, config);
@@ -201,7 +202,9 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         mTemplateRGBABytes = new byte[src.getByteCount()];
         ByteBuffer rgbaBuffer = ByteBuffer.wrap(mTemplateRGBABytes);
         src.copyPixelsToBuffer(rgbaBuffer);
-        mTemplateBytes = BitmapUtil.getNV21(mTemplateWidth = src.getWidth(), mTemplateHeight = src.getHeight(), src);
+        mTemplateWidth = src.getWidth();
+        mTemplateHeight = src.getHeight();
+        mTemplateBytes = BitmapUtil.getNV21(mTemplateWidth, mTemplateHeight, src);
         mMvpTemplateMatrix = GlUtil.changeMVPMatrixInside(mViewWidth, mViewHeight, mTemplateWidth, mTemplateHeight);
         Matrix.rotateM(mMvpTemplateMatrix, 0, 90, 0, 0, 1);
     }
@@ -216,7 +219,11 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
             mPhotoRGBABytes = new byte[src.getByteCount()];
             ByteBuffer rgbaBuffer = ByteBuffer.wrap(mPhotoRGBABytes);
             src.copyPixelsToBuffer(rgbaBuffer);
-            mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth(), mPhotoHeight = src.getHeight(), src);
+            mPhotoWidth = src.getWidth();
+            mPhotoHeight = src.getHeight();
+            mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth, mPhotoHeight, src);
+        } else {
+            mOnPhotoRendererStatusListener.onLoadPhotoError("图片加载失败");
         }
     }
 
@@ -295,5 +302,12 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
          * @param height
          */
         void onTemplateLoaded(byte[] img, int width, int height);
+
+        /**
+         * 图片加载出现错误
+         *
+         * @param error
+         */
+        void onLoadPhotoError(String error);
     }
 }

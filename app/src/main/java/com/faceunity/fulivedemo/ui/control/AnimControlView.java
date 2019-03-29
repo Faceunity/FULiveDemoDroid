@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class AnimControlView extends FrameLayout implements CheckGroup.OnCheckedChangeListener {
     private static final String TAG = "AnimControlView";
-    private static final int DEFAULT_FILTER_INDEX = 1;
+    private static final int DEFAULT_FILTER_INDEX = 0;
     private static final int DEFAULT_ANIMOJI_INDEX = 0;
     private RecyclerView mRvAnim;
     private RecyclerView mRvFilter;

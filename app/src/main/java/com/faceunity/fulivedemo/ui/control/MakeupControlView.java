@@ -6,6 +6,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 
 import com.faceunity.OnFUControlListener;
 import com.faceunity.entity.FaceMakeup;
+import com.faceunity.entity.Filter;
 import com.faceunity.entity.MakeupItem;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.BeautyParameterModel;
@@ -29,18 +31,17 @@ import com.faceunity.fulivedemo.entity.FaceMakeupEnum;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by tujh on 2017/8/15.
  */
 
 public class MakeupControlView extends FrameLayout {
-    private static final String TAG = MakeupControlView.class.getSimpleName();
+    private static final String TAG = "MakeupControlView";
 
     private Context mContext;
 
@@ -89,9 +90,9 @@ public class MakeupControlView extends FrameLayout {
 
     private void initView() {
         mClFaceMakeup = findViewById(R.id.cl_face_makeup);
-        mClFaceMakeup.findViewById(R.id.iv_custom_makeup).setOnClickListener(new View.OnClickListener() {
+        mClFaceMakeup.findViewById(R.id.iv_custom_makeup).setOnClickListener(new OnMultiClickListener() {
             @Override
-            public void onClick(View v) {
+            protected void onMultiClick(View v) {
                 // 点击自定义
                 changeFirstViewWithAnimator(false);
                 int type = mMakeupItemTitleAdapter.getSelectedItems().valueAt(0).type;
@@ -126,10 +127,23 @@ public class MakeupControlView extends FrameLayout {
         mMakeupSeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
             @Override
             public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
+                if (!fromUser) {
+                    return;
+                }
+                // 整体妆容调节
                 float level = 1.0f * value / 100;
                 FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
-                BeautyParameterModel.sBatchMakeupLevel.put(getResources().getString(faceMakeup.getNameId()), level);
+                String name = getResources().getString(faceMakeup.getNameId());
+                BeautyParameterModel.sBatchMakeupLevel.put(name, level);
+                List<MakeupItem> makeupItems = faceMakeup.getMakeupItems();
+                if (makeupItems != null) {
+                    for (MakeupItem makeupItem : makeupItems) {
+                        float lev = makeupItem.getDefaultLevel() * level / FaceMakeupEnum.MAKEUP_OVERALL_LEVEL.get(faceMakeup.getNameId());
+                        makeupItem.setLevel(lev);
+                    }
+                }
                 mOnFUControlListener.onMakeupOverallLevelChanged(level);
+                mOnFUControlListener.onFilterLevelSelected(level);
             }
         });
 
@@ -151,9 +165,9 @@ public class MakeupControlView extends FrameLayout {
         mMakeupItemAdapter.setItemSelected(0);
         mMakeupMidRecycler.setAdapter(mMakeupItemAdapter);
         ImageView ivmMakeupBack = mClMakeupItem.findViewById(R.id.iv_makeup_back);
-        ivmMakeupBack.setOnClickListener(new View.OnClickListener() {
+        ivmMakeupBack.setOnClickListener(new OnMultiClickListener() {
             @Override
-            public void onClick(View v) {
+            protected void onMultiClick(View v) {
                 // 点击回退
                 changeSecondViewWithAnimator(false);
                 FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
@@ -162,23 +176,13 @@ public class MakeupControlView extends FrameLayout {
                     if (makeupItemList != null) {
                         // 普通妆容
                         boolean isChanged = false;
-                        out:
                         for (int i = 0, j = mSelectedItems.size(); i < j; i++) {
                             MakeupItem selMp = mSelectedItems.valueAt(i);
-                            if (BeautyParameterModel.sMakeupLevel.get(selMp.getName()) /
-                                    BeautyParameterModel.sBatchMakeupLevel.get(getResources().getString(faceMakeup.getNameId()))
-                                    != FaceMakeupEnum.DEFAULT_BATCH_MAKEUP_LEVEL) {
-                                isChanged = true;
-                                break;
-                            }
                             if (!TextUtils.isEmpty(selMp.getPath())) {
-                                for (MakeupItem makeupItem : makeupItemList) {
-                                    if (makeupItem.getType() == selMp.getType() && !TextUtils.isEmpty(makeupItem.getPath())) {
-                                        if (!makeupItem.getName().equals(selMp.getName())) {
-                                            isChanged = true;
-                                            break out;
-                                        }
-                                    }
+                                Float selectedLevel = BeautyParameterModel.sMakeupLevel.get(selMp.getName());
+                                if (selectedLevel != null && selectedLevel != selMp.getLevel()) {
+                                    isChanged = true;
+                                    break;
                                 }
                             } else {
                                 isChanged = true;
@@ -210,13 +214,14 @@ public class MakeupControlView extends FrameLayout {
         mMakeupItemTitleAdapter.setOnItemClickListener(onTitleClickListener);
 
         mBeautySeekBar = mClMakeupItem.findViewById(R.id.makeup_seek_bar);
-        mBeautySeekBar.setProgress(50);
+        mBeautySeekBar.setProgress((int) (FaceMakeupEnum.DEFAULT_BATCH_MAKEUP_LEVEL * 100));
         mBeautySeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
             @Override
             public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
                 if (!fromUser) {
                     return;
                 }
+
                 mMakeupItemTitleAdapter.setPosSelected(value > 0);
                 float level = 1.0f * value / 100;
                 MakeupItem makeupItem = mMakeupItemAdapter.getSelectedItems().valueAt(0);
@@ -296,25 +301,23 @@ public class MakeupControlView extends FrameLayout {
             }
         }
         mMakeupItemAdapter.replaceAll(makeupItems);
+
         FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
         if (faceMakeup != null && mFaceMakeupAdapter.indexOf(faceMakeup) > 0) {
             // 具体的组合妆容，二级妆容恢复默认
             List<MakeupItem> makeupItemsList = faceMakeup.getMakeupItems();
-            Set<Map.Entry<String, Float>> mpEntries = BeautyParameterModel.sMakeupLevel.entrySet();
-            for (Map.Entry<String, Float> mpEntry : mpEntries) {
-                mpEntry.setValue(MakeupItem.DEFAULT_MAKEUP_LEVEL);
+            String name = getResources().getString(faceMakeup.getNameId());
+            Float overallLevel = BeautyParameterModel.sBatchMakeupLevel.get(name);
+            if (overallLevel == null) {
+                overallLevel = FaceMakeupEnum.MAKEUP_OVERALL_LEVEL.get(faceMakeup.getNameId());
+                BeautyParameterModel.sBatchMakeupLevel.put(name, overallLevel);
             }
             for (MakeupItem makeupItem : makeupItemsList) {
-                String name = getResources().getString(faceMakeup.getNameId());
-                Float lev = BeautyParameterModel.sBatchMakeupLevel.get(name);
-                if (lev == null) {
-                    lev = 1.0f;
-                    BeautyParameterModel.sBatchMakeupLevel.put(name, lev);
-                }
-                float value = makeupItem.getLevel() * lev;
+                float value = makeupItem.getLevel() * overallLevel / FaceMakeupEnum.MAKEUP_OVERALL_LEVEL.get(faceMakeup.getNameId());
                 BeautyParameterModel.sMakeupLevel.put(makeupItem.getName(), value);
             }
         }
+
         MakeupItem data = mSelectedItems.get(type);
         int pos = -1;
         if (data != null) {
@@ -354,7 +357,6 @@ public class MakeupControlView extends FrameLayout {
         mMakeupMidRecycler.scrollToPosition(pos);
         mBeautySeekBar.setVisibility(pos > 0 ? View.VISIBLE : View.INVISIBLE);
     }
-
 
     private ValueAnimator mBottomLayoutAnimator;
 
@@ -396,9 +398,10 @@ public class MakeupControlView extends FrameLayout {
         titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_blusher), FaceMakeup.FACE_MAKEUP_TYPE_BLUSHER, 1));
         titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eyebrow), FaceMakeup.FACE_MAKEUP_TYPE_EYEBROW, 2));
         titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eye_shadow), FaceMakeup.FACE_MAKEUP_TYPE_EYE_SHADOW, 3));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eye_liner), FaceMakeup.FACE_MAKEUP_TYPE_EYE_LINER, 4));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eyelash), FaceMakeup.FACE_MAKEUP_TYPE_EYELASH, 5));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_contact_lens), FaceMakeup.FACE_MAKEUP_TYPE_EYE_PUPIL, 6));
+        // 暂时用不到下面几个分类
+//        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eye_liner), FaceMakeup.FACE_MAKEUP_TYPE_EYE_LINER, 4));
+//        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eyelash), FaceMakeup.FACE_MAKEUP_TYPE_EYELASH, 5));
+//        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_contact_lens), FaceMakeup.FACE_MAKEUP_TYPE_EYE_PUPIL, 6));
         return titleEntities;
     }
 
@@ -550,17 +553,26 @@ public class MakeupControlView extends FrameLayout {
             FaceMakeup faceMakeup = adapter.getItem(position);
             mSelectedItems.clear();
             if (position == 0) {
+                // 卸妆
                 mMakeupSeekBar.setVisibility(View.INVISIBLE);
             } else {
+                // 各个妆容
                 mMakeupSeekBar.setVisibility(View.VISIBLE);
                 String name = getResources().getString(faceMakeup.getNameId());
                 Float level = BeautyParameterModel.sBatchMakeupLevel.get(name);
                 if (level == null) {
-                    level = 1.0f;
+                    level = FaceMakeupEnum.MAKEUP_OVERALL_LEVEL.get(faceMakeup.getNameId());
                     BeautyParameterModel.sBatchMakeupLevel.put(name, level);
                 }
                 mMakeupSeekBar.setProgress((int) (1.0f * level * 100));
                 mOnFUControlListener.onMakeupOverallLevelChanged(level);
+
+                // 调节妆容的同时选择滤镜
+                Pair<Filter, Float> filterFloatPair = FaceMakeupEnum.MAKEUP_FILTERS.get(faceMakeup.getNameId());
+                if (filterFloatPair != null) {
+                    mOnFUControlListener.onFilterNameSelected(filterFloatPair.first);
+                    mOnFUControlListener.onFilterLevelSelected(filterFloatPair.second);
+                }
             }
             List<MakeupItem> makeupItems = faceMakeup.getMakeupItems();
             mOnFUControlListener.onBatchMakeupSelected(makeupItems);

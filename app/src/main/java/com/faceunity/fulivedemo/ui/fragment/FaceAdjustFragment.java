@@ -18,12 +18,13 @@ import android.view.ViewGroup;
 import com.faceunity.fulivedemo.FUMagicGenActivity;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.renderer.MagicPhotoRenderer;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 /**
  * @author LiuQiang on 2018.12.17
  * 五官调整页面
  */
-public class FaceAdjustFragment extends Fragment implements View.OnClickListener {
+public class FaceAdjustFragment extends Fragment {
     public static final String TAG = "FaceAdjustFragment";
     private float[] mPoints;
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -42,7 +43,12 @@ public class FaceAdjustFragment extends Fragment implements View.OnClickListener
             mMagicPhotoRenderer.setViewPoints(mPoints);
         }
         View view = inflater.inflate(R.layout.fragment_face_adjust, container, false);
-        view.findViewById(R.id.fl_back).setOnClickListener(this);
+        view.findViewById(R.id.fl_back).setOnClickListener(new OnMultiClickListener() {
+            @Override
+            protected void onMultiClick(View v) {
+                FaceAdjustFragment.this.onClick();
+            }
+        });
         view.setOnTouchListener(new TouchListener());
         longPressRunnable = new Runnable() {
             @Override
@@ -88,8 +94,7 @@ public class FaceAdjustFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    @Override
-    public void onClick(View v) {
+    public void onClick() {
         // 返回贴纸页面
         mMagicPhotoRenderer.setShowLandmarks(false);
         ((FUMagicGenActivity) getActivity()).showFragment(FaceMarkFragment.TAG);

@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +33,8 @@ import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.dialog.NoTrackFaceDialogFragment;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
+import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.FileUtils;
@@ -47,16 +50,13 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * 海报换脸效果界面
  */
-public class FUPosterFaceActivity extends AppCompatActivity implements View.OnClickListener,
-        PosterPhotoRenderer.OnRendererStatusListener, BaseRecyclerAdapter.OnItemClickListener<PosterTemplate> {
+public class FUPosterFaceActivity extends AppCompatActivity implements PosterPhotoRenderer.OnRendererStatusListener,
+        BaseRecyclerAdapter.OnItemClickListener<PosterTemplate> {
     public static final String PHOTO_PATH = "photo_path";
     public static final String TEMPLATE_PATH = "template_path";
     public static final int REQ_TRACK_FACE = 702;
     public static final int RESULT_NO_TRACK_FACE = -1;
     private static final String TAG = "FUPosterFaceActivity";
-    private static final int FACE_HORIZONTAL_ROTATION = 15;
-    private static final int FACE_VERTICAL_ROTATION_MIN = -15;
-    private static final int FACE_VERTICAL_ROTATION_MAX = 5;
     protected GLSurfaceView mGlSurfaceView;
     private FURenderer mFURenderer;
     private PosterPhotoRenderer mPosterPhotoRenderer;
@@ -65,7 +65,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
     private boolean mIsTrackedTemplate;
     private boolean mIsTrackedPhoto;
     private volatile boolean mIsFirstDraw = true;
-    private boolean mIsNeedReInput = true;
+    private volatile boolean mIsNeedReInput = true;
     private int mTexId;
     private float[] mTemplateLandmarks;
     private float[] mPhotoLandmarks;
@@ -123,8 +123,9 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
         mGlSurfaceView.setRenderer(mPosterPhotoRenderer);
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
-        findViewById(R.id.iv_poster_back).setOnClickListener(this);
-        findViewById(R.id.iv_poster_save).setOnClickListener(this);
+        ViewClickListener viewClickListener = new ViewClickListener();
+        findViewById(R.id.iv_poster_back).setOnClickListener(viewClickListener);
+        findViewById(R.id.iv_poster_save).setOnClickListener(viewClickListener);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_poster_template);
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -166,7 +167,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
             }
         });
         Glide.with(this).load(R.drawable.loading_gif).into(ivLoading);
-        mLoadingView.setVisibility(View.VISIBLE);
+        showLoadingView(true);
 
         mFURenderer = new FURenderer
                 .Builder(this)
@@ -282,7 +283,11 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mLoadingView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+                if (show && mLoadingView.getVisibility() == View.INVISIBLE) {
+                    mLoadingView.setVisibility(View.VISIBLE);
+                } else if (!show && mLoadingView.getVisibility() == View.VISIBLE) {
+                    mLoadingView.setVisibility(View.INVISIBLE);
+                }
             }
         });
     }
@@ -297,26 +302,31 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
         mIsSavedPhoto = false;
     }
 
-    @Override
-    public void onClick(View v) {
-        int id = v.getId();
-        if (id == R.id.iv_poster_save) {
-            if (!mIsSavedPhoto) {
-                Toast.makeText(FUPosterFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
-                String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
-                try {
-                    File resultFile = new File(Constant.photoFilePath, name);
-                    FileUtils.copyFile(new File(mMixedPhotoPath), resultFile);
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
-                    mIsSavedPhoto = true;
-                } catch (IOException e) {
-                    Log.e(TAG, "onClick: copyFile", e);
+    private class ViewClickListener extends OnMultiClickListener {
+
+        @Override
+        protected void onMultiClick(View v) {
+            int id = v.getId();
+            if (id == R.id.iv_poster_save) {
+                if (!mIsSavedPhoto) {
+                    Toast.makeText(FUPosterFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
+                    String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
+                    try {
+                        File resultFile = new File(Constant.photoFilePath, name);
+                        if (mMixedPhotoPath != null) {
+                            FileUtils.copyFile(new File(mMixedPhotoPath), resultFile);
+                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
+                            mIsSavedPhoto = true;
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "onClick: copyFile", e);
+                    }
+                } else {
+                    Toast.makeText(FUPosterFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(FUPosterFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
+            } else if (id == R.id.iv_poster_back) {
+                onBackPressed();
             }
-        } else if (id == R.id.iv_poster_back) {
-            onBackPressed();
         }
     }
 
@@ -377,7 +387,6 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
                                 public void run() {
                                     mFaceMaskView.dismissPopWindow();
                                     mClContainerView.removeView(mFaceMaskView);
-                                    mLoadingView.setVisibility(View.VISIBLE);
                                 }
                             }, 500);
                         }
@@ -392,7 +401,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
                             float[] newFaceRect = mPosterPhotoRenderer.convertFaceRect(faceRectData);
                             mFaceMaskView.addFaceRect(newFaceRect);
                         }
-                        mLoadingView.setVisibility(View.INVISIBLE);
+                        showLoadingView(false);
                         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
                                 ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
                         if (!mPaused) {
@@ -449,6 +458,22 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
+    public void onLoadPhotoError(final String error) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.makeFineToast(FUPosterFaceActivity.this, error, R.drawable.icon_fail).show();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        FUPosterFaceActivity.this.onBackPressed();
+                    }
+                }, 1500);
+            }
+        });
+    }
+
+    @Override
     public void onItemClick(BaseRecyclerAdapter<PosterTemplate> adapter, View view, final int position) {
         if (mLastPosition == position) {
             return;
@@ -456,7 +481,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
         mLastPosition = position;
         mIsTrackedTemplate = false;
         mIsSavedPhoto = false;
-        mLoadingView.setVisibility(View.VISIBLE);
+        showLoadingView(true);
         mState = STATE_CHANGING;
         PosterTemplate posterTemplate = adapter.getItem(position);
         if (position == 5) {
@@ -507,9 +532,9 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
         double yaw = Math.atan2(2 * (w * x + y * z), 1 - 2 * (x * x + y * y)) / Math.PI * 180;
         double pitch = Math.asin(2 * (w * y - z * x)) / Math.PI * 180;
         double roll = Math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z)) / Math.PI * 180;
+        // 左右 pitch, 俯仰 yaw，摇摆 roll
         Log.i(TAG, "checkRotation: yaw:" + yaw + ". pitch:" + pitch + ". roll:" + roll);
-        return yaw > FACE_VERTICAL_ROTATION_MAX || yaw < FACE_VERTICAL_ROTATION_MIN || pitch >
-                FACE_HORIZONTAL_ROTATION || pitch < -FACE_HORIZONTAL_ROTATION || roll > FACE_HORIZONTAL_ROTATION || roll < -FACE_HORIZONTAL_ROTATION;
+        return yaw > 30 || yaw < -30 || pitch > 15 || pitch < -15;
     }
 
     private void savePhoto(int textureId, final int texWidth, final int texHeight) {
@@ -531,7 +556,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements View.OnCl
                         mIsSavingPhoto = false;
                         mIsNeedSavePhoto = false;
                     }
-                });
+                },false);
     }
 
     public class PosterTempListAdapter extends BaseRecyclerAdapter<PosterTemplate> {

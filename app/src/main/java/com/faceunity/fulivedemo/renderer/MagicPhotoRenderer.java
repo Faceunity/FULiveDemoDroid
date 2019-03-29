@@ -236,7 +236,7 @@ public class MagicPhotoRenderer implements GLSurfaceView.Renderer {
         Bitmap src = BitmapUtil.loadBitmap(path, 720, 1280);
         // src maybe null
         if (src == null) {
-            mOnPhotoRendererStatusListener.onLoadImageError();
+            mOnPhotoRendererStatusListener.onLoadPhotoError("图片加载出错");
             return;
         }
         mImgTextureId = GlUtil.createImageTexture(src);
@@ -523,7 +523,7 @@ public class MagicPhotoRenderer implements GLSurfaceView.Renderer {
 
         void onSurfaceDestroy();
 
-        void onLoadImageError();
+        void onLoadPhotoError(String error);
     }
 
     public interface OnRenderFinishListener {
