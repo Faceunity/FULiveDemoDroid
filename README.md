@@ -25,7 +25,7 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 	implementation 'com.faceunity:nama:6.0.0'
 
-不含机器学习以及物理引擎的版本（lite版）：
+不含物理引擎的版本（lite版）：
 
 	implementation 'com.faceunity:nama:6.0.0-lite'
 
@@ -33,7 +33,7 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 全功能版本：[Faceunity-Android-v6.0-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0-dev/Faceunity-Android-v6.0-dev.zip)
 
-不含机器学习以及物理引擎的版本（lite版）：[Faceunity-Android-v6.0-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0-dev/Faceunity-Android-v6.0-dev-lite.zip)
+不含物理引擎的版本（lite版）：[Faceunity-Android-v6.0-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0-dev/Faceunity-Android-v6.0-dev-lite.zip)
 
 **Tip：含有深度学习的版本支持背景分割、手势识别功能**
 
