@@ -9,13 +9,19 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 更新内容
 
 - 优化人脸检测，提高检测率，提高性能。
-- 美颜滤镜优化。
-- 海报换脸(人脸融合)效果优化。
-- 背景分割分割精度优化。
+- 新增质感美颜功能（注：道具支持SDK v6.0.0以上版本）。
+- 人脸融合(海报换脸)效果优化（注：道具支持 SDK v6.0.0以上版本）。
+- 背景分割分割精度优化（注：此版本背景分割、手势识别道具只支持 SDK v6.0.0以上版本）。
 - 舌头跟踪trackface逻辑支持，Getfaceinfo支持。
-- 新增Avatar捏脸功能，需FUEditor 6.0.0以上。
-- 新增质感美颜功能。
+- 新增Avatar捏脸功能，需FUEditor 6.0.0以上版本。
+- 美颜滤镜优化（注：原有滤镜整合，重命名归类及效果新增， 道具支持SDK v5.5.0以上版本）。
 - 修复mebedtls符号冲突问题。
+- 注：美发、Animoji道具支持FUEditor v5.6.0以上制作版本，其余道具在任意SDK皆可兼容
+
+更新文档
+- [美颜道具参数说明_完整版](docs/美颜道具参数说明_完整版.pdf)
+- [美妆bundle参数说明](docs/美妆bundle参数说明.pdf)
+- [质感美颜参数说明](docs/质感美颜参数说明.pdf)
 
 ## SDK集成
 
@@ -34,8 +40,6 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 全功能版本：[Faceunity-Android-v6.0-dev.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0-dev/Faceunity-Android-v6.0-dev.zip)
 
 不含物理引擎的版本（lite版）：[Faceunity-Android-v6.0-dev-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0-dev/Faceunity-Android-v6.0-dev-lite.zip)
-
-**Tip：含有深度学习的版本支持背景分割、手势识别功能**
 
 ## 文件说明
 
