@@ -1,11 +1,14 @@
 package com.faceunity.fulivedemo;
 
+import android.content.Context;
 import android.content.Intent;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.utils.MiscUtil;
@@ -40,7 +43,7 @@ public class SelectDataActivity extends AppCompatActivity {
             return;
         }
         switch (requestCode) {
-            case IMAGE_REQUEST_CODE_PHOTO:
+            case IMAGE_REQUEST_CODE_PHOTO: {
                 if (data == null) {
                     return;
                 }
@@ -49,20 +52,28 @@ public class SelectDataActivity extends AppCompatActivity {
                     ToastUtil.showToast(this, R.string.image_file_does_not_exist);
                     return;
                 }
+                boolean b = checkIsImage(fileImgPath);
+                if (!b) {
+                    Toast.makeText(this, "请选择图片文件", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Intent intentPhoto = new Intent(SelectDataActivity.this, ShowPhotoActivity.class);
                 intentPhoto.setData(data.getData());
                 intentPhoto.putExtra(SELECT_DATA_KEY, mSelectDataType);
                 intentPhoto.putExtra(FUEffectActivity.SELECT_EFFECT_KEY, mSelectEffectType);
                 startActivityForResult(intentPhoto, IMAGE_REQUEST_CODE_SHOW);
-                break;
-            case IMAGE_REQUEST_CODE_TAKE_PHOTO:
+            }
+            break;
+            case IMAGE_REQUEST_CODE_TAKE_PHOTO: {
                 Intent intentTakePhoto = new Intent(SelectDataActivity.this, ShowPhotoActivity.class);
                 intentTakePhoto.setData(mImageUri);
                 intentTakePhoto.putExtra(SELECT_DATA_KEY, mSelectDataType);
                 intentTakePhoto.putExtra(FUEffectActivity.SELECT_EFFECT_KEY, mSelectEffectType);
                 startActivityForResult(intentTakePhoto, IMAGE_REQUEST_CODE_SHOW);
-                break;
-            case IMAGE_REQUEST_CODE_VIDEO:
+            }
+            break;
+            case IMAGE_REQUEST_CODE_VIDEO: {
                 if (data == null) {
                     return;
                 }
@@ -71,18 +82,44 @@ public class SelectDataActivity extends AppCompatActivity {
                     ToastUtil.showToast(this, R.string.video_file_does_not_exist);
                     return;
                 }
+                boolean b = checkIsVideo(SelectDataActivity.this, fileVideoPath);
+                if (!b) {
+                    Toast.makeText(this, "请选择视频文件", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Intent intentVideo = new Intent(SelectDataActivity.this, ShowVideoActivity.class);
                 intentVideo.setData(data.getData());
                 intentVideo.putExtra(SELECT_DATA_KEY, mSelectDataType);
                 intentVideo.putExtra(FUEffectActivity.SELECT_EFFECT_KEY, mSelectEffectType);
                 startActivityForResult(intentVideo, IMAGE_REQUEST_CODE_SHOW);
-                break;
-            case IMAGE_REQUEST_CODE_SHOW:
+            }
+            break;
+            case IMAGE_REQUEST_CODE_SHOW: {
                 if (resultCode == IMAGE_RESULT_CODE) {
                     onBackPressed();
                 }
-                break;
+            }
+            break;
             default:
+        }
+    }
+
+    private boolean checkIsImage(String path) {
+        String name = new File(path).getName().toLowerCase();
+        boolean isImage = name.endsWith("png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
+        return isImage;
+    }
+
+    // 检查是否是 video
+    private boolean checkIsVideo(Context context, String path) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(context, Uri.fromFile(new File(path)));
+            String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
+            return "yes".equals(hasVideo);
+        } catch (Exception e) {
+            return false;
         }
     }
 

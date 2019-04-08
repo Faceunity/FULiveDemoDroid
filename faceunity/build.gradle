@@ -3,12 +3,13 @@ apply plugin: 'org.greenrobot.greendao'
 
 android {
     compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 64
-        versionName "6.0.0-release1"
+        versionCode 65
+        versionName "6.0.0-release2"
     }
 
     buildTypes {
@@ -28,6 +29,6 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    api 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     api 'org.greenrobot:greendao:3.2.2'
 }

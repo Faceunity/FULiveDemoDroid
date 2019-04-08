@@ -277,6 +277,9 @@ public class BeautyControlView extends FrameLayout {
 
     private void updateViewFilterRecycler() {
         mFilterRecyclerAdapter.setFilter(sFilterName);
+        mOnFUControlListener.onFilterNameSelected(sFilterName);
+        float filterLevel = getFilterLevel(sFilterName.filterName());
+        mOnFUControlListener.onFilterLevelSelected(filterLevel);
     }
 
     private void initViewFaceShape() {
@@ -627,7 +630,8 @@ public class BeautyControlView extends FrameLayout {
                     setFilterProgress();
                     notifyDataSetChanged();
                     if (mOnFUControlListener != null) {
-                        mOnFUControlListener.onFilterNameSelected(sFilterName = filters.get(mFilterPositionSelect));
+                        sFilterName = filters.get(mFilterPositionSelect);
+                        mOnFUControlListener.onFilterNameSelected(sFilterName);
                     }
                 }
             });
@@ -639,7 +643,9 @@ public class BeautyControlView extends FrameLayout {
         }
 
         public void setFilterLevels(float filterLevels) {
-            setFilterLevel(mFilters.get(mFilterPositionSelect).filterName(), filterLevels);
+            if (mFilterPositionSelect >= 0) {
+                setFilterLevel(mFilters.get(mFilterPositionSelect).filterName(), filterLevels);
+            }
         }
 
         public void setFilter(Filter filter) {
@@ -656,7 +662,9 @@ public class BeautyControlView extends FrameLayout {
         }
 
         public void setFilterProgress() {
-            seekToSeekBar(getFilterLevel(mFilters.get(mFilterPositionSelect).filterName()));
+            if (mFilterPositionSelect >= 0) {
+                seekToSeekBar(getFilterLevel(mFilters.get(mFilterPositionSelect).filterName()));
+            }
         }
 
         class HomeRecyclerHolder extends RecyclerView.ViewHolder {
@@ -686,6 +694,9 @@ public class BeautyControlView extends FrameLayout {
 //                Filter origin = mFilters.get(0);
 //                mOnFUControlListener.onFilterNameSelected(origin);
 //                setFilterLevel(origin.filterName(), 0);
+                int old = mFilterPositionSelect;
+                mFilterPositionSelect = -1;
+                mFilterRecyclerAdapter.notifyItemChanged(old);
             } else {
                 // 各个妆容
                 mBeautySeekBar.setVisibility(View.VISIBLE);
@@ -709,6 +720,10 @@ public class BeautyControlView extends FrameLayout {
                         mFilterPositionSelect = i;
                         mFilterRecyclerAdapter.notifyItemChanged(i);
                         mFilterRecyclerView.scrollToPosition(i);
+                    } else {
+                        int old = mFilterPositionSelect;
+                        mFilterPositionSelect = -1;
+                        mFilterRecyclerAdapter.notifyItemChanged(old);
                     }
                     mOnFUControlListener.onFilterNameSelected(filter);
                     Float filterLevel = used ? level : filterFloatPair.second;

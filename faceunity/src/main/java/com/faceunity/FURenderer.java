@@ -846,6 +846,9 @@ public class FURenderer implements OnFUControlListener {
                      * Android 前置摄像头一般设置参数 1，后置摄像头一般设置参数 3。部分手机存在例外 */
                     faceunity.fuSetDefaultOrientation(mDefaultOrientation / 90);
                     mRotMode = calculateRotMode();
+                    if (mDefaultEffect != null && mDefaultEffect.effectType() == Effect.EFFECT_TYPE_BACKGROUND) {
+                        faceunity.fuOnCameraChange();
+                    }
                     if (mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] > 0) {
                         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "rotMode", mRotMode);
                     }

@@ -80,6 +80,7 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
             public void onCompletion(MediaPlayer mp) {
                 stopRecording();
                 mPlayImageView.setVisibility(View.VISIBLE);
+                mPlayImageView.setImageResource(R.drawable.show_video_replay);
                 mSaveImageView.setVisibility(View.VISIBLE);
             }
         });
@@ -166,6 +167,8 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         if (mBeautyControlView != null) {
             mBeautyControlView.onResume();
         }
+        mPlayImageView.setVisibility(View.VISIBLE);
+        mPlayImageView.setImageResource(R.drawable.show_video_play);
     }
 
     @Override
@@ -217,7 +220,6 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
                 mVideoRenderer.playMedia();
                 mSaveImageView.setVisibility(View.GONE);
                 mPlayImageView.setVisibility(View.GONE);
-                mPlayImageView.setImageResource(R.drawable.show_video_replay);
                 break;
             case R.id.show_save_btn:
                 if (mOutVideoFile != null && mOutVideoFile.exists()) {

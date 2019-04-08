@@ -197,8 +197,10 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     }
 
     public void playMedia() {
-        mMediaPlayer.start();
-        isNeedPlay = true;
+        if (mMediaPlayer != null) {
+            mMediaPlayer.start();
+            isNeedPlay = true;
+        }
     }
 
     private void releaseMedia() {
