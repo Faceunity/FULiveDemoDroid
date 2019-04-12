@@ -575,7 +575,7 @@ public class MakeupControlView extends FrameLayout {
                 }
             }
             List<MakeupItem> makeupItems = faceMakeup.getMakeupItems();
-            mOnFUControlListener.onBatchMakeupSelected(makeupItems);
+            mOnFUControlListener.onMakeupBatchSelected(makeupItems);
         }
     }
 

@@ -278,7 +278,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
         }
     };
 
-    private MediaVideoEncoder mVideoEncoder;
+    private volatile MediaVideoEncoder mVideoEncoder;
 
     public void takePic() {
         if (mTakePicing) {
@@ -500,21 +500,22 @@ public abstract class FUBaseActivity extends AppCompatActivity
                     }
                 });
             }
-
         }
 
         @Override
         public void onStopped(final MediaEncoder encoder) {
-            mVideoEncoder = null;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(TAG, "stop encoder success");
-                    ToastUtil.showToast(FUBaseActivity.this, R.string.save_video_success);
-                    mTakePicBtn.setSecond(mStartTime = 0);
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mOutFile)));
-                }
-            });
+            if (encoder instanceof MediaVideoEncoder) {
+                mVideoEncoder = null;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.e(TAG, "stop encoder success");
+                        ToastUtil.showToast(FUBaseActivity.this, R.string.save_video_success);
+                        mTakePicBtn.setSecond(mStartTime = 0);
+                        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mOutFile)));
+                    }
+                });
+            }
         }
     };
 
@@ -546,7 +547,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     private void stopRecording() {
         if (mMuxer != null) {
             mMuxer.stopRecording();
+            mMuxer = null;
         }
-        System.gc();
     }
 }

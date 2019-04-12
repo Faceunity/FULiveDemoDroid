@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 文档：http://confluence.faceunity.com/pages/viewpage.action?pageId=10453059
     private static final int[] home_function_permissions_code = {
-            0x1,                    //美颜
+            0x1 | 0x8,                    //美颜，轻美妆
             0x80000,                //美妆
             0x2 | 0x4,              //道具贴纸
             0x10,                   //Animoji

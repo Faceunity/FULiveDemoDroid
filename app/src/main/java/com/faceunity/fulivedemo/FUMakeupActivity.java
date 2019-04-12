@@ -10,12 +10,9 @@ import javax.microedition.khronos.opengles.GL10;
  * 美妆界面
  * Created by tujh on 2018/1/31.
  */
-
 public class FUMakeupActivity extends FUBaseActivity {
     public final static String TAG = FUMakeupActivity.class.getSimpleName();
-
     private MakeupControlView mMakeupControlView;
-
 
     @Override
     protected FURenderer initFURenderer() {

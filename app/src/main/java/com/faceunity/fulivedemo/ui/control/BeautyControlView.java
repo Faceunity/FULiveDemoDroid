@@ -192,11 +192,15 @@ public class BeautyControlView extends FrameLayout {
             mOnFUControlListener.onHeavyBlurSelected(isHeightPerformance ? 1 : sHeavyBlur);
         }
         onChangeFaceBeautyLevel(R.id.beauty_box_skin_detect);
-        // 二选一
-        if (BeautyParameterModel.sHeavyBlur == 0) {
+        if (isHeightPerformance) {
             onChangeFaceBeautyLevel(R.id.beauty_box_heavy_blur);
-        } else {
             onChangeFaceBeautyLevel(R.id.beauty_box_blur_level);
+        } else {
+            if (BeautyParameterModel.sHeavyBlur == 0) {
+                onChangeFaceBeautyLevel(R.id.beauty_box_heavy_blur);
+            } else {
+                onChangeFaceBeautyLevel(R.id.beauty_box_blur_level);
+            }
         }
         onChangeFaceBeautyLevel(R.id.beauty_box_color_level);
         onChangeFaceBeautyLevel(R.id.beauty_box_red_level);
@@ -447,7 +451,7 @@ public class BeautyControlView extends FrameLayout {
                             makeupItem.setLevel(lev);
                         }
                     }
-                    mOnFUControlListener.onMakeupOverallLevelChanged(level);
+                    mOnFUControlListener.onLightMakeupOverallLevelChanged(level);
                     mOnFUControlListener.onFilterLevelSelected(level);
                 }
             }
@@ -709,7 +713,7 @@ public class BeautyControlView extends FrameLayout {
                     BeautyParameterModel.sBatchMakeupLevel.put(name, level);
                 }
                 seekToSeekBar(level);
-                mOnFUControlListener.onMakeupOverallLevelChanged(level);
+                mOnFUControlListener.onLightMakeupOverallLevelChanged(level);
 
                 Pair<Filter, Float> filterFloatPair = FaceMakeupEnum.MAKEUP_FILTERS.get(faceMakeup.getNameId());
                 if (filterFloatPair != null) {
@@ -727,11 +731,14 @@ public class BeautyControlView extends FrameLayout {
                     }
                     mOnFUControlListener.onFilterNameSelected(filter);
                     Float filterLevel = used ? level : filterFloatPair.second;
-                    setFilterLevel(filter.filterName(), filterLevel);
+                    sFilterName = filter;
+                    String filterName = filter.filterName();
+                    sFilterLevel.put(STR_FILTER_LEVEL + filterName, filterLevel);
+                    setFilterLevel(filterName, filterLevel);
                 }
             }
             List<MakeupItem> makeupItems = faceMakeup.getMakeupItems();
-            mOnFUControlListener.onBatchMakeupSelected(makeupItems);
+            mOnFUControlListener.onLightMakeupBatchSelected(makeupItems);
         }
     }
 

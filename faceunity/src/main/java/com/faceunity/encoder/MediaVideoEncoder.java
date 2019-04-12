@@ -21,6 +21,7 @@ public class MediaVideoEncoder extends MediaEncoder {
     private static final String MIME_TYPE = "video/avc";
     // parameters for recording
     private static final int FRAME_RATE = 25;
+    private static final int IFRAME_INTERVAL = 10;       // I-frames间隔时间
     private static final float BPP = 0.25f;
 
     private final int mWidth;
@@ -31,6 +32,7 @@ public class MediaVideoEncoder extends MediaEncoder {
     private ProgramTexture2d program;
     private int[] mTextureId;
     private int[] mFBOId;
+    private int[] mViewPort = new int[4];
 
     public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int width, final int height) {
         super(muxer, listener);
@@ -43,13 +45,12 @@ public class MediaVideoEncoder extends MediaEncoder {
     public boolean frameAvailableSoon(int texId, final float[] texMatrix, float[] mvpMatrix) {
         boolean result;
         if (result = super.frameAvailableSoon()) {
-            int[] viewPort = new int[4];
-            GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewPort, 0);
+            GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mViewPort, 0);
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFBOId[0]);
             GLES20.glViewport(0, 0, mWidth, mHeight);
             program.drawFrame(texId, texMatrix, mvpMatrix);
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-            GLES20.glViewport(viewPort[0], viewPort[1], viewPort[2], viewPort[3]);
+            GLES20.glViewport(mViewPort[0], mViewPort[1], mViewPort[2], mViewPort[3]);
             mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX, mvpMatrix);
         }
         return result;
@@ -72,7 +73,7 @@ public class MediaVideoEncoder extends MediaEncoder {
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);    // API >= 18
         format.setInteger(MediaFormat.KEY_BIT_RATE, calcBitRate());
         format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
-        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 10);
+        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
         if (DEBUG) Log.i(TAG, "format: " + format);
 
         mMediaCodec = MediaCodec.createEncoderByType(MIME_TYPE);
@@ -162,7 +163,7 @@ public class MediaVideoEncoder extends MediaEncoder {
      * @return 0 if no colorFormat is matched
      */
     protected static final int selectColorFormat(final MediaCodecInfo codecInfo, final String mimeType) {
-        if (DEBUG) Log.i(TAG, "selectColorFormat: ");
+        if (DEBUG) Log.i(TAG, "selectColorFormat: " + mimeType);
         int result = 0;
         final MediaCodecInfo.CodecCapabilities caps;
         try {

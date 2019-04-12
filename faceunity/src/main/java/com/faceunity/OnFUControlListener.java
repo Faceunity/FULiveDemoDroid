@@ -190,7 +190,7 @@ public interface OnFUControlListener {
      *
      * @param makeupItems
      */
-    void onBatchMakeupSelected(List<MakeupItem> makeupItems);
+    void onMakeupBatchSelected(List<MakeupItem> makeupItems);
 
     /**
      * 妆容总体调节
@@ -198,6 +198,28 @@ public interface OnFUControlListener {
      * @param level
      */
     void onMakeupOverallLevelChanged(float level);
+
+    /**
+     * 选择美妆效果（轻美妆，质感美颜）
+     *
+     * @param makeupItem
+     * @param level
+     */
+    void onLightMakeupSelected(MakeupItem makeupItem, float level);
+
+    /**
+     * 调节多个妆容（轻美妆，质感美颜）
+     *
+     * @param makeupItems
+     */
+    void onLightMakeupBatchSelected(List<MakeupItem> makeupItems);
+
+    /**
+     * 妆容总体调节（轻美妆，质感美颜）
+     *
+     * @param level
+     */
+    void onLightMakeupOverallLevelChanged(float level);
 
     /**
      * 设置异图的点位和图像数据，用来驱动图像

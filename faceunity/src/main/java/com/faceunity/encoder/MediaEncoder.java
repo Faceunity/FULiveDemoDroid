@@ -28,7 +28,7 @@ public abstract class MediaEncoder implements Runnable {
     /**
      * Flag that indicate the frame data will be available soon.
      */
-    private int mRequestDrain;
+    private volatile int mRequestDrain;
     /**
      * Flag to request stop capturing
      */
@@ -48,7 +48,7 @@ public abstract class MediaEncoder implements Runnable {
     /**
      * MediaCodec instance for encoding
      */
-    protected MediaCodec mMediaCodec;                // API >= 16(Android4.1.2)
+    protected volatile MediaCodec mMediaCodec;                // API >= 16(Android4.1.2)
     /**
      * Weak refarence of MediaMuxerWarapper instance
      */
@@ -111,10 +111,9 @@ public abstract class MediaEncoder implements Runnable {
             mRequestDrain = 0;
             mLock.notify();
         }
-        final boolean isRunning = true;
         boolean localRequestStop;
         boolean localRequestDrain;
-        while (isRunning) {
+        while (true) {
             synchronized (mLock) {
                 localRequestStop = mRequestStop;
                 localRequestDrain = (mRequestDrain > 0);
