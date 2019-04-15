@@ -5,8 +5,12 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.opengl.EGLContext;
+import android.opengl.GLES20;
 import android.util.Log;
 import android.view.Surface;
+
+import com.faceunity.gles.ProgramTexture2d;
+import com.faceunity.gles.core.GlUtil;
 
 import java.io.IOException;
 
@@ -17,12 +21,18 @@ public class MediaVideoEncoder extends MediaEncoder {
     private static final String MIME_TYPE = "video/avc";
     // parameters for recording
     private static final int FRAME_RATE = 25;
+    private static final int IFRAME_INTERVAL = 10;       // I-frames间隔时间
     private static final float BPP = 0.25f;
 
     private final int mWidth;
     private final int mHeight;
     private RenderHandler mRenderHandler;
     private Surface mSurface;
+
+    private ProgramTexture2d program;
+    private int[] mTextureId;
+    private int[] mFBOId;
+    private int[] mViewPort = new int[4];
 
     public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int width, final int height) {
         super(muxer, listener);
@@ -32,25 +42,17 @@ public class MediaVideoEncoder extends MediaEncoder {
         mRenderHandler = RenderHandler.createHandler(TAG);
     }
 
-    public boolean frameAvailableSoon(int texId, final float[] tex_matrix) {
+    public boolean frameAvailableSoon(int texId, final float[] texMatrix, float[] mvpMatrix) {
         boolean result;
-        if (result = super.frameAvailableSoon())
-            mRenderHandler.draw(texId, tex_matrix);
-        return result;
-    }
-
-    public boolean frameAvailableSoon(int texId, final float[] tex_matrix, final float[] mvp_matrix) {
-        boolean result;
-        if (result = super.frameAvailableSoon())
-            mRenderHandler.draw(texId, tex_matrix, mvp_matrix);
-        return result;
-    }
-
-    @Override
-    public boolean frameAvailableSoon() {
-        boolean result;
-        if (result = super.frameAvailableSoon())
-            mRenderHandler.draw(0);
+        if (result = super.frameAvailableSoon()) {
+            GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mViewPort, 0);
+            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFBOId[0]);
+            GLES20.glViewport(0, 0, mWidth, mHeight);
+            program.drawFrame(texId, texMatrix, mvpMatrix);
+            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+            GLES20.glViewport(mViewPort[0], mViewPort[1], mViewPort[2], mViewPort[3]);
+            mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX, mvpMatrix);
+        }
         return result;
     }
 
@@ -71,7 +73,7 @@ public class MediaVideoEncoder extends MediaEncoder {
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);    // API >= 18
         format.setInteger(MediaFormat.KEY_BIT_RATE, calcBitRate());
         format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
-        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 10);
+        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
         if (DEBUG) Log.i(TAG, "format: " + format);
 
         mMediaCodec = MediaCodec.createEncoderByType(MIME_TYPE);
@@ -91,6 +93,10 @@ public class MediaVideoEncoder extends MediaEncoder {
     }
 
     public void setEglContext(final EGLContext shared_context) {
+        mTextureId = new int[1];
+        mFBOId = new int[1];
+        GlUtil.createFBO(mTextureId, mFBOId, mWidth, mHeight);
+        program = new ProgramTexture2d();
         mRenderHandler.setEglContext(shared_context, mSurface, true);
     }
 
@@ -104,6 +110,11 @@ public class MediaVideoEncoder extends MediaEncoder {
         if (mRenderHandler != null) {
             mRenderHandler.release();
             mRenderHandler = null;
+        }
+        GlUtil.deleteFBO(mFBOId);
+        GlUtil.deleteTextureId(mTextureId);
+        if (program != null) {
+            program.release();
         }
         super.release();
     }
@@ -152,7 +163,7 @@ public class MediaVideoEncoder extends MediaEncoder {
      * @return 0 if no colorFormat is matched
      */
     protected static final int selectColorFormat(final MediaCodecInfo codecInfo, final String mimeType) {
-        if (DEBUG) Log.i(TAG, "selectColorFormat: ");
+        if (DEBUG) Log.i(TAG, "selectColorFormat: " + mimeType);
         int result = 0;
         final MediaCodecInfo.CodecCapabilities caps;
         try {

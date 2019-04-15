@@ -5,12 +5,11 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
-import com.faceunity.fulivedemo.utils.BitmapUtil;
 import com.faceunity.fulivedemo.utils.FPSUtil;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
+import com.faceunity.utils.BitmapUtil;
 
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,15 +28,15 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     public static final float[] ROTATE_90 = {0.0F, 1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F};
     private GLSurfaceView mGLSurfaceView;
 
-    public interface OnRendererStatusListener {
-
-        void onSurfaceCreated(GL10 gl, EGLConfig config);
-
-        void onSurfaceChanged(GL10 gl, int width, int height);
-
-        int onDrawFrame(byte[] photoBytes, int photoTextureId, int photoWidth, int photoHeight);
-
-        void onSurfaceDestroy();
+    private void loadImgData(String path) {
+        Log.e(TAG, "loadImgData");
+        Bitmap src = BitmapUtil.loadBitmap(path, 720);
+        if (src == null) {
+            mOnPhotoRendererStatusListener.onLoadPhotoError("图片加载失败");
+            return;
+        }
+        mImgTextureId = GlUtil.createImageTexture(src);
+        mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth() / 2 * 2, mPhotoHeight = src.getHeight() / 2 * 2, src);
     }
 
     private OnRendererStatusListener mOnPhotoRendererStatusListener;
@@ -52,7 +51,6 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     private int mPhotoWidth = 720;
     private int mPhotoHeight = 1280;
 
-    private int mFuTextureId;
     private float[] mvp = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
 
@@ -104,8 +102,8 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         if (mFullFrameRectTexture2D == null) return;
-        mFuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mPhotoBytes, mImgTextureId, mPhotoWidth, mPhotoHeight);
-        mFullFrameRectTexture2D.drawFrame(mFuTextureId, imgDataMatrix, mvp);
+        int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mPhotoBytes, mImgTextureId, mPhotoWidth, mPhotoHeight);
+        mFullFrameRectTexture2D.drawFrame(fuTextureId, imgDataMatrix, mvp);
 
         mFPSUtil.limit();
         mGLSurfaceView.requestRender();
@@ -126,15 +124,17 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         mOnPhotoRendererStatusListener.onSurfaceDestroy();
     }
 
-    private void loadImgData(String path) {
-        Log.e(TAG, "loadImgData");
-        try {
-            Bitmap src = BitmapUtil.loadBitmap(path, 720);
-            mImgTextureId = GlUtil.createImageTexture(src);
-            mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth() / 2 * 2, mPhotoHeight = src.getHeight() / 2 * 2, src);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public interface OnRendererStatusListener {
+
+        void onSurfaceCreated(GL10 gl, EGLConfig config);
+
+        void onSurfaceChanged(GL10 gl, int width, int height);
+
+        int onDrawFrame(byte[] photoBytes, int photoTextureId, int photoWidth, int photoHeight);
+
+        void onSurfaceDestroy();
+
+        void onLoadPhotoError(String error);
     }
 
 }

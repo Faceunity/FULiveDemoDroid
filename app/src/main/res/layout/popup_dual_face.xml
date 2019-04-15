@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/x456"
+    android:layout_height="@dimen/x76"
+    android:background="@drawable/bg_tip_dual_face"
+    android:gravity="center_horizontal|top"
+    android:paddingTop="@dimen/x26"
+    android:text="@string/tip_dual_face"
+    android:textColor="@color/colorWhite"
+    android:textSize="@dimen/text_size_22" />

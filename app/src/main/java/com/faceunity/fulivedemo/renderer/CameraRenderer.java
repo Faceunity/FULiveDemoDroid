@@ -2,18 +2,22 @@ package com.faceunity.fulivedemo.renderer;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 
+import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.utils.CameraUtils;
+import com.faceunity.fulivedemo.utils.FPSUtil;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.ProgramTextureOES;
 import com.faceunity.gles.core.GlUtil;
-import com.faceunity.fulivedemo.utils.CameraUtils;
-import com.faceunity.fulivedemo.utils.FPSUtil;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -29,12 +33,12 @@ import javax.microedition.khronos.opengles.GL10;
  * <p>
  * Created by tujh on 2018/3/2.
  */
-
 public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Renderer {
     public final static String TAG = CameraRenderer.class.getSimpleName();
 
     private Activity mActivity;
     private GLSurfaceView mGLSurfaceView;
+    private int mCameraOrientation;
 
     public interface OnRendererStatusListener {
 
@@ -51,33 +55,34 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     private OnRendererStatusListener mOnCameraRendererStatusListener;
 
-    private int mViewWidth = 1280;
-    private int mViewHeight = 720;
+    protected int mViewWidth = 1280;
+    protected int mViewHeight = 720;
 
     private final Object mCameraLock = new Object();
     private Camera mCamera;
     private static final int PREVIEW_BUFFER_COUNT = 3;
     private byte[][] previewCallbackBuffer;
-    private int mCameraOrientation;
     private int mCurrentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
-    private int mCameraWidth = 1280;
-    private int mCameraHeight = 720;
+    protected int mCameraWidth = 1280;
+    protected int mCameraHeight = 720;
 
+    private boolean isDraw = false;
+    private final float[] mtx = {0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
     private byte[] mCameraNV21Byte;
     private SurfaceTexture mSurfaceTexture;
     private int mCameraTextureId;
 
     private int mFuTextureId;
-    private final float[] mtx = new float[16];
-    private float[] mvp = new float[16];
+    private volatile boolean isNeedStopDrawFrame;
+    protected volatile float[] mMvpMatrix = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
     private ProgramTextureOES mTextureOES;
 
     private FPSUtil mFPSUtil;
 
-    public CameraRenderer(Activity activity, GLSurfaceView GLSurfaceView, OnRendererStatusListener onCameraRendererStatusListener) {
+    public CameraRenderer(Activity activity, GLSurfaceView glSurfaceView, OnRendererStatusListener onCameraRendererStatusListener) {
         mActivity = activity;
-        mGLSurfaceView = GLSurfaceView;
+        mGLSurfaceView = glSurfaceView;
         mOnCameraRendererStatusListener = onCameraRendererStatusListener;
         mFPSUtil = new FPSUtil();
     }
@@ -115,11 +120,14 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     public void onPreviewFrame(byte[] data, Camera camera) {
         mCameraNV21Byte = data;
         mCamera.addCallbackBuffer(data);
-        mGLSurfaceView.requestRender();
+        if (!isNeedStopDrawFrame) {
+            mGLSurfaceView.requestRender();
+        }
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        Log.d(TAG, "onSurfaceCreated()");
         mFullFrameRectTexture2D = new ProgramTexture2d();
         mTextureOES = new ProgramTextureOES();
         mCameraTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
@@ -131,36 +139,94 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
-        mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+        mMvpMatrix = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
         mOnCameraRendererStatusListener.onSurfaceChanged(gl, width, height);
+        Log.i(TAG, "onSurfaceChanged: viewWidth:" + mViewWidth + ", viewHeight:" + mViewHeight + ". cameraOrientation:" + mCameraOrientation
+                + ", cameraWidth:" + mCameraWidth + ", cameraHeight:" + mCameraHeight);
         mFPSUtil.resetLimit();
+        isDraw = false;
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        try {
-            mSurfaceTexture.updateTexImage();
-            mSurfaceTexture.getTransformMatrix(mtx);
-        } catch (Exception e) {
+        if (mTextureOES == null || mFullFrameRectTexture2D == null) {
             return;
         }
         if (mCameraNV21Byte == null) {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
+            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mMvpMatrix);
             return;
+        } else {
+            try {
+                mSurfaceTexture.updateTexImage();
+                mSurfaceTexture.getTransformMatrix(mtx);
+            } catch (Exception e) {
+                Log.w(TAG, "onDrawFrame: ", e);
+                return;
+            }
         }
-        mFuTextureId = mOnCameraRendererStatusListener.onDrawFrame(mCameraNV21Byte, mCameraTextureId, mCameraWidth, mCameraHeight, mtx, mSurfaceTexture.getTimestamp());
+
+        if (!isNeedStopDrawFrame) {
+            mFuTextureId = mOnCameraRendererStatusListener.onDrawFrame(mCameraNV21Byte, mCameraTextureId,
+                    mCameraWidth, mCameraHeight, mtx, mSurfaceTexture.getTimestamp());
+        }
         //用于屏蔽切换调用SDK处理数据方法导致的绿屏（切换SDK处理数据方法是用于展示，实际使用中无需切换，故无需调用做这个判断,直接使用else分支绘制即可）
         if (mFuTextureId <= 0) {
-            mTextureOES.drawFrame(mCameraTextureId, mtx, mvp);
+            mTextureOES.drawFrame(mCameraTextureId, mtx, mMvpMatrix);
         } else {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
+            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mMvpMatrix);
         }
 
         mFPSUtil.limit();
-        mGLSurfaceView.requestRender();
+        if (!isNeedStopDrawFrame) {
+            mGLSurfaceView.requestRender();
+        }
+
+        isDraw = true;
+    }
+
+    public void setNeedStopDrawFrame(boolean needStopDrawFrame) {
+        isNeedStopDrawFrame = needStopDrawFrame;
+    }
+
+    public void dismissImageTexture() {
+        setNeedStopDrawFrame(false);
+        mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+    }
+
+    public void showImageTexture(final Bitmap bitmap) {
+        if (bitmap != null) {
+            mGLSurfaceView.queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mFuTextureId = GlUtil.createImageTexture(bitmap);
+                    mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, bitmap.getWidth(), bitmap.getHeight());
+                    if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                        float[] tmp = new float[16];
+                        Matrix.setIdentityM(tmp, 0);
+                        Matrix.scaleM(tmp, 0, -1F, 1F, 1F);
+                        Matrix.multiplyMM(mMvpMatrix, 0, tmp, 0, mMvpMatrix, 0);
+                    }
+                    if (mCameraOrientation == 90) {
+                        if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                            Matrix.rotateM(mMvpMatrix, 0, 270, 0F, 0F, 1F);
+                        } else {
+                            Matrix.rotateM(mMvpMatrix, 0, 90, 0F, 0F, 1F);
+                        }
+                    } else if (mCameraOrientation == 270) {
+                        if (mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                            Matrix.rotateM(mMvpMatrix, 0, 90, 0F, 0F, 1F);
+                        } else {
+                            Matrix.rotateM(mMvpMatrix, 0, 270, 0F, 0F, 1F);
+                        }
+                    }
+                    mGLSurfaceView.requestRender();
+                }
+            });
+        }
     }
 
     private void onSurfaceDestroy() {
+        isDraw = false;
         if (mSurfaceTexture != null) {
             mSurfaceTexture.release();
             mSurfaceTexture = null;
@@ -175,6 +241,11 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         if (mFullFrameRectTexture2D != null) {
             mFullFrameRectTexture2D.release();
             mFullFrameRectTexture2D = null;
+        }
+
+        if (mTextureOES != null) {
+            mTextureOES.release();
+            mTextureOES = null;
         }
 
         mOnCameraRendererStatusListener.onSurfaceDestroy();
@@ -192,13 +263,24 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                     if (info.facing == cameraType) {
                         cameraId = i;
                         mCamera = Camera.open(i);
-                        mCurrentCameraType = cameraType;
+                        mCurrentCameraType = info.facing;
                         break;
+                    }
+                }
+                if (mCamera == null) {
+                    if (numCameras > 0) {
+                        cameraId = 0;
+                        Camera.getCameraInfo(cameraId, info);
+                        mCamera = Camera.open(cameraId);
+                        mCurrentCameraType = info.facing;
+                    } else {
+                        throw new Exception("No camera");
                     }
                 }
 
                 mCameraOrientation = CameraUtils.getCameraOrientation(cameraId);
                 CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
+                Log.d(TAG, "openCamera: orientation:" + mCameraOrientation);
 
                 Camera.Parameters parameters = mCamera.getParameters();
 
@@ -207,7 +289,9 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                 int[] size = CameraUtils.choosePreviewSize(parameters, mCameraWidth, mCameraHeight);
                 mCameraWidth = size[0];
                 mCameraHeight = size[1];
-                mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+                if (mViewWidth != 0 && mViewHeight != 0) {
+                    mMvpMatrix = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+                }
 
                 mCamera.setParameters(parameters);
             }
@@ -220,16 +304,16 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
             e.printStackTrace();
             releaseCamera();
             new AlertDialog.Builder(mActivity)
-                    .setTitle("警告")
-                    .setMessage("相机权限被禁用或者相机被别的应用占用！")
-                    .setNegativeButton("重试", new DialogInterface.OnClickListener() {
+                    .setTitle(R.string.camera_dialog_title)
+                    .setMessage(R.string.camera_dialog_message)
+                    .setNegativeButton(R.string.camera_dialog_open, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                             openCamera(cameraType);
                         }
                     })
-                    .setNeutralButton("退出", new DialogInterface.OnClickListener() {
+                    .setNeutralButton(R.string.camera_dialog_back, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -240,7 +324,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         }
     }
 
-    private void cameraStartPreview() {
+    protected void cameraStartPreview() {
         try {
             if (mCameraTextureId == 0 || mCamera == null) {
                 return;
@@ -250,8 +334,9 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                     previewCallbackBuffer = new byte[PREVIEW_BUFFER_COUNT][mCameraWidth * mCameraHeight * 3 / 2];
                 }
                 mCamera.setPreviewCallbackWithBuffer(this);
-                for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++)
+                for (int i = 0; i < PREVIEW_BUFFER_COUNT; i++) {
                     mCamera.addCallbackBuffer(previewCallbackBuffer[i]);
+                }
                 if (mSurfaceTexture != null) {
                     mSurfaceTexture.release();
                 }
@@ -281,9 +366,10 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     }
 
     public void changeCamera() {
-        if (mCameraNV21Byte == null) {
+        if (mCameraNV21Byte == null && isDraw) {
             return;
         }
+        isDraw = false;
         releaseCamera();
         openCamera(mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT ? Camera.CameraInfo.CAMERA_FACING_BACK : Camera.CameraInfo.CAMERA_FACING_FRONT);
     }
@@ -295,4 +381,17 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     public int getCameraHeight() {
         return mCameraHeight;
     }
+
+    public void handleFocus(float x, float y) {
+        CameraUtils.handleFocus(mCamera, x, y, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+    }
+
+    public float getExposureCompensation() {
+        return CameraUtils.getExposureCompensation(mCamera);
+    }
+
+    public void setExposureCompensation(float v) {
+        CameraUtils.setExposureCompensation(mCamera, v);
+    }
+
 }

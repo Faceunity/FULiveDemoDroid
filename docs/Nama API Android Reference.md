@@ -327,7 +327,7 @@ public static native int fuBeautifyImage(int tex_in, int flags, int w, int h, in
 **fuAvatarToTexture 视频处理接口（依据fuTrackFace获取到的人脸信息来绘制画面）：**
 
 ```
-public static native int fuAvatarToTexture(float[] landmarks, float[] expression, float[] rotation, float[] rmode, int flags, int w, int h, int frame_id, int[] items, int isTracking);
+public static native int fuAvatarToTexture(float[] pupilPos, float[] expression, float[] rotation, float[] rmode, int flags, int w, int h, int frame_id, int[] items, int isTracking);
 ```
 
 接口说明：
@@ -336,7 +336,7 @@ public static native int fuAvatarToTexture(float[] landmarks, float[] expression
 
 参数说明：
 
-`landmarks ` 2D人脸特征点，返回值为75个二维坐标，长度75*2
+`pupilPos ` 眼球方向，长度2
 
 `expression `  表情系数，长度46
 

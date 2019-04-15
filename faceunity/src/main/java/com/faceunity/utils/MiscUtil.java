@@ -25,7 +25,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,11 +63,13 @@ public class MiscUtil {
         Logger(TAG, "checkPermission", false);
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "no permission");
             ActivityCompat.requestPermissions((Activity) context,
                     new String[]{Manifest.permission.CAMERA,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.RECORD_AUDIO}, 0);
         }
     }
@@ -160,10 +161,8 @@ public class MiscUtil {
                     fos.write(data);
                     fos.flush();
                     fos.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "saveDataToFile", e);
                 }
             }
         });
@@ -188,10 +187,8 @@ public class MiscUtil {
                     fos.flush();
                     fos.close();
                     bitmap.recycle();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "saveBitmapToFile: ", e);
                 }
             }
         });
@@ -203,7 +200,7 @@ public class MiscUtil {
         if (!dirFile.exists()) {
             dirFile.mkdirs();
         }
-        final String path = dir + name;
+        final String path = new File(dir, name).getAbsolutePath();
         try {
             File file = new File(path);
             FileOutputStream fos = new FileOutputStream(file);
@@ -211,10 +208,8 @@ public class MiscUtil {
             fos.flush();
             fos.close();
             return path;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "saveBitmap: ", e);
         }
         return null;
     }
@@ -252,7 +247,7 @@ public class MiscUtil {
             }
             fos.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "saveInputStreamToFile: ", e);
         }
     }
 
@@ -427,7 +422,7 @@ public class MiscUtil {
             fos.close();
             fis.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "copyFileTo: ", e);
         }
         return true;
     }
@@ -442,5 +437,15 @@ public class MiscUtil {
                 deleteDirWihtFile(file); // 递规的方式删除文件夹
         }
         dir.delete();// 删除目录本身
+    }
+
+    public static byte[] int2byte(int res) {
+        byte[] targets = new byte[4];
+
+        targets[0] = (byte) (res & 0xff);// 最低位
+        targets[1] = (byte) ((res >> 8) & 0xff);// 次低位
+        targets[2] = (byte) ((res >> 16) & 0xff);// 次高位
+        targets[3] = (byte) (res >>> 24);// 最高位,无符号右移。
+        return targets;
     }
 }

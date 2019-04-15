@@ -3,6 +3,10 @@ package com.faceunity;
 
 import com.faceunity.entity.Effect;
 import com.faceunity.entity.Filter;
+import com.faceunity.entity.MagicPhotoEntity;
+import com.faceunity.entity.MakeupItem;
+
+import java.util.List;
 
 /**
  * FURenderer与界面之间的交互接口
@@ -36,6 +40,24 @@ public interface OnFUControlListener {
      * @param filterName 滤镜名称
      */
     void onFilterNameSelected(Filter filterName);
+
+    /**
+     * 美发颜色
+     *
+     * @param type
+     * @param hairColorIndex 美发颜色
+     * @param hairColorLevel 美发颜色强度
+     */
+    void onHairSelected(int type, int hairColorIndex, float hairColorLevel);
+
+    /**
+     * 调整美发强度
+     *
+     * @param type
+     * @param hairColorIndex
+     * @param hairColorLevel
+     */
+    void onHairLevelSelected(int type, int hairColorIndex, float hairColorLevel);
 
     /**
      * 精准磨皮
@@ -120,5 +142,89 @@ public interface OnFUControlListener {
      */
     void onIntensityMouthSelected(float level);
 
+    /**
+     * 切换海报模板
+     *
+     * @param tempWidth
+     * @param tempHeight
+     * @param temp
+     * @param landmark
+     */
+    void onPosterTemplateSelected(int tempWidth, int tempHeight, byte[] temp, float[] landmark);
 
+    /**
+     * 海报换脸输入照片
+     *
+     * @param inputWidth
+     * @param inputHeight
+     * @param input
+     * @param landmark
+     */
+    void onPosterInputPhoto(int inputWidth, int inputHeight, byte[] input, float[] landmark);
+
+    /**
+     * 设置风格滤镜
+     *
+     * @param style
+     */
+    void onCartoonFilterSelected(int style);
+
+    /**
+     * 选择美妆效果
+     *
+     * @param makeupItem
+     * @param level
+     */
+    void onMakeupSelected(MakeupItem makeupItem, float level);
+
+    /**
+     * 调节美妆强度
+     *
+     * @param makeupType
+     * @param level
+     */
+    void onMakeupLevelChanged(int makeupType, float level);
+
+    /**
+     * 调节多个妆容
+     *
+     * @param makeupItems
+     */
+    void onMakeupBatchSelected(List<MakeupItem> makeupItems);
+
+    /**
+     * 妆容总体调节
+     *
+     * @param level
+     */
+    void onMakeupOverallLevelChanged(float level);
+
+    /**
+     * 选择美妆效果（轻美妆，质感美颜）
+     *
+     * @param makeupItem
+     * @param level
+     */
+    void onLightMakeupSelected(MakeupItem makeupItem, float level);
+
+    /**
+     * 调节多个妆容（轻美妆，质感美颜）
+     *
+     * @param makeupItems
+     */
+    void onLightMakeupBatchSelected(List<MakeupItem> makeupItems);
+
+    /**
+     * 妆容总体调节（轻美妆，质感美颜）
+     *
+     * @param level
+     */
+    void onLightMakeupOverallLevelChanged(float level);
+
+    /**
+     * 设置异图的点位和图像数据，用来驱动图像
+     *
+     * @param magicPhotoEntity
+     */
+    void setMagicPhoto(final MagicPhotoEntity magicPhotoEntity);
 }

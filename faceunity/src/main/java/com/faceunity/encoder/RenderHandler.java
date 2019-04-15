@@ -24,9 +24,9 @@ public final class RenderHandler implements Runnable {
     private float[] mtx = new float[16];
     private float[] mvp = new float[16];
 
-    private boolean mRequestSetEglContext;
-    private boolean mRequestRelease;
-    private int mRequestDraw;
+    private volatile boolean mRequestSetEglContext;
+    private volatile boolean mRequestRelease;
+    private volatile int mRequestDraw;
 
     private WindowSurface mInputWindowSurface;
     private EglCore mEglCore;
@@ -127,14 +127,14 @@ public final class RenderHandler implements Runnable {
                 localRequestDraw = mRequestDraw > 0;
                 if (localRequestDraw) {
                     mRequestDraw--;
-//					mLock.notifyAll();
                 }
+                mLock.notifyAll();
             }
             if (localRequestDraw) {
-                if ((mEglCore != null) && mTexId >= 0) {
+                if ((mEglCore != null) && mTexId > 0) {
                     mInputWindowSurface.makeCurrent();
                     // clear screen with yellow color so that you can see rendering rectangle
-                    GLES20.glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+                    GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
                     mFullScreen.drawFrame(mTexId, mtx, mvp);
                     mInputWindowSurface.swapBuffers();
@@ -165,7 +165,6 @@ public final class RenderHandler implements Runnable {
         mInputWindowSurface.makeCurrent();
         mFullScreen = new ProgramTexture2d();
         mSurface = null;
-        mLock.notifyAll();
     }
 
     private final void internalRelease() {

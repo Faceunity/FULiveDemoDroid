@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FUPosterFaceActivity">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/gl_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/iv_poster_back"
+        android:layout_width="@dimen/x84"
+        android:layout_height="@dimen/x84"
+        android:layout_marginLeft="@dimen/x30"
+        android:layout_marginTop="@dimen/x26"
+        android:src="@drawable/ic_back"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_poster_save"
+        android:layout_width="@dimen/x84"
+        android:layout_height="@dimen/x84"
+        android:layout_marginRight="@dimen/x30"
+        android:src="@drawable/ic_save"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_poster_back" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_poster_template"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x168"
+        android:background="#050F14"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/fl_loading_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        android:visibility="invisible"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_loading"
+            android:layout_width="@dimen/x126"
+            android:layout_height="@dimen/x126"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+</android.support.constraint.ConstraintLayout>

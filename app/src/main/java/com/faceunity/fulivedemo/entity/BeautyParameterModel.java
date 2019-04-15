@@ -4,6 +4,7 @@ package com.faceunity.fulivedemo.entity;
 import com.faceunity.entity.Filter;
 import com.faceunity.fulivedemo.R;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,23 +12,35 @@ import java.util.Map;
  * 美颜参数SharedPreferences记录,目前仅以保存数据，可改造为以SharedPreferences保存数据
  * Created by tujh on 2018/3/7.
  */
-
 public abstract class BeautyParameterModel {
     public static final String TAG = BeautyParameterModel.class.getSimpleName();
 
-
     public static boolean isHeightPerformance = false;
 
-    public static final String sStrFilterLevel = "FilterLevel_";
-    public static Map<String, Float> sFilterLevel = new HashMap<>();
-    public static Filter sFilterName = FilterEnum.nature_beauty.filter();
+    public static final String STR_FILTER_LEVEL = "FilterLevel_";
+    public static Map<String, Float> sFilterLevel = new HashMap<>(16);
+    public static Filter sFilterName = FilterEnum.fennen.filter();
+    /**
+     * key: name, value: level
+     */
+    public static Map<String, Float> sMakeupLevel = new HashMap<>(64);
+    /**
+     * key: name，value: level
+     */
+    public static Map<String, Float> sBatchMakeupLevel = new HashMap<>(8);
+
+    public static float[] sHairLevel = new float[14];
+
+    static {
+        Arrays.fill(sHairLevel, 0.6f);
+    }
 
     public static float sSkinDetect = 1.0f;//精准磨皮
     public static float sHeavyBlur = 0.0f;//美肤类型
     public static float sHeavyBlurLevel = 0.7f;//磨皮
     public static float sBlurLevel = 0.7f;//磨皮
-    public static float sColorLevel = 0.5f;//美白
-    public static float sRedLevel = 0.5f;//红润
+    public static float sColorLevel = 0.3f;//美白
+    public static float sRedLevel = 0.3f;//红润
     public static float sEyeBright = 0.0f;//亮眼
     public static float sToothWhiten = 0.0f;//美牙
 
@@ -180,6 +193,7 @@ public abstract class BeautyParameterModel {
             case R.id.beauty_box_intensity_mouth:
                 sIntensityMouth = value;
                 break;
+            default:
         }
     }
 

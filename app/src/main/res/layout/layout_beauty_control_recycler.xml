@@ -10,7 +10,7 @@
         android:layout_width="@dimen/x108"
         android:layout_height="@dimen/x108"
         android:layout_marginBottom="@dimen/x17"
-        android:padding="@dimen/x5"
+        android:padding="@dimen/x4"
         android:scaleType="centerInside"
         app:layout_constraintBottom_toTopOf="@+id/control_recycler_text"
         app:layout_constraintLeft_toLeftOf="parent"

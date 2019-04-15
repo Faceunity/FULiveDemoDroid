@@ -4,34 +4,42 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 注：demo第一次运行会报一个缺少返回语句的error，这是因为在本demo中缺少我司颁发的证书。如果您已拥有我司颁发的证书，将证书替换到工程中重新运行即可。如您还没有我司颁发的证书，可以查看[这里](#导入证书)获取证书
 
-## SDK v5.3 更新
+## SDK v6.0.0 更新
 
 更新内容
 
-- 新增物理模拟动效功能
-- 新增阴影效果渲染功能
-- 修复ARmesh以及换脸自适应美型后脸型
-- 优化手势识别，支持同时多个手势，减少卡顿问题
+- 优化人脸检测，提高检测率，提高性能。
+- 新增质感美颜功能（注：道具支持SDK v6.0.0以上版本）。
+- 人脸融合(海报换脸)效果优化（注：道具支持 SDK v6.0.0以上版本）。
+- 背景分割分割精度优化（注：此版本背景分割、手势识别道具只支持 SDK v6.0.0以上版本）。
+- 舌头跟踪trackface逻辑支持，Getfaceinfo支持。
+- 新增Avatar捏脸功能，需FUEditor 6.0.0以上版本。
+- 美颜滤镜优化（注：原有滤镜整合，重命名归类及效果新增， 道具支持SDK v5.5.0以上版本）。
+- 修复mebedtls符号冲突问题。
+- 注：美发、Animoji道具支持FUEditor v5.6.0以上制作版本，其余道具在任意SDK皆可兼容
+
+更新文档
+- [美颜道具参数说明_完整版](docs/美颜道具参数说明_完整版.pdf)
+- [美妆bundle参数说明](docs/美妆bundle参数说明.pdf)
+- [质感美颜参数说明](docs/质感美颜参数说明.pdf)
 
 ## SDK集成
 
 ### 一、通过 gradle 集成
 
-含有深度学习的版本：
+全功能版本：
 
-	compile 'com.faceunity:nama:5.3.0'
+	implementation 'com.faceunity:nama:6.0.0'
 
-不含深度学习的版本（lite版）：
+不含物理引擎的版本（lite版）：
 
-	compile 'com.faceunity:nama:5.3.0-lite'
+	implementation 'com.faceunity:nama:6.0.0-lite'
 
 ### 二、通过 github 下载集成
 
-含有深度学习的版本：[Faceunity-Android-v5.3-release.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.3-release/Faceunity-Android-v5.3-release.zip)
+全功能版本：[Faceunity-Android-v6.0.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0/Faceunity-Android-v6.0.zip)
 
-不含深度学习的版本（lite版）：[Faceunity-Android-v5.3-release-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v5.3-release/Faceunity-Android-v5.3-release-lite.zip)
-
-**Tip：含有深度学习的版本支持背景分割、手势识别功能**
+不含物理引擎的版本（lite版）：[Faceunity-Android-v6.0-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0/Faceunity-Android-v6.0-lite.zip)
 
 ## 文件说明
 
@@ -42,9 +50,13 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 ### 二、数据文件
 
-  - v3.bundle 初始化必须的二进制文件
-  - face_beautification.bundle 我司美颜相关的二进制文件
-  - effects 文件夹下的 *.bundle 文件是我司制作的特效贴纸文件，自定义特效贴纸制作的文档和工具请联系我司获取。
+- v3.bundle 初始化必须的数据模型
+- face_beautification.bundle 我司美颜道具
+- anim_model.bundle 表情优化数据模型
+- ardata_ex.bundle 高精度数据模型
+- tongue.bundle 舌头驱动数据模型
+- fxaa.bundle 3D道具去锯齿道具
+- effects 文件夹下的 *.bundle 文件是我司制作的特效贴纸文件，自定义特效贴纸制作的文档和工具请联系我司获取。
 
 注：这些数据文件都是二进制数据，与扩展名无关。实际在app中使用时，打包在程序内或者从网络接口下载这些数据都是可行的，只要在相应的函数接口传入正确的文件路径即可。
 
@@ -89,6 +101,14 @@ v3.close();
 faceunity.fuSetup(v3Data, null, authpack.A());
 ```
 注：app启动后只需要setup一次faceunity即可，其中 authpack.A() 密钥数组声明在 authpack.java 中。
+
+#### 混淆规则
+
+```
+-keep class com.faceunity.wrapper.faceunity {*;}
+```
+
+对于项目依赖的第三方库，请自行添加混淆规则。或者参考 app 模块的 proguard-rules.pro 混淆配置。
 
 ### 道具创建、销毁与切换
 
@@ -530,9 +550,15 @@ __使用方法__：
 - 直接加载对应的道具
 - 需要带有照片驱动权限的证书
 
-## 音乐节奏滤镜
+## 音乐滤镜
 
-效果详见FULiveDemo，道具可以通过FUEditor进行制作（v4.2.1及以上）。
+音乐滤镜是使用播放音乐的时间戳进行驱动的，在每次处理图像前，将音乐的播放进度传入音乐滤镜道具即可，方式如下：
+
+```java
+faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "music_time", time); 
+```
+
+如果没有音乐则可以模拟音乐播放进度，demo中提供的道具对应的音乐时长为28s，换算成ms为28000ms，在没有音乐的情况下，可以从加载音乐滤镜开始计时，每次处理图像前获取一下当前时间与开始加载音乐滤镜的时间差，转换成ms传入音乐滤镜即可，当时间差超过28000ms时归0重新开始计时即可。效果详见FULiveDemo，道具可以通过FUEditor进行制作（v4.2.1及以上）。
 
 ## 优化表情校准功能
 
@@ -544,9 +570,72 @@ __使用方法__：
 
 注：优化后的SDK只支持被动校准功能，即fuSetExpressionCalibration接口只支持0（关闭）或2（被动校准）这两个数字，设置为1时将不再有效果。
 
+## 动漫滤镜+Animoji的AR模式
+
+**动漫滤镜：**一款动漫风格的滤镜，使用方式与普通道具一致，只需要加载并保存在道具具柄数组中传入视频处理接口即可。Demo使用的场景是配合Animoji道具的AR模式一起使用，不过动漫滤镜并不局限于和Animoji的AR模式一起使用，你可以单独使用，也可以配合其他任何道具一起使用。需要注意的是，客户端需要根据当前OpenGL ES版本，设置动漫滤镜的"glVer"属性。当使用OpenGL ES 3.0版本才能较好的使用动漫滤镜效果，如果使用3.0以下版本的GL环境，效果会稍微差一些。设置方法如下：
+
+```java
+faceunity.fuItemSetParam(itemHandle, "glVer", 3); // 2代表兼容模式，3代表正常模式。
+```
+
+**Animoji的AR模式：**与Animoji普通模式不同，AR模式会显示真实的场景，且Animoji形象会跟随人脸移动，有了更多的互动性。如果配合动漫滤镜使用Animoji的AR模式，可以使Animoji形象与真实场景的风格更加一致，使融合更加自然。Animoji开启AR模式的方式如下：
+
+```java
+// 设置 Animoji 跟随人脸
+faceunity.fuItemSetParam(itemHandle, "{\"thing\":\"<global>\",\"param\":\"follow\"}", 1); // value为1代表开启，value为0代表关闭。
+```
+
+## 舌头驱动
+
+Nama SDK 从5.6.0开始支持舌头驱动功能，使用具有舌头特效的道具时，需要先加载驱动舌头的数据模型，加载方式如下：
+
+```java
+InputStream tongue = context.getAssets().open(BUNDLE_tongue);
+byte[] tongueDate = new byte[tongue.available()];
+tongue.read(tongueDate);
+tongue.close();
+faceunity.fuLoadTongueModel(tongueDate);
+```
+
+## 海报换脸
+
+Nama SDK 从5.8.0开始支持新版海报换脸功能，该功能可实现将用户的脸完美的融合到海报中模特的脸上，实现换脸功能。
+
+首先需要加载change_face.bundle道具，然后参考参考[海报换脸接口文档](docs/海报换脸接口文档.md)，同时也可以参考我们Demo中的实际使用方法。
+
+## 人脸美妆
+
+Nama SDK 从5.8.0开始支持新版的人脸美妆功能，该功能可实现口红、腮红、眉毛、眼影、眼线、睫毛、美瞳等功能，同时支持精细调整。
+
+首先需要加载face_makeup.bundle道具，然后参考[美妆bundle参数说明](docs/美妆bundle参数说明.pdf)进行开发，同时也可以参考我们Demo中的实际使用方法。
+
+## 美发功能
+
+Nama SDK 从5.8.0开始支持美发功能，该功能可以改变人物头发颜色，目前支持8种普通发色及5种渐变色，同时调节美发程度。
+
+### 普通发色
+
+首先加载 hair_color.bundle，然后使用参数 Index 来切换发色，该参数的推荐取值范围为0~7。通过参数 Strength 可以调节发色的强度，该参数的推荐取值范围为0~1。示例：
+
+```java
+/**设置美发参数**/
+faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX], "Index", mHairColorIndex);
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX], "Strength", mHairColorStrength);
+```
+
+### 渐变色
+
+首先加载 hair_gradient.bundle，然后使用参数 Index 来切换发色，该参数的推荐取值范围为0~4。通过参数 Strength 可以调节发色的强度，该参数的推荐取值范围为0~1。示例：
+
+```java
+/**设置美发参数**/
+faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "Index", mHairColorIndex);
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "Strength", mHairColorStrength);
+```
+
 ## 接口说明
 
-[Android java层接口说明](https://github.com/Faceunity/FULiveDemoDroid/blob/master/docs/Nama%20API%20Android%20Reference.md)
+[Android java层接口说明](docs/Nama%20API%20Android%20Reference.md)
 
 ## 鉴权
 

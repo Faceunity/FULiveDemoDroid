@@ -14,17 +14,17 @@ import com.faceunity.OnFUControlListener;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.EffectEnum;
+import com.faceunity.fulivedemo.ui.CircleImageView;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 import java.io.IOException;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by tujh on 2018/6/29.
  */
 public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAdapter.HomeRecyclerHolder> {
-    private static final String TAG = EffectRecyclerAdapter.class.getSimpleName();
 
     private Context mContext;
     private int mEffectType;
@@ -50,9 +50,9 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
     public void onBindViewHolder(HomeRecyclerHolder holder, final int position) {
 
         holder.effectImg.setImageResource(mEffects.get(position).resId());
-        holder.effectImg.setOnClickListener(new View.OnClickListener() {
+        holder.effectImg.setOnClickListener(new OnMultiClickListener() {
             @Override
-            public void onClick(View v) {
+            protected void onMultiClick(View v) {
                 if (mPositionSelect == position) {
                     return;
                 }
@@ -106,15 +106,11 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
         public void run() {
             if (mediaPlayer != null && mediaPlayer.isPlaying())
                 mOnFUControlListener.onMusicFilterTime(mediaPlayer.getCurrentPosition());
-
             mMusicHandler.postDelayed(mMusicRunnable, MUSIC_TIME);
         }
     };
 
     public void stopMusic() {
-        if (mEffectType != Effect.EFFECT_TYPE_MUSIC_FILTER) {
-            return;
-        }
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
@@ -157,10 +153,18 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
                 public void onPrepared(MediaPlayer mp) {
                     // 装载完毕回调
                     //mediaPlayer.setVolume(1f, 1f);
-                    mediaPlayer.setLooping(true);
+                    mediaPlayer.setLooping(false);
+                    mediaPlayer.seekTo(0);
                     mediaPlayer.start();
 
                     mMusicHandler.postDelayed(mMusicRunnable, MUSIC_TIME);
+                }
+            });
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mediaPlayer.seekTo(0);
+                    mediaPlayer.start();
                 }
             });
         } catch (IOException e) {
@@ -174,6 +178,6 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
     }
 
     public interface OnDescriptionChangeListener {
-        void onDescriptionChangeListener(String description);
+        void onDescriptionChangeListener(int description);
     }
 }

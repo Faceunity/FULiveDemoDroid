@@ -1,13 +1,15 @@
 apply plugin: 'com.android.library'
+apply plugin: 'org.greenrobot.greendao'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 18
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 27
+        versionCode 65
+        versionName "6.0.0-release2"
     }
 
     buildTypes {
@@ -17,10 +19,16 @@ android {
         }
     }
 
+    greendao {
+        schemaVersion 1 //数据库版本号
+        daoPackage 'com.faceunity.greendao' //设置DaoMaster、DaoSession、Dao包名
+        targetGenDir 'src/main/java' //设置DaoMaster、DaoSession、Dao目录
+    }
+
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    api 'org.greenrobot:greendao:3.2.2'
 }

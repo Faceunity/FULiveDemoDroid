@@ -7,6 +7,7 @@ import android.media.MediaPlayer;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 import android.view.Surface;
 
 import com.faceunity.fulivedemo.utils.FPSUtil;
@@ -68,6 +69,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         mGLSurfaceView = GLSurfaceView;
         mOnVideoRendererStatusListener = onVideoRendererStatusListener;
         mFPSUtil = new FPSUtil();
+        Log.d(TAG, "VideoRenderer: path:" + mVideoPath);
     }
 
     public void onResume() {
@@ -105,9 +107,18 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         mOnVideoRendererStatusListener.onSurfaceChanged(gl, width, height);
         MediaMetadataRetriever retr = new MediaMetadataRetriever();
         retr.setDataSource(mVideoPath);
-        mVideoWidth = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-        mVideoHeight = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-        mVideoRotation = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+        try {
+            mVideoWidth = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            mVideoHeight = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            mVideoRotation = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "onSurfaceChanged: ", e);
+            mVideoWidth = 720;
+            mVideoHeight = 1280;
+            mVideoRotation = 0;
+        }
+        Log.d(TAG, "onSurfaceChanged() called with: width = [" + width + "], height = [" + height + "]"
+                + ", videoWidth:" + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation);
         mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
         mFPSUtil.resetLimit();
     }
@@ -186,8 +197,10 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     }
 
     public void playMedia() {
-        mMediaPlayer.start();
-        isNeedPlay = true;
+        if (mMediaPlayer != null) {
+            mMediaPlayer.start();
+            isNeedPlay = true;
+        }
     }
 
     private void releaseMedia() {

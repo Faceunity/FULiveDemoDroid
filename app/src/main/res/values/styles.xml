@@ -23,4 +23,11 @@
         <item name="android:splitMotionEvents">false</item>
     </style>
 
+    <style name="photo_tip_popup_anim_style">
+        <item name="android:windowEnterAnimation">@anim/popup_tip_in</item>
+        <!-- 指定显示的动画xml -->
+
+        <item name="android:windowExitAnimation">@anim/popup_tip_out</item>
+        <!-- 指定消失的动画xml -->
+    </style>
 </resources>

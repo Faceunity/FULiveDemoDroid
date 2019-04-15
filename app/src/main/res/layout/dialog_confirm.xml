@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/x562"
+    android:layout_height="@dimen/x294"
+    android:background="@drawable/bg_confirm_dialog">
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x78"
+        android:gravity="center"
+        android:text="@string/dialog_confirm_delete"
+        android:textColor="@color/btn_magic_text"
+        android:textSize="@dimen/x30"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="@dimen/x530"
+        android:layout_height="@dimen/x1"
+        android:layout_marginTop="@dimen/x195"
+        android:background="@color/divider_line_color"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="@dimen/x1"
+        android:layout_height="@dimen/x68"
+        android:layout_marginBottom="@dimen/x15"
+        android:background="@color/divider_line_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_cancel"
+        android:layout_width="@dimen/x280"
+        android:layout_height="@dimen/x96"
+        android:gravity="center"
+        android:text="@string/cancel"
+        android:textColor="@color/btn_magic_text"
+        android:textSize="@dimen/x32"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_confirm"
+        android:layout_width="@dimen/x280"
+        android:layout_height="@dimen/x96"
+        android:gravity="center"
+        android:text="@string/confirm"
+        android:textColor="@color/magic_button_enable"
+        android:textSize="@dimen/x32"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_cancel" />
+
+</android.support.constraint.ConstraintLayout>

@@ -20,15 +20,19 @@ public class Effect {
     public static final int EFFECT_TYPE_PORTRAIT_DRIVE = 9;
     public static final int EFFECT_TYPE_FACE_WARP = 10;
     public static final int EFFECT_TYPE_MUSIC_FILTER = 11;
+    public static final int EFFECT_TYPE_HAIR_NORMAL = 12;
+    public static final int EFFECT_TYPE_POSTER_FACE = 13;
+    public static final int EFFECT_TYPE_HAIR_GRADIENT = 14;
+    public static final int EFFECT_TYPE_LIVE_PHOTO = 15;
 
     private String bundleName;
     private int resId;
     private String path;
     private int maxFace;
     private int effectType;
-    private String description;
+    private int description;
 
-    public Effect(String bundleName, int resId, String path, int maxFace, int effectType, String description) {
+    public Effect(String bundleName, int resId, String path, int maxFace, int effectType, int description) {
         this.bundleName = bundleName;
         this.resId = resId;
         this.path = path;
@@ -57,7 +61,7 @@ public class Effect {
         return effectType;
     }
 
-    public String description() {
+    public int description() {
         return description;
     }
 
@@ -66,11 +70,23 @@ public class Effect {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Effect effect = (Effect) o;
-        return !TextUtils.isEmpty(bundleName) && bundleName.equals(effect.bundleName());
+        return !TextUtils.isEmpty(path) && path.equals(effect.path());
     }
 
     @Override
     public int hashCode() {
-        return !TextUtils.isEmpty(bundleName) ? bundleName.hashCode() : 0;
+        return !TextUtils.isEmpty(path) ? path.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Effect{" +
+                "bundleName='" + bundleName + '\'' +
+                ", resId=" + resId +
+                ", path='" + path + '\'' +
+                ", maxFace=" + maxFace +
+                ", effectType=" + effectType +
+                ", description=" + description +
+                '}';
     }
 }

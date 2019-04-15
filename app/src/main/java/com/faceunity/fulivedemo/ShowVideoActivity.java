@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -24,12 +23,15 @@ import com.faceunity.encoder.MediaAudioFileEncoder;
 import com.faceunity.encoder.MediaEncoder;
 import com.faceunity.encoder.MediaMuxerWrapper;
 import com.faceunity.encoder.MediaVideoEncoder;
-import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.renderer.VideoRenderer;
-import com.faceunity.fulivedemo.ui.BeautyControlView;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
+import com.faceunity.fulivedemo.ui.control.AnimControlView;
+import com.faceunity.fulivedemo.ui.control.BeautyControlView;
+import com.faceunity.fulivedemo.ui.control.MakeupControlView;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.MiscUtil;
 
@@ -40,12 +42,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
-public class ShowVideoActivity extends AppCompatActivity
-        implements VideoRenderer.OnRendererStatusListener,
-        View.OnClickListener {
+public class ShowVideoActivity extends AppCompatActivity implements VideoRenderer.OnRendererStatusListener {
     public final static String TAG = ShowVideoActivity.class.getSimpleName();
-
-    private String mSelectDataType;
 
     private GLSurfaceView mGLSurfaceView;
     private VideoRenderer mVideoRenderer;
@@ -54,8 +52,6 @@ public class ShowVideoActivity extends AppCompatActivity
     private ImageView mPlayImageView;
     private ImageView mSaveImageView;
     private BeautyControlView mBeautyControlView;
-    private RecyclerView mEffectRecyclerView;
-    private EffectRecyclerAdapter mEffectRecyclerAdapter;
     private FURenderer mFURenderer;
     private String mVideoFilePath;
 
@@ -66,7 +62,8 @@ public class ShowVideoActivity extends AppCompatActivity
         setContentView(R.layout.activity_show_video);
 
         Uri uri = getIntent().getData();
-        mSelectDataType = getIntent().getStringExtra("SelectData");
+        String selectDataType = getIntent().getStringExtra(SelectDataActivity.SELECT_DATA_KEY);
+        int selectEffectType = getIntent().getIntExtra(FUEffectActivity.SELECT_EFFECT_KEY, -1);
         if (uri == null) {
             onBackPressed();
             return;
@@ -83,6 +80,7 @@ public class ShowVideoActivity extends AppCompatActivity
             public void onCompletion(MediaPlayer mp) {
                 stopRecording();
                 mPlayImageView.setVisibility(View.VISIBLE);
+                mPlayImageView.setImageResource(R.drawable.show_video_replay);
                 mSaveImageView.setVisibility(View.VISIBLE);
             }
         });
@@ -99,7 +97,7 @@ public class ShowVideoActivity extends AppCompatActivity
         mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
         mPlayImageView = (ImageView) findViewById(R.id.show_play_btn);
         mSaveImageView = (ImageView) findViewById(R.id.show_save_btn);
-        if (FUBeautyActivity.TAG.equals(mSelectDataType)) {
+        if (FUBeautyActivity.TAG.equals(selectDataType)) {
             mBeautyControlView = (BeautyControlView) findViewById(R.id.fu_beauty_control);
             mBeautyControlView.setVisibility(View.VISIBLE);
             mBeautyControlView.setOnFUControlListener(mFURenderer);
@@ -111,33 +109,54 @@ public class ShowVideoActivity extends AppCompatActivity
             });
             mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
                 @Override
-                public void onDescriptionShowListener(String str) {
+                public void onDescriptionShowListener(int str) {
                     showDescription(str, 1500);
                 }
             });
-            mGLSurfaceView.setOnClickListener(new View.OnClickListener() {
+            mGLSurfaceView.setOnClickListener(new OnMultiClickListener() {
                 @Override
-                public void onClick(View v) {
+                protected void onMultiClick(View v) {
                     mBeautyControlView.hideBottomLayoutAnimator();
                 }
             });
-        } else {
-            mEffectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
-            mEffectRecyclerView.setVisibility(View.VISIBLE);
-            mEffectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-            mEffectRecyclerView.setAdapter(mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, Effect.EFFECT_TYPE_NORMAL, mFURenderer));
-            ((SimpleItemAnimator) mEffectRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-            mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(Effect.EFFECT_TYPE_NORMAL).get(1));
-            mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
+        } else if (FUMakeupActivity.TAG.equals(selectDataType)) {
+            MakeupControlView makeupControlView = findViewById(R.id.fu_makeup_control);
+            makeupControlView.setVisibility(View.VISIBLE);
+            makeupControlView.setOnFUControlListener(mFURenderer);
+            makeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
                 @Override
-                public void onDescriptionChangeListener(String description) {
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
+        } else if (FUAnimojiActivity.TAG.equals(selectDataType)) {
+            AnimControlView animControlView = findViewById(R.id.fu_anim_control);
+            animControlView.setVisibility(View.VISIBLE);
+            animControlView.setOnFUControlListener(mFURenderer);
+            animControlView.setOnBottomAnimatorChangeListener(new AnimControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
+        } else {
+            RecyclerView effectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
+            effectRecyclerView.setVisibility(View.VISIBLE);
+            effectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            EffectRecyclerAdapter effectRecyclerAdapter;
+            effectRecyclerView.setAdapter(effectRecyclerAdapter = new EffectRecyclerAdapter(this, selectEffectType, mFURenderer));
+            ((SimpleItemAnimator) effectRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+            mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(selectEffectType).get(1));
+            effectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
+                @Override
+                public void onDescriptionChangeListener(int description) {
                     showDescription(description, 1500);
                 }
             });
         }
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mSaveImageView.getLayoutParams();
-        params.bottomMargin = (int) getResources().getDimension(FUBeautyActivity.TAG.equals(mSelectDataType) ? R.dimen.x151 : R.dimen.x199);
+        params.bottomMargin = (int) getResources().getDimension(FUBeautyActivity.TAG.equals(selectDataType) ? R.dimen.x151 : R.dimen.x199);
         mSaveImageView.setLayoutParams(params);
     }
 
@@ -145,8 +164,11 @@ public class ShowVideoActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         mVideoRenderer.onResume();
-        if (mBeautyControlView != null)
+        if (mBeautyControlView != null) {
             mBeautyControlView.onResume();
+        }
+        mPlayImageView.setVisibility(View.VISIBLE);
+        mPlayImageView.setImageResource(R.drawable.show_video_play);
     }
 
     @Override
@@ -185,7 +207,6 @@ public class ShowVideoActivity extends AppCompatActivity
         mFURenderer.onSurfaceDestroyed();
     }
 
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.back:
@@ -199,15 +220,15 @@ public class ShowVideoActivity extends AppCompatActivity
                 mVideoRenderer.playMedia();
                 mSaveImageView.setVisibility(View.GONE);
                 mPlayImageView.setVisibility(View.GONE);
-                mPlayImageView.setImageResource(R.drawable.show_video_replay);
                 break;
             case R.id.show_save_btn:
                 if (mOutVideoFile != null && mOutVideoFile.exists()) {
-                    ToastUtil.showToast(ShowVideoActivity.this, "保存视频成功！");
+                    ToastUtil.showToast(ShowVideoActivity.this, R.string.save_video_success);
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mOutVideoFile)));
                     mOutVideoFile = null;
                 }
                 break;
+            default:
         }
     }
 
@@ -239,7 +260,7 @@ public class ShowVideoActivity extends AppCompatActivity
 
     protected void sendRecordingData(int texId, final float[] tex_matrix) {
         if (mVideoEncoder != null) {
-            mVideoEncoder.frameAvailableSoon(texId, tex_matrix);
+            mVideoEncoder.frameAvailableSoon(texId, tex_matrix, GlUtil.IDENTITY_MATRIX);
         }
     }
 
@@ -247,7 +268,7 @@ public class ShowVideoActivity extends AppCompatActivity
 
     private void startRecording() {
         try {
-            String videoFileName = "FULiveDemo_" + MiscUtil.getCurrentDate() + ".mp4";
+            String videoFileName = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".mp4";
             mOutVideoFile = new File(Constant.cameraFilePath, videoFileName);
             mMuxer = new MediaMuxerWrapper(mOutVideoFile.getAbsolutePath());
 
@@ -276,8 +297,8 @@ public class ShowVideoActivity extends AppCompatActivity
         }
     };
 
-    protected void showDescription(String str, int time) {
-        if (TextUtils.isEmpty(str)) {
+    protected void showDescription(int str, int time) {
+        if (0 == str) {
             return;
         }
         mEffectDescription.removeCallbacks(effectDescriptionHide);

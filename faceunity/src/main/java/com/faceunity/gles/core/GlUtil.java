@@ -16,8 +16,10 @@
 
 package com.faceunity.gles.core;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.pm.ConfigurationInfo;
 import android.graphics.Bitmap;
-import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLUtils;
@@ -32,7 +34,7 @@ import java.nio.FloatBuffer;
  * Some OpenGL utility functions.
  */
 public abstract class GlUtil {
-    public static final String TAG = "Grafika";
+    public static final String TAG = GlUtil.class.getSimpleName();
 
     /**
      * Identity matrix for general use.  Don't modify or life will get weird.
@@ -211,6 +213,14 @@ public abstract class GlUtil {
         return fb;
     }
 
+    public static float[] changeMVPMatrixCrop(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
+        float scale = viewWidth * textureHeight / viewHeight / textureWidth;
+        float[] mvp = new float[16];
+        Matrix.setIdentityM(mvp, 0);
+        Matrix.scaleM(mvp, 0, scale > 1 ? 1F : (1F / scale), scale > 1 ? scale : 1F, 1F);
+        return mvp;
+    }
+
     /**
      * Writes GL version info to the log.
      */
@@ -246,17 +256,48 @@ public abstract class GlUtil {
         GLES20.glBindTexture(textureTarget, texId);
         GlUtil.checkGlError("glBindTexture " + texId);
 
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
-                GLES20.GL_NEAREST);
-        GLES20.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
-                GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S,
-                GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T,
-                GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameterf(textureTarget, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameterf(textureTarget, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(textureTarget, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
         GlUtil.checkGlError("glTexParameter");
 
         return texId;
+    }
+
+    public static void deleteTextureId(int[] textureId) {
+        if (textureId != null && textureId.length > 0) {
+            GLES20.glDeleteTextures(textureId.length, textureId, 0);
+        }
+    }
+
+    public static void createFBO(int[] fboTex, int[] fboId, int width, int height) {
+//generate fbo id
+        GLES20.glGenFramebuffers(1, fboId, 0);
+//generate texture
+        GLES20.glGenTextures(1, fboTex, 0);
+
+//Bind Frame buffer
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId[0]);
+//Bind texture
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fboTex[0]);
+//Define texture parameters
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+//Attach texture FBO color attachment
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, fboTex[0], 0);
+//we are done, reset
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+    }
+
+    public static void deleteFBO(int[] fboId) {
+        if (fboId != null && fboId.length > 0) {
+            GLES20.glDeleteFramebuffers(fboId.length, fboId, 0);
+        }
     }
 
     public static float[] changeMVPMatrix(float[] mvpMatrix, float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
@@ -271,5 +312,22 @@ public abstract class GlUtil {
             Matrix.multiplyMM(mvp, 0, tmp, 0, mvpMatrix, 0);
             return mvp;
         }
+    }
+
+    public static float[] changeMVPMatrixInside(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
+        float scale = viewWidth * textureHeight / viewHeight / textureWidth;
+        float[] mvp = new float[16];
+        Matrix.setIdentityM(mvp, 0);
+        Matrix.scaleM(mvp, 0, scale > 1 ? (1F / scale) : 1F, scale > 1 ? 1F : scale, 1F);
+        return mvp;
+    }
+
+    public static int getSupportGLVersion(Context context) {
+        final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
+        int version = configurationInfo.reqGlEsVersion >= 0x30000 ? 3 : 2;
+        String glEsVersion = configurationInfo.getGlEsVersion();
+        Log.e(TAG, "reqGlEsVersion: " + Integer.toHexString(configurationInfo.reqGlEsVersion) + ", glEsVersion:" + glEsVersion);
+        return version;
     }
 }

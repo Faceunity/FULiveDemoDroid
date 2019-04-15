@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/x70"
-        android:text="FU Live Demo"
+        android:text="@string/fu_live_demo"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/text_size_36"/>
 

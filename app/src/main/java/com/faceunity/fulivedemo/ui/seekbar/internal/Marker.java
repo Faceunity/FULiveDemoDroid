@@ -31,7 +31,7 @@ import com.faceunity.fulivedemo.ui.seekbar.internal.drawable.MarkerDrawable;
  * @hide
  */
 public class Marker extends ViewGroup implements MarkerDrawable.MarkerAnimationListener {
-    private static final int PADDING_DP = 4;
+    private static final int PADDING_DP = 1;
     private static final int ELEVATION_DP = 8;
     //The TextView to show the info
     private TextView mNumber;

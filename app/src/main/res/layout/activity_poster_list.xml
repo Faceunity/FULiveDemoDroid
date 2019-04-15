@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#090017"
+    tools:context=".PosterListActivity">
+
+    <ImageView
+        android:id="@+id/iv_poster_list_back"
+        android:layout_width="@dimen/x64"
+        android:layout_height="@dimen/x88"
+        android:paddingLeft="@dimen/x30"
+        android:paddingTop="@dimen/x18"
+        android:paddingBottom="@dimen/x18"
+        android:scaleType="centerInside"
+        android:src="@drawable/back_show"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x88"
+        android:gravity="center"
+        android:text="@string/home_function_name_poster_face"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/text_size_34"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_poster_template"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/x17"
+        android:layout_marginTop="@dimen/x106"
+        android:layout_marginRight="@dimen/x17"
+        android:scrollbars="vertical" />
+
+</android.support.constraint.ConstraintLayout>
