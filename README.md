@@ -35,7 +35,7 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 	implementation 'com.faceunity:nama:6.0.0-lite'
 
-注：gradle集成的aar中仅包含库文件（libnama.so与nama.jar）以及初始化必须的数据模型（v3.bundle），如需美颜等数据包可在[这里下载]（https://github.com/Faceunity/FULiveDemoDroid/releases）
+注：gradle集成的aar中仅包含库文件（libnama.so与nama.jar）以及初始化必须的数据模型（v3.bundle），如需美颜等数据包可在[这里下载](https://github.com/Faceunity/FULiveDemoDroid/releases)
 
 ### 二、通过 github 下载集成
 
