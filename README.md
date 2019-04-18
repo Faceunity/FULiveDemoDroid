@@ -35,6 +35,8 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 	implementation 'com.faceunity:nama:6.0.0-lite'
 
+注：gradle集成的aar中仅包含库文件（libnama.so与nama.jar）以及初始化必须的数据模型（v3.bundle），如需美颜等数据包可在[这里下载]（https://github.com/Faceunity/FULiveDemoDroid/releases）
+
 ### 二、通过 github 下载集成
 
 全功能版本：[Faceunity-Android-v6.0.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.0/Faceunity-Android-v6.0.zip)
@@ -52,7 +54,6 @@ FULiveDemoDroid 是集成了 Faceunity 面部跟踪、美颜、Animoji、道具�
 
 - v3.bundle 初始化必须的数据模型
 - face_beautification.bundle 我司美颜道具
-- anim_model.bundle 表情优化数据模型
 - ardata_ex.bundle 高精度数据模型
 - tongue.bundle 舌头驱动数据模型
 - fxaa.bundle 3D道具去锯齿道具
@@ -555,7 +556,7 @@ __使用方法__：
 音乐滤镜是使用播放音乐的时间戳进行驱动的，在每次处理图像前，将音乐的播放进度传入音乐滤镜道具即可，方式如下：
 
 ```java
-faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "music_time", time); 
+faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "music_time", time);
 ```
 
 如果没有音乐则可以模拟音乐播放进度，demo中提供的道具对应的音乐时长为28s，换算成ms为28000ms，在没有音乐的情况下，可以从加载音乐滤镜开始计时，每次处理图像前获取一下当前时间与开始加载音乐滤镜的时间差，转换成ms传入音乐滤镜即可，当时间差超过28000ms时归0重新开始计时即可。效果详见FULiveDemo，道具可以通过FUEditor进行制作（v4.2.1及以上）。
