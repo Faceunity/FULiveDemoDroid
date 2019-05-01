@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_avatar_type"
+    android:layout_width="@dimen/x134"
+    android:layout_height="@dimen/x98"
+    android:background="@color/colorWhite"
+    android:gravity="center"
+    android:textColor="@color/avatar_type_text"
+    android:textSize="@dimen/x26"
+    tools:text="发型" />

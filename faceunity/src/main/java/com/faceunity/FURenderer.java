@@ -110,7 +110,7 @@ public class FURenderer implements OnFUControlListener {
 
     // 句柄索引
     private static final int ITEM_ARRAYS_FACE_BEAUTY_INDEX = 0;
-    private static final int ITEM_ARRAYS_EFFECT_INDEX = 1;
+    public static final int ITEM_ARRAYS_EFFECT_INDEX = 1;
     private static final int ITEM_ARRAYS_LIGHT_MAKEUP_INDEX = 2;
     private static final int ITEM_ARRAYS_EFFECT_ABIMOJI_3D_INDEX = 3;
     private static final int ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX = 4;
@@ -119,8 +119,10 @@ public class FURenderer implements OnFUControlListener {
     private static final int ITEM_ARRAYS_FUZZYTOON_FILTER_INDEX = 7;
     private static final int ITEM_ARRAYS_LIVE_PHOTO_INDEX = 8;
     private static final int ITEM_ARRAYS_FACE_MAKEUP_INDEX = 9;
+    public static final int ITEM_ARRAYS_AVATAR_BACKGROUND = 10;
+    public static final int ITEM_ARRAYS_AVATAR_HAIR = 11;
     // 句柄数量
-    private static final int ITEM_ARRAYS_COUNT = 10;
+    private static final int ITEM_ARRAYS_COUNT = 12;
 
     private volatile static float mIntensityNose = 0.5f;//瘦鼻
     // 头发
@@ -177,6 +179,7 @@ public class FURenderer implements OnFUControlListener {
     private volatile int mComicFilterStyle = CartoonFilter.NO_FILTER;
     private static boolean mIsInited;
     private volatile int mDefaultOrientation = 0;
+    private boolean mNeedBg;
 
     /**
      * 创建及初始化faceunity相应的资源
@@ -231,6 +234,10 @@ public class FURenderer implements OnFUControlListener {
         int style = mComicFilterStyle;
         mComicFilterStyle = CartoonFilter.NO_FILTER;
         onCartoonFilterSelected(style);
+
+        if (mNeedBg) {
+            loadAvatarBackground();
+        }
 
         // 异步加载默认道具，放在加载 animoji 3D 和动漫滤镜之后
         if (mDefaultEffect != null) {
@@ -516,69 +523,6 @@ public class FURenderer implements OnFUControlListener {
         return fuTex;
     }
 
-    /**
-     * 使用 fuTrackFace + fuAvatarToTexture 的方法组合绘制画面，该组合没有camera画面绘制，适用于animoji等相关道具的绘制。
-     * fuTrackFace 获取识别到的人脸信息
-     * fuAvatarToTexture 依据人脸信息绘制道具
-     *
-     * @param img 数据格式可由 flags 定义
-     * @param w
-     * @param h
-     * @return
-     */
-    public int onDrawFrameAvatar(byte[] img, int w, int h) {
-        if (img == null || w <= 0 || h <= 0) {
-            Log.e(TAG, "onDrawFrameAvatar date null");
-            return 0;
-        }
-        prepareDrawFrame();
-
-        int flags = mInputImageFormat;
-        if (mNeedBenchmark)
-            mFuCallStartTime = System.nanoTime();
-        faceunity.fuTrackFace(img, flags, w, h);
-
-        int isTracking = faceunity.fuIsTracking();
-
-        Arrays.fill(landmarksData, 0.0f);
-        Arrays.fill(rotationData, 0.0f);
-        Arrays.fill(expressionData, 0.0f);
-        Arrays.fill(pupilPosData, 0.0f);
-        Arrays.fill(rotationModeData, 0.0f);
-
-        if (isTracking > 0) {
-            /**
-             * landmarks 2D人脸特征点，返回值为75个二维坐标，长度75*2
-             */
-            faceunity.fuGetFaceInfo(0, "landmarks", landmarksData);
-            /**
-             *rotation 人脸三维旋转，返回值为旋转四元数，长度4
-             */
-            faceunity.fuGetFaceInfo(0, "rotation", rotationData);
-            /**
-             * expression  表情系数，长度46
-             */
-            faceunity.fuGetFaceInfo(0, "expression", expressionData);
-            /**
-             * pupil pos 眼球旋转，长度2
-             */
-            faceunity.fuGetFaceInfo(0, "pupil_pos", pupilPosData);
-            /**
-             * rotation mode 人脸朝向，0-3分别对应手机四种朝向，长度1
-             */
-            faceunity.fuGetFaceInfo(0, "rotation_mode", rotationModeData);
-        } else {
-            rotationData[3] = 1.0f;
-            rotationModeData[0] = (360 - mInputImageOrientation) / 90;
-        }
-
-        int tex = faceunity.fuAvatarToTexture(pupilPosData, expressionData, rotationData, rotationModeData,
-                0, w, h, mFrameId++, mItemsArray, isTracking);
-        if (mNeedBenchmark)
-            mOneHundredFrameFUTime += System.nanoTime() - mFuCallStartTime;
-        return tex;
-    }
-
     public float[] getRotationData() {
         Arrays.fill(rotationData, 0.0f);
         faceunity.fuGetFaceInfo(0, "rotation", rotationData);
@@ -657,6 +601,227 @@ public class FURenderer implements OnFUControlListener {
     private int mRotMode = 1;
 
     //--------------------------------------对外可使用的接口----------------------------------------
+
+    /**
+     * 使用 fuTrackFace + fuAvatarToTexture 的方法组合绘制画面，该组合没有camera画面绘制，适用于animoji等相关道具的绘制。
+     * fuTrackFace 获取识别到的人脸信息
+     * fuAvatarToTexture 依据人脸信息绘制道具
+     *
+     * @param img 数据格式可由 flags 定义
+     * @param w
+     * @param h
+     * @return
+     */
+    public int onDrawFrameAvatar(byte[] img, int w, int h) {
+        if (img == null || w <= 0 || h <= 0) {
+            Log.e(TAG, "onDrawFrameAvatar date null");
+            return 0;
+        }
+        prepareDrawFrame();
+
+        int flags = mInputImageFormat;
+        if (mNeedBenchmark) {
+            mFuCallStartTime = System.nanoTime();
+        }
+        faceunity.fuTrackFace(img, flags, w, h);
+
+        int isTracking = faceunity.fuIsTracking();
+
+        Arrays.fill(landmarksData, 0.0f);
+        Arrays.fill(rotationData, 0.0f);
+        Arrays.fill(expressionData, 0.0f);
+        Arrays.fill(pupilPosData, 0.0f);
+        Arrays.fill(rotationModeData, 0.0f);
+
+        if (isTracking > 0) {
+            /**
+             * landmarks 2D人脸特征点，返回值为75个二维坐标，长度75*2
+             */
+            faceunity.fuGetFaceInfo(0, "landmarks", landmarksData);
+            /**
+             *rotation 人脸三维旋转，返回值为旋转四元数，长度4
+             */
+            faceunity.fuGetFaceInfo(0, "rotation", rotationData);
+            /**
+             * expression  表情系数，长度46
+             */
+            faceunity.fuGetFaceInfo(0, "expression", expressionData);
+            /**
+             * pupil pos 眼球旋转，长度2
+             */
+            faceunity.fuGetFaceInfo(0, "pupil_pos", pupilPosData);
+            /**
+             * rotation mode 人脸朝向，0-3分别对应手机四种朝向，长度1
+             */
+            faceunity.fuGetFaceInfo(0, "rotation_mode", rotationModeData);
+        } else {
+            rotationData[3] = 1.0f;
+            rotationModeData[0] = 1.0f * (360 - mInputImageOrientation) / 90;
+        }
+
+        // 这里换成静止的
+        int tex = faceunity.fuAvatarToTexture(AvatarConstant.PUP_POS_DATA0, AvatarConstant.EXPRESSIONS0,
+                AvatarConstant.ROTATION_DATA0, AvatarConstant.ROTATION_MODE_DATA0, 0, w, h, mFrameId++, mItemsArray,
+                AvatarConstant.VALID_DATA0);
+        if (mNeedBenchmark) {
+            mOneHundredFrameFUTime += System.nanoTime() - mFuCallStartTime;
+        }
+        return tex;
+    }
+
+    /**
+     * 进入捏脸状态
+     */
+    public void enterFaceShape() {
+//        Log.i(TAG, "enterFaceShape() called");
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "enter_facepup", 1);
+            }
+        });
+    }
+
+    /**
+     * 清除全部捏脸参数
+     */
+    public void clearFaceShape() {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "clear_facepup", 1);
+                if (mItemsArray[ITEM_ARRAYS_AVATAR_HAIR] > 0) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_AVATAR_HAIR], "clear_facepup", 1);
+                }
+            }
+        });
+    }
+
+    /**
+     * 保存和退出，二选一即可
+     * 直接退出捏脸状态，不保存当前捏脸状态，进入跟踪状态。使用上一次捏脸，进行人脸表情跟踪。
+     */
+    public void quitFaceup() {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "quit_facepup", 1);
+            }
+        });
+    }
+
+    /**
+     * 触发保存捏脸，并退出捏脸状态，进入跟踪状态。耗时操作，必要时设置。
+     */
+    public void recomputeFaceup() {
+//        Log.d(TAG, "recomputeFaceup() called");
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "need_recompute_facepup", 1);
+            }
+        });
+    }
+
+    /**
+     * 设置捏脸属性的权值，范围[0-1]。这里param对应的就是第几个捏脸属性，从1开始。
+     *
+     * @param key
+     * @param value
+     */
+    public void fuItemSetParamFaceup(final String key, final double value) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+//                Log.d(TAG, "fuItemSetParamFaceup() called , key:" + key + ", value:" + value + ", handle " + mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "{\"name\":\"facepup\",\"param\":\"" + key + "\"}", value);
+            }
+        });
+    }
+
+    public float fuItemGetParamFaceup(final String key) {
+        return (float) faceunity.fuItemGetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "{\"name\":\"facepup\",\"param\":\"" + key + "\"}");
+    }
+
+    /**
+     * 设置 avatar 颜色参数
+     *
+     * @param key
+     * @param value [r,g,b] 或 [r,g,b,intensity]
+     */
+    public void fuItemSetParamFaceColor(final String key, final double[] value) {
+//        Log.d(TAG, "fuItemSetParamFaceColor() called with: key = [" + key + "], value = [" + Arrays.toString(value) + "]");
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (value.length > 3) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_AVATAR_HAIR], key, value);
+                } else {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], key, value);
+                }
+            }
+        });
+    }
+
+    public boolean isAvatarLoaded() {
+        return mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] > 0;
+    }
+
+    /**
+     * （参数为浮点数）,直接设置绝对缩放
+     *
+     * @param scale
+     */
+    public void setAvatarScale(final float scale) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "absoluteScale", scale);
+            }
+        });
+    }
+
+    /**
+     * （参数为浮点数）,直接设置绝对缩放
+     *
+     * @param scale
+     */
+    public void setAvatarHairScale(final float scale) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_AVATAR_HAIR], "absoluteScale", scale);
+            }
+        });
+    }
+
+    /**
+     * （参数为[x,y,z]数组）,直接设置绝对位移
+     *
+     * @param xyz
+     */
+    public void setAvatarTranslate(final double[] xyz) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "absoluteTranslate", xyz);
+            }
+        });
+    }
+
+    /**
+     * （参数为[x,y,z]数组）,直接设置绝对位移
+     *
+     * @param xyz
+     */
+    public void setAvatarHairTranslate(final double[] xyz) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_AVATAR_HAIR], "absoluteTranslate", xyz);
+            }
+        });
+    }
 
     /**
      * 类似GLSurfaceView的queueEvent机制
@@ -875,9 +1040,11 @@ public class FURenderer implements OnFUControlListener {
                     mRotMode = calculateRotMode();
                     // 背景分割 Animoji 表情识别 人像驱动 手势识别，转动手机时，重置人脸识别
                     if (mDefaultEffect != null && (mDefaultEffect.effectType() == Effect.EFFECT_TYPE_BACKGROUND
-                            || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_ANIMOJI || mDefaultEffect.effectType()
-                            == Effect.EFFECT_TYPE_EXPRESSION || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_GESTURE
-                            || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_PORTRAIT_DRIVE)) {
+                            || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_ANIMOJI
+                            || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_EXPRESSION
+                            || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_GESTURE
+                            || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_PORTRAIT_DRIVE
+                            || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_AVATAR)) {
                         faceunity.fuOnCameraChange();
                     }
                     if (mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] > 0) {
@@ -1104,6 +1271,67 @@ public class FURenderer implements OnFUControlListener {
         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_CHANGE_FACE_INDEX], "input_height", inputHeight);
         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_CHANGE_FACE_INDEX], "input_face_points", posterPhotoLandmark);
         faceunity.fuCreateTexForItem(mItemsArray[ITEM_ARRAYS_CHANGE_FACE_INDEX], "tex_input", input, inputWidth, inputHeight);
+    }
+
+    public void loadAvatarBackground() {
+        mNeedBg = true;
+        if (mFuItemHandler == null) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_AVATAR_BACKGROUND);
+                }
+            });
+        } else {
+            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_AVATAR_BACKGROUND);
+        }
+    }
+
+    public void unloadAvatarBackground() {
+        mNeedBg = false;
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (mItemsArray[ITEM_ARRAYS_AVATAR_BACKGROUND] > 0) {
+                    faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_AVATAR_BACKGROUND]);
+                    mItemsArray[ITEM_ARRAYS_AVATAR_BACKGROUND] = 0;
+                }
+            }
+        });
+    }
+
+    /**
+     * 加载头发道具
+     *
+     * @param path 道具路径，如果为空就销毁
+     */
+    public void loadAvatarHair(final String path) {
+        if (TextUtils.isEmpty(path)) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    if (mItemsArray[ITEM_ARRAYS_AVATAR_HAIR] > 0) {
+                        faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_AVATAR_HAIR]);
+                        mItemsArray[ITEM_ARRAYS_AVATAR_HAIR] = 0;
+                    }
+                }
+            });
+        } else {
+            if (mFuItemHandler != null) {
+                mFuItemHandler.removeMessages(ITEM_ARRAYS_AVATAR_HAIR);
+                Message message = Message.obtain(mFuItemHandler, ITEM_ARRAYS_AVATAR_HAIR, path);
+                mFuItemHandler.sendMessage(message);
+            } else {
+                queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFuItemHandler.removeMessages(ITEM_ARRAYS_AVATAR_HAIR);
+                        Message message = Message.obtain(mFuItemHandler, ITEM_ARRAYS_AVATAR_HAIR, path);
+                        mFuItemHandler.sendMessage(message);
+                    }
+                });
+            }
+        }
     }
 
     public void fixPosterFaceParam(float value) {
@@ -1411,6 +1639,11 @@ public class FURenderer implements OnFUControlListener {
     }
 
     public interface OnBundleLoadCompleteListener {
+        /**
+         * bundle 加载完成
+         *
+         * @param what
+         */
         void onBundleLoadComplete(int what);
     }
 
@@ -1441,6 +1674,10 @@ public class FURenderer implements OnFUControlListener {
         if (effectType == Effect.EFFECT_TYPE_BACKGROUND) {
             //计算角度（全屏背景分割，第一次未识别人脸）
             faceunity.fuSetDefaultRotationMode((360 - mInputImageOrientation) / 90);
+        }
+        if (effectType == Effect.EFFECT_TYPE_AVATAR) {
+            //is3DFlipH 参数是用于对3D道具的镜像
+            faceunity.fuItemSetParam(itemHandle, "is3DFlipH", mCurrentCameraType == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0);
         }
         if (effectType == Effect.EFFECT_TYPE_ANIMOJI || effectType == Effect.EFFECT_TYPE_PORTRAIT_DRIVE) {
             //is3DFlipH 参数是用于对3D道具的镜像
@@ -1778,7 +2015,19 @@ public class FURenderer implements OnFUControlListener {
             fuRenderer.mOnBundleLoadCompleteListener = onBundleLoadCompleteListener;
             return fuRenderer;
         }
+    }
 
+    static class AvatarConstant {
+        public static final int EXPRESSION_LENGTH = 46;
+        public static final float[] ROTATION_MODE_DATA0 = new float[]{1f};
+        public static final float[] ROTATION_DATA0 = new float[]{0f, 0f, 0f, 1f};
+        public static final float[] PUP_POS_DATA0 = new float[]{0f, 0f};
+        public static final int VALID_DATA0 = 1;
+        public static final float[] EXPRESSIONS0 = new float[EXPRESSION_LENGTH];
+
+        static {
+            Arrays.fill(EXPRESSIONS0, 0f);
+        }
     }
 
 //--------------------------------------Builder----------------------------------------
@@ -1811,6 +2060,14 @@ public class FURenderer implements OnFUControlListener {
                             if (mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] > 0) {
                                 faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
                                 mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] = 0;
+                            }
+                            if (!mNeedBg && mItemsArray[ITEM_ARRAYS_AVATAR_BACKGROUND] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_AVATAR_BACKGROUND]);
+                                mItemsArray[ITEM_ARRAYS_AVATAR_BACKGROUND] = 0;
+                            }
+                            if (mItemsArray[ITEM_ARRAYS_AVATAR_HAIR] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_AVATAR_HAIR]);
+                                mItemsArray[ITEM_ARRAYS_AVATAR_HAIR] = 0;
                             }
                             if (itemEffect > 0) {
                                 updateEffectItemParams(effect, itemEffect);
@@ -2111,6 +2368,52 @@ public class FURenderer implements OnFUControlListener {
                             }
                         });
                     }
+                }
+                break;
+                case ITEM_ARRAYS_AVATAR_HAIR: {
+                    String path = (String) msg.obj;
+                    if (!TextUtils.isEmpty(path)) {
+                        final int itemAvatarHair = loadItem(path);
+                        if (itemAvatarHair <= 0) {
+                            Log.w(TAG, "create avatar hair item failed: " + itemAvatarHair);
+                            return;
+                        }
+                        queueEventItemHandle(new Runnable() {
+                            @Override
+                            public void run() {
+                                int oldItem = mItemsArray[ITEM_ARRAYS_AVATAR_HAIR];
+                                mItemsArray[ITEM_ARRAYS_AVATAR_HAIR] = itemAvatarHair;
+                                if (oldItem > 0) {
+                                    faceunity.fuDestroyItem(oldItem);
+                                }
+                            }
+                        });
+                    } else {
+                        queueEventItemHandle(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mItemsArray[ITEM_ARRAYS_AVATAR_HAIR] > 0) {
+                                    faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_AVATAR_HAIR]);
+                                    mItemsArray[ITEM_ARRAYS_AVATAR_HAIR] = 0;
+                                }
+                            }
+                        });
+                    }
+                }
+                break;
+                // 加载模型背景
+                case ITEM_ARRAYS_AVATAR_BACKGROUND: {
+                    final int itemAvatarBg = loadItem("avatar_bg.bundle");
+                    if (itemAvatarBg <= 0) {
+                        Log.w(TAG, "create avatar background item failed: " + itemAvatarBg);
+                        return;
+                    }
+                    queueEventItemHandle(new Runnable() {
+                        @Override
+                        public void run() {
+                            mItemsArray[ITEM_ARRAYS_AVATAR_BACKGROUND] = itemAvatarBg;
+                        }
+                    });
                 }
                 break;
                 default:

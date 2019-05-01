@@ -31,7 +31,6 @@ import javax.microedition.khronos.opengles.GL10;
  * 异图驱动页
  */
 public class FUMagicDriveActivity extends FUBaseActivity {
-    private static final String TAG = "FUMagicDriveActivity";
     private static final int REQ_PHOTO = 561;
     public static final String MAGIC_LIST = "magic_list";
     private static final int REQ_DELETE = 123;
@@ -184,7 +183,7 @@ public class FUMagicDriveActivity extends FUBaseActivity {
                 startActivityForResult(intentPhoto, REQ_PHOTO);
             } else if (position == itemCount - 1) {
                 // 删除模型
-                Intent intent = new Intent(FUMagicDriveActivity.this, MagicPhotoDeleteActivity.class);
+                Intent intent = new Intent(FUMagicDriveActivity.this, MagicPhotoDelActivity.class);
                 ArrayList<MagicPhotoEntity> magicPhotoEntities = new ArrayList<>();
                 int size = mAdapter.getData().size() - 2;
                 // 排除新加和删除按钮，预置的不出现

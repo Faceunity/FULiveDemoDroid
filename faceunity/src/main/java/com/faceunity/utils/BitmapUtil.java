@@ -364,4 +364,33 @@ public class BitmapUtil {
         return point;
     }
 
+    /**
+     * Return the clipped bitmap.
+     *
+     * @param src     The source of bitmap.
+     * @param x       The x coordinate of the first pixel.
+     * @param y       The y coordinate of the first pixel.
+     * @param width   The width.
+     * @param height  The height.
+     * @param recycle True to recycle the source of bitmap, false otherwise.
+     * @return the clipped bitmap
+     */
+    public static Bitmap clip(final Bitmap src,
+                              final int x,
+                              final int y,
+                              final int width,
+                              final int height,
+                              final boolean recycle) {
+        if (isEmptyBitmap(src))
+            return null;
+        Bitmap ret = Bitmap.createBitmap(src, x, y, width, height);
+        if (recycle && !src.isRecycled() && ret != src)
+            src.recycle();
+        return ret;
+    }
+
+    private static boolean isEmptyBitmap(final Bitmap src) {
+        return src == null || src.getWidth() == 0 || src.getHeight() == 0;
+
+    }
 }

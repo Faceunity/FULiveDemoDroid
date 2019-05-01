@@ -152,6 +152,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         if (mTextureOES == null || mFullFrameRectTexture2D == null) {
             return;
         }
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         if (mCameraNV21Byte == null) {
             mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mMvpMatrix);
             return;
@@ -380,6 +381,10 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     public int getCameraHeight() {
         return mCameraHeight;
+    }
+
+    public float[] getMvpMatrix() {
+        return mMvpMatrix;
     }
 
     public void handleFocus(float x, float y) {

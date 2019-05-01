@@ -121,8 +121,12 @@ public enum EffectEnum {
     Hair_05("Hair_05", R.drawable.icon_beautymakeup_hairsalon_05, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
     Hair_06("Hair_06", R.drawable.icon_beautymakeup_hairsalon_06, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
     Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0);
+    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
 
+    /**
+     * Avatar
+     */
+    AVATAR_MALE("avatar_male", 0, "avatar_male.bundle", 1, Effect.EFFECT_TYPE_AVATAR, 0);
 
     private String bundleName;
     private int resId;

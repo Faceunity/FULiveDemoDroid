@@ -10,6 +10,7 @@ import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
+import com.faceunity.fulivedemo.utils.AudioObserver;
 import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
@@ -30,6 +31,7 @@ public class FUEffectActivity extends FUBaseActivity {
     private EffectRecyclerAdapter mEffectRecyclerAdapter;
 
     private int mEffectType;
+    private AudioObserver mAudioObserver;
 
     @Override
     protected void onCreate() {
@@ -48,7 +50,7 @@ public class FUEffectActivity extends FUBaseActivity {
             }
         });
 
-        // 普通贴纸和背景分割，使用本地相册载入
+        // 使用本地相册载入
         if (mEffectType == Effect.EFFECT_TYPE_NORMAL) {
             mSelectDataBtn.setVisibility(View.VISIBLE);
             mSelectDataBtn.setOnClickListener(new OnMultiClickListener() {
@@ -66,6 +68,10 @@ public class FUEffectActivity extends FUBaseActivity {
     @Override
     protected FURenderer initFURenderer() {
         mEffectType = getIntent().getIntExtra("EffectType", 0);
+        if (mEffectType == Effect.EFFECT_TYPE_MUSIC_FILTER) {
+            mAudioObserver = new AudioObserver(this);
+        }
+
         ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(mEffectType);
         int frontCameraOrientation = 270;
         if (mEffectType == Effect.EFFECT_TYPE_GESTURE) {
@@ -84,6 +90,9 @@ public class FUEffectActivity extends FUBaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (mEffectType == Effect.EFFECT_TYPE_MUSIC_FILTER) {
+            getLifecycle().addObserver(mAudioObserver);
+        }
         mEffectRecyclerAdapter.onResume();
     }
 
@@ -91,6 +100,9 @@ public class FUEffectActivity extends FUBaseActivity {
     protected void onPause() {
         super.onPause();
         mEffectRecyclerAdapter.onPause();
+        if (mEffectType == Effect.EFFECT_TYPE_MUSIC_FILTER) {
+            getLifecycle().removeObserver(mAudioObserver);
+        }
     }
 
     @Override

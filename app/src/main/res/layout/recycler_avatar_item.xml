@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/iv_avatar_item"
+    android:layout_width="@dimen/x174"
+    android:layout_height="@dimen/x174"
+    android:background="@drawable/avatar_model_item_bg"
+    android:padding="@dimen/x13" />
+

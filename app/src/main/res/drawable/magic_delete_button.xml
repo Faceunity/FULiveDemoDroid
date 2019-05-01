@@ -8,7 +8,7 @@
 
     <item>
         <shape>
-            <solid android:color="@color/magic_button_enable" />
+            <solid android:color="@color/avatar_blue_btn" />
         </shape>
     </item>
 </selector>

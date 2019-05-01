@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_avatar_back"
+        android:layout_width="@dimen/x92"
+        android:layout_height="@dimen/x92"
+        android:layout_marginLeft="@dimen/x26"
+        android:layout_marginTop="@dimen/x22"
+        android:src="@drawable/demo_icon_back"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_avatar_save"
+        android:layout_width="@dimen/x92"
+        android:layout_height="@dimen/x92"
+        android:layout_marginTop="@dimen/x22"
+        android:layout_marginRight="@dimen/x26"
+        android:src="@drawable/demo_icon_save"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_custom_avatar_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/tv_avatar_custom_name"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x98"
+            android:background="@color/colorWhite"
+            android:gravity="center"
+            android:textColor="@color/btn_magic_text"
+            android:textSize="@dimen/x26"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="脸型" />
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/cl_avatar_custom"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x170"
+            android:background="@color/colorWhite"
+            app:layout_constraintBottom_toTopOf="@id/tv_avatar_custom_name">
+
+            <ImageView
+                android:id="@+id/iv_avatar_reset"
+                android:layout_width="@dimen/x90"
+                android:layout_height="@dimen/x90"
+                android:layout_marginLeft="@dimen/x34"
+                android:src="@drawable/demo_icon_reset"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:layout_width="@dimen/x2"
+                android:layout_height="@dimen/x46"
+                android:layout_marginLeft="@dimen/x24"
+                android:background="@color/divider_line_color"
+                app:layout_constraintBottom_toBottomOf="@id/iv_avatar_reset"
+                app:layout_constraintLeft_toRightOf="@id/iv_avatar_reset"
+                app:layout_constraintTop_toTopOf="@id/iv_avatar_reset" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_avatar_custom"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/x90"
+                android:layout_marginLeft="@dimen/x24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/iv_avatar_reset"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_avatar_face_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x120"
+            android:background="@color/colorWhite"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/cl_avatar_custom">
+
+            <TextView
+                android:id="@+id/tv_avatar_face_name"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/x32"
+                android:gravity="center"
+                android:textColor="@color/avatar_model_name_text"
+                android:textSize="@dimen/x24" />
+
+            <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
+                android:id="@+id/seek_bar_avatar_face"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/x40"
+                android:paddingRight="@dimen/x36"
+                app:dsb_indicatorColor="@color/avatar_blue_btn"
+                app:dsb_indicatorElevation="0dp"
+                app:dsb_indicatorPopupEnabled="true"
+                app:dsb_max="100"
+                app:dsb_min="-100"
+                app:dsb_progressColor="@color/avatar_blue_btn"
+                app:dsb_rippleColor="@color/colorWhite"
+                app:dsb_scrubberHeight="@dimen/x6"
+                app:dsb_thumbSize="@dimen/x32"
+                app:dsb_trackBaseHeight="@dimen/x16"
+                app:dsb_trackColor="#EEEEEE"
+                app:dsb_trackHeight="@dimen/x6"
+                app:dsb_value="0" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x1"
+            android:layout_marginBottom="@dimen/x98"
+            android:background="@color/divider_line_color"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_make_avatar_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x634"
+        android:background="@color/colorWhite"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_avatar_type"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x98"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_avatar_component"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/x536"
+            app:layout_constraintBottom_toTopOf="@id/rv_avatar_type"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_avatar_color"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/colorWhite"
+            app:layout_constraintBottom_toTopOf="@id/rv_avatar_component" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x1"
+            android:layout_marginBottom="@dimen/x98"
+            android:background="@color/divider_line_color"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

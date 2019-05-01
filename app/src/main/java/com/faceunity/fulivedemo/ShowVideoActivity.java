@@ -178,6 +178,12 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        stopRecording();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mOutVideoFile != null && mOutVideoFile.exists()) {
@@ -233,7 +239,7 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     }
 
     private File mOutVideoFile;
-    protected MediaVideoEncoder mVideoEncoder;
+    private MediaVideoEncoder mVideoEncoder;
     /**
      * callback methods from encoder
      */
@@ -254,7 +260,9 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
 
         @Override
         public void onStopped(final MediaEncoder encoder) {
-            mVideoEncoder = null;
+            if (encoder instanceof MediaVideoEncoder) {
+                mVideoEncoder = null;
+            }
         }
     };
 
@@ -285,8 +293,8 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     private void stopRecording() {
         if (mMuxer != null) {
             mMuxer.stopRecording();
+            mMuxer = null;
         }
-        System.gc();
     }
 
     private Runnable effectDescriptionHide = new Runnable() {

@@ -7,11 +7,12 @@
 
     <android.opengl.GLSurfaceView
         android:id="@+id/fu_base_gl_surface"
+        app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/cl_operation_view"
+        android:id="@+id/cl_custom_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -56,13 +57,12 @@
                 android:background="@drawable/fu_base_input_type_radio_left_background"
                 android:button="@null"
                 android:checked="true"
-                android:maxLines="2"
                 android:gravity="center"
+                android:maxLines="2"
                 app:text_size_xfermode="@dimen/text_size_22"
                 app:text_xfermode="@string/fu_base_input_type_double" />
 
             <com.faceunity.fulivedemo.ui.XfermodeRadioButton
-                android:maxLines="2"
                 android:id="@+id/fu_base_input_type_single"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -71,6 +71,7 @@
                 android:button="@null"
                 android:checked="false"
                 android:gravity="center"
+                android:maxLines="2"
                 app:text_size_xfermode="@dimen/text_size_22"
                 app:text_xfermode="@string/fu_base_input_type_single" />
         </RadioGroup>
@@ -79,8 +80,8 @@
             android:id="@+id/fu_base_select_data"
             android:layout_width="@dimen/x57"
             android:layout_height="@dimen/x55"
-            android:layout_marginRight="@dimen/x65"
             android:layout_marginTop="@dimen/x40"
+            android:layout_marginRight="@dimen/x65"
             android:background="@color/transparent"
             android:onClick="onClick"
             android:scaleType="centerInside"
@@ -93,8 +94,8 @@
             android:id="@+id/fu_base_debug"
             android:layout_width="@dimen/x60"
             android:layout_height="@dimen/x56"
-            android:layout_marginRight="@dimen/x65"
             android:layout_marginTop="@dimen/x39"
+            android:layout_marginRight="@dimen/x65"
             android:background="@drawable/debug"
             android:button="@null"
             android:checked="false"
@@ -105,8 +106,8 @@
             android:id="@+id/fu_base_camera_change"
             android:layout_width="@dimen/x66"
             android:layout_height="@dimen/x54"
-            android:layout_marginRight="@dimen/x31"
             android:layout_marginTop="@dimen/x41"
+            android:layout_marginRight="@dimen/x31"
             android:background="@color/transparent"
             android:onClick="onClick"
             android:scaleType="centerInside"
@@ -118,11 +119,11 @@
             android:id="@+id/fu_base_height_img"
             android:layout_width="@dimen/x60"
             android:layout_height="@dimen/x80"
-            android:layout_marginRight="@dimen/x9"
             android:layout_marginTop="@dimen/x31"
-            android:paddingBottom="@dimen/x20"
+            android:layout_marginRight="@dimen/x9"
             android:paddingLeft="@dimen/x20"
             android:paddingTop="@dimen/x20"
+            android:paddingBottom="@dimen/x20"
             android:scaleType="centerInside"
             android:src="@drawable/performance_normal"
             android:visibility="gone"
@@ -189,8 +190,8 @@
             android:id="@+id/photograph_light_layout"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/x460"
-            android:layout_marginRight="@dimen/x35"
             android:layout_marginTop="@dimen/x278"
+            android:layout_marginRight="@dimen/x35"
             android:gravity="center_horizontal"
             android:orientation="vertical"
             android:visibility="invisible"
@@ -245,5 +246,11 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent" />
     </android.support.constraint.ConstraintLayout>
+
+    <FrameLayout
+        android:id="@+id/fl_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
 </android.support.constraint.ConstraintLayout>

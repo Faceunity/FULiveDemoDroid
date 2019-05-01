@@ -53,7 +53,7 @@
         android:layout_height="@dimen/x96"
         android:gravity="center"
         android:text="@string/confirm"
-        android:textColor="@color/magic_button_enable"
+        android:textColor="@color/avatar_blue_btn"
         android:textSize="@dimen/x32"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@id/tv_cancel" />

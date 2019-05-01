@@ -80,10 +80,6 @@ public class FileUtils {
         return file;
     }
 
-    public static File getSavePosterPathFile(Context context) {
-        return new File(context.getFilesDir(), TMP_PHOTO_POSTER_NAME);
-    }
-
     public static String getSavePath(Context context) {
         return getSavePathFile(context).getAbsolutePath();
     }
@@ -180,6 +176,16 @@ public class FileUtils {
         }
         return cacheDir;
     }
+
+    public static File getThumbnailDir(Context context) {
+        File fileDir = getExternalFileDir(context);
+        File thumbDir = new File(fileDir, "thumb");
+        if (!thumbDir.exists()) {
+            thumbDir.mkdirs();
+        }
+        return thumbDir;
+    }
+
 
     /**
      * 生成唯一标示

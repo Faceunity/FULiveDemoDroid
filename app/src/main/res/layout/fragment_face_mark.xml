@@ -30,7 +30,7 @@
         app:layout_constraintTop_toTopOf="@id/iv_magic_back" />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/cl_operation_view"
+        android:id="@+id/cl_custom_view"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x364"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -46,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/x60"
             android:layout_marginRight="@dimen/x28"
-            android:visibility="gone"
+            android:visibility="visible"
             app:cardCornerRadius="@dimen/x30"
             app:cardElevation="@dimen/x12"
             app:cardPreventCornerOverlap="false"

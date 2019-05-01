@@ -123,7 +123,6 @@ public class CameraUtils {
      * specify the dimensions of the encoded video).  If it fails to find a match it just
      * uses the default preview size for video.
      * <p>
-     * TODO: should do a best-fit match, e.g.
      * https://github.com/commonsguy/cwac-camera/blob/master/camera/src/com/commonsware/cwac/camera/CameraUtils.java
      */
     public static int[] choosePreviewSize(Camera.Parameters parms, int width, int height) {

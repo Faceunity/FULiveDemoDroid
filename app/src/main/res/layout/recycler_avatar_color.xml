@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/x80"
+    android:layout_height="@dimen/x80">
+
+    <ImageView
+        android:id="@+id/iv_avatar_color"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@+id/iv_avatar_color_flag"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/demo_avatar_color_selected"
+        android:visibility="gone" />
+
+</FrameLayout>

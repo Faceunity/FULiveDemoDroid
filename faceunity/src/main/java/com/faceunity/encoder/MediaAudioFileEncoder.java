@@ -64,8 +64,7 @@ public class MediaAudioFileEncoder extends MediaEncoder {
                 while (!muxer.isStarted())
                     try {
                         muxer.wait(100);
-                    } catch (final InterruptedException e) {
-                        Log.e(TAG, "start wait", e);
+                    } catch (InterruptedException e) {
                     }
             }
         }

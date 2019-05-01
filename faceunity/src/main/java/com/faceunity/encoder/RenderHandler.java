@@ -18,7 +18,6 @@ public final class RenderHandler implements Runnable {
 
     private final Object mLock = new Object();
     private EGLContext mShard_context;
-    private boolean mIsRecordable;
     private Surface mSurface;
     private int mTexId;
     private float[] mtx = new float[16];
@@ -45,13 +44,13 @@ public final class RenderHandler implements Runnable {
         return handler;
     }
 
-    public final void setEglContext(final EGLContext shared_context, final Surface surface, final boolean isRecordable) {
+    public final void setEglContext(final EGLContext shared_context, final Surface surface, final int tex_id) {
         if (DEBUG) Log.i(TAG, "setEglContext:");
         synchronized (mLock) {
             if (mRequestRelease) return;
             mShard_context = shared_context;
+            mTexId = tex_id;
             mSurface = surface;
-            mIsRecordable = isRecordable;
             mRequestSetEglContext = true;
             Matrix.setIdentityM(mtx, 0);
             Matrix.setIdentityM(mvp, 0);
@@ -75,8 +74,16 @@ public final class RenderHandler implements Runnable {
         synchronized (mLock) {
             if (mRequestRelease) return;
             mTexId = tex_id;
-            mtx = tex_matrix;
-            mvp = mvp_matrix;
+            if ((tex_matrix != null) && (tex_matrix.length == 16)) {
+                System.arraycopy(tex_matrix, 0, mtx, 0, 16);
+            } else {
+                Matrix.setIdentityM(mtx, 0);
+            }
+            if ((mvp_matrix != null) && (mvp_matrix.length == 16)) {
+                System.arraycopy(mvp_matrix, 0, mvp, 0, 16);
+            } else {
+                Matrix.setIdentityM(mvp, 0);
+            }
             mRequestDraw++;
             mLock.notifyAll();
 /*			try {
@@ -88,7 +95,7 @@ public final class RenderHandler implements Runnable {
 
     public boolean isValid() {
         synchronized (mLock) {
-            return !(mSurface instanceof Surface) || ((Surface) mSurface).isValid();
+            return mSurface == null || ((Surface) mSurface).isValid();
         }
     }
 
@@ -127,14 +134,14 @@ public final class RenderHandler implements Runnable {
                 localRequestDraw = mRequestDraw > 0;
                 if (localRequestDraw) {
                     mRequestDraw--;
+//                mLock.notifyAll();
                 }
-                mLock.notifyAll();
             }
             if (localRequestDraw) {
-                if ((mEglCore != null) && mTexId > 0) {
+                if ((mEglCore != null) && mTexId >= 0) {
                     mInputWindowSurface.makeCurrent();
                     // clear screen with yellow color so that you can see rendering rectangle
-                    GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
                     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
                     mFullScreen.drawFrame(mTexId, mtx, mvp);
                     mInputWindowSurface.swapBuffers();
@@ -165,6 +172,7 @@ public final class RenderHandler implements Runnable {
         mInputWindowSurface.makeCurrent();
         mFullScreen = new ProgramTexture2d();
         mSurface = null;
+        mLock.notifyAll();
     }
 
     private final void internalRelease() {

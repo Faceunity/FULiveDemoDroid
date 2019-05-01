@@ -16,6 +16,7 @@
     <string name="home_function_name_face_warp">哈哈镜</string>
     <string name="home_function_name_portrait_drive">人像驱动</string>
     <string name="home_function_name_live_photo">表情动图</string>
+    <string name="home_function_name_avatar">Avatar 捏脸</string>
     <string name="home_function_name_makeup">美妆</string>
     <string name="sorry_no_permission">抱歉，你所使用的证书权限或SDK不包括该功能。</string>
     <string name="camera_dialog_title">警告</string>
@@ -145,7 +146,7 @@
     <string name="magic_btn_back">返回上步</string>
     <string name="magic_btn_delete">删除</string>
     <string name="magic_btn_cancel">取消</string>
-    <string name="magic_btn_delete_">删除(%d)</string>
+    <string name="magic_btn_delete_">删除 (%d)</string>
     <string name="magic_delete_effect">删除道具</string>
     <string name="magic_delete_all">全选</string>
     <string name="magic_empty_tip">你还没有创建过道具哦</string>
@@ -159,5 +160,36 @@
     <string name="magic_not_add_sticker">你还没有添加五官哦</string>
     <string name="magic_not_add_sticker_cancel">不添加</string>
     <string name="magic_not_add_sticker_confirm">去添加</string>
+
+    <string name="delete_avatar_model">删除模型</string>
+    <string name="new_avatar_model">新建模型</string>
+
+    <string name="avatar_face_hair">发型</string>
+    <string name="avatar_face_face">脸型</string>
+    <string name="avatar_face_eye">眼睛</string>
+    <string name="avatar_face_lip">嘴唇</string>
+    <string name="avatar_face_nose">鼻子</string>
+    <string name="avatar_face_eyebrow">眉毛</string>
+    <string name="avatar_face_eyelash">睫毛</string>
+
+    <string name="avatar_face_length">脸型长度</string>
+    <string name="avatar_face_width">脸颊宽度</string>
+    <string name="avatar_chin_width">下颚宽度</string>
+    <string name="avatar_chin_height">下巴高低</string>
+    <string name="avatar_eye_position">眼睛位置</string>
+    <string name="avatar_eye_corner_height">眼角高度</string>
+    <string name="avatar_eye_height">眼睛高低</string>
+    <string name="avatar_eye_width">眼睛宽窄</string>
+    <string name="avatar_nose_position">鼻子位置</string>
+    <string name="avatar_nose_width">鼻子宽窄</string>
+    <string name="avatar_nose_height">鼻子高低</string>
+    <string name="avatar_mouth_position">嘴部位置</string>
+    <string name="avatar_up_lip_thickness">上唇厚度</string>
+    <string name="avatar_down_lip_thickness">下唇厚度</string>
+    <string name="avatar_lip_width">嘴唇宽度</string>
+    <string name="model_empty_tip">你还没有创建过模型哦</string>
+    <string name="model_back_not_save">你还没有创建过模型哦</string>
+    <string name="dialog_reset_avatar_model">是否将所有参数恢复到默认值?</string>
+    <string name="avatar_face_customize">自定义</string>
 
 </resources>

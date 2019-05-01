@@ -33,6 +33,7 @@ public class MediaVideoEncoder extends MediaEncoder {
     private int[] mTextureId;
     private int[] mFBOId;
     private int[] mViewPort = new int[4];
+    private int mFrameCount;
 
     public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int width, final int height) {
         super(muxer, listener);
@@ -42,18 +43,38 @@ public class MediaVideoEncoder extends MediaEncoder {
         mRenderHandler = RenderHandler.createHandler(TAG);
     }
 
-    public boolean frameAvailableSoon(int texId, final float[] texMatrix, float[] mvpMatrix) {
-        boolean result;
-        if (result = super.frameAvailableSoon()) {
-            GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mViewPort, 0);
-            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFBOId[0]);
-            GLES20.glViewport(0, 0, mWidth, mHeight);
-            program.drawFrame(texId, texMatrix, mvpMatrix);
-            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-            GLES20.glViewport(mViewPort[0], mViewPort[1], mViewPort[2], mViewPort[3]);
-            mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX, mvpMatrix);
+    /**
+     * select the first codec that match a specific MIME type
+     *
+     * @param mimeType
+     * @return null if no codec matched
+     */
+    protected static final MediaCodecInfo selectVideoCodec(final String mimeType) {
+        if (DEBUG)
+            Log.v(TAG, "selectVideoCodec: " + mimeType);
+
+        // get the list of available codecs
+        final int numCodecs = MediaCodecList.getCodecCount();
+        for (int i = 0; i < numCodecs; i++) {
+            final MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
+
+            if (!codecInfo.isEncoder()) {    // skipp decoder
+                continue;
+            }
+            // select first codec that match a specific MIME type and color format
+            final String[] types = codecInfo.getSupportedTypes();
+            for (int j = 0; j < types.length; j++) {
+                if (types[j].equalsIgnoreCase(mimeType)) {
+                    if (DEBUG)
+                        Log.i(TAG, "codec:" + codecInfo.getName() + ",MIME=" + types[j]);
+                    final int format = selectColorFormat(codecInfo, mimeType);
+                    if (format > 0) {
+                        return codecInfo;
+                    }
+                }
+            }
         }
-        return result;
+        return null;
     }
 
     @Override
@@ -92,12 +113,36 @@ public class MediaVideoEncoder extends MediaEncoder {
         }
     }
 
+    public boolean frameAvailableSoon(int texId, final float[] texMatrix, float[] mvpMatrix) {
+        GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mViewPort, 0);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFBOId[0]);
+        GLES20.glViewport(0, 0, mWidth, mHeight);
+        program.drawFrame(texId, texMatrix, mvpMatrix);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+        GLES20.glViewport(mViewPort[0], mViewPort[1], mViewPort[2], mViewPort[3]);
+        // 先绘制三次，不进行编码，解决黑屏问题
+        if (mFrameCount++ < 3) {
+            return true;
+        }
+        boolean result;
+        if (result = super.frameAvailableSoon()) {
+            mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX, mvpMatrix);
+        }
+        return result;
+    }
+
     public void setEglContext(final EGLContext shared_context) {
         mTextureId = new int[1];
         mFBOId = new int[1];
         GlUtil.createFBO(mTextureId, mFBOId, mWidth, mHeight);
         program = new ProgramTexture2d();
-        mRenderHandler.setEglContext(shared_context, mSurface, true);
+        mRenderHandler.setEglContext(shared_context, mSurface, mTextureId[0]);
+    }
+
+    private int calcBitRate() {
+        final int bitrate = (int) (BPP * FRAME_RATE * mWidth * mHeight);
+        Log.i(TAG, String.format("bitrate=%5.2f[Mbps]", bitrate / 1024f / 1024f));
+        return bitrate;
     }
 
     @Override
@@ -115,46 +160,10 @@ public class MediaVideoEncoder extends MediaEncoder {
         GlUtil.deleteTextureId(mTextureId);
         if (program != null) {
             program.release();
+            program = null;
         }
+        mFrameCount = 0;
         super.release();
-    }
-
-    private int calcBitRate() {
-        final int bitrate = (int) (BPP * FRAME_RATE * mWidth * mHeight);
-        Log.i(TAG, String.format("bitrate=%5.2f[Mbps]", bitrate / 1024f / 1024f));
-        return bitrate;
-    }
-
-    /**
-     * select the first codec that match a specific MIME type
-     *
-     * @param mimeType
-     * @return null if no codec matched
-     */
-    protected static final MediaCodecInfo selectVideoCodec(final String mimeType) {
-        if (DEBUG) Log.v(TAG, "selectVideoCodec:");
-
-        // get the list of available codecs
-        final int numCodecs = MediaCodecList.getCodecCount();
-        for (int i = 0; i < numCodecs; i++) {
-            final MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
-
-            if (!codecInfo.isEncoder()) {    // skipp decoder
-                continue;
-            }
-            // select first codec that match a specific MIME type and color format
-            final String[] types = codecInfo.getSupportedTypes();
-            for (int j = 0; j < types.length; j++) {
-                if (types[j].equalsIgnoreCase(mimeType)) {
-                    if (DEBUG) Log.i(TAG, "codec:" + codecInfo.getName() + ",MIME=" + types[j]);
-                    final int format = selectColorFormat(codecInfo, mimeType);
-                    if (format > 0) {
-                        return codecInfo;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     /**

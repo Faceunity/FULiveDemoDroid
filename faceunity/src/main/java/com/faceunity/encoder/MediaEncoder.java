@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
+/**
+ * see https://github.com/saki4510t/AudioVideoRecordingSample
+ */
 public abstract class MediaEncoder implements Runnable {
     private static final String TAG = MediaEncoder.class.getSimpleName();
     private static final boolean DEBUG = false;
@@ -48,7 +51,7 @@ public abstract class MediaEncoder implements Runnable {
     /**
      * MediaCodec instance for encoding
      */
-    protected volatile MediaCodec mMediaCodec;                // API >= 16(Android4.1.2)
+    protected MediaCodec mMediaCodec;                // API >= 16(Android4.1.2)
     /**
      * Weak refarence of MediaMuxerWarapper instance
      */

@@ -16,6 +16,7 @@
     <string name="home_function_name_face_warp">FaceWarp</string>
     <string name="home_function_name_portrait_drive">Dynamic Portrait</string>
     <string name="home_function_name_live_photo">Live Photo</string>
+    <string name="home_function_name_avatar">Knead Face</string>
     <string name="home_function_name_makeup">Make Up</string>
     <string name="sorry_no_permission">Sorry ,Your license is not supported for these functions.</string>
     <string name="camera_dialog_title">warning</string>
@@ -43,6 +44,7 @@
     <string name="beauty_box_heavy_blur_normal">Light Blur</string>
     <string name="beauty_box_heavy_blur_double_text">Heavy Blur mode</string>
     <string name="beauty_box_heavy_blur_normal_text">Light Blur mode</string>
+    <string name="beauty_radio_beauty">Light Makeup</string>
     <string name="beauty_box_blur_level">Blur</string>
     <string name="beauty_box_color_level">Whiten</string>
     <string name="beauty_box_red_level">Ruddy</string>
@@ -112,9 +114,9 @@
     <string name="fennen">Pink</string>
     <string name="qingxin">Fresh</string>
     <string name="hongrun">Ruddy</string>
-    <string name="lengsediao">cool</string>
-    <string name="nuansediao">warm</string>
-    <string name="bailiang">light</string>
+    <string name="lengsediao">Cold tone</string>
+    <string name="nuansediao">Warm tone</string>
+    <string name="bailiang">Bright</string>
 
 
     <string name="poster_take_photo">Please take photos by positive face.</string>
@@ -134,12 +136,12 @@
     <string name="magic_gen_tip_operate">Please select the following features</string>
     <string name="magic_cant_add_more">Can\'t add more</string>
     <string name="magic_toast_action">Move your facial features</string>
-    <string name="magic_back_not_save">Not save model if you go back</string>
+    <string name="magic_back_not_save">Custom won\'t be saved after return</string>
     <string name="magic_btn_adjust">Fine adjustment</string>
     <string name="magic_btn_back">Go back</string>
     <string name="magic_btn_delete">Delete</string>
     <string name="magic_btn_cancel">Cancel</string>
-    <string name="magic_btn_delete_">Delete(%d)</string>
+    <string name="magic_btn_delete_">Delete (%d)</string>
     <string name="magic_empty_tip">Not created model</string>
     <string name="magic_delete_effect">Delete model</string>
     <string name="magic_delete_all">All</string>
@@ -153,6 +155,36 @@
     <string name="magic_not_add_sticker">You havent added five features yet.</string>
     <string name="magic_not_add_sticker_cancel">Go Back</string>
     <string name="magic_not_add_sticker_confirm">To add</string>
+
+    <string name="delete_avatar_model">Delete model</string>
+    <string name="new_avatar_model">Create model</string>
+
+    <string name="avatar_face_hair">Hair style</string>
+    <string name="avatar_face_face">Face shape</string>
+    <string name="avatar_face_eye">Eyes</string>
+    <string name="avatar_face_lip">Mouth</string>
+    <string name="avatar_face_nose">Nose</string>
+    <string name="avatar_face_eyebrow">眉毛</string>
+    <string name="avatar_face_eyelash">睫毛</string>
+
+    <string name="avatar_face_length">Face length</string>
+    <string name="avatar_face_width">Cheek width</string>
+    <string name="avatar_chin_width">Jaw width</string>
+    <string name="avatar_chin_height">Jaw length</string>
+    <string name="avatar_eye_position">Eye position</string>
+    <string name="avatar_eye_corner_height">Canthus position</string>
+    <string name="avatar_eye_height">Eye width</string>
+    <string name="avatar_eye_width">Eye length</string>
+    <string name="avatar_nose_position">Nose position</string>
+    <string name="avatar_nose_width">Nose width</string>
+    <string name="avatar_nose_height">Nose height</string>
+    <string name="avatar_mouth_position">Mouth position</string>
+    <string name="avatar_up_lip_thickness">Upper lip thickness</string>
+    <string name="avatar_down_lip_thickness">Down lip thickness</string>
+    <string name="avatar_lip_width">Lip width</string>
+    <string name="model_empty_tip">No model has been created</string>
+    <string name="dialog_reset_avatar_model">Reset all parameters to default?</string>
+    <string name="avatar_face_customize">Custom</string>
 
 
 </resources>

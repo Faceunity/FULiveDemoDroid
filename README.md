@@ -634,6 +634,45 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "I
                     faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "Strength", mHairColorStrength);
 ```
 
+## 捏脸
+
+加载制作好的捏脸道具后，可以设置以下参数进行捏脸。
+
+### 进入捏脸状态
+
+```
+//进入捏脸状态
+faceunity.fuItemSetParamd(1,"enter_facepup",1);
+```
+
+### 清除全部捏脸参数
+
+```
+//清除全部捏脸参数
+faceunity.fuItemSetParamd(1,"clear_facepup",1);
+```
+
+### 捏脸
+
+```
+//设置第一个捏脸属性“大眼”的权值，范围[0-1]。这里param对应的就是第几个捏脸属性，从1开始。
+faceunity.fuItemSetParamd(1,"\{\"name\":\"facepup\",\"param\":\"1\"\}",1);
+
+//设置第二个捏脸属性“尖下巴”的权值，范围[0-1]。这里param对应的就是第几个捏脸属性，从1开始。
+faceunity.fuItemSetParamd(1,"\{\"name\":\"facepup\",\"param\":\"2\"\}",0.5);
+```
+
+### 保存或退出捏脸
+
+二选一即可
+
+```
+//1. 直接退出捏脸状态，不保存当前捏脸状态，进入跟踪状态。使用上一次捏脸，进行人脸表情跟踪。
+faceunity.fuItemSetParamd(1,"quit_facepup",1);
+//2. 触发保存捏脸，并退出捏脸状态，进入跟踪状态。耗时操作，必要时设置。
+fuItemSetParamd(1,"need_recompute_facepup",1);
+```
+
 ## 接口说明
 
 [Android java层接口说明](docs/Nama%20API%20Android%20Reference.md)

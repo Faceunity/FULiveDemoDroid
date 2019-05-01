@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
+import com.faceunity.fulivedemo.activity.AvatarDriveActivity;
 import com.faceunity.fulivedemo.utils.FullScreenUtils;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
@@ -45,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
             Effect.EFFECT_TYPE_GESTURE,
             Effect.EFFECT_TYPE_FACE_WARP,
             Effect.EFFECT_TYPE_PORTRAIT_DRIVE,
-//            Effect.EFFECT_TYPE_LIVE_PHOTO
+//            Effect.EFFECT_TYPE_LIVE_PHOTO,
+            Effect.EFFECT_TYPE_NONE,
     };
 
     // 文档：http://confluence.faceunity.com/pages/viewpage.action?pageId=10453059
@@ -64,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
             0x200,                  //手势识别
             0x10000,                //哈哈镜
             0x8000,                 //人像驱动
-//            0x1000000                 //表情动图
+//            0x1000000,              //表情动图
+            0x10                    //Avatar捏脸
     };
 
     private static final int[] home_function_name = {
@@ -82,14 +85,15 @@ public class MainActivity extends AppCompatActivity {
             R.string.home_function_name_gesture,
             R.string.home_function_name_face_warp,
             R.string.home_function_name_portrait_drive,
-//            R.string.home_function_name_live_photo
+//            R.string.home_function_name_live_photo,
+            R.string.home_function_name_avatar
     };
 
     private static final int[] home_function_res = {
             R.drawable.main_beauty,
             R.drawable.main_makeup,
             R.drawable.main_effect,
-            R.drawable.main_avatar,
+            R.drawable.main_animoji,
             R.drawable.main_hair,
             R.drawable.main_ar_mask,
             R.drawable.main_change_face,
@@ -100,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.main_gesture,
             R.drawable.main_face_warp,
             R.drawable.main_portrait_drive,
-//            R.drawable.main_magic_photo
+//            R.drawable.main_magic_photo,
+            R.drawable.main_avatar
     };
 
     private List<Integer> hasFaceUnityPermissionsList = new ArrayList<>();
@@ -200,12 +205,15 @@ public class MainActivity extends AppCompatActivity {
                         } else if (home_function_res[position] == R.drawable.main_poster_face) {
                             intent = new Intent(MainActivity.this, PosterListActivity.class);
                             startActivity(intent);
-                        } else if (home_function_res[position] == R.drawable.main_avatar) {
+                        } else if (home_function_res[position] == R.drawable.main_animoji) {
                             intent = new Intent(MainActivity.this, FUAnimojiActivity.class);
                             startActivity(intent);
 //                        } else if (home_function_res[position] == R.drawable.main_magic_photo) {
 //                            intent = new Intent(MainActivity.this, FUMagicDriveActivity.class);
 //                            startActivity(intent);
+                        } else if (home_function_res[position] == R.drawable.main_avatar) {
+                            intent = new Intent(MainActivity.this, AvatarDriveActivity.class);
+                            startActivity(intent);
                         } else {
                             intent = new Intent(MainActivity.this, FUEffectActivity.class);
                             intent.putExtra("EffectType", home_function_type[position]);

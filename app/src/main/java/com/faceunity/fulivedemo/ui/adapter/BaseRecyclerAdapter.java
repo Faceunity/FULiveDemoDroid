@@ -65,7 +65,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
         final BaseViewHolder viewHolder = BaseViewHolder.createViewHolder(parent, mLayoutResId);
         View itemView = viewHolder.getItemView();
         itemView.setOnClickListener(new InnerItemViewClickListener(viewHolder));
-        itemView.setOnLongClickListener(new InnereItemLongClickListener(viewHolder));
+        itemView.setOnLongClickListener(new InnerItemLongClickListener(viewHolder));
         return viewHolder;
     }
 
@@ -392,7 +392,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
             mViews = new SparseArray<>();
         }
 
-        static BaseViewHolder createViewHolder(ViewGroup parent, int layoutResId) {
+        public static BaseViewHolder createViewHolder(ViewGroup parent, int layoutResId) {
             LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
             View view = layoutInflater.inflate(layoutResId, parent, false);
             return new BaseViewHolder(view);
@@ -608,10 +608,10 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
 
     }
 
-    private class InnereItemLongClickListener implements View.OnLongClickListener {
+    public class InnerItemLongClickListener implements View.OnLongClickListener {
         private BaseViewHolder mViewHolder;
 
-        InnereItemLongClickListener(BaseViewHolder viewHolder) {
+        public InnerItemLongClickListener(BaseViewHolder viewHolder) {
             mViewHolder = viewHolder;
         }
 
@@ -628,10 +628,10 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
     /**
      * Item 点击事件监听器
      */
-    private class InnerItemViewClickListener extends OnMultiClickListener {
+    public class InnerItemViewClickListener extends OnMultiClickListener {
         private BaseViewHolder mViewHolder;
 
-        InnerItemViewClickListener(BaseViewHolder viewHolder) {
+        public InnerItemViewClickListener(BaseViewHolder viewHolder) {
             mViewHolder = viewHolder;
         }
 

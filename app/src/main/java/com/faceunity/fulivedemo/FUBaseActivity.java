@@ -71,7 +71,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     protected ImageView mTopBackground;
     protected GLSurfaceView mGLSurfaceView;
     protected CameraRenderer mCameraRenderer;
-    private volatile boolean isDoubleInputType = true;
+    protected volatile boolean isDoubleInputType = true;
     private ImageButton mCameraChange;
     private TextView mDebugText;
     private TextView mIsTrackingText;
@@ -98,7 +98,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     };
 
     protected FURenderer mFURenderer;
-    private byte[] mFuNV21Byte;
+    protected byte[] mFuNV21Byte;
     private Handler mHandler = new Handler(Looper.getMainLooper());
     protected volatile boolean mTakePicing = false;
 
@@ -139,15 +139,11 @@ public abstract class FUBaseActivity extends AppCompatActivity
         mCameraRenderer.onCreate();
         mCameraRenderer.onResume();
         mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-//        audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-//        audioManager.abandonAudioFocus(null);
         mSensorManager.unregisterListener(this);
         mCameraRenderer.onPause();
         mCameraRenderer.onDestroy();
@@ -278,7 +274,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
         }
     };
 
-    private volatile MediaVideoEncoder mVideoEncoder;
+    private MediaVideoEncoder mVideoEncoder;
 
     public void takePic() {
         if (mTakePicing) {
@@ -417,7 +413,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
                 stopRecording();
             }
         });
-        mClOperationView = (ConstraintLayout) findViewById(R.id.cl_operation_view);
+        mClOperationView = (ConstraintLayout) findViewById(R.id.cl_custom_view);
         mRootView = (ConstraintLayout) findViewById(R.id.cl_root);
         mHeightCheckBox = (CheckBox) findViewById(R.id.fu_base_height);
         mHeightImg = (ImageView) findViewById(R.id.fu_base_height_img);
@@ -510,8 +506,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
                     @Override
                     public void run() {
                         Log.e(TAG, "stop encoder success");
-                        ToastUtil.showToast(FUBaseActivity.this, R.string.save_video_success);
                         mTakePicBtn.setSecond(mStartTime = 0);
+                        ToastUtil.showToast(FUBaseActivity.this, R.string.save_video_success);
                         sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mOutFile)));
                     }
                 });
