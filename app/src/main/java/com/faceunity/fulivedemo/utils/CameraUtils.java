@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Camera-related utility functions.
  */
-public class CameraUtils {
+public final class CameraUtils {
     private static final String TAG = CameraUtils.class.getSimpleName();
     private static final boolean DEBUG = false;
 

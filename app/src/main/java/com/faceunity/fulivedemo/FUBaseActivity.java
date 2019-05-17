@@ -50,10 +50,7 @@ import com.faceunity.utils.MiscUtil;
 import java.io.File;
 import java.io.IOException;
 
-import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
-import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
@@ -237,6 +234,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
             System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
             fuTextureId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
         }
+//        mCameraRenderer.setLandmarksData(mFURenderer.getLandmarksData(0));
         sendRecordingData(fuTextureId, mtx, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
         checkPic(fuTextureId, mtx, cameraHeight, cameraWidth);
         return fuTextureId;
@@ -292,32 +290,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
     };
 
     /**
-     * 自定义 EGLContext
-     */
-    private static class ContextFactory implements GLSurfaceView.EGLContextFactory {
-
-        private static double glVersion = 3.0;
-        private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-
-        @Override
-        public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
-            Log.w(TAG, "creating OpenGL ES " + glVersion + " context");
-            int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, (int) glVersion, EGL10.EGL_NONE};
-            // attempt to create a OpenGL ES 3.0 context
-            EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
-            Log.d(TAG, "createContext: ctx:" + context);
-            return context; // returns null if 3.0 is not supported;
-        }
-
-        @Override
-        public void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context) {
-            if (!egl.eglDestroyContext(display, context)) {
-                Log.e("DefaultContextFactory", "display:" + display + " context: " + context);
-            }
-        }
-    }
-
-    /**
      * 拍照
      *
      * @param textureId
@@ -357,8 +329,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
         setContentView(R.layout.activity_fu_base);
         MiscUtil.checkPermission(this);
         mGLSurfaceView = (GLSurfaceView) findViewById(R.id.fu_base_gl_surface);
-        //        mGLSurfaceView.setEGLContextFactory(new ContextFactory());
-        mGLSurfaceView.setEGLContextClientVersion(2);
+        mGLSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGLVersion(this));
         mCameraRenderer = new CameraRenderer(this, mGLSurfaceView, this);
         mGLSurfaceView.setRenderer(mCameraRenderer);
         mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);

@@ -23,8 +23,8 @@ android {
 
     sourceSets {
         main.assets.srcDirs += ['src/main/assets', 'src/main/effects/bundle', 'src/main/makeup/material',
-                                'src/main/poster', 'src/main/magicphoto', 'src/main/avatar/bundle']
-        main.res.srcDirs += ['src/main/res', 'src/main/effects/res', 'src/main/makeup/res', 'src/main/avatar/res']
+                                'src/main/poster', 'src/main/magicphoto']
+        main.res.srcDirs += ['src/main/res', 'src/main/effects/res', 'src/main/makeup/res']
     }
 
     lintOptions {

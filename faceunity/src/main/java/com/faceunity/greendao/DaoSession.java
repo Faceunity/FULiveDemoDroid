@@ -20,40 +20,40 @@ import java.util.Map;
  */
 public class DaoSession extends AbstractDaoSession {
 
-    private final DaoConfig magicPhotoEntityDaoConfig;
     private final DaoConfig avatarModelDaoConfig;
+    private final DaoConfig magicPhotoEntityDaoConfig;
 
-    private final MagicPhotoEntityDao magicPhotoEntityDao;
     private final AvatarModelDao avatarModelDao;
+    private final MagicPhotoEntityDao magicPhotoEntityDao;
 
     public DaoSession(Database db, IdentityScopeType type, Map<Class<? extends AbstractDao<?, ?>>, DaoConfig>
             daoConfigMap) {
         super(db);
 
-        magicPhotoEntityDaoConfig = daoConfigMap.get(MagicPhotoEntityDao.class).clone();
-        magicPhotoEntityDaoConfig.initIdentityScope(type);
-
         avatarModelDaoConfig = daoConfigMap.get(AvatarModelDao.class).clone();
         avatarModelDaoConfig.initIdentityScope(type);
 
-        magicPhotoEntityDao = new MagicPhotoEntityDao(magicPhotoEntityDaoConfig, this);
-        avatarModelDao = new AvatarModelDao(avatarModelDaoConfig, this);
+        magicPhotoEntityDaoConfig = daoConfigMap.get(MagicPhotoEntityDao.class).clone();
+        magicPhotoEntityDaoConfig.initIdentityScope(type);
 
-        registerDao(MagicPhotoEntity.class, magicPhotoEntityDao);
+        avatarModelDao = new AvatarModelDao(avatarModelDaoConfig, this);
+        magicPhotoEntityDao = new MagicPhotoEntityDao(magicPhotoEntityDaoConfig, this);
+
         registerDao(AvatarModel.class, avatarModelDao);
+        registerDao(MagicPhotoEntity.class, magicPhotoEntityDao);
     }
 
     public void clear() {
-        magicPhotoEntityDaoConfig.clearIdentityScope();
         avatarModelDaoConfig.clearIdentityScope();
-    }
-
-    public MagicPhotoEntityDao getMagicPhotoEntityDao() {
-        return magicPhotoEntityDao;
+        magicPhotoEntityDaoConfig.clearIdentityScope();
     }
 
     public AvatarModelDao getAvatarModelDao() {
         return avatarModelDao;
+    }
+
+    public MagicPhotoEntityDao getMagicPhotoEntityDao() {
+        return magicPhotoEntityDao;
     }
 
 }

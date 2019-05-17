@@ -23,7 +23,6 @@
         app:layout_constraintBottom_toTopOf="@id/rv_avatar"
         app:layout_constraintLeft_toLeftOf="parent">
 
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -47,6 +46,7 @@
         app:layout_constraintTop_toTopOf="@id/fl_delete_model">
 
         <TextView
+            android:id="@+id/tv_new_avatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"

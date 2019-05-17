@@ -17,8 +17,8 @@ import android.widget.TextView;
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.activity.AvatarDriveActivity;
-import com.faceunity.fulivedemo.utils.FullScreenUtils;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
+import com.faceunity.fulivedemo.utils.ScreenUtils;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.utils.MiscUtil;
 
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             finish();
             return;
         }
-        FullScreenUtils.fullScreen(this);
+        ScreenUtils.fullScreen(this);
         MiscUtil.checkPermission(this);
 
         int moduleCode = FURenderer.getModuleCode();

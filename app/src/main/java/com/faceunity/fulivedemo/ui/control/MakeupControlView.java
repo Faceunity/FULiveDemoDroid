@@ -570,7 +570,7 @@ public class MakeupControlView extends FrameLayout {
                 // 调节妆容的同时选择滤镜
                 Pair<Filter, Float> filterFloatPair = FaceMakeupEnum.MAKEUP_FILTERS.get(faceMakeup.getNameId());
                 if (filterFloatPair != null) {
-                    mOnFUControlListener.onFilterNameSelected(filterFloatPair.first);
+                    mOnFUControlListener.onFilterNameSelected(filterFloatPair.first.filterName());
                     mOnFUControlListener.onFilterLevelSelected(filterFloatPair.second);
                 }
             }

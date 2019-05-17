@@ -4,7 +4,7 @@ package com.faceunity.fulivedemo.utils;
  * FPS工具类
  * Created by tujh on 2018/5/24.
  */
-public class FPSUtil {
+public final class FPSUtil {
     private static final String TAG = FPSUtil.class.getSimpleName();
     private static final int NANO_IN_ONE_MILLI_SECOND = 1000000;
 

@@ -29,7 +29,7 @@ public class AvatarModelDao extends AbstractDao<AvatarModel, Long> {
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"ICON_PATH\" TEXT," + // 1: iconPath
                 "\"CONFIG_JSON\" TEXT," + // 2: configJson
-                "\"GENDER\" INTEGER NOT NULL );"); // 3: gender
+                "\"UI_JSON\" TEXT);"); // 3: uiJson
     }
 
 
@@ -41,7 +41,9 @@ public class AvatarModelDao extends AbstractDao<AvatarModel, Long> {
         super(config, daoSession);
     }
 
-    /** Drops the underlying database table. */
+    /**
+     * Drops the underlying database table.
+     */
     public static void dropTable(Database db, boolean ifExists) {
         String sql = "DROP TABLE " + (ifExists ? "IF EXISTS " : "") + "\"AVATAR_MODEL\"";
         db.execSQL(sql);
@@ -65,7 +67,11 @@ public class AvatarModelDao extends AbstractDao<AvatarModel, Long> {
         if (configJson != null) {
             stmt.bindString(3, configJson);
         }
-        stmt.bindLong(4, entity.getGender());
+
+        String uiJson = entity.getUiJson();
+        if (uiJson != null) {
+            stmt.bindString(4, uiJson);
+        }
     }
 
     @Override
@@ -86,7 +92,11 @@ public class AvatarModelDao extends AbstractDao<AvatarModel, Long> {
         if (configJson != null) {
             stmt.bindString(3, configJson);
         }
-        stmt.bindLong(4, entity.getGender());
+
+        String uiJson = entity.getUiJson();
+        if (uiJson != null) {
+            stmt.bindString(4, uiJson);
+        }
     }
 
     @Override
@@ -100,7 +110,7 @@ public class AvatarModelDao extends AbstractDao<AvatarModel, Long> {
                 cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
                 cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // iconPath
                 cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // configJson
-                cursor.getInt(offset + 3) // gender
+                cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3) // uiJson
         );
         return entity;
     }
@@ -110,16 +120,7 @@ public class AvatarModelDao extends AbstractDao<AvatarModel, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setIconPath(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
         entity.setConfigJson(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setGender(cursor.getInt(offset + 3));
-     }
-     
-    @Override
-    public Long getKey(AvatarModel entity) {
-        if (entity != null) {
-            return entity.getId();
-        } else {
-            return null;
-        }
+        entity.setUiJson(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
     }
 
     @Override
@@ -127,7 +128,7 @@ public class AvatarModelDao extends AbstractDao<AvatarModel, Long> {
         entity.setId(rowId);
         return rowId;
     }
-
+    
     /**
      * Properties of entity AvatarModel.<br/>
      * Can be used for QueryBuilder and for referencing column names.
@@ -136,7 +137,16 @@ public class AvatarModelDao extends AbstractDao<AvatarModel, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property IconPath = new Property(1, String.class, "iconPath", false, "ICON_PATH");
         public final static Property ConfigJson = new Property(2, String.class, "configJson", false, "CONFIG_JSON");
-        public final static Property Gender = new Property(3, int.class, "gender", false, "GENDER");
+        public final static Property UiJson = new Property(3, String.class, "uiJson", false, "UI_JSON");
+    }
+
+    @Override
+    public Long getKey(AvatarModel entity) {
+        if (entity != null) {
+            return entity.getId();
+        } else {
+            return null;
+        }
     }
 
     @Override

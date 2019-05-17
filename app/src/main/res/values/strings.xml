@@ -78,14 +78,14 @@
     <string name="makeup_classical">复古妆</string>
     <string name="makeup_plum">梅子妆</string>
     <string name="makeup_tipsy">宿醉妆</string>
+    <string name="makeup_disgusting">厌世妆</string>
+    <string name="makeup_black_white">黑白妆</string>
     <string name="makeup_red_tea">赤茶妆</string>
     <string name="makeup_winter">冬日妆</string>
     <string name="makeup_boyfriend">男友</string>
     <string name="makeup_cream">奶油妆</string>
     <string name="makeup_clear">清透</string>
     <string name="makeup_grapefruit">西柚</string>
-    <string name="makeup_disgusting">厌世妆</string>
-    <string name="makeup_black_white">黑白妆</string>
     <string name="select_data_photo">选择图片</string>
     <string name="select_data_video">选择视频</string>
     <string name="select_data_title">请从相册中选择图片或视频</string>
@@ -163,6 +163,7 @@
 
     <string name="delete_avatar_model">删除模型</string>
     <string name="new_avatar_model">新建模型</string>
+    <string name="edit_avatar_model">编辑模型</string>
 
     <string name="avatar_face_hair">发型</string>
     <string name="avatar_face_face">脸型</string>
@@ -181,15 +182,15 @@
     <string name="avatar_eye_height">眼睛高低</string>
     <string name="avatar_eye_width">眼睛宽窄</string>
     <string name="avatar_nose_position">鼻子位置</string>
-    <string name="avatar_nose_width">鼻子宽窄</string>
-    <string name="avatar_nose_height">鼻子高低</string>
+    <string name="avatar_nose_width">鼻翼宽窄</string>
+    <string name="avatar_nose_height">鼻头高低</string>
     <string name="avatar_mouth_position">嘴部位置</string>
     <string name="avatar_up_lip_thickness">上唇厚度</string>
     <string name="avatar_down_lip_thickness">下唇厚度</string>
     <string name="avatar_lip_width">嘴唇宽度</string>
     <string name="model_empty_tip">你还没有创建过模型哦</string>
-    <string name="model_back_not_save">你还没有创建过模型哦</string>
     <string name="dialog_reset_avatar_model">是否将所有参数恢复到默认值?</string>
     <string name="avatar_face_customize">自定义</string>
+    <string name="avatar_save_succeed">保存成功</string>
 
 </resources>

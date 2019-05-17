@@ -74,9 +74,12 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     private int mFuTextureId;
     private volatile boolean isNeedStopDrawFrame;
-    protected volatile float[] mMvpMatrix = new float[16];
+    private volatile float[] mMvpMatrix = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
     private ProgramTextureOES mTextureOES;
+    // 快速打开 landmark 人脸检测点位，相关的注释不要删
+//    private ProgramLandmarks mProgramLandmarks;
+//    private float[] landmarksData;
 
     private FPSUtil mFPSUtil;
 
@@ -130,6 +133,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         Log.d(TAG, "onSurfaceCreated()");
         mFullFrameRectTexture2D = new ProgramTexture2d();
         mTextureOES = new ProgramTextureOES();
+//        mProgramLandmarks = new ProgramLandmarks();
         mCameraTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         cameraStartPreview();
 
@@ -176,6 +180,12 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         } else {
             mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mMvpMatrix);
         }
+
+        // draw landmarks view
+//        if (!isNeedStopDrawFrame && landmarksData != null) {
+//            mProgramLandmarks.refresh(landmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCurrentCameraType);
+//            mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
+//        }
 
         mFPSUtil.limit();
         if (!isNeedStopDrawFrame) {
@@ -248,6 +258,11 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
             mTextureOES.release();
             mTextureOES = null;
         }
+
+//        if (mProgramLandmarks != null) {
+//            mProgramLandmarks.release();
+//            mProgramLandmarks = null;
+//        }
 
         mOnCameraRendererStatusListener.onSurfaceDestroy();
     }
@@ -399,4 +414,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         CameraUtils.setExposureCompensation(mCamera, v);
     }
 
+//    public void setLandmarksData(float[] landmarksData) {
+//        this.landmarksData = landmarksData;
+//    }
 }

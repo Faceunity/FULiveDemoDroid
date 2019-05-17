@@ -17,7 +17,7 @@ import com.faceunity.fulivedemo.R;
 /**
  * Created by tujh on 2018/6/28.
  */
-public abstract class ToastUtil {
+public final class ToastUtil {
     private static Toast sNormalToast;
     private static Toast sFineToast;
 

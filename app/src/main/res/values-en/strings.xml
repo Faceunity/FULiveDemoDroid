@@ -158,6 +158,7 @@
 
     <string name="delete_avatar_model">Delete model</string>
     <string name="new_avatar_model">Create model</string>
+    <string name="edit_avatar_model">Edit model</string>
 
     <string name="avatar_face_hair">Hair style</string>
     <string name="avatar_face_face">Face shape</string>
@@ -185,6 +186,7 @@
     <string name="model_empty_tip">No model has been created</string>
     <string name="dialog_reset_avatar_model">Reset all parameters to default?</string>
     <string name="avatar_face_customize">Custom</string>
+    <string name="avatar_save_succeed">Save succeed</string>
 
 
 </resources>

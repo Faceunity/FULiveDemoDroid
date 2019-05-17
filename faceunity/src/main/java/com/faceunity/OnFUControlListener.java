@@ -2,7 +2,6 @@ package com.faceunity;
 
 
 import com.faceunity.entity.Effect;
-import com.faceunity.entity.Filter;
 import com.faceunity.entity.MagicPhotoEntity;
 import com.faceunity.entity.MakeupItem;
 
@@ -39,7 +38,7 @@ public interface OnFUControlListener {
      *
      * @param filterName 滤镜名称
      */
-    void onFilterNameSelected(Filter filterName);
+    void onFilterNameSelected(String filterName);
 
     /**
      * 美发颜色

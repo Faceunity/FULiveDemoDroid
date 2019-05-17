@@ -21,7 +21,7 @@ import android.widget.FrameLayout;
 /**
  * Created by tujh on 2018/7/18.
  */
-public abstract class ScreenUtils {
+public final class ScreenUtils {
 
     private static final String TAG_FAKE_STATUS_BAR_VIEW = "statusBarView";
     private static final String TAG_MARGIN_ADDED = "marginAdded";

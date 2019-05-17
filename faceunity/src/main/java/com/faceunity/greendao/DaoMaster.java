@@ -25,22 +25,8 @@ public class DaoMaster extends AbstractDaoMaster {
 
     public DaoMaster(Database db) {
         super(db, SCHEMA_VERSION);
-        registerDaoClass(MagicPhotoEntityDao.class);
         registerDaoClass(AvatarModelDao.class);
-    }
-
-    /**
-     * Creates underlying database table using DAOs.
-     */
-    public static void createAllTables(Database db, boolean ifNotExists) {
-        MagicPhotoEntityDao.createTable(db, ifNotExists);
-        AvatarModelDao.createTable(db, ifNotExists);
-    }
-
-    /** Drops underlying database table using DAOs. */
-    public static void dropAllTables(Database db, boolean ifExists) {
-        MagicPhotoEntityDao.dropTable(db, ifExists);
-        AvatarModelDao.dropTable(db, ifExists);
+        registerDaoClass(MagicPhotoEntityDao.class);
     }
 
     /**
@@ -51,6 +37,22 @@ public class DaoMaster extends AbstractDaoMaster {
         Database db = new DevOpenHelper(context, name).getWritableDb();
         DaoMaster daoMaster = new DaoMaster(db);
         return daoMaster.newSession();
+    }
+
+    /**
+     * Creates underlying database table using DAOs.
+     */
+    public static void createAllTables(Database db, boolean ifNotExists) {
+        AvatarModelDao.createTable(db, ifNotExists);
+        MagicPhotoEntityDao.createTable(db, ifNotExists);
+    }
+
+    /**
+     * Drops underlying database table using DAOs.
+     */
+    public static void dropAllTables(Database db, boolean ifExists) {
+        AvatarModelDao.dropTable(db, ifExists);
+        MagicPhotoEntityDao.dropTable(db, ifExists);
     }
 
     public DaoSession newSession() {

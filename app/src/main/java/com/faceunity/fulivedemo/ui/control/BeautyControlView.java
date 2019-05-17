@@ -43,8 +43,8 @@ import static com.faceunity.fulivedemo.entity.BeautyParameterModel.STR_FILTER_LE
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.getValue;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.isHeightPerformance;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.isOpen;
+import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sFilter;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sFilterLevel;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sFilterName;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sHeavyBlur;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sSkinDetect;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.setValue;
@@ -280,9 +280,9 @@ public class BeautyControlView extends FrameLayout {
     }
 
     private void updateViewFilterRecycler() {
-        mFilterRecyclerAdapter.setFilter(sFilterName);
-        mOnFUControlListener.onFilterNameSelected(sFilterName);
-        float filterLevel = getFilterLevel(sFilterName.filterName());
+        mFilterRecyclerAdapter.setFilter(sFilter);
+        mOnFUControlListener.onFilterNameSelected(sFilter.filterName());
+        float filterLevel = getFilterLevel(sFilter.filterName());
         mOnFUControlListener.onFilterLevelSelected(filterLevel);
     }
 
@@ -634,8 +634,8 @@ public class BeautyControlView extends FrameLayout {
                     setFilterProgress();
                     notifyDataSetChanged();
                     if (mOnFUControlListener != null) {
-                        sFilterName = filters.get(mFilterPositionSelect);
-                        mOnFUControlListener.onFilterNameSelected(sFilterName);
+                        sFilter = filters.get(mFilterPositionSelect);
+                        mOnFUControlListener.onFilterNameSelected(sFilter.filterName());
                     }
                 }
             });
@@ -729,9 +729,9 @@ public class BeautyControlView extends FrameLayout {
                         mFilterPositionSelect = -1;
                         mFilterRecyclerAdapter.notifyItemChanged(old);
                     }
-                    mOnFUControlListener.onFilterNameSelected(filter);
+                    mOnFUControlListener.onFilterNameSelected(filter.filterName());
                     Float filterLevel = used ? level : filterFloatPair.second;
-                    sFilterName = filter;
+                    sFilter = filter;
                     String filterName = filter.filterName();
                     sFilterLevel.put(STR_FILTER_LEVEL + filterName, filterLevel);
                     setFilterLevel(filterName, filterLevel);

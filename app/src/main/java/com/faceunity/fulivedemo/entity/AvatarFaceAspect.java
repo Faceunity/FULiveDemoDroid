@@ -24,6 +24,7 @@ public class AvatarFaceAspect {
     private float level;
     private String bundlePath;
     private double[] color;
+    private int selPos;
 
     public AvatarFaceAspect() {
     }
@@ -48,6 +49,14 @@ public class AvatarFaceAspect {
         avatarFaceAspect.name = name;
         avatarFaceAspect.level = level;
         return avatarFaceAspect;
+    }
+
+    public int getSelPos() {
+        return selPos;
+    }
+
+    public void setSelPos(int selPos) {
+        this.selPos = selPos;
     }
 
     public String getName() {
@@ -113,6 +122,7 @@ public class AvatarFaceAspect {
                 ", name='" + name + '\'' +
                 ", level=" + level +
                 ", iconId=" + iconId +
+                ", selPos=" + selPos +
                 ", descriptionId=" + descriptionId +
                 ", bundlePath='" + bundlePath + '\'' +
                 ", color=" + Arrays.toString(color) +

@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -29,7 +30,9 @@ import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.fragment.AvatarMakeFragment;
+import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.ColorConstant;
+import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.greendao.GreenDaoUtils;
 import com.faceunity.utils.BitmapUtil;
@@ -47,23 +50,28 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * @author Richie on 2019.03.20
  * Avatar 驱动页和生成页，使用 fragment 显示
+ *
+ * @author Richie on 2019.03.20
  */
 public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.OnBundleLoadCompleteListener {
-    public static final double[] NORMAL_XYZ = new double[]{0, 0, 0};
+    private static final double[] NORMAL_XYZ = new double[]{0, 0, 0};
     public static final String AVATAR_MODEL_LIST = "avatar_model_list";
     private static final int REQ_DELETE = 123;
     private static final String TAG = "AvatarDriveActivity";
     private AvatarModelAdapter mAvatarModelAdapter;
     private FrameLayout mFlFragment;
+    private TextView mTvNewAvatar;
+    private FrameLayout mflNewAvatar;
     private volatile boolean mInMakeMode;
     private volatile boolean mSnapShot;
     private AvatarModel mAvatarModel;
     private RecyclerView mRvAvatarModel;
     private AvatarMakeFragment mAvatarMakeFragment;
+    // 稍后要设置的头发参数
     private Map<String, double[]> mPendingHairColors = new HashMap<>(8);
-    // 生成缩略图使用
+    // 选中的模型位置，默认从第一个开始
+    private int mSelectPos = 1;
     private BitmapUtil.OnReadBitmapListener mSnapshotBitmapListener = new BitmapUtil.OnReadBitmapListener() {
 
         @Override
@@ -74,20 +82,30 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                     .getAbsolutePath(), FileUtils.getUUID32() + ".jpg");
             AvatarModel clone = mAvatarModel.cloneIt();
             clone.setIconPath(path);
-            clone.setConfigJson(AvatarFaceHelper.list2Config());
+            clone.setConfigJson(AvatarFaceHelper.array2Config());
+            clone.setUiJson(AvatarFaceHelper.uiConfig2Array());
             Log.i(TAG, "onReadBitmapListener: save " + clone);
             try {
-                GreenDaoUtils.getInstance().getDaoSession().getAvatarModelDao().save(clone);
+                GreenDaoUtils.getInstance().getDaoSession().getAvatarModelDao().insertOrReplace(clone);
                 mFURenderer.recomputeFaceup();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ToastUtil.makeFineToast(AvatarDriveActivity.this, "保存成功", R.drawable.icon_confirm).show();
+                        ToastUtil.makeFineToast(AvatarDriveActivity.this, getString(R.string.avatar_save_succeed), R.drawable.icon_confirm).show();
                         resetAllData();
                         mAvatarModelAdapter.replaceAll(getAllAvatars());
-                        int pos = mAvatarModelAdapter.getItemCount() - 1;
+                        boolean isCreate = (boolean) mTvNewAvatar.getTag();
+                        int pos;
+                        if (isCreate) {
+                            pos = mAvatarModelAdapter.getItemCount() - 1;
+                        } else {
+                            pos = mSelectPos;
+                        }
+                        mSelectPos = pos;
+                        mAvatarModel = mAvatarModelAdapter.getItem(pos);
                         mAvatarModelAdapter.setItemSelected(pos);
                         mRvAvatarModel.scrollToPosition(pos);
+                        setButtonText(false);
                         showDrivePage();
                     }
                 });
@@ -96,39 +114,6 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             }
         }
     };
-
-    @Override
-    protected void onCreate() {
-        resetAllData();
-        getWindow().setBackgroundDrawable(null);
-        mFlFragment = findViewById(R.id.fl_fragment);
-        mBottomViewStub.setLayoutResource(R.layout.activity_avatar_drive);
-        mBottomViewStub.inflate();
-
-        ConstraintLayout.LayoutParams btnParams = (ConstraintLayout.LayoutParams) mTakePicBtn.getLayoutParams();
-        btnParams.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
-        btnParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
-        btnParams.bottomMargin = getResources().getDimensionPixelSize(R.dimen.x200);
-        mTakePicBtn.setLayoutParams(btnParams);
-
-        ViewClickListener viewClickListener = new ViewClickListener();
-        findViewById(R.id.fl_new_model).setOnClickListener(viewClickListener);
-        findViewById(R.id.fl_delete_model).setOnClickListener(viewClickListener);
-        mRvAvatarModel = findViewById(R.id.rv_avatar);
-        mRvAvatarModel.setHasFixedSize(true);
-        mRvAvatarModel.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        ((SimpleItemAnimator) mRvAvatarModel.getItemAnimator()).setSupportsChangeAnimations(false);
-        mRvAvatarModel.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.x10),
-                getResources().getDimensionPixelSize(R.dimen.x19), getResources().getDimensionPixelSize(R.dimen.x24), 0));
-        mAvatarModelAdapter = new AvatarModelAdapter(getAllAvatars());
-        mAvatarModelAdapter.setOnItemClickListener(new AvatarModelClickListener());
-        // 默认选中预置的模型
-        mAvatarModelAdapter.setItemSelected(1);
-        mAvatarModel = mAvatarModelAdapter.getItem(1);
-        mRvAvatarModel.setAdapter(mAvatarModelAdapter);
-
-        ColorConstant.init(this);
-    }
 
     @Override
     public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mtx, long timeStamp) {
@@ -196,6 +181,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             if (index > 0) {
                 setAvatarConfig(avatarModel);
             } else {
+                // 禁用
                 mFURenderer.onEffectSelected(EffectEnum.EffectNone.effect());
                 mFURenderer.loadAvatarHair(null);
             }
@@ -215,6 +201,43 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
         return mAvatarMakeFragment != null && mFlFragment.getVisibility() == View.VISIBLE;
     }
 
+    @Override
+    protected void onCreate() {
+        resetAllData();
+        getWindow().setBackgroundDrawable(null);
+        mFlFragment = findViewById(R.id.fl_fragment);
+        mBottomViewStub.setLayoutResource(R.layout.activity_avatar_drive);
+        mBottomViewStub.inflate();
+
+        ConstraintLayout.LayoutParams btnParams = (ConstraintLayout.LayoutParams) mTakePicBtn.getLayoutParams();
+        btnParams.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
+        btnParams.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+        btnParams.bottomMargin = getResources().getDimensionPixelSize(R.dimen.x200);
+        mTakePicBtn.setLayoutParams(btnParams);
+
+        mTvNewAvatar = findViewById(R.id.tv_new_avatar);
+        // indicate whether creates model
+        ViewClickListener viewClickListener = new ViewClickListener();
+        mflNewAvatar = findViewById(R.id.fl_new_model);
+        mflNewAvatar.setOnClickListener(viewClickListener);
+        setButtonText(true);
+        findViewById(R.id.fl_delete_model).setOnClickListener(viewClickListener);
+        mRvAvatarModel = findViewById(R.id.rv_avatar);
+        mRvAvatarModel.setHasFixedSize(true);
+        mRvAvatarModel.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        ((SimpleItemAnimator) mRvAvatarModel.getItemAnimator()).setSupportsChangeAnimations(false);
+        mRvAvatarModel.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.x10),
+                getResources().getDimensionPixelSize(R.dimen.x19), getResources().getDimensionPixelSize(R.dimen.x24), 0));
+        mAvatarModelAdapter = new AvatarModelAdapter(getAllAvatars());
+        mAvatarModelAdapter.setOnItemClickListener(new AvatarModelClickListener());
+        // 默认选中预置的模型
+        mAvatarModelAdapter.setItemSelected(1);
+        mAvatarModel = mAvatarModelAdapter.getItem(1);
+        mRvAvatarModel.setAdapter(mAvatarModelAdapter);
+
+        ColorConstant.init(this);
+    }
+
     private List<AvatarModel> getAllAvatars() {
         List<AvatarModel> avatarModels = new ArrayList<>(16);
         List<AvatarModel> defaultAvatars = initDefaultAvatar();
@@ -224,30 +247,33 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
         return avatarModels;
     }
 
-    private List<AvatarModel> initDefaultAvatar() {
-        List<AvatarModel> avatarModels = new ArrayList<>(2);
-        avatarModels.add(new AvatarModel(R.drawable.demo_avatar_icon_cancel, false, -1));
-        AvatarModel avatarMale = new AvatarModel(R.drawable.demo_icon_template_male, true, AvatarModel.MALE);
-        avatarMale.setConfigJson(AvatarFaceHelper.list2Config());
-        avatarModels.add(avatarMale);
-        return avatarModels;
-    }
-
     private List<AvatarModel> queryAvatarModel() {
         return GreenDaoUtils.getInstance().getDaoSession().getAvatarModelDao().loadAll();
     }
 
     @Override
     protected FURenderer initFURenderer() {
+        int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
         return new FURenderer
                 .Builder(this)
                 .inputTextureType(1)
                 .maxFaces(1)
+                .inputImageOrientation(frontCameraOrientation)
                 .defaultEffect(EffectEnum.AVATAR_MALE.effect())
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .setOnBundleLoadCompleteListener(this)
                 .build();
+    }
+
+    private List<AvatarModel> initDefaultAvatar() {
+        List<AvatarModel> avatarModels = new ArrayList<>(2);
+        avatarModels.add(new AvatarModel(R.drawable.demo_avatar_icon_cancel, false));
+        AvatarModel avatarMale = new AvatarModel(R.drawable.demo_icon_template_male, true);
+        // 默认模型有个默认头发，鼻子修正过
+        avatarMale.setConfigJson(AvatarFaceHelper.array2Config());
+        avatarModels.add(avatarMale);
+        return avatarModels;
     }
 
     private void showFragment() {
@@ -265,24 +291,8 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
         }
         transaction.commit();
 
-        mAvatarMakeFragment.resetData();
+        mAvatarMakeFragment.setAvatarModel(mAvatarModel);
         mAvatarMakeFragment.startMakeAnimation();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == REQ_DELETE) {
-            mAvatarModelAdapter.replaceAll(getAllAvatars());
-            int index = mAvatarModelAdapter.indexOf(mAvatarModel);
-            if (index < 0) {
-                mAvatarModelAdapter.setItemSelected(1);
-                mRvAvatarModel.scrollToPosition(1);
-            } else {
-                mAvatarModelAdapter.setItemSelected(index);
-                mRvAvatarModel.scrollToPosition(index);
-            }
-        }
     }
 
     @Override
@@ -307,7 +317,10 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                         }
                         Set<Map.Entry<String, Float>> customEntries = AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.entrySet();
                         for (Map.Entry<String, Float> customEntry : customEntries) {
-                            mFURenderer.fuItemSetParamFaceup(customEntry.getKey(), customEntry.getValue());
+                            Float value = customEntry.getValue();
+                            if (value != 0) {
+                                mFURenderer.fuItemSetParamFaceup(customEntry.getKey(), value);
+                            }
                         }
                     } else {
                         setAvatarConfig(mAvatarModelAdapter.getSelectedItems().valueAt(0));
@@ -318,6 +331,9 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (isMakeAvatarViewVisible()) {
+                        mAvatarMakeFragment.showLoadingView(false);
+                    }
                     // 如果选择页显示，那么改变 y 位置
                     mFURenderer.enterFaceShape();
                     if (isMakeAvatarViewVisible()) {
@@ -341,7 +357,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                 }
             });
         } else if (what == FURenderer.ITEM_ARRAYS_AVATAR_BACKGROUND) {
-            // 解决没有调整好的鼻子问题，其实可以放在 bundle 里的，下个版本干掉
+            // 解决没有调整好的鼻子问题，其实可以放在 bundle 里的
             List<AvatarFaceAspect> defaultNose = AvatarFaceHelper.getDefaultNose();
             mFURenderer.enterFaceShape();
             for (AvatarFaceAspect avatarFaceAspect : defaultNose) {
@@ -350,17 +366,48 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == REQ_DELETE) {
+            mAvatarModelAdapter.replaceAll(getAllAvatars());
+            int index = mAvatarModelAdapter.indexOf(mAvatarModel);
+            if (index < 0) {
+                mAvatarModelAdapter.setItemSelected(1);
+                mRvAvatarModel.scrollToPosition(1);
+                setButtonText(true);
+            } else {
+                mAvatarModelAdapter.setItemSelected(index);
+                mRvAvatarModel.scrollToPosition(index);
+                if (index > 1) {
+                    setButtonText(false);
+                } else {
+                    setButtonText(true);
+                }
+            }
+        }
+    }
+
+    public void resetAllData() {
+        AvatarFaceHelper.FACE_ASPECT_MAP.clear();
+        AvatarFaceHelper.FACE_ASPECT_COLOR_MAP.clear();
+        AvatarFaceHelper.sFaceHairBundlePath = AvatarFaceHelper.DEFAULT_HAIR_PATH;
+    }
+
     // 四步走 进入捏脸 --> 清除全部参数 --> 设置捏脸参数 --> 保存
-    private void setAvatarConfig(AvatarModel adapterItem) {
-        if (adapterItem == null) {
+    private void setAvatarConfig(AvatarModel avatarModel) {
+        if (avatarModel == null) {
             return;
         }
 
-        String configJson = adapterItem.getConfigJson();
-//        Log.d(TAG, "setAvatarConfig: configJson " + configJson);
+        String configJson = avatarModel.getConfigJson();
+        Log.d(TAG, "setAvatarConfig: configJson " + configJson);
         if (configJson != null) {
-            List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2List(configJson);
+            List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(configJson);
             if (avatarFaceAspects != null) {
+                if (avatarModel.isDefault()) {
+                    avatarFaceAspects.addAll(AvatarFaceHelper.getDefaultNose());
+                }
                 resetAllData();
                 mFURenderer.enterFaceShape();
                 mFURenderer.clearFaceShape();
@@ -376,10 +423,8 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                     } else {
                         mFURenderer.fuItemSetParamFaceup(avatarFaceAspect.getName(), avatarFaceAspect.getLevel());
                     }
-                    if (!TextUtils.isEmpty(avatarFaceAspect.getBundlePath())) {
+                    if (avatarFaceAspect.getBundlePath() != null) {
                         mFURenderer.loadAvatarHair(avatarFaceAspect.getBundlePath());
-                    } else {
-                        mFURenderer.loadAvatarHair(null);
                     }
                 }
                 mFURenderer.recomputeFaceup();
@@ -392,28 +437,46 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
         }
     }
 
-    public void resetAllData() {
-        AvatarFaceHelper.FACE_ASPECT_MAP.clear();
-        AvatarFaceHelper.FACE_ASPECT_COLOR_MAP.clear();
-        AvatarFaceHelper.sFaceHairBundlePath = AvatarFaceHelper.DEFAULT_HAIR_PATH;
+    private void setButtonText(boolean isCreate) {
+        mflNewAvatar.setVisibility(View.VISIBLE);
+        mTvNewAvatar.setText(isCreate ? R.string.new_avatar_model : R.string.edit_avatar_model);
+        mTvNewAvatar.setTag(isCreate);
     }
 
-    private class ViewClickListener implements View.OnClickListener {
+    private class ViewClickListener extends OnMultiClickListener {
 
         @Override
-        public void onClick(View v) {
+        protected void onMultiClick(View v) {
             switch (v.getId()) {
+                // enter make up mode
                 case R.id.fl_new_model: {
                     showFragment();
                     mClOperationView.setVisibility(View.INVISIBLE);
                     mInMakeMode = true;
                     mFURenderer.enterFaceShape();
-                    mFURenderer.clearFaceShape();
+                    // create or edit model
+                    boolean isCreate = (boolean) mTvNewAvatar.getTag();
+                    if (isCreate) {
+                        mFURenderer.clearFaceShape();
+                    }
                     mFURenderer.loadAvatarBackground();
                     if (!mFURenderer.isAvatarLoaded()) {
                         mFURenderer.onEffectSelected(EffectEnum.AVATAR_MALE.effect());
                     }
-                    mFURenderer.loadAvatarHair(AvatarFaceHelper.DEFAULT_HAIR_PATH);
+                    if (!mFURenderer.isAvatarMakeupItemLoaded()) {
+                        List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(mAvatarModel.getConfigJson());
+                        if (avatarFaceAspects != null) {
+                            for (AvatarFaceAspect avatarFaceAspect : avatarFaceAspects) {
+                                String bundlePath = avatarFaceAspect.getBundlePath();
+                                if (bundlePath != null) {
+                                    mFURenderer.loadAvatarHair(bundlePath);
+                                    break;
+                                }
+                            }
+                        } else {
+                            mFURenderer.loadAvatarHair(AvatarFaceHelper.sFaceHairBundlePath);
+                        }
+                    }
                 }
                 break;
                 case R.id.fl_delete_model: {
@@ -431,6 +494,15 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
 
         @Override
         public void onItemClick(BaseRecyclerAdapter<AvatarModel> adapter, View view, int position) {
+            mSelectPos = position;
+            if (position == 0) {
+                mflNewAvatar.setVisibility(View.INVISIBLE);
+            } else if (position == 1) {
+                setButtonText(true);
+            } else {
+                setButtonText(false);
+            }
+
             if (position == 0) {
                 mFURenderer.onEffectSelected(EffectEnum.EffectNone.effect());
                 mFURenderer.loadAvatarHair(null);
@@ -459,8 +531,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             String iconPath = item.getIconPath();
             if (iconPath != null) {
                 viewHolder.setImageBitmap(R.id.iv_avatar_item_icon, BitmapUtil.decodeSampledBitmapFromFile(
-                        iconPath, getResources().getDimensionPixelSize(R.dimen.x120),
-                        getResources().getDimensionPixelSize(R.dimen.x120)));
+                        iconPath, getResources().getDimensionPixelSize(R.dimen.x120), getResources().getDimensionPixelSize(R.dimen.x120)));
                 ImageView imageView = viewHolder.getViewById(R.id.iv_avatar_item_icon);
                 RequestOptions requestOptions = new RequestOptions();
                 requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(getResources().getDimensionPixelSize(R.dimen.x6)));

@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 /**
  * Created by tujh on 2018/7/4.
  */
-public abstract class NotchInScreenUtil {
+public final class NotchInScreenUtil {
     private static final String TAG = NotchInScreenUtil.class.getSimpleName();
 
     public static boolean hasNotch(Context context) {

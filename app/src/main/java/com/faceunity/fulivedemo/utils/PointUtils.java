@@ -7,7 +7,7 @@ import android.graphics.Matrix;
  * 作者：ZhouYou
  * 日期：2016/12/2.
  */
-public class PointUtils {
+public final class PointUtils {
 
     /**
      * 将matrix的点映射成坐标点

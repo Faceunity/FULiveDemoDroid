@@ -10,7 +10,7 @@ import android.media.AudioManager;
  * @author Richie on 2019.03.23
  * 声音管理
  */
-public class AudioObserver implements LifecycleObserver {
+public final class AudioObserver implements LifecycleObserver {
 
     private Context mContext;
 

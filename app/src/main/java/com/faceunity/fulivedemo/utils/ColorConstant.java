@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by tujh on 2018/11/6.
  */
-public abstract class ColorConstant {
+public final class ColorConstant {
     private static final String COLOR_PATH = "avatar_color.json";
 
     /* 0--1 颜色值*/
@@ -20,10 +20,7 @@ public abstract class ColorConstant {
     public static double[][] lip_color;
     public static double[][] iris_color;
     public static double[][] hair_color;
-    //    public static double[][] beard_color;
-//    public static double[][] glass_frame_color;
-//    public static double[][] glass_color;
-//    public static double[][] hat_color;
+    // initialize once is ok
     private static boolean sInited;
 
     public static void init(Context context) {
@@ -42,10 +39,6 @@ public abstract class ColorConstant {
             lip_color = parseJson(jsonObject, "lip_color");
             iris_color = parseJson(jsonObject, "iris_color");
             hair_color = parseJson(jsonObject, "hair_color");
-//            beard_color = parseJson(jsonObject, "beard_color");
-//            glass_frame_color = parseJson(jsonObject, "glass_frame_color");
-//            glass_color = parseJson(jsonObject, "glass_color");
-//            hat_color = parseJson(jsonObject, "hat_color");
             sInited = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -55,7 +48,7 @@ public abstract class ColorConstant {
     private static double[][] parseJson(JSONObject jsonObject, String key) throws JSONException {
         JSONObject object = jsonObject.getJSONObject(key);
         List<double[]> colors = new ArrayList<>(16);
-        for (int i = 1; object.has(String.valueOf(i)); i++) {
+        for (int i = 0; object.has(String.valueOf(i)); i++) {
             JSONObject color = object.getJSONObject(String.valueOf(i));
             int r = color.getInt("r");
             int g = color.getInt("g");

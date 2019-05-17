@@ -35,6 +35,8 @@ import java.util.Set;
 
 /**
  * Avatar 模型删除页
+ *
+ * @author Richie on 2019.03.20
  */
 public class AvatarModelDelActivity extends AppCompatActivity {
     private static final String TAG = "AvatarModelDelActivity";

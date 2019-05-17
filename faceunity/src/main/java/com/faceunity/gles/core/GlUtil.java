@@ -322,12 +322,19 @@ public abstract class GlUtil {
         return mvp;
     }
 
+    /**
+     * Prefer OpenGL ES 3.0, otherwise 2.0
+     *
+     * @param context
+     * @return
+     */
     public static int getSupportGLVersion(Context context) {
         final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
         int version = configurationInfo.reqGlEsVersion >= 0x30000 ? 3 : 2;
         String glEsVersion = configurationInfo.getGlEsVersion();
-        Log.e(TAG, "reqGlEsVersion: " + Integer.toHexString(configurationInfo.reqGlEsVersion) + ", glEsVersion:" + glEsVersion);
+        Log.d(TAG, "reqGlEsVersion: " + Integer.toHexString(configurationInfo.reqGlEsVersion)
+                + ", glEsVersion: " + glEsVersion + ", return: " + version);
         return version;
     }
 }

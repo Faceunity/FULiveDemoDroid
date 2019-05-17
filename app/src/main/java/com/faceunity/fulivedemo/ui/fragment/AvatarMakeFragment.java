@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -15,9 +16,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,6 +30,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.faceunity.FURenderer;
+import com.faceunity.entity.AvatarModel;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.activity.AvatarDriveActivity;
 import com.faceunity.fulivedemo.entity.AvatarComponent;
@@ -40,6 +43,7 @@ import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
+import com.faceunity.fulivedemo.utils.ColorConstant;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 import java.util.ArrayList;
@@ -62,12 +66,10 @@ public class AvatarMakeFragment extends Fragment {
     private static final int ANIMATION_DURATION = 300;
     // 保存进度条数值 -1 --> 1
     private final Map<String, Float> mFaceShapeLevelMap = new HashMap<>(16);
-    // 每个五官下的调整维度
+    // 自定义保存后的参数，key: type, value: levelMap
+    private final Map<Integer, Map<String, Float>> mCustomedLevelMaps = new HashMap<>(8);
+    // 每个五官下的预置的调整维度，只读
     private final SparseArray<List<AvatarFaceAspect>> mAvatarFaceAspects = new SparseArray<>(16);
-    // 部件选择的位置
-    private final SparseIntArray mAvatarComponentSelected = new SparseIntArray(8);
-    // 部件颜色选择的位置
-    private final SparseIntArray mAvatarComponentColorSelected = new SparseIntArray(8);
     private AvatarComponentAdapter mAvatarComponentAdapter;
     private AvatarColorAdapter mAvatarColorAdapter;
     private AvatarTypeAdapter mAvatarTypeAdapter;
@@ -76,6 +78,7 @@ public class AvatarMakeFragment extends Fragment {
     private boolean mInCustom;
     private TextView mTvTitle;
     private TextView mTvItemName;
+    private View mLoadingView;
     private View mMakeView;
     private DiscreteSeekBar mDiscreteSeekBar;
     private View mSeekBarContainer;
@@ -83,6 +86,7 @@ public class AvatarMakeFragment extends Fragment {
     private RecyclerView mRvAvatarComponent;
     private AvatarTypeClickListener mAvatarTypeClickListener;
     private AvatarComponentClickListener mAvatarComponentClickListener;
+    private Handler mMainHandler = new Handler();
 
     @Override
     public void onAttach(Context context) {
@@ -96,17 +100,17 @@ public class AvatarMakeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_avatar_make, container, false);
         RecyclerView rvAvatarType = view.findViewById(R.id.rv_avatar_type);
-        rvAvatarType.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rvAvatarType.setLayoutManager(new LinearLayoutManager(mActivity, LinearLayoutManager.HORIZONTAL, false));
         rvAvatarType.setHasFixedSize(true);
         ((SimpleItemAnimator) rvAvatarType.getItemAnimator()).setSupportsChangeAnimations(false);
-        mAvatarTypeAdapter = new AvatarTypeAdapter(AvatarFaceHelper.getAvatarFaceTypes(getContext()));
-        mAvatarTypeAdapter.setItemSelected(0);
+        mAvatarTypeAdapter = new AvatarTypeAdapter(AvatarFaceHelper.getAvatarFaceTypes(mActivity));
+        mAvatarTypeAdapter.setItemSelected(0);// 默认选择头发类型
         mAvatarTypeClickListener = new AvatarTypeClickListener();
         mAvatarTypeAdapter.setOnItemClickListener(mAvatarTypeClickListener);
         rvAvatarType.setAdapter(mAvatarTypeAdapter);
 
         mRvAvatarComponent = view.findViewById(R.id.rv_avatar_component);
-        mRvAvatarComponent.setLayoutManager(new GridLayoutManager(getContext(), 4, GridLayoutManager.VERTICAL, false));
+        mRvAvatarComponent.setLayoutManager(new GridLayoutManager(mActivity, 4, GridLayoutManager.VERTICAL, false));
         mRvAvatarComponent.setHasFixedSize(true);
         mRvAvatarComponent.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.x2),
                 getResources().getDimensionPixelSize(R.dimen.x2), getResources().getDimensionPixelSize(R.dimen.x15),
@@ -114,26 +118,29 @@ public class AvatarMakeFragment extends Fragment {
         ((SimpleItemAnimator) mRvAvatarComponent.getItemAnimator()).setSupportsChangeAnimations(false);
         List<AvatarComponent> avatarComponents = AvatarFaceHelper.getAvatarComponents(AvatarFaceType.AVATAR_FACE_HAIR);
         mAvatarComponentAdapter = new AvatarComponentAdapter(new ArrayList<>(avatarComponents));
-        mAvatarComponentAdapter.setItemSelected(1); // 选中第二个
-        mAvatarComponentSelected.put(AvatarFaceType.AVATAR_FACE_HAIR, 1);
-        mAvatarComponentSelected.put(AvatarFaceType.AVATAR_FACE_NOSE, 1);
+        int pos = AvatarFaceHelper.FACE_ASPECT_SELECTED_POSITION.get(AvatarFaceType.AVATAR_FACE_HAIR, 0);
+        mAvatarComponentAdapter.setItemSelected(pos);
         mAvatarComponentClickListener = new AvatarComponentClickListener();
-
         mAvatarComponentAdapter.setOnItemClickListener(mAvatarComponentClickListener);
         mRvAvatarComponent.setAdapter(mAvatarComponentAdapter);
+        mRvAvatarComponent.scrollToPosition(pos);
 
         mRvAvatarColor = view.findViewById(R.id.rv_avatar_color);
-        mRvAvatarColor.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        mRvAvatarColor.setLayoutManager(new LinearLayoutManager(mActivity, LinearLayoutManager.HORIZONTAL, false));
         mRvAvatarColor.setHasFixedSize(true);
         mRvAvatarColor.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.x15),
                 getResources().getDimensionPixelSize(R.dimen.x20), getResources().getDimensionPixelSize(R.dimen.x19),
                 getResources().getDimensionPixelSize(R.dimen.x19)));
         ((SimpleItemAnimator) mRvAvatarColor.getItemAnimator()).setSupportsChangeAnimations(false);
-        mAvatarColorAdapter = new AvatarColorAdapter(new ArrayList<>(Arrays.asList(mAvatarTypeAdapter
-                .getSelectedItems().valueAt(0).getColors())));
+        mAvatarColorAdapter = new AvatarColorAdapter(new ArrayList<>(Arrays.asList(mAvatarTypeAdapter.getSelectedItems().valueAt(0).getColors())));
         AvatarCompColorClickListener onItemClickListener = new AvatarCompColorClickListener();
         mAvatarColorAdapter.setOnItemClickListener(onItemClickListener);
+        pos = AvatarFaceHelper.FACE_ASPECT_COLOR_SELECTED_POSITION.get(AvatarFaceType.AVATAR_FACE_HAIR, 0);
         mRvAvatarColor.setAdapter(mAvatarColorAdapter);
+        mAvatarColorAdapter.setItemSelected(pos);
+        mRvAvatarColor.scrollToPosition(pos);
+        double[] colors = ColorConstant.hair_color[pos];
+        AvatarFaceHelper.FACE_ASPECT_COLOR_MAP.put(AvatarFaceAspect.COLOR_HAIR + colors.length, colors);
 
         ViewClickListener viewClickListener = new ViewClickListener();
         view.findViewById(R.id.iv_avatar_back).setOnClickListener(viewClickListener);
@@ -148,43 +155,107 @@ public class AvatarMakeFragment extends Fragment {
         mDiscreteSeekBar.setOnProgressChangeListener(new SeekBarChangedListener());
         RecyclerView rvCustom = view.findViewById(R.id.rv_avatar_custom);
         rvCustom.setHasFixedSize(true);
-        rvCustom.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        rvCustom.setLayoutManager(new LinearLayoutManager(mActivity, LinearLayoutManager.HORIZONTAL, false));
         ((SimpleItemAnimator) rvCustom.getItemAnimator()).setSupportsChangeAnimations(false);
         rvCustom.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.x22), 0));
         mAvatarAspectAdapter = new AvatarAspectAdapter(new ArrayList<AvatarFaceAspect>());
         mAvatarAspectAdapter.setOnItemClickListener(new AvatarAspectClickListener());
         rvCustom.setAdapter(mAvatarAspectAdapter);
         mAvatarTypeClickListener.showColorList();
+
+        ImageView ivLoading = (ImageView) view.findViewById(R.id.iv_loading);
+        mLoadingView = view.findViewById(R.id.fl_loading);
+        // intercept quick click when loading hair bundle
+        mLoadingView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+        Glide.with(this).load(R.drawable.loading_gif).into(ivLoading);
+        Log.i(TAG, "onCreateView finish");
         return view;
     }
 
-    public void resetData() {
-        mAvatarComponentSelected.clear();
-        mAvatarComponentSelected.put(AvatarFaceType.AVATAR_FACE_HAIR, 1);
-        mAvatarComponentSelected.put(AvatarFaceType.AVATAR_FACE_NOSE, 1);
-        mAvatarComponentColorSelected.clear();
-        mFaceShapeLevelMap.clear();
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mMainHandler.removeCallbacksAndMessages(null);
+    }
+
+    /**
+     * Pass avatar to making mode
+     *
+     * @param avatarModel
+     */
+    public void setAvatarModel(AvatarModel avatarModel) {
+        Log.i(TAG, "setAvatarModel: " + avatarModel);
+        if (avatarModel == null) {
+            return;
+        }
+
         mInCustom = false;
+        AvatarFaceHelper.array2UiConfig(avatarModel.getUiJson());
+        fillParams(avatarModel);
+
+        int type = AvatarFaceType.AVATAR_FACE_HAIR;
         if (mAvatarComponentAdapter != null) {
-            mAvatarComponentAdapter.clearSingleItemSelected();
-            AvatarFaceType avatarFaceType = mAvatarTypeAdapter.getSelectedItems().valueAt(0);
-            // 头发选中第二个
-            if (avatarFaceType.getType() == AvatarFaceType.AVATAR_FACE_HAIR) {
-                mAvatarComponentAdapter.setItemSelected(1);
-            } else {
-                // 其他选中第一个
-                if (avatarFaceType.getType() != AvatarFaceType.AVATAR_FACE_NOSE) {
-                    mAvatarComponentAdapter.setItemSelected(0);
-                } else {
-                    mAvatarComponentAdapter.setItemSelected(1);
-                }
+            mAvatarTypeAdapter.setItemSelected(0);
+            mAvatarTypeClickListener.onItemClick(mAvatarTypeAdapter, null, 0);
+            int pos = AvatarFaceHelper.FACE_ASPECT_SELECTED_POSITION.get(type, 0);
+            if (pos >= 0) {
+                mAvatarComponentAdapter.setItemSelected(pos);
+                mRvAvatarComponent.scrollToPosition(pos);
             }
         }
         if (mAvatarAspectAdapter != null) {
             mAvatarAspectAdapter.clearSingleItemSelected();
         }
         if (mAvatarColorAdapter != null) {
-            mAvatarColorAdapter.clearSingleItemSelected();
+            int pos = AvatarFaceHelper.FACE_ASPECT_COLOR_SELECTED_POSITION.get(type, 0);
+            if (pos >= 0) {
+                mAvatarColorAdapter.setItemSelected(pos);
+                mRvAvatarColor.scrollToPosition(pos);
+            }
+        }
+    }
+
+    private void fillParams(AvatarModel avatarModel) {
+        List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(avatarModel.getConfigJson());
+        mCustomedLevelMaps.clear();
+        if (avatarFaceAspects == null) {
+            return;
+        }
+
+        Set<Map.Entry<Integer, Set<String>>> faceTypeEntries = AvatarFaceHelper.FACE_ASPECT_TYPE_MAP.entrySet();
+        for (AvatarFaceAspect avatarFaceAspect : avatarFaceAspects) {
+            String name = avatarFaceAspect.getName();
+            int type = AvatarFaceType.AVATAR_FACE_HAIR;
+            for (Map.Entry<Integer, Set<String>> faceTypeEntry : faceTypeEntries) {
+                if (faceTypeEntry.getValue().contains(name)) {
+                    type = faceTypeEntry.getKey();
+                    break;
+                }
+            }
+            Map<String, Float> paramsMap = mCustomedLevelMaps.get(type);
+            if (paramsMap == null) {
+                paramsMap = new HashMap<>(8);
+                mCustomedLevelMaps.put(type, paramsMap);
+            }
+
+            float level = avatarFaceAspect.getLevel();
+            if (level != 0) {
+                paramsMap.put(name, level);
+                AvatarFaceHelper.FACE_ASPECT_MAP.put(name, level);
+                AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.put(name, level);
+            }
+            if (avatarFaceAspect.getBundlePath() != null) {
+                AvatarFaceHelper.sFaceHairBundlePath = avatarFaceAspect.getBundlePath();
+            }
+            if (avatarFaceAspect.getColor() != null) {
+                AvatarFaceHelper.FACE_ASPECT_COLOR_MAP.put(name + avatarFaceAspect.getColor().length,
+                        avatarFaceAspect.getColor());
+            }
         }
     }
 
@@ -288,7 +359,7 @@ public class AvatarMakeFragment extends Fragment {
 
     private void reSelectLastComponent() {
         int type = mAvatarTypeAdapter.getSelectedItems().valueAt(0).getType();
-        int pos = mAvatarComponentSelected.get(type, -1);
+        int pos = AvatarFaceHelper.FACE_ASPECT_SELECTED_POSITION.get(type, -1);
         if (pos >= 0) {
             mAvatarComponentAdapter.setItemSelected(pos);
             if (pos > 0) {
@@ -297,36 +368,23 @@ public class AvatarMakeFragment extends Fragment {
         }
     }
 
-    /**
-     * 自定义界面
-     */
-    private void showFaceInfo() {
-        AvatarFaceType avatarFaceType = mAvatarTypeAdapter.getSelectedItems().valueAt(0);
-        int type = avatarFaceType.getType();
-        List<AvatarFaceAspect> avatarFaceAspects = mAvatarFaceAspects.get(type);
-        if (avatarFaceAspects == null) {
-            return;
-        }
-        startCustomAnimation();
-        mDiscreteSeekBar.setProgress(0);
-        mSeekBarContainer.setVisibility(View.INVISIBLE);
-        mTvTitle.setText(avatarFaceType.getName());
-        mAvatarAspectAdapter.replaceAll(avatarFaceAspects);
-
-        mFaceShapeLevelMap.clear();
-        AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.clear();
-        Set<String> faceAspects = AvatarFaceHelper.FACE_ASPECT_TYPE_MAP.get(type);
-        for (String faceAspect : faceAspects) {
-            AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.put(faceAspect, 0f);
-            mActivity.getFURenderer().fuItemSetParamFaceup(faceAspect, 0f);
-        }
-    }
-
     private void initRecyclerData() {
         mAvatarFaceAspects.put(AvatarFaceType.AVATAR_FACE_SHAPE, AvatarFaceAspectCustomEnum.getAvatarAspectsByType(AvatarFaceType.AVATAR_FACE_SHAPE));
         mAvatarFaceAspects.put(AvatarFaceType.AVATAR_FACE_EYE, AvatarFaceAspectCustomEnum.getAvatarAspectsByType(AvatarFaceType.AVATAR_FACE_EYE));
         mAvatarFaceAspects.put(AvatarFaceType.AVATAR_FACE_NOSE, AvatarFaceAspectCustomEnum.getAvatarAspectsByType(AvatarFaceType.AVATAR_FACE_NOSE));
         mAvatarFaceAspects.put(AvatarFaceType.AVATAR_FACE_LIP, AvatarFaceAspectCustomEnum.getAvatarAspectsByType(AvatarFaceType.AVATAR_FACE_LIP));
+    }
+
+    public void showLoadingView(boolean show) {
+        if (mLoadingView == null) {
+            return;
+        }
+
+        if (show && mLoadingView.getVisibility() == View.INVISIBLE) {
+            mLoadingView.setVisibility(View.VISIBLE);
+        } else if (!show && mLoadingView.getVisibility() == View.VISIBLE) {
+            mLoadingView.setVisibility(View.INVISIBLE);
+        }
     }
 
     private boolean checkIfLevelChanged() {
@@ -341,7 +399,7 @@ public class AvatarMakeFragment extends Fragment {
 
     public void backPressed() {
         if (mInCustom) {
-            // 自定义界面
+            // 自定义页面
             boolean levelChanged = checkIfLevelChanged();
             if (levelChanged) {
                 ConfirmDialogFragment confirmDialogFragment = ConfirmDialogFragment.newInstance(getString(R.string.magic_back_not_save), new BaseDialogFragment.OnClickListener() {
@@ -351,9 +409,15 @@ public class AvatarMakeFragment extends Fragment {
                         for (Map.Entry<String, Float> entry : entries) {
                             mActivity.getFURenderer().fuItemSetParamFaceup(entry.getKey(), 0f);
                         }
+                        int type = mAvatarTypeAdapter.getSelectedItems().valueAt(0).getType();
+                        Map<String, Float> paramsMap = mCustomedLevelMaps.get(type);
+                        if (paramsMap != null) {
+                            entries = paramsMap.entrySet();
+                            for (Map.Entry<String, Float> entry : entries) {
+                                mActivity.getFURenderer().fuItemSetParamFaceup(entry.getKey(), entry.getValue());
+                            }
+                        }
                         AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.clear();
-                        AvatarFaceHelper.FACE_ASPECT_MAP.clear();
-                        AvatarFaceHelper.FACE_ASPECT_COLOR_MAP.clear();
                         startMakeAnimation();
                         reSelectLastComponent();
                     }
@@ -369,12 +433,19 @@ public class AvatarMakeFragment extends Fragment {
                 reSelectLastComponent();
             }
         } else {
+            // 效果选择页面
             ConfirmDialogFragment confirmDialogFragment = ConfirmDialogFragment.newInstance(getString(R.string.magic_back_not_save), new BaseDialogFragment.OnClickListener() {
                 @Override
                 public void onConfirm() {
-                    // 效果不生效
-                    AvatarFaceHelper.FACE_ASPECT_MAP.clear();
-                    AvatarFaceHelper.FACE_ASPECT_COLOR_MAP.clear();
+                    int type = AvatarFaceType.AVATAR_FACE_HAIR;
+                    SparseArray<AvatarFaceType> selectedItems = mAvatarTypeAdapter.getSelectedItems();
+                    if (selectedItems.size() > 0) {
+                        type = selectedItems.valueAt(0).getType();
+                    }
+                    Map<String, Float> paramsMap = mCustomedLevelMaps.get(type);
+                    if (paramsMap != null) {
+                        paramsMap.clear();
+                    }
                     mActivity.getFURenderer().clearFaceShape();
                     mActivity.getFURenderer().quitFaceup();
                     mActivity.showDrivePage();
@@ -483,9 +554,13 @@ public class AvatarMakeFragment extends Fragment {
 
         @Override
         public void onItemClick(BaseRecyclerAdapter<double[]> adapter, View view, int position) {
-            int type = mAvatarTypeAdapter.getSelectedItems().valueAt(0).getType();
+            SparseArray<AvatarFaceType> selectedItems = mAvatarTypeAdapter.getSelectedItems();
+            int type = AvatarFaceType.AVATAR_FACE_HAIR;
+            if (selectedItems.size() > 0) {
+                type = selectedItems.valueAt(0).getType();
+            }
+            AvatarFaceHelper.FACE_ASPECT_COLOR_SELECTED_POSITION.put(type, position);
             double[] item = adapter.getItem(position);
-            mAvatarComponentColorSelected.put(type, position);
             if (type == AvatarFaceType.AVATAR_FACE_SHAPE) {
                 mActivity.getFURenderer().fuItemSetParamFaceColor(AvatarFaceAspect.COLOR_FACE, item);
                 AvatarFaceHelper.FACE_ASPECT_COLOR_MAP.put(AvatarFaceAspect.COLOR_FACE + item.length, item);
@@ -509,7 +584,7 @@ public class AvatarMakeFragment extends Fragment {
         public void onItemClick(BaseRecyclerAdapter<AvatarComponent> adapter, View view, int position) {
             AvatarComponent item = adapter.getItem(position);
             int type = item.getType();
-            mAvatarComponentSelected.put(type, position);
+            AvatarFaceHelper.FACE_ASPECT_SELECTED_POSITION.put(type, position);
             boolean needCustomize = AvatarFaceHelper.isNeedCustomize(type);
             if (position == 0 && needCustomize) {
                 // 点击自定义
@@ -523,10 +598,16 @@ public class AvatarMakeFragment extends Fragment {
                     if (position == 0) {
                         mAvatarTypeClickListener.hideColorList();
                     } else {
-                        double[][] colors = mAvatarTypeAdapter.getSelectedItems().valueAt(0).getColors();
-                        mAvatarColorAdapter.replaceAll(Arrays.asList(colors));
+                        showLoadingView(true);
+                        SparseArray<AvatarFaceType> selectedItems = mAvatarTypeAdapter.getSelectedItems();
+                        if (selectedItems.size() > 0) {
+                            double[][] colors = selectedItems.valueAt(0).getColors();
+                            if (colors != null) {
+                                mAvatarColorAdapter.replaceAll(Arrays.asList(colors));
+                            }
+                        }
                         if (position > 0) {
-                            int colorPos = mAvatarComponentColorSelected.get(type, -1);
+                            int colorPos = AvatarFaceHelper.FACE_ASPECT_COLOR_SELECTED_POSITION.get(type, 0);
                             if (colorPos >= 0) {
                                 mAvatarColorAdapter.setItemSelected(colorPos);
                                 mRvAvatarColor.scrollToPosition(colorPos);
@@ -538,10 +619,16 @@ public class AvatarMakeFragment extends Fragment {
                     }
                 } else {
                     // 其他
+                    if (position > 0) {
+                        Map<String, Float> paramsMap = mCustomedLevelMaps.get(type);
+                        if (paramsMap != null) {
+                            paramsMap.clear();
+                        }
+                    }
                     double[][] colors = mAvatarTypeAdapter.getSelectedItems().valueAt(0).getColors();
                     if (colors != null) {
                         mAvatarColorAdapter.replaceAll(Arrays.asList(colors));
-                        int colorPos = mAvatarComponentColorSelected.get(type, -1);
+                        int colorPos = AvatarFaceHelper.FACE_ASPECT_COLOR_SELECTED_POSITION.get(type, 0);
                         if (colorPos >= 0) {
                             mAvatarColorAdapter.setItemSelected(colorPos);
                             mRvAvatarColor.scrollToPosition(colorPos);
@@ -558,14 +645,52 @@ public class AvatarMakeFragment extends Fragment {
                         AvatarFaceHelper.FACE_ASPECT_MAP.put(s, 0f);
                         mActivity.getFURenderer().fuItemSetParamFaceup(s, 0f);
                     }
-                    if (avatarFaceAspects.size() > 0) {
-                        for (AvatarFaceAspect avatarFaceAspect : avatarFaceAspects) {
-                            String name = avatarFaceAspect.getName();
-                            if (name != null) {
-                                float level = avatarFaceAspect.getLevel();
-                                AvatarFaceHelper.FACE_ASPECT_MAP.put(name, level);
-                                mActivity.getFURenderer().fuItemSetParamFaceup(name, level);
-                            }
+                    for (AvatarFaceAspect avatarFaceAspect : avatarFaceAspects) {
+                        String name = avatarFaceAspect.getName();
+                        if (name != null) {
+                            float level = avatarFaceAspect.getLevel();
+                            AvatarFaceHelper.FACE_ASPECT_MAP.put(name, level);
+                            mActivity.getFURenderer().fuItemSetParamFaceup(name, level);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 自定义界面
+        private void showFaceInfo() {
+            AvatarFaceType avatarFaceType = mAvatarTypeAdapter.getSelectedItems().valueAt(0);
+            int type = avatarFaceType.getType();
+            List<AvatarFaceAspect> avatarFaceAspects = mAvatarFaceAspects.get(type);
+            if (avatarFaceAspects == null) {
+                return;
+            }
+
+            startCustomAnimation();
+
+            mDiscreteSeekBar.setProgress(0);
+            mSeekBarContainer.setVisibility(View.INVISIBLE);
+            mTvTitle.setText(avatarFaceType.getName());
+            mAvatarAspectAdapter.replaceAll(avatarFaceAspects);
+
+            mFaceShapeLevelMap.clear();
+            AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.clear();
+            Set<String> faceAspects = AvatarFaceHelper.FACE_ASPECT_TYPE_MAP.get(type);
+            for (String faceAspect : faceAspects) {
+                AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.put(faceAspect, 0f);
+                mActivity.getFURenderer().fuItemSetParamFaceup(faceAspect, 0f);
+            }
+            Map<String, Float> paramsMap = mCustomedLevelMaps.get(type);
+            if (paramsMap != null) {
+                Set<Map.Entry<String, Float>> entries = paramsMap.entrySet();
+                for (Map.Entry<String, Float> entry : entries) {
+                    Float value = entry.getValue();
+                    if (value > 0) {
+                        mActivity.getFURenderer().fuItemSetParamFaceup(entry.getKey(), value);
+                    } else {
+                        value = entry.getValue();
+                        if (value != null && value > 0) {
+                            mActivity.getFURenderer().fuItemSetParamFaceup(AvatarFaceHelper.oppositeOf(entry.getKey()), value);
                         }
                     }
                 }
@@ -587,23 +712,60 @@ public class AvatarMakeFragment extends Fragment {
                     if (mInCustom) {
                         // 保存调节的效果
                         Set<Map.Entry<String, Float>> entries = AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.entrySet();
+                        int type = mAvatarTypeAdapter.getSelectedItems().valueAt(0).getType();
+                        Map<String, Float> paramsMap = mCustomedLevelMaps.get(type);
+                        if (paramsMap == null) {
+                            paramsMap = new HashMap<>(8);
+                            mCustomedLevelMaps.put(type, paramsMap);
+                        }
                         for (Map.Entry<String, Float> entry : entries) {
-                            AvatarFaceHelper.FACE_ASPECT_MAP.put(entry.getKey(), entry.getValue());
+                            Float value = entry.getValue();
+                            AvatarFaceHelper.FACE_ASPECT_MAP.put(entry.getKey(), value);
+                            if (value > 0) {
+                                paramsMap.put(entry.getKey(), value);
+                            }
                         }
                         AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.clear();
+                        mFaceShapeLevelMap.clear();
                         startMakeAnimation();
                     } else {
-                        mActivity.setSnapShot();
+                        if (!TextUtils.isEmpty(AvatarFaceHelper.sFaceHairBundlePath)) {
+                            // 有头发
+                            Runnable runnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    // avoid bundle not loaded or avatar hair queue is empty
+                                    if (mActivity.getFURenderer().isAvatarMakeupItemLoaded()) {
+                                        mActivity.setSnapShot();
+                                    } else {
+                                        mMainHandler.postDelayed(this, 500);
+                                    }
+                                }
+                            };
+                            runnable.run();
+                        } else {
+                            // 没头发
+                            mActivity.setSnapShot();
+                        }
                     }
                 }
                 break;
                 case R.id.iv_avatar_reset: {
+                    // 重置参数
                     ConfirmDialogFragment confirmDialogFragment = ConfirmDialogFragment.newInstance(getString(R.string.dialog_reset_avatar_model), new BaseDialogFragment.OnClickListener() {
                         @Override
                         public void onConfirm() {
-                            // 重置参数
                             AvatarFaceType avatarFaceType = mAvatarTypeAdapter.getSelectedItems().valueAt(0);
-                            Set<String> keys = AvatarFaceHelper.FACE_ASPECT_TYPE_MAP.get(avatarFaceType.getType());
+                            int type = avatarFaceType.getType();
+                            Set<String> keys = AvatarFaceHelper.FACE_ASPECT_TYPE_MAP.get(type);
+                            Map<String, Float> paramMap = mCustomedLevelMaps.get(type);
+                            if (paramMap == null) {
+                                paramMap = new HashMap<>();
+                            }
+                            Set<Map.Entry<String, Float>> entries = paramMap.entrySet();
+                            for (Map.Entry<String, Float> entry : entries) {
+                                entry.setValue(0F);
+                            }
                             for (String key : keys) {
                                 mActivity.getFURenderer().fuItemSetParamFaceup(key, 0f);
                             }
@@ -634,10 +796,12 @@ public class AvatarMakeFragment extends Fragment {
                 mSeekBarContainer.setVisibility(View.VISIBLE);
             }
             AvatarFaceAspect item = adapter.getItem(position);
-            Float level = mFaceShapeLevelMap.get(item.getName());
+            String name = item.getName();
+            boolean isEmpty = mFaceShapeLevelMap.isEmpty();
+            Float level = mFaceShapeLevelMap.get(name);
             float finalLevel = 0;
+            String oppoName = AvatarFaceHelper.oppositeOf(name);
             if (level == null || level == 0) {
-                String oppoName = AvatarFaceHelper.oppositeOf(item.getName());
                 Float oppoLevel = mFaceShapeLevelMap.get(oppoName);
                 if (oppoLevel != null && oppoLevel != 0) {
                     finalLevel = -oppoLevel;
@@ -645,6 +809,23 @@ public class AvatarMakeFragment extends Fragment {
             } else {
                 finalLevel = level;
             }
+
+            if (isEmpty) {
+                int type = mAvatarTypeAdapter.getSelectedItems().valueAt(0).getType();
+                Map<String, Float> paramsMap = mCustomedLevelMaps.get(type);
+                if (paramsMap != null) {
+                    Float customLevel = paramsMap.get(name);
+                    if (customLevel == null || customLevel == 0) {
+                        customLevel = paramsMap.get(oppoName);
+                        if (customLevel != null) {
+                            finalLevel = -customLevel;
+                        }
+                    } else {
+                        finalLevel = customLevel;
+                    }
+                }
+            }
+
             mDiscreteSeekBar.setProgress((int) (100 * finalLevel));
             mTvItemName.setText(item.getDescriptionId());
             mActivity.getFURenderer().enterFaceShape();
@@ -663,8 +844,8 @@ public class AvatarMakeFragment extends Fragment {
             int type = item.getType();
             List<AvatarComponent> avatarComponents = AvatarFaceHelper.getAvatarComponents(type);
             mAvatarComponentAdapter.replaceAll(avatarComponents);
-            // 头发以外的类型，默认选中自定义，鼻子第一个
-            int selPos = mAvatarComponentSelected.get(type, 0);
+            // 默认选中自定义，头发和鼻子选中第一个
+            int selPos = AvatarFaceHelper.FACE_ASPECT_SELECTED_POSITION.get(type, -1);
             AvatarComponent selAvatarComp = null;
             if (selPos >= 0) {
                 selAvatarComp = mAvatarComponentAdapter.getItem(selPos);
@@ -674,10 +855,10 @@ public class AvatarMakeFragment extends Fragment {
             double[][] colors = item.getColors();
             if (colors != null) {
                 mAvatarColorAdapter.replaceAll(Arrays.asList(colors));
-                int colorPos = mAvatarComponentColorSelected.get(type, -1);
+                int colorPos = AvatarFaceHelper.FACE_ASPECT_COLOR_SELECTED_POSITION.get(type, 0);
                 if (colorPos >= 0) {
                     if (position > 0) {
-                        //除了头发以外的类型
+                        // 头发之外的类型
                         if (selPos >= 0) {
                             showColorList();
                             mAvatarColorAdapter.setItemSelected(colorPos);
@@ -794,6 +975,7 @@ public class AvatarMakeFragment extends Fragment {
             String opposite = AvatarFaceHelper.oppositeOf(name);
             // 为了解决 home 键带来的调节无效问题，这里每次都进入捏脸模式，如果不销毁的话，大可不必这么做
             mActivity.getFURenderer().enterFaceShape();
+
             if (value > 0) {
                 mActivity.getFURenderer().fuItemSetParamFaceup(name, fixedValue);
                 mActivity.getFURenderer().fuItemSetParamFaceup(opposite, 0);

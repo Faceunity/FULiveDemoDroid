@@ -23,8 +23,6 @@ import com.faceunity.gles.core.Drawable2d;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.gles.core.Program;
 
-import java.util.Arrays;
-
 public class ProgramLandmarks extends Program {
 
     private static final String vertexShaderCode =
@@ -48,14 +46,14 @@ public class ProgramLandmarks extends Program {
                     "  gl_FragColor = vColor;" +
                     "}";
 
-    private static final float color[] = {0.63671875f, 0.76953125f, 0.22265625f, 1.0f};
+    private static final float color[] = {1.0f, 0f, 0f, 1.0f};
 
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
     private int mPointSizeHandle;
 
-    private float mPointSize = 6.0f;
+    private static final float POINT_SIZE = 6.0f;
 
     public ProgramLandmarks() {
         super(vertexShaderCode, fragmentShaderCode);
@@ -101,13 +99,14 @@ public class ProgramLandmarks extends Program {
         // Apply the projection and view transformation
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMtx, 0);
 
-        GLES20.glUniform1f(mPointSizeHandle, mPointSize);
+        GLES20.glUniform1f(mPointSizeHandle, POINT_SIZE);
 
         // Draw the triangle
         GLES20.glDrawArrays(GLES20.GL_POINTS, 0, mDrawable2d.vertexCount());
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glUseProgram(0);
     }
 
     public void drawFrame(int x, int y, int width, int height) {
@@ -137,6 +136,6 @@ public class ProgramLandmarks extends Program {
             mCameraType = cameraType;
         }
 
-        updateVertexArray(Arrays.copyOf(landmarksData, landmarksData.length));
+        updateVertexArray(landmarksData);
     }
 }
