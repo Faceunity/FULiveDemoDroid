@@ -20,22 +20,30 @@ public class Sticker {
     private Matrix matrix;
     // 原图片
     private Bitmap srcImage;
+    private String imagePath;
     // 图片的边界点
-    private float[] borders;
-    // 点位
+    private float[] borderVertex;
+    // 五官点位，左上角为顶点
     private float[] points;
-    // 修正后的landMark 点位
+    // 修正后的 landmark 点位
     private float[] landmarkPoints;
     // 类型
     private int type;
     private float[] mBitmapX;
     private float[] mBitmapY;
 
-    Sticker(Bitmap bitmap, float[] points, int type) {
+    Sticker(String imagePath, Bitmap bitmap, float[] points, int type, float[] matrixF) {
+        this.imagePath = imagePath;
         this.srcImage = bitmap;
         this.matrix = new Matrix();
+        if (matrixF != null) {
+            this.matrix.setValues(matrixF);
+        }
         this.points = points;
-        this.borders = new float[8];
+        this.borderVertex = new float[]{0, 0,
+                bitmap.getWidth(), 0,
+                0, bitmap.getHeight(),
+                bitmap.getWidth(), bitmap.getHeight()};
         this.type = type;
         this.mBitmapX = new float[4];
         this.mBitmapY = new float[4];
@@ -51,29 +59,17 @@ public class Sticker {
     }
 
     /**
-     * 获取手势中心点
-     *
-     * @param event
-     */
-    PointF getMidPoint(MotionEvent event) {
-        PointF point = new PointF();
-        float x = event.getX(0) + event.getX(1);
-        float y = event.getY(0) + event.getY(1);
-        point.set(x / 2, y / 2);
-        return point;
-    }
-
-    /**
      * 获取图片中心点
      */
     PointF getImageMidPoint(Matrix matrix) {
         PointF point = new PointF();
-        PointUtils.getBitmapPoints(srcImage, matrix, borders);
-        for (int i = 0, p = 0, q = 0, j = borders.length; i < j; i++) {
+        float[] border = new float[8];
+        PointUtils.getBitmapPoints(srcImage, matrix, border);
+        for (int i = 0, p = 0, q = 0, j = border.length; i < j; i++) {
             if (i % 2 == 0) {
-                mBitmapX[p++] = borders[i];
+                mBitmapX[p++] = border[i];
             } else {
-                mBitmapY[q++] = borders[i];
+                mBitmapY[q++] = border[i];
             }
         }
         Arrays.sort(mBitmapX);
@@ -83,12 +79,25 @@ public class Sticker {
     }
 
     /**
+     * 获取手势中心点
+     *
+     * @param event
+     */
+    public static PointF getMidPoint(MotionEvent event) {
+        PointF point = new PointF();
+        float x = event.getX(0) + event.getX(1);
+        float y = event.getY(0) + event.getY(1);
+        point.set(x / 2, y / 2);
+        return point;
+    }
+
+    /**
      * 获取手指的旋转角度
      *
      * @param event
      * @return
      */
-    float getSpaceRotation(MotionEvent event, PointF imageMidPoint) {
+    public static float getSpaceRotation(MotionEvent event, PointF imageMidPoint) {
         double deltaX = event.getX(0) - imageMidPoint.x;
         double deltaY = event.getY(0) - imageMidPoint.y;
         double radians = Math.atan2(deltaY, deltaX);
@@ -101,7 +110,7 @@ public class Sticker {
      * @param event
      * @return
      */
-    float getMultiTouchDistance(MotionEvent event) {
+    public static float getMultiTouchDistance(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float) Math.sqrt(x * x + y * y);
@@ -113,15 +122,16 @@ public class Sticker {
      * @param event
      * @return
      */
-    float getSingleTouchDistance(MotionEvent event, PointF imageMidPoint) {
+    public static float getSingleTouchDistance(MotionEvent event, PointF imageMidPoint) {
         float x = event.getX(0) - imageMidPoint.x;
         float y = event.getY(0) - imageMidPoint.y;
         return (float) Math.sqrt(x * x + y * y);
     }
 
-    RectF getSrcImageBound() {
+    RectF getSrcImageBound(int halfSize) {
         RectF dst = new RectF();
-        matrix.mapRect(dst, new RectF(0, 0, getStickerWidth(), getStickerHeight()));
+        matrix.mapRect(dst, new RectF(0 + halfSize, 0 + halfSize, getStickerWidth() - halfSize,
+                getStickerHeight() - halfSize));
         return dst;
     }
 
@@ -145,8 +155,20 @@ public class Sticker {
         return points;
     }
 
+    public void setPoints(float[] points) {
+        this.points = points;
+    }
+
     public int getType() {
         return type;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public float[] getBorderVertex() {
+        return borderVertex;
     }
 
     public float[] getLandmarkPoints() {

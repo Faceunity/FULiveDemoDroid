@@ -300,7 +300,7 @@ public abstract class GlUtil {
         }
     }
 
-    public static float[] changeMVPMatrix(float[] mvpMatrix, float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
+    public static float[] changeMVPMatrixCrop(float[] mvpMatrix, float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
         float scale = viewWidth * textureHeight / viewHeight / textureWidth;
         if (scale == 1) {
             return mvpMatrix;

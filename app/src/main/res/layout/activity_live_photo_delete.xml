@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
+
+    <ImageButton
+        android:id="@+id/iv_delete_back"
+        android:layout_width="@dimen/x94"
+        android:layout_height="@dimen/x88"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/transparent"
+        android:paddingLeft="@dimen/x26"
+        android:paddingRight="@dimen/x26"
+        android:scaleType="centerInside"
+        android:src="@drawable/delete_back" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/x88"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:text="@string/live_photo_delete_effect"
+        android:textColor="#2C2E30"
+        android:textSize="@dimen/x34" />
+
+    <Button
+        android:id="@+id/btn_delete_all"
+        android:layout_width="@dimen/x114"
+        android:layout_height="@dimen/x88"
+        android:layout_alignParentRight="true"
+        android:background="@color/transparent"
+        android:gravity="center"
+        android:text="@string/live_photo__delete_all"
+        android:textColor="#2C2E30"
+        android:textSize="@dimen/x28" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x1"
+        android:layout_below="@id/iv_delete_back"
+        android:background="#E5E5E5" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rcv_delete_effect"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/btn_delete_bottom"
+        android:layout_below="@id/iv_delete_back"
+        android:layout_marginLeft="@dimen/x11"
+        android:layout_marginTop="@dimen/x16"
+        android:layout_marginRight="@dimen/x11" />
+
+    <LinearLayout
+        android:id="@+id/ll_empty_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="@dimen/x277"
+            android:layout_height="@dimen/x212"
+            android:scaleType="centerInside"
+            android:src="@drawable/live_photo_empty_view" />
+
+        <TextView
+            android:id="@+id/tv_empty_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x100"
+            android:text="@string/live_photo_empty_list_tip"
+            android:textColor="#AAAAAA"
+            android:textSize="@dimen/x26" />
+    </LinearLayout>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btn_delete_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x98"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/live_photo_delete_button"
+        android:gravity="center"
+        android:text="@string/live_photo_btn_delete"
+        android:textColor="#FFFEFE"
+        android:textSize="@dimen/x28" />
+
+</RelativeLayout>

@@ -1,8 +1,8 @@
 package com.faceunity.fulivedemo.ui.sticker;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -13,11 +13,14 @@ import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.utils.PointUtils;
+import com.faceunity.utils.BitmapUtil;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * 作者：ZhouYou
@@ -25,12 +28,13 @@ import java.io.IOException;
  */
 public class StickerView extends AppCompatImageView {
     private static final String TAG = "StickerView";
-    private static final boolean DEBUG = false;
+    static final boolean DEBUG = false;
+    private static final boolean SHOW_POINTS = false;
 
     // 最大和最小的缩放范围
-    private static final float MIN_SCALE = 0.28f;
-    private static final float MAX_SCALE = 1.90f;
-    private static final int RANDOM_TRANSLATION = 200;
+    private static final float MIN_SCALE = 0.33f;
+    private static final float MAX_SCALE = 3.0f;
+    private static final int PREFER_TRANSLATION = 80;
     // 被操作的贴纸对象
     private Sticker sticker;
     // 手指按下时图片的矩阵
@@ -52,9 +56,9 @@ public class StickerView extends AppCompatImageView {
     private boolean inRotationScale;
     private boolean inTranslation;
     // 绘制点
-//    private Paint paintPoint;
+    private Paint paintPoint;
     //     点的半径
-//    private int mPointRadius;
+    private int mPointRadius;
     // 触控模式
     private int mode;
     // 是否正在处于编辑
@@ -63,6 +67,7 @@ public class StickerView extends AppCompatImageView {
     private OnStickerActionListener listener;
     // 映射的点位坐标
     private float[] mappedPoints;
+    private float[] mappedRectVertex;
     // 图像顶点坐标
     private float[] bitmapPoints = new float[8];
     // 原始图像的像素尺寸
@@ -82,6 +87,11 @@ public class StickerView extends AppCompatImageView {
     // 单点缩放比例
     private float mSingleScale = 1;
     private int mRotationExtraSize;
+    private static final int MIN_CLICK_DURATION = 300;
+    private int mTouchSlop;
+    private long mCurrentClickTime;
+    private boolean mIsRandom = true;
+    private int mIconHotArea;
 
     public StickerView(Context context) {
         this(context, null);
@@ -112,24 +122,35 @@ public class StickerView extends AppCompatImageView {
         paintEdge.setShadowLayer(getResources().getDimensionPixelSize(R.dimen.x2), 0, 0, Color.parseColor("#B3000000"));
         horizontalCheck = getResources().getDimensionPixelSize(R.dimen.x2);
         mRotationExtraSize = getResources().getDimensionPixelSize(R.dimen.x10);
-//        paintPoint = new Paint(Paint.ANTI_ALIAS_FLAG);
-//        paintPoint.setColor(Color.RED);
-//        paintPoint.setStyle(Paint.Style.FILL);
-//        mPointRadius = getResources().getDimensionPixelSize(R.dimen.x4);
+        mIconHotArea = getContext().getResources().getDimensionPixelSize(R.dimen.x72) / 2;
+        mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+        if (SHOW_POINTS) {
+            paintPoint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paintPoint.setColor(Color.RED);
+            paintPoint.setStyle(Paint.Style.FILL);
+            mPointRadius = getResources().getDimensionPixelSize(R.dimen.x4);
+        }
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
+        // 随机移动到某个位置
+        // TODO: 2019/4/19 0019 某些手机航栏收起，触发 onLayout
         if (changed) {
-            int ranX = (int) ((Math.random() * 2 - 1) * RANDOM_TRANSLATION);
-            int ranY = (int) ((Math.random() * 2 - 1) * RANDOM_TRANSLATION);
-            sticker.getMatrix().postTranslate((getWidth() - sticker.getStickerWidth()) / 2 + ranX,
-                    (getHeight() - sticker.getStickerHeight()) / 2 + ranY);
+            if (mIsRandom) {
+                int xDis = (getWidth() - sticker.getStickerWidth()) / 2 - PREFER_TRANSLATION;
+                int yDis = (getHeight() - sticker.getStickerHeight()) / 2 - PREFER_TRANSLATION;
+                int ranX = (int) ((Math.random() * 2 - 1) * xDis);
+                int ranY = (int) ((Math.random() * 2 - 1) * yDis);
+                sticker.getMatrix().postScale(0.5f, 0.5f);
+                sticker.getMatrix().postTranslate((float) (getWidth() - sticker.getStickerWidth()) / 2 + ranX,
+                        (float) (getHeight() - sticker.getStickerHeight()) / 2 + ranY);
+            }
             originBmpSize = getScaledBitmapSize();
         }
         if (DEBUG) {
-            Log.i(TAG, "onLayout: " + left + ":" + top + ":" + right + ":" + bottom);
+            Log.i(TAG, "onLayout: " + left + ":" + top + ":" + right + ":" + bottom + ", changed " + changed);
         }
     }
 
@@ -147,8 +168,7 @@ public class StickerView extends AppCompatImageView {
      * @return
      */
     private float getScaledBitmapSize() {
-        PointUtils.getBitmapPoints(sticker.getSrcImage(), sticker.getMatrix(),
-                bitmapPoints);
+        PointUtils.getBitmapPoints(sticker.getSrcImage(), sticker.getMatrix(), bitmapPoints);
         float x1 = bitmapPoints[0];
         float y1 = bitmapPoints[1];
         float x2 = bitmapPoints[2];
@@ -161,6 +181,7 @@ public class StickerView extends AppCompatImageView {
         if (sticker == null) {
             return;
         }
+
         sticker.draw(canvas);
         PointUtils.getBitmapPoints(sticker.getSrcImage(), sticker.getMatrix(), bitmapPoints);
         float x1 = bitmapPoints[0];
@@ -191,165 +212,121 @@ public class StickerView extends AppCompatImageView {
             }
         }
         // 映射点位坐标
-//        sticker.getMatrix().mapPoints(mappedPoints, sticker.getPoints());
-//        for (int i = 0, j = mappedPoints.length; i < j; i += 2) {
-//            canvas.drawCircle(mappedPoints[i], mappedPoints[i + 1],
-//                    mPointRadius, paintPoint);
-//        }
+        if (SHOW_POINTS) {
+            sticker.getMatrix().mapPoints(mappedPoints, sticker.getPoints());
+            for (int i = 0, j = mappedPoints.length; i < j; i += 2) {
+                canvas.drawCircle(mappedPoints[i], mappedPoints[i + 1], mPointRadius, paintPoint);
+            }
+        }
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getActionMasked();
-        boolean isStickerOnEdit = true;
         boolean handleResult = true;
         switch (action) {
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN: {
                 downX = event.getX();
                 downY = event.getY();
                 if (sticker == null) {
                     return false;
                 }
-                isChangedOption = false;
-                // 平移手势验证
-                if (isInStickerArea(sticker, event)) {
-                    mode = ActionMode.TRANS;
-                    inTranslation = true;
-                    inRotationScale = false;
-                    downMatrix.set(sticker.getMatrix());
-                    if (DEBUG) {
-                        Log.d(TAG, "平移手势");
-                    }
-                    isEdit = true;
-                    invalidate();
-                }
-                // 单点旋转和缩放手势验证
-                else if (rotateIcon.isInActionCheck(event)) {
-                    mode = ActionMode.ROTATE_AND_ZOOM;
-                    inRotationScale = true;
-                    inTranslation = false;
-                    downMatrix.set(sticker.getMatrix());
-                    imageMidPoint = sticker.getImageMidPoint(downMatrix);
-                    oldDistance = sticker.getSingleTouchDistance(event, imageMidPoint);
-                    oldRotation = sticker.getSpaceRotation(event, imageMidPoint);
-                    if (DEBUG) {
-                        Log.d(TAG, "单点旋转缩放手势");
-                    }
-                }
-                // 删除操作
-                else if (removeIcon.isInActionCheck(event)) {
-                    setIncreaseAvailable(true);
-                    isChangedOption = true;
-                    if (listener != null) {
-                        listener.onDelete(this);
-                    }
-                    if (DEBUG) {
-                        Log.d(TAG, "删除操作");
-                    }
-                    isStickerOnEdit = false;
-                }
-                // 新增操作
-                else if (increaseIcon.isInActionCheck(event)) {
-                    isChangedOption = true;
-                    if (listener != null) {
-                        listener.onIncrease(this);
-                    }
-                    if (DEBUG) {
-                        Log.d(TAG, "新增操作");
-                    }
-                    isStickerOnEdit = false;
-                } else {
-                    inRotationScale = false;
-                    inTranslation = false;
-                    isStickerOnEdit = false;
-                    handleResult = false;
-                }
-                if (isStickerOnEdit && listener != null) {
-                    listener.onEdit(this);
-                }
-                break;
-            case MotionEvent.ACTION_POINTER_DOWN:
+                handleResult = handleDownEvent(event);
+            }
+            break;
+            case MotionEvent.ACTION_POINTER_DOWN: {
                 // 多点触控
                 mode = ActionMode.ZOOM_MULTI;
-                oldDistance = sticker.getMultiTouchDistance(event);
-                midPoint = sticker.getMidPoint(event);
+                oldDistance = Sticker.getMultiTouchDistance(event);
+                midPoint = Sticker.getMidPoint(event);
                 downMatrix.set(sticker.getMatrix());
                 isEdit = true;
                 invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                // 平移
-                if (mode == ActionMode.TRANS) {
-                    moveMatrix.set(downMatrix);
-                    float dx = event.getX() - downX;
-                    float dy = event.getY() - downY;
-                    moveMatrix.postTranslate(dx, dy);
-                    PointUtils.getBitmapPoints(sticker.getSrcImage(), moveMatrix, bitmapPoints);
-                    imageMidPoint = sticker.getImageMidPoint(moveMatrix);
-                    if (imageMidPoint.x < 0 || imageMidPoint.x > getWidth()
-                            || imageMidPoint.y < 0 || imageMidPoint.y > getHeight()) {
-                        if (DEBUG) {
-                            Log.d(TAG, "onTouchEvent: over border");
+            }
+            break;
+            case MotionEvent.ACTION_MOVE: {
+                // 检测是否为点击，根据 touchSlop 判断
+                float x = event.getX() - downX;
+                float y = event.getY() - downY;
+                float distance = (float) Math.sqrt(x * x + y * y);
+                if (distance < mTouchSlop) {
+                    // 认为是点击
+                    handleResult = handleDownEvent(event);
+                } else {
+                    // 平移
+                    if (mode == ActionMode.TRANS) {
+                        moveMatrix.set(downMatrix);
+                        float dx = event.getX() - downX;
+                        float dy = event.getY() - downY;
+                        moveMatrix.postTranslate(dx, dy);
+                        PointUtils.getBitmapPoints(sticker.getSrcImage(), moveMatrix, bitmapPoints);
+                        imageMidPoint = sticker.getImageMidPoint(moveMatrix);
+                        if (imageMidPoint.x < 0 || imageMidPoint.x > getWidth()
+                                || imageMidPoint.y < 0 || imageMidPoint.y > getHeight()) {
+                            if (DEBUG) {
+                                Log.d(TAG, "onTouchEvent: over border");
+                            }
+                        } else {
+                            sticker.getMatrix().set(moveMatrix);
+                            invalidate();
                         }
-                    } else {
+                        if (DEBUG) {
+                            Log.d(TAG, "平移操作 dx:" + dx + ", dy:" + dy);
+                        }
+                    }
+                    // 单点旋转缩放
+                    else if (mode == ActionMode.ROTATE_AND_ZOOM) {
+                        moveMatrix.set(downMatrix);
+                        float deltaRotation = Sticker.getSpaceRotation(event, imageMidPoint) - oldRotation;
+                        moveMatrix.postRotate(deltaRotation, imageMidPoint.x, imageMidPoint.y);
+                        float scale = Sticker.getSingleTouchDistance(event, imageMidPoint) / oldDistance;
+                        float scaledBitmapSize = getScaledBitmapSize();
+                        float currScale = scaledBitmapSize / originBmpSize;
+                        // 限制缩放比例
+                        if (currScale > MAX_SCALE && scale > 1 || currScale < MIN_SCALE && scale < 1) {
+                            moveMatrix.postScale(mSingleScale, mSingleScale, imageMidPoint.x, imageMidPoint.y);
+                        } else {
+                            moveMatrix.postScale(scale, scale, imageMidPoint.x, imageMidPoint.y);
+                            mSingleScale = scale;
+                        }
+                        PointUtils.getBitmapPoints(sticker.getSrcImage(), sticker.getMatrix(), bitmapPoints);
+                        float y1 = bitmapPoints[1];
+                        float y2 = bitmapPoints[3];
+                        if (Math.abs(y1 - y2) <= horizontalCheck) {
+                            paintEdge.setColor(Color.parseColor("#5EC7FE"));
+                            paintEdge.setShadowLayer(2, 0, 0, Color.parseColor("#00000000"));
+                        } else {
+                            paintEdge.setColor(Color.WHITE);
+                            paintEdge.setShadowLayer(2, 0, 0, Color.parseColor("#B3000000"));
+                        }
                         sticker.getMatrix().set(moveMatrix);
                         invalidate();
+                        if (DEBUG) {
+                            Log.d(TAG, "单点旋转缩放操作 scale:" + scale + ", deltaRotation:" + deltaRotation + ", currScale:" + currScale);
+                        }
                     }
-                    if (DEBUG) {
-                        Log.d(TAG, "平移操作 " + dx + ":" + dy);
-                    }
-                }
-                // 单点旋转缩放
-                else if (mode == ActionMode.ROTATE_AND_ZOOM) {
-                    moveMatrix.set(downMatrix);
-                    float deltaRotation = sticker.getSpaceRotation(event, imageMidPoint) - oldRotation;
-                    moveMatrix.postRotate(deltaRotation, imageMidPoint.x, imageMidPoint.y);
-                    float scale = sticker.getSingleTouchDistance(event, imageMidPoint) / oldDistance;
-                    float scaledBitmapSize = getScaledBitmapSize();
-                    float currScale = scaledBitmapSize / originBmpSize;
-                    // 限制缩放比例
-                    if (currScale > MAX_SCALE && scale > 1 || currScale < MIN_SCALE && scale < 1) {
-                        moveMatrix.postScale(mSingleScale, mSingleScale, imageMidPoint.x, imageMidPoint.y);
-                    } else {
-                        moveMatrix.postScale(scale, scale, imageMidPoint.x, imageMidPoint.y);
-                        mSingleScale = scale;
-                    }
-                    PointUtils.getBitmapPoints(sticker.getSrcImage(), sticker.getMatrix(), bitmapPoints);
-                    float y1 = bitmapPoints[1];
-                    float y2 = bitmapPoints[3];
-                    if (Math.abs(y1 - y2) <= horizontalCheck) {
-                        paintEdge.setColor(Color.parseColor("#5EC7FE"));
-                        paintEdge.setShadowLayer(2, 0, 0, Color.parseColor("#00000000"));
-                    } else {
-                        paintEdge.setColor(Color.WHITE);
-                        paintEdge.setShadowLayer(2, 0, 0, Color.parseColor("#B3000000"));
-                    }
-                    sticker.getMatrix().set(moveMatrix);
-                    invalidate();
-                    if (DEBUG) {
-                        Log.d(TAG, "单点旋转缩放操作 " + scale + ":" + deltaRotation);
+                    // 多点缩放
+                    else if (mode == ActionMode.ZOOM_MULTI) {
+                        moveMatrix.set(downMatrix);
+                        float scale = Sticker.getMultiTouchDistance(event) / oldDistance;
+                        float scaledBitmapSize = getScaledBitmapSize();
+                        float currScale = scaledBitmapSize / originBmpSize;
+                        // 限制缩放比例
+                        if (currScale > MAX_SCALE && scale > 1 || currScale < MIN_SCALE && scale < 1) {
+                            return false;
+                        }
+                        moveMatrix.postScale(scale, scale, midPoint.x, midPoint.y);
+                        sticker.getMatrix().set(moveMatrix);
+                        invalidate();
+                        if (DEBUG) {
+                            Log.d(TAG, "多点缩放操作 " + scale);
+                        }
                     }
                 }
-                // 多点缩放
-                else if (mode == ActionMode.ZOOM_MULTI) {
-                    moveMatrix.set(downMatrix);
-                    float scale = sticker.getMultiTouchDistance(event) / oldDistance;
-                    float scaledBitmapSize = getScaledBitmapSize();
-                    float currScale = scaledBitmapSize / originBmpSize;
-                    // 限制缩放比例
-                    if (currScale > MAX_SCALE && scale > 1 || currScale < MIN_SCALE && scale < 1) {
-                        return false;
-                    }
-                    moveMatrix.postScale(scale, scale, midPoint.x, midPoint.y);
-                    sticker.getMatrix().set(moveMatrix);
-                    invalidate();
-                    if (DEBUG) {
-                        Log.d(TAG, "多点缩放操作 " + scale);
-                    }
-                }
-                break;
+            }
+            break;
             case MotionEvent.ACTION_POINTER_UP:
-            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_UP: {
                 isEdit = !isChangedOption;
                 mode = ActionMode.NONE;
                 midPoint = null;
@@ -357,10 +334,86 @@ public class StickerView extends AppCompatImageView {
                 inRotationScale = false;
                 inTranslation = false;
                 invalidate();
-                break;
+            }
+            break;
             default:
         }
         return handleResult;
+    }
+
+    private boolean handleDownEvent(MotionEvent event) {
+        isChangedOption = false;
+        boolean handleResult = true;
+        boolean isStickerOnEdit = true;
+        // 平移手势验证
+        if (isInStickerArea(sticker, event)) {
+            mode = ActionMode.TRANS;
+            inTranslation = true;
+            inRotationScale = false;
+            downMatrix.set(sticker.getMatrix());
+            if (DEBUG) {
+                Log.d(TAG, "平移手势 ");
+            }
+            isEdit = true;
+            invalidate();
+        }
+        // 单点旋转和缩放手势验证
+        else if (rotateIcon.isInActionCheck(event)) {
+            mode = ActionMode.ROTATE_AND_ZOOM;
+            inRotationScale = true;
+            inTranslation = false;
+            downMatrix.set(sticker.getMatrix());
+            imageMidPoint = sticker.getImageMidPoint(downMatrix);
+            oldDistance = Sticker.getSingleTouchDistance(event, imageMidPoint);
+            oldRotation = Sticker.getSpaceRotation(event, imageMidPoint);
+            if (DEBUG) {
+                Log.d(TAG, "单点旋转缩放手势");
+            }
+        }
+        // 删除操作
+        else if (removeIcon.isInActionCheck(event)) {
+            if (!isMultiClick()) {
+                if (isEdit && listener != null) {
+                    setIncreaseAvailable(true);
+                    isChangedOption = true;
+                    listener.onDelete(this);
+                }
+                if (DEBUG) {
+                    Log.d(TAG, "删除操作 " + isEdit);
+                }
+                isStickerOnEdit = false;
+            }
+        }
+        // 新增操作
+        else if (increaseIcon.isInActionCheck(event)) {
+            if (!isMultiClick()) {
+                if (isEdit && listener != null) {
+                    isChangedOption = true;
+                    listener.onIncrease(this);
+                }
+                if (DEBUG) {
+                    Log.d(TAG, "新增操作 " + isEdit);
+                }
+                isStickerOnEdit = false;
+            }
+        } else {
+            inRotationScale = false;
+            inTranslation = false;
+            isStickerOnEdit = false;
+            handleResult = false;
+        }
+        if (isStickerOnEdit && listener != null) {
+            listener.onEdit(this);
+        }
+        return handleResult;
+    }
+
+    private boolean isMultiClick() {
+        if (System.currentTimeMillis() - mCurrentClickTime < MIN_CLICK_DURATION) {
+            return true;
+        }
+        mCurrentClickTime = System.currentTimeMillis();
+        return false;
     }
 
     /**
@@ -371,7 +424,7 @@ public class StickerView extends AppCompatImageView {
      * @return
      */
     private boolean isInStickerArea(Sticker sticker, MotionEvent event) {
-        RectF dst = sticker.getSrcImageBound();
+        RectF dst = sticker.getSrcImageBound(mIconHotArea);
         return dst.contains(event.getX(), event.getY());
     }
 
@@ -379,6 +432,12 @@ public class StickerView extends AppCompatImageView {
         float[] points = sticker.getPoints();
         sticker.getMatrix().mapPoints(mappedPoints, points);
         return mappedPoints;
+    }
+
+    public float[] getMappedRectVertex() {
+        float[] borderVertex = sticker.getBorderVertex();
+        sticker.getMatrix().mapPoints(mappedRectVertex, borderVertex);
+        return mappedRectVertex;
     }
 
     /**
@@ -395,18 +454,24 @@ public class StickerView extends AppCompatImageView {
      *
      * @param type
      * @param imagePath
-     * @param dots
+     * @param points
      */
-    public void setStickerParams(int type, String imagePath, float[] dots) {
+    public void setStickerParams(int type, String imagePath, float[] points, boolean isRandom, float[] matrixF) {
+        mIsRandom = isRandom;
         try {
-            Bitmap bitmap = BitmapFactory.decodeStream(getContext().getAssets().open(imagePath));
-            sticker = new Sticker(bitmap, dots, type);
+            AssetManager assetManager = getContext().getAssets();
+            InputStream isBorder = assetManager.open(imagePath);
+            InputStream isData = assetManager.open(imagePath);
+            int size = getContext().getResources().getDimensionPixelSize(R.dimen.x250);
+            Bitmap bitmap = BitmapUtil.decodeSampledBitmapFromStream(isBorder, isData, size, size);
+            sticker = new Sticker(imagePath, bitmap, points, type, matrixF);
+            isBorder.close();
+            isData.close();
         } catch (IOException e) {
-            if (DEBUG) {
-                Log.e(TAG, "setStickerParams: ", e);
-            }
+            Log.e(TAG, "setStickerParams: ", e);
         }
-        mappedPoints = new float[dots.length];
+        mappedPoints = new float[points.length];
+        mappedRectVertex = new float[8];
     }
 
     public int getType() {
@@ -438,28 +503,28 @@ public class StickerView extends AppCompatImageView {
     /**
      * 设置旋转操作的图片
      *
-     * @param rotateRes
+     * @param rotatePath
      */
-    public void setRotateRes(int rotateRes) {
-        rotateIcon.setSrcIcon(rotateRes);
+    public void setRotatePath(String rotatePath) {
+        rotateIcon.setSrcIcon(rotatePath);
     }
 
     /**
      * 设置新增操作的图片
      *
-     * @param zoomRes
+     * @param zoomPath
      */
-    public void setIncreaseRes(int zoomRes) {
-        increaseIcon.setSrcIcon(zoomRes);
+    public void setIncreasePath(String zoomPath) {
+        increaseIcon.setSrcIcon(zoomPath);
     }
 
     /**
      * 设置删除操作的图片
      *
-     * @param removeRes
+     * @param removePath
      */
-    public void setRemoveRes(int removeRes) {
-        removeIcon.setSrcIcon(removeRes);
+    public void setRemovePath(String removePath) {
+        removeIcon.setSrcIcon(removePath);
     }
 
     public interface OnStickerActionListener {
@@ -486,7 +551,7 @@ public class StickerView extends AppCompatImageView {
         void onIncrease(StickerView stickerView);
     }
 
-    private static class ActionMode {
+    public static class ActionMode {
         public static final int NONE = 0; // 无模式
         public static final int TRANS = 1; // 拖拽模式
         public static final int ROTATE_AND_ZOOM = 2; // 单点旋转加缩放模式

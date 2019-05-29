@@ -119,7 +119,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         }
         Log.d(TAG, "onSurfaceChanged() called with: width = [" + width + "], height = [" + height + "]"
                 + ", videoWidth:" + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation);
-        mvp = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
+        mvp = GlUtil.changeMVPMatrixCrop(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
         mFPSUtil.resetLimit();
     }
 
@@ -131,6 +131,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         } catch (Exception e) {
             return;
         }
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         mFuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth, mVideoHeight, mtx, mVideoSurfaceTexture.getTimestamp());
         mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
         mFPSUtil.limit();

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.activity.AvatarDriveActivity;
+import com.faceunity.fulivedemo.activity.LivePhotoDriveActivity;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ScreenUtils;
 import com.faceunity.fulivedemo.utils.ToastUtil;
@@ -46,28 +47,28 @@ public class MainActivity extends AppCompatActivity {
             Effect.EFFECT_TYPE_GESTURE,
             Effect.EFFECT_TYPE_FACE_WARP,
             Effect.EFFECT_TYPE_PORTRAIT_DRIVE,
-//            Effect.EFFECT_TYPE_LIVE_PHOTO,
             Effect.EFFECT_TYPE_NONE,
+            Effect.EFFECT_TYPE_LIVE_PHOTO
     };
 
     // 文档：http://confluence.faceunity.com/pages/viewpage.action?pageId=10453059
-    private static final int[] home_function_permissions_code = {
-            0x1 | 0x8,                    //美颜，轻美妆
-            0x80000,                //美妆
-            0x2 | 0x4,              //道具贴纸
-            0x10,                   //Animoji
-            0x100000,               //美发
-            0x20 | 0x40,            //AR面具
-            0x80,                   //换脸
-            0x800000,               //海报换脸
-            0x800,                  //表情识别
-            0x20000,                //音乐滤镜
-            0x100,                  //背景分割
-            0x200,                  //手势识别
-            0x10000,                //哈哈镜
-            0x8000,                 //人像驱动
-//            0x1000000,              //表情动图
-            0x10                    //Avatar捏脸
+    private static final String[] home_function_permissions_code = {
+            "9-0",                    //美颜，轻美妆
+            "524288-0",                //美妆
+            "6-0",              //道具贴纸
+            "16-0",                   //Animoji
+            "1048576-0",               //美发
+            "96-0",            //AR面具
+            "128-0",                   //换脸
+            "8388608-0",               //海报换脸
+            "2048-0",                  //表情识别
+            "131072-0",                //音乐滤镜
+            "256-0",                  //背景分割
+            "512-0",                  //手势识别
+            "65536-0",                //哈哈镜
+            "32768-0",                 //人像驱动
+            "0-16",                    //Avatar捏脸
+            "16777216-0"              //表情动图
     };
 
     private static final int[] home_function_name = {
@@ -85,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
             R.string.home_function_name_gesture,
             R.string.home_function_name_face_warp,
             R.string.home_function_name_portrait_drive,
-//            R.string.home_function_name_live_photo,
-            R.string.home_function_name_avatar
+            R.string.home_function_name_avatar,
+            R.string.home_function_name_live_photo
     };
 
     private static final int[] home_function_res = {
@@ -104,8 +105,8 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.main_gesture,
             R.drawable.main_face_warp,
             R.drawable.main_portrait_drive,
-//            R.drawable.main_magic_photo,
-            R.drawable.main_avatar
+            R.drawable.main_avatar,
+            R.drawable.main_live_photo
     };
 
     private List<Integer> hasFaceUnityPermissionsList = new ArrayList<>();
@@ -124,10 +125,16 @@ public class MainActivity extends AppCompatActivity {
         ScreenUtils.fullScreen(this);
         MiscUtil.checkPermission(this);
 
-        int moduleCode = FURenderer.getModuleCode();
-        Log.e(TAG, "ModuleCode " + moduleCode);
+        FURenderer.initFURenderer(this);
+
+        int moduleCode0 = FURenderer.getModuleCode(0);
+        int moduleCode1 = FURenderer.getModuleCode(1);
+        Log.e(TAG, "ModuleCode " + moduleCode0 + " " + moduleCode1);
         for (int i = 0, count = 0; i < home_function_name.length; i++) {
-            hasFaceUnityPermissions[i] = moduleCode == 0 || (home_function_permissions_code[i] & moduleCode) > 0;
+            String[] codeStr = home_function_permissions_code[i].split("-");
+            int code0 = Integer.valueOf(codeStr[0]);
+            int code1 = Integer.valueOf(codeStr[1]);
+            hasFaceUnityPermissions[i] = (moduleCode0 == 0 && moduleCode1 == 0) || ((code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0);
             if (hasFaceUnityPermissions[i]) {
                 hasFaceUnityPermissionsList.add(count++, i);
             } else {
@@ -208,9 +215,9 @@ public class MainActivity extends AppCompatActivity {
                         } else if (home_function_res[position] == R.drawable.main_animoji) {
                             intent = new Intent(MainActivity.this, FUAnimojiActivity.class);
                             startActivity(intent);
-//                        } else if (home_function_res[position] == R.drawable.main_magic_photo) {
-//                            intent = new Intent(MainActivity.this, FUMagicDriveActivity.class);
-//                            startActivity(intent);
+                        } else if (home_function_res[position] == R.drawable.main_live_photo) {
+                            intent = new Intent(MainActivity.this, LivePhotoDriveActivity.class);
+                            startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_avatar) {
                             intent = new Intent(MainActivity.this, AvatarDriveActivity.class);
                             startActivity(intent);

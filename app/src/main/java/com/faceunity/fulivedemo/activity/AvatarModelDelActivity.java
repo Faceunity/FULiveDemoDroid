@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
+import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.greendao.AvatarModelDao;
@@ -49,7 +51,10 @@ public class AvatarModelDelActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_magic_photo_delete);
+        if (NotchInScreenUtil.hasNotch(this)) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        setContentView(R.layout.activity_live_photo_delete);
         ViewClickListener viewClickListener = new ViewClickListener();
         findViewById(R.id.iv_delete_back).setOnClickListener(viewClickListener);
         TextView tvTitle = findViewById(R.id.tv_title);
@@ -106,15 +111,15 @@ public class AvatarModelDelActivity extends AppCompatActivity {
                     // 全选
                     int size = mDeleteAvatarAdapter.mSelectedEntities.size();
                     if (size == mDeleteAvatarAdapter.getItemCount()) {
-                        mBtnAll.setText(R.string.magic_delete_all);
+                        mBtnAll.setText(R.string.live_photo__delete_all);
                         mBtnDelete.setEnabled(false);
-                        mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete));
+                        mBtnDelete.setText(getResources().getString(R.string.live_photo_btn_delete));
                         mDeleteAvatarAdapter.mSelectedEntities.clear();
                         mDeleteAvatarAdapter.notifyDataSetChanged();
                     } else {
-                        mBtnAll.setText(R.string.magic_btn_cancel);
+                        mBtnAll.setText(R.string.live_photo_btn_cancel);
                         mBtnDelete.setEnabled(true);
-                        mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete_, mDeleteAvatarAdapter.getItemCount()));
+                        mBtnDelete.setText(getResources().getString(R.string.live_photo_btn_delete_, mDeleteAvatarAdapter.getItemCount()));
                         mDeleteAvatarAdapter.mSelectedEntities.addAll(mDeleteAvatarAdapter.mAvatarModels);
                         mDeleteAvatarAdapter.notifyDataSetChanged();
                     }
@@ -128,15 +133,15 @@ public class AvatarModelDelActivity extends AppCompatActivity {
                             Set<AvatarModel> selectedEntities = mDeleteAvatarAdapter.mSelectedEntities;
                             List<AvatarModel> toDelete = new ArrayList<>(selectedEntities.size());
                             toDelete.addAll(selectedEntities);
-                            mBtnAll.setText(R.string.magic_delete_all);
+                            mBtnAll.setText(R.string.live_photo__delete_all);
                             mBtnDelete.setEnabled(false);
-                            mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete));
+                            mBtnDelete.setText(getResources().getString(R.string.live_photo_btn_delete));
                             try {
                                 AvatarModelDao avatarModelDao = GreenDaoUtils.getInstance().getDaoSession().getAvatarModelDao();
                                 avatarModelDao.deleteInTx(toDelete);
                                 mDeleteAvatarAdapter.mSelectedEntities.clear();
-                                for (AvatarModel magicPhotoEntity : toDelete) {
-                                    mDeleteAvatarAdapter.mAvatarModels.remove(magicPhotoEntity);
+                                for (AvatarModel avatarModel : toDelete) {
+                                    mDeleteAvatarAdapter.mAvatarModels.remove(avatarModel);
                                 }
                                 mDeleteAvatarAdapter.notifyDataSetChanged();
                                 checkEmpty();
@@ -171,7 +176,7 @@ public class AvatarModelDelActivity extends AppCompatActivity {
         @NonNull
         @Override
         public DeleteAvatarAdapter.VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_magic_delete, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_live_photo_delete, parent, false);
             final VH vh = new VH(view);
             vh.itemView.setOnClickListener(new OnMultiClickListener() {
                 @Override
@@ -188,15 +193,15 @@ public class AvatarModelDelActivity extends AppCompatActivity {
                     int size = mSelectedEntities.size();
                     if (size > 0) {
                         mBtnDelete.setEnabled(true);
-                        mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete_, size));
+                        mBtnDelete.setText(getResources().getString(R.string.live_photo_btn_delete_, size));
                     } else {
                         mBtnDelete.setEnabled(false);
-                        mBtnDelete.setText(getResources().getString(R.string.magic_btn_delete));
+                        mBtnDelete.setText(getResources().getString(R.string.live_photo_btn_delete));
                     }
                     if (size == getItemCount()) {
-                        mBtnAll.setText(R.string.magic_btn_cancel);
+                        mBtnAll.setText(R.string.live_photo_btn_cancel);
                     } else {
-                        mBtnAll.setText(R.string.magic_delete_all);
+                        mBtnAll.setText(R.string.live_photo__delete_all);
                     }
                 }
             });
@@ -230,8 +235,8 @@ public class AvatarModelDelActivity extends AppCompatActivity {
 
             public VH(View itemView) {
                 super(itemView);
-                mIvIcon = itemView.findViewById(R.id.iv_magic_photo);
-                mIvMask = itemView.findViewById(R.id.iv_magic_mask);
+                mIvIcon = itemView.findViewById(R.id.iv_live_photo_photo);
+                mIvMask = itemView.findViewById(R.id.iv_live_photo_mask);
             }
         }
     }

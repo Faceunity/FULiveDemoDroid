@@ -24,7 +24,7 @@ import javax.microedition.khronos.opengles.GL10;
 public class PhotoRenderer implements GLSurfaceView.Renderer {
     public final static String TAG = PhotoRenderer.class.getSimpleName();
 
-    public static final float[] imgDataMatrix = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
+    public static final float[] IMG_DATA_MATRIX = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
     public static final float[] ROTATE_90 = {0.0F, 1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F};
     private GLSurfaceView mGLSurfaceView;
 
@@ -94,16 +94,19 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
-        mvp = GlUtil.changeMVPMatrix(ROTATE_90, mViewWidth, mViewHeight, mPhotoWidth, mPhotoHeight);
+        mvp = GlUtil.changeMVPMatrixCrop(ROTATE_90, mViewWidth, mViewHeight, mPhotoWidth, mPhotoHeight);
         mOnPhotoRendererStatusListener.onSurfaceChanged(gl, width, height);
         mFPSUtil.resetLimit();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mFullFrameRectTexture2D == null) return;
+        if (mFullFrameRectTexture2D == null) {
+            return;
+        }
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mPhotoBytes, mImgTextureId, mPhotoWidth, mPhotoHeight);
-        mFullFrameRectTexture2D.drawFrame(fuTextureId, imgDataMatrix, mvp);
+        mFullFrameRectTexture2D.drawFrame(fuTextureId, IMG_DATA_MATRIX, mvp);
 
         mFPSUtil.limit();
         mGLSurfaceView.requestRender();

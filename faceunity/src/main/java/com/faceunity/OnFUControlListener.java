@@ -2,7 +2,7 @@ package com.faceunity;
 
 
 import com.faceunity.entity.Effect;
-import com.faceunity.entity.MagicPhotoEntity;
+import com.faceunity.entity.LivePhoto;
 import com.faceunity.entity.MakeupItem;
 
 import java.util.List;
@@ -102,11 +102,6 @@ public interface OnFUControlListener {
     void onToothWhitenSelected(float level);
 
     /**
-     * 脸型选择
-     */
-    void onFaceShapeSelected(float faceShape);
-
-    /**
      * 大眼选择
      *
      * @param level 大眼
@@ -140,6 +135,27 @@ public interface OnFUControlListener {
      * 嘴形
      */
     void onIntensityMouthSelected(float level);
+
+    /**
+     * 窄脸选择
+     *
+     * @param level
+     */
+    void onCheekNarrowSelected(float level);
+
+    /**
+     * 小脸选择
+     *
+     * @param level
+     */
+    void onCheekSmallSelected(float level);
+
+    /**
+     * V脸选择
+     *
+     * @param level
+     */
+    void onCheekVSelected(float level);
 
     /**
      * 切换海报模板
@@ -199,14 +215,6 @@ public interface OnFUControlListener {
     void onMakeupOverallLevelChanged(float level);
 
     /**
-     * 选择美妆效果（轻美妆，质感美颜）
-     *
-     * @param makeupItem
-     * @param level
-     */
-    void onLightMakeupSelected(MakeupItem makeupItem, float level);
-
-    /**
      * 调节多个妆容（轻美妆，质感美颜）
      *
      * @param makeupItems
@@ -221,9 +229,9 @@ public interface OnFUControlListener {
     void onLightMakeupOverallLevelChanged(float level);
 
     /**
-     * 设置异图的点位和图像数据，用来驱动图像
+     * 设置表情动图的点位和图像数据，用来驱动图像
      *
-     * @param magicPhotoEntity
+     * @param livePhoto
      */
-    void setMagicPhoto(final MagicPhotoEntity magicPhotoEntity);
+    void setLivePhoto(LivePhoto livePhoto);
 }

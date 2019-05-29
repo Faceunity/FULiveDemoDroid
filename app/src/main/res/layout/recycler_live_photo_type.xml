@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.AppCompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_name"
+    android:layout_width="@dimen/x187"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:textColor="@color/beauty_control_bottom_radio_color"
+    android:textSize="@dimen/x26"
+    tools:text="谢谢" />

@@ -15,8 +15,6 @@ import java.util.Map;
 public abstract class BeautyParameterModel {
     public static final String TAG = BeautyParameterModel.class.getSimpleName();
 
-    public static boolean isHeightPerformance = false;
-
     public static final String STR_FILTER_LEVEL = "FilterLevel_";
     public static Map<String, Float> sFilterLevel = new HashMap<>(16);
     public static Filter sFilter = FilterEnum.fennen.filter();
@@ -44,24 +42,42 @@ public abstract class BeautyParameterModel {
     public static float sEyeBright = 0.0f;//亮眼
     public static float sToothWhiten = 0.0f;//美牙
 
-    public static float sFaceShape = 4.0f;//脸型
-    public static float sFaceShapeLevel = 1.0f;//程度
+    // 脸型默认的参数
+    private static final Map<Integer, Float> FACE_SHAPE_DEFAULT_PARAMS = new HashMap<>(16);
+    public static float sCheekThinning = 0f;//瘦脸
+    public static float sCheekV = 0.5f;//V脸
+    public static float sCheekNarrow = 0f;//窄脸
+    public static float sCheekSmall = 0f;//小脸
     public static float sEyeEnlarging = 0.4f;//大眼
-    public static float sEyeEnlargingOld = 0.4f;//大眼
-    public static float sCheekThinning = 0.4f;//瘦脸
-    public static float sCheekThinningOld = 0.4f;//瘦脸
     public static float sIntensityChin = 0.3f;//下巴
     public static float sIntensityForehead = 0.3f;//额头
     public static float sIntensityNose = 0.5f;//瘦鼻
     public static float sIntensityMouth = 0.4f;//嘴形
 
+    static {
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_thinning, sCheekThinning);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_narrow, sCheekNarrow);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_small, sCheekSmall);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_v, sCheekV);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_eye_enlarge, sEyeEnlarging);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_intensity_chin, sIntensityChin);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_intensity_forehead, sIntensityForehead);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_intensity_nose, sIntensityNose);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_intensity_mouth, sIntensityMouth);
+    }
 
+    /**
+     * 美颜效果是否打开
+     *
+     * @param checkId
+     * @return
+     */
     public static boolean isOpen(int checkId) {
         switch (checkId) {
             case R.id.beauty_box_skin_detect:
-                return !isHeightPerformance && sSkinDetect == 1;
+                return sSkinDetect == 1;
             case R.id.beauty_box_heavy_blur:
-                return (isHeightPerformance || sHeavyBlur == 1) ? sHeavyBlurLevel > 0 : sBlurLevel > 0;
+                return sHeavyBlur == 1 ? sHeavyBlurLevel > 0 : sBlurLevel > 0;
             case R.id.beauty_box_blur_level:
                 return sHeavyBlurLevel > 0;
             case R.id.beauty_box_color_level:
@@ -69,40 +85,44 @@ public abstract class BeautyParameterModel {
             case R.id.beauty_box_red_level:
                 return sRedLevel > 0;
             case R.id.beauty_box_eye_bright:
-                return !isHeightPerformance && sEyeBright > 0;
+                return sEyeBright > 0;
             case R.id.beauty_box_tooth_whiten:
-                return !isHeightPerformance && sToothWhiten != 0;
-            case R.id.beauty_box_face_shape:
-                return (!isHeightPerformance || sFaceShape != 4) && sFaceShape != 3;
+                return sToothWhiten != 0;
             case R.id.beauty_box_eye_enlarge:
-                if (sFaceShape == 4)
-                    return sEyeEnlarging > 0;
-                else
-                    return sEyeEnlargingOld > 0;
+                return sEyeEnlarging > 0;
             case R.id.beauty_box_cheek_thinning:
-                if (sFaceShape == 4)
-                    return sCheekThinning > 0;
-                else
-                    return sCheekThinningOld > 0;
+                return sCheekThinning > 0;
+            case R.id.beauty_box_cheek_narrow:
+                return sCheekNarrow > 0;
+            case R.id.beauty_box_cheek_v:
+                return sCheekV > 0;
+            case R.id.beauty_box_cheek_small:
+                return sCheekSmall > 0;
             case R.id.beauty_box_intensity_chin:
-                return !isHeightPerformance && sIntensityChin != 0.5;
+                return sIntensityChin != 0.5;
             case R.id.beauty_box_intensity_forehead:
-                return !isHeightPerformance && sIntensityForehead != 0.5;
+                return sIntensityForehead != 0.5;
             case R.id.beauty_box_intensity_nose:
-                return !isHeightPerformance && sIntensityNose > 0;
+                return sIntensityNose > 0;
             case R.id.beauty_box_intensity_mouth:
-                return !isHeightPerformance && sIntensityMouth != 0.5;
+                return sIntensityMouth != 0.5;
             default:
                 return true;
         }
     }
 
+    /**
+     * 获取美颜的参数值
+     *
+     * @param checkId
+     * @return
+     */
     public static float getValue(int checkId) {
         switch (checkId) {
             case R.id.beauty_box_skin_detect:
-                return isHeightPerformance ? 0 : sSkinDetect;
+                return sSkinDetect;
             case R.id.beauty_box_heavy_blur:
-                return (isHeightPerformance || sHeavyBlur == 1) ? sHeavyBlurLevel : sBlurLevel;
+                return sHeavyBlur == 1 ? sHeavyBlurLevel : sBlurLevel;
             case R.id.beauty_box_blur_level:
                 return sHeavyBlurLevel;
             case R.id.beauty_box_color_level:
@@ -110,41 +130,45 @@ public abstract class BeautyParameterModel {
             case R.id.beauty_box_red_level:
                 return sRedLevel;
             case R.id.beauty_box_eye_bright:
-                return !isHeightPerformance ? sEyeBright : 0;
+                return sEyeBright;
             case R.id.beauty_box_tooth_whiten:
-                return !isHeightPerformance ? sToothWhiten : 0;
-            case R.id.beauty_box_face_shape:
-                return isHeightPerformance && sFaceShape == 4 ? 3 : sFaceShape;
+                return sToothWhiten;
             case R.id.beauty_box_eye_enlarge:
-                if (!isHeightPerformance && sFaceShape == 4)
-                    return sEyeEnlarging;
-                else
-                    return sEyeEnlargingOld;
+                return sEyeEnlarging;
             case R.id.beauty_box_cheek_thinning:
-                if (!isHeightPerformance && sFaceShape == 4)
-                    return sCheekThinning;
-                else
-                    return sCheekThinningOld;
+                return sCheekThinning;
+            case R.id.beauty_box_cheek_narrow:
+                return sCheekNarrow;
+            case R.id.beauty_box_cheek_v:
+                return sCheekV;
+            case R.id.beauty_box_cheek_small:
+                return sCheekSmall;
             case R.id.beauty_box_intensity_chin:
-                return !isHeightPerformance ? sIntensityChin : 0.5f;
+                return sIntensityChin;
             case R.id.beauty_box_intensity_forehead:
-                return !isHeightPerformance ? sIntensityForehead : 0.5f;
+                return sIntensityForehead;
             case R.id.beauty_box_intensity_nose:
-                return !isHeightPerformance ? sIntensityNose : 0;
+                return sIntensityNose;
             case R.id.beauty_box_intensity_mouth:
-                return !isHeightPerformance ? sIntensityMouth : 0.5f;
+                return sIntensityMouth;
             default:
                 return 0;
         }
     }
 
+    /**
+     * 设置美颜的参数值
+     *
+     * @param checkId
+     * @param value
+     */
     public static void setValue(int checkId, float value) {
         switch (checkId) {
             case R.id.beauty_box_skin_detect:
                 sSkinDetect = value;
                 break;
             case R.id.beauty_box_heavy_blur:
-                if (isHeightPerformance || sHeavyBlur == 1) {
+                if (sHeavyBlur == 1) {
                     sHeavyBlurLevel = value;
                 } else {
                     sBlurLevel = value;
@@ -165,21 +189,20 @@ public abstract class BeautyParameterModel {
             case R.id.beauty_box_tooth_whiten:
                 sToothWhiten = value;
                 break;
-            case R.id.beauty_box_face_shape:
-                sFaceShape = value;
-                break;
-
             case R.id.beauty_box_eye_enlarge:
-                if (!isHeightPerformance && sFaceShape == 4)
-                    sEyeEnlarging = value;
-                else
-                    sEyeEnlargingOld = value;
+                sEyeEnlarging = value;
                 break;
             case R.id.beauty_box_cheek_thinning:
-                if (!isHeightPerformance && sFaceShape == 4)
-                    sCheekThinning = value;
-                else
-                    sCheekThinningOld = value;
+                sCheekThinning = value;
+                break;
+            case R.id.beauty_box_cheek_v:
+                sCheekV = value;
+                break;
+            case R.id.beauty_box_cheek_narrow:
+                sCheekNarrow = value;
+                break;
+            case R.id.beauty_box_cheek_small:
+                sCheekSmall = value;
                 break;
             case R.id.beauty_box_intensity_chin:
                 sIntensityChin = value;
@@ -197,7 +220,55 @@ public abstract class BeautyParameterModel {
         }
     }
 
-    public static void setHeavyBlur(boolean isHeavy) {
-        sHeavyBlur = isHeavy ? 1.0f : 0;
+    /**
+     * 默认的美型参数是否被修改过
+     *
+     * @return
+     */
+    public static boolean checkIfFaceShapeChanged() {
+        if (Float.compare(sCheekNarrow, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_narrow)) != 0) {
+            return true;
+        }
+        if (Float.compare(sCheekSmall, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_small)) != 0) {
+            return true;
+        }
+        if (Float.compare(sCheekV, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_v)) != 0) {
+            return true;
+        }
+        if (Float.compare(sCheekThinning, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_thinning)) != 0) {
+            return true;
+        }
+        if (Float.compare(sEyeEnlarging, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_eye_enlarge)) != 0) {
+            return true;
+        }
+        if (Float.compare(sIntensityNose, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_nose)) != 0) {
+            return true;
+        }
+        if (Float.compare(sIntensityChin, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_chin)) != 0) {
+            return true;
+        }
+        if (Float.compare(sIntensityMouth, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_mouth)) != 0) {
+            return true;
+        }
+        if (Float.compare(sIntensityForehead, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_forehead)) != 0) {
+            return true;
+        }
+        return false;
     }
+
+    /**
+     * 恢复美型的默认值
+     */
+    public static void recoverToDefValue() {
+        sCheekNarrow = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_narrow);
+        sCheekSmall = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_small);
+        sCheekV = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_v);
+        sCheekThinning = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_thinning);
+        sEyeEnlarging = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_eye_enlarge);
+        sIntensityNose = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_nose);
+        sIntensityMouth = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_mouth);
+        sIntensityForehead = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_forehead);
+        sIntensityChin = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_chin);
+    }
+
 }

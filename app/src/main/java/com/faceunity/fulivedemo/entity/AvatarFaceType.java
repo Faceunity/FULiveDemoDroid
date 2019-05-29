@@ -6,8 +6,9 @@ import android.os.Parcelable;
 import java.util.Arrays;
 
 /**
- * @author Richie on 2019.03.21
  * 捏脸五官类型
+ *
+ * @author Richie on 2019.03.21
  */
 public class AvatarFaceType implements Parcelable {
 
@@ -16,8 +17,7 @@ public class AvatarFaceType implements Parcelable {
     public static final int AVATAR_FACE_EYE = 2;
     public static final int AVATAR_FACE_LIP = 3;
     public static final int AVATAR_FACE_NOSE = 4;
-    //    public static final int AVATAR_FACE_EYEBROW = 5;
-//    public static final int AVATAR_FACE_EYELASH = 6;
+
     public static final Creator<AvatarFaceType> CREATOR = new Creator<AvatarFaceType>() {
         @Override
         public AvatarFaceType createFromParcel(Parcel source) {

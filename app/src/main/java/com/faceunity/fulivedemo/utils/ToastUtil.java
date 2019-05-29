@@ -25,7 +25,7 @@ public final class ToastUtil {
         View view;
         if (sFineToast == null) {
             FrameLayout frameLayout = new FrameLayout(context);
-            view = LayoutInflater.from(context).inflate(R.layout.toast_magic, frameLayout, true);
+            view = LayoutInflater.from(context).inflate(R.layout.toast_live_photo, frameLayout, true);
             sFineToast = new Toast(context);
             TextView textView = view.findViewById(R.id.tv_toast_text);
             textView.setText(text);

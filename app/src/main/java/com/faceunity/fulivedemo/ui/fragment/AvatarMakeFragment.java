@@ -402,7 +402,7 @@ public class AvatarMakeFragment extends Fragment {
             // 自定义页面
             boolean levelChanged = checkIfLevelChanged();
             if (levelChanged) {
-                ConfirmDialogFragment confirmDialogFragment = ConfirmDialogFragment.newInstance(getString(R.string.magic_back_not_save), new BaseDialogFragment.OnClickListener() {
+                ConfirmDialogFragment confirmDialogFragment = ConfirmDialogFragment.newInstance(getString(R.string.live_photo_back_not_save), new BaseDialogFragment.OnClickListener() {
                     @Override
                     public void onConfirm() {
                         Set<Map.Entry<String, Float>> entries = AvatarFaceHelper.CUSTOM_FACE_ASPECT_MAP.entrySet();
@@ -434,7 +434,7 @@ public class AvatarMakeFragment extends Fragment {
             }
         } else {
             // 效果选择页面
-            ConfirmDialogFragment confirmDialogFragment = ConfirmDialogFragment.newInstance(getString(R.string.magic_back_not_save), new BaseDialogFragment.OnClickListener() {
+            ConfirmDialogFragment confirmDialogFragment = ConfirmDialogFragment.newInstance(getString(R.string.live_photo_back_not_save), new BaseDialogFragment.OnClickListener() {
                 @Override
                 public void onConfirm() {
                     int type = AvatarFaceType.AVATAR_FACE_HAIR;

@@ -1,15 +1,16 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2019-05-07
-SDK版本: 6.0.2  
+更新日期：2019-05-27
+SDK版本: 6.1.0
 
 ------
 ### 最新更新内容：
 
-2019-05-07 v6.0.2:
+2019-05-27 v6.1.0：
 
 1. 新增fuSetupLocal函数，支持离线鉴权。
+2. 新增fuDestroyLibData函数，支持tracker内存释放。
 
 2019-03-31 v6.0.0：
 
@@ -99,8 +100,6 @@ public static native int fuSetupLocal(byte[] v3data, byte[] ardata, byte[] authd
 **返回值：**
 
 返回非0值代表成功，返回0代表失败。如初始化失败，可以通过 `fuGetSystemError` 获取错误代码。
-
-如果成功，参数`authdata`会被修改为真正离线证书的内容。需要保存下来，如.bundle文件。下次初始化鉴权时使用，则不需要联网鉴权。
 
 **备注：**
 
@@ -670,7 +669,11 @@ __备注:__
 
 该函数会即刻释放系统所占用的资源。但不会破坏 ```fuSetup``` 的系统初始化信息，应用临时挂起到后台时可以调用该函数释放资源，再次激活时无需重新初始化系统。
 
+----
+
 ##### fuOnDeviceLost 重置系统的 GL 状态
+
+**接口说明：**
 
 特殊函数，当 OpenGL context 被外部释放/破坏时调用，用于重置系统的 GL 状态。
 
@@ -681,6 +684,17 @@ public static native void fuOnDeviceLost();
 __备注:__  
 
 该函数仅在无法在原 OpenGL context 内正确清理资源的情况下调用。调用该函数时，会尝试进行资源清理和回收，所有系统占用的内存资源会被释放，但由于 context 发生变化，OpenGL 资源相关的内存可能会发生泄露。
+
+----
+
+##### fuDestroyLibData 释放Tracker内存
+**接口说明：**
+
+特殊函数，当不再需要Nama SDK时，可以释放由 ```fuSetup```初始化所分配的人脸跟踪模块的内存，约30M左右。调用后，人脸跟踪以及道具绘制功能将失效， ```fuRenderItemEx ```，```fuTrackFace```等函数将失败。如需使用，需要重新调用 ```fuSetup```进行初始化。
+
+```java
+public static native void fuDestroyLibData();
+```
 
 ---
 

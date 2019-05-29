@@ -8,8 +8,8 @@ android {
         applicationId "com.faceunity.fulivedemo"
         minSdkVersion 18
         targetSdkVersion 27
-        versionCode 29
-        versionName "6.0.0-release3"
+        versionCode 30
+        versionName "6.1.0-alpha5"
     }
 
     buildTypes {
@@ -23,7 +23,7 @@ android {
 
     sourceSets {
         main.assets.srcDirs += ['src/main/assets', 'src/main/effects/bundle', 'src/main/makeup/material',
-                                'src/main/poster', 'src/main/magicphoto']
+                                "src/main/poster", "src/main/livephoto"]
         main.res.srcDirs += ['src/main/res', 'src/main/effects/res', 'src/main/makeup/res']
     }
 

@@ -22,11 +22,13 @@ import com.faceunity.gles.core.Drawable2d;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.gles.core.Program;
 
-import java.util.Arrays;
-
+/**
+ * 绘制点位
+ */
 public class MakeupProgramLandmarks extends Program {
+    private static final String TAG = "MakeupProgramLandmarks";
 
-    private static final String vertexShaderCode =
+    private static final String VERTEX_SHADER_CODE =
             // This matrix member variable provides a hook to manipulate
             // the coordinates of the objects that use this vertex shader
             "uniform mat4 uMVPMatrix;" +
@@ -40,7 +42,7 @@ public class MakeupProgramLandmarks extends Program {
                     "  gl_PointSize = uPointSize;" +
                     "}";
 
-    private static final String fragmentShaderCode =
+    private static final String FRAGMENT_SHADER_CODE =
             "precision mediump float;" +
                     "uniform vec4 vColor;" +
                     "void main() {" +
@@ -52,19 +54,23 @@ public class MakeupProgramLandmarks extends Program {
                     "    gl_FragColor = vec4(vColor.r, vColor.g, vColor.b, vColor.a * value);" +
                     "}";
 
-    private static final float color[] = {1f, 0f, 0f, 1f};
+    private static final float[] POINT_FILL_COLOR = {1f, 1f, 1f, 1f};
+    private static final float[] POINT_BORDER_COLOR = {1f, 0f, 0f, 1f};
+    //    private static final float[] POINT_AREA_COLOR = {1f, 0f, 0f, 1f};
     private final float[] mvp = new float[16];
     private final float[] mvpMtx = new float[16];
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
     private int mPointSizeHandle;
-    private float mPointSize = 10.0f;
+    private float mPointFillSize = 20f;
+    private float mPointBorderSize = 28f;
     private int mWidth;
     private int mHeight;
+    private float[] mLandmarks;
 
     public MakeupProgramLandmarks() {
-        super(vertexShaderCode, fragmentShaderCode);
+        super(VERTEX_SHADER_CODE, FRAGMENT_SHADER_CODE);
     }
 
     @Override
@@ -95,25 +101,31 @@ public class MakeupProgramLandmarks extends Program {
         // Enable a handle to the triangle vertices
         GLES20.glEnableVertexAttribArray(mPositionHandle);
 
-        // Prepare the triangle coordinate data
+        // Prepare the coordinate data
         GLES20.glVertexAttribPointer(
                 mPositionHandle, Drawable2d.COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 Drawable2d.VERTEXTURE_STRIDE, mDrawable2d.vertexArray());
 
-        // Set color for drawing the triangle
-        GLES20.glUniform4fv(mColorHandle, 1, color, 0);
-
-        // Apply the projection and view transformation
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvp, 0);
+        // draw area
+//        GLES20.glUniform4fv(mColorHandle, 1, POINT_AREA_COLOR, 0);
+//        GLES20.glUniform1f(mPointSizeHandle, mPointBorderSize);
+//        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, mDrawable2d.vertexCount());
 
-        GLES20.glUniform1f(mPointSizeHandle, mPointSize);
+        // draw border
+        GLES20.glUniform4fv(mColorHandle, 1, POINT_BORDER_COLOR, 0);
+        GLES20.glUniform1f(mPointSizeHandle, mPointBorderSize);
+        GLES20.glDrawArrays(GLES20.GL_POINTS, 0, mDrawable2d.vertexCount());
 
-        // Draw the triangle
+        // draw fill
+        GLES20.glUniform4fv(mColorHandle, 1, POINT_FILL_COLOR, 0);
+        GLES20.glUniform1f(mPointSizeHandle, mPointFillSize);
         GLES20.glDrawArrays(GLES20.GL_POINTS, 0, mDrawable2d.vertexCount());
 
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glUseProgram(0);
     }
 
     public void drawFrame(int x, int y, int width, int height, float[] mvpArea) {
@@ -136,10 +148,39 @@ public class MakeupProgramLandmarks extends Program {
             mWidth = width;
             mHeight = height;
         }
-        updateVertexArray(Arrays.copyOf(landmarksData, landmarksData.length));
+        if (mLandmarks == null || mLandmarks.length != landmarksData.length) {
+            mLandmarks = new float[landmarksData.length];
+        }
+        System.arraycopy(landmarksData, 0, mLandmarks, 0, landmarksData.length);
+        updateVertexArray(mLandmarks);
     }
 
-    public void setPointSize(float pointSize) {
-        mPointSize = Math.max(pointSize, 3f);
+    private void adjusrRectangleCoords(float[] rectangleCoords) {
+//        float minX = rectangleCoords[0];
+//        for (int i = 0; i < rectangleCoords.length; i++) {
+//            if ((i & 1) == 0 && rectangleCoords[i] < minX) {
+//                minX = rectangleCoords[i];
+//            }
+//        }
+//        Log.i(TAG, "adjusrRectangleCoords: minX " + minX);
+        // natural order
+        int xyLength = rectangleCoords.length >> 2;
+        float[] xCoords = new float[xyLength];
+        float[] yCoords = new float[xyLength];
+        for (int i = 0; i < rectangleCoords.length; i++) {
+            if ((i & 1) == 0) {
+                xCoords[i >> 2] = rectangleCoords[i];
+            } else {
+                yCoords[i >> 2] = rectangleCoords[i];
+            }
+        }
+    }
+
+    public void setPointFillSize(float pointFillSize) {
+        mPointFillSize = pointFillSize;
+    }
+
+    public void setPointBorderSize(float pointBorderSize) {
+        mPointBorderSize = pointBorderSize;
     }
 }

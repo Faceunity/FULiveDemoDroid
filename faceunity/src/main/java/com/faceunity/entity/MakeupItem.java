@@ -1,16 +1,17 @@
 package com.faceunity.entity;
 
 /**
- * @author LiuQiang on 2018.11.12
  * 妆容单项
+ *
+ * @author LiuQiang on 2018.11.12
  */
 public class MakeupItem {
+    private static final float DEFAULT_MAKEUP_LEVEL = 0.4f;
     private String name;
     private String path;
     private int type;
     private int iconId;
     private int strId;
-    public static final float DEFAULT_MAKEUP_LEVEL = 0.4f;
     private float level;
     private float defaultLevel;
 

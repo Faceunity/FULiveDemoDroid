@@ -29,6 +29,7 @@ import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.control.AnimControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
+import com.faceunity.fulivedemo.utils.AudioObserver;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.gles.core.GlUtil;
@@ -158,6 +159,9 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mSaveImageView.getLayoutParams();
         params.bottomMargin = (int) getResources().getDimension(FUBeautyActivity.TAG.equals(selectDataType) ? R.dimen.x151 : R.dimen.x199);
         mSaveImageView.setLayoutParams(params);
+
+        AudioObserver audioObserver = new AudioObserver(this);
+        getLifecycle().addObserver(audioObserver);
     }
 
     @Override

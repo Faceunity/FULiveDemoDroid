@@ -1,6 +1,7 @@
 package com.faceunity.fulivedemo.ui.sticker;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
@@ -19,21 +20,18 @@ import java.util.List;
  */
 public class StickerLayout extends FrameLayout {
     private static final String TAG = "StickerLayout";
-    private static final boolean DEBUG = false;
     private Context context;
     // 贴纸的集合
     private List<StickerView> stickerViews;
-    // 贴纸的View参数
-    private LayoutParams stickerParams;
-
     // 旋转操作图片
-    private int rotateRes;
+    private String rotatePath;
     // 缩放操作图片
-    private int increaseRes;
+    private String increasePath;
     // 缩放操作图片
-    private int removeRes;
+    private String removePath;
     // 处于编辑操作的View
     private int inEditIndex;
+    private static final int MAX_STICKER_COUNT = 3;
 
     private SparseIntArray mStickerCount;
     private OnChildViewStatusListener mOnChildViewStatusListener;
@@ -55,7 +53,6 @@ public class StickerLayout extends FrameLayout {
         this.context = context;
         stickerViews = new ArrayList<>(8);
         mStickerCount = new SparseIntArray(6);
-        stickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     }
 
     public void setOnChildViewStatusListener(OnChildViewStatusListener onChildViewStatusListener) {
@@ -69,8 +66,8 @@ public class StickerLayout extends FrameLayout {
     }
 
     public void setUnEditable() {
-        if (DEBUG) {
-            Log.d(TAG, "onTouchEvent: ");
+        if (StickerView.DEBUG) {
+            Log.d(TAG, "setUnEditable");
         }
         StickerView stickerView = getEditingStickerView();
         if (stickerView != null) {
@@ -89,28 +86,36 @@ public class StickerLayout extends FrameLayout {
     }
 
     /**
-     * 新增贴纸
+     * 新增五官贴纸
+     *
+     * @param type
+     * @param imagePath
+     * @param points
+     * @param isRandom
+     * @param matrixF
      */
-    public void addSticker(final int type, final String imagePath, final float[] dots) {
+    public void addSticker(final int type, final String imagePath, final float[] points, final boolean isRandom,
+                           final float[] matrixF) {
         int count = mStickerCount.get(type);
-        if (count >= 3) {
+        if (count >= MAX_STICKER_COUNT) {
             StickerView stickerView = getEditingStickerView();
             if (stickerView != null) {
                 stickerView.setIncreaseAvailable(false);
                 stickerView.setEdit(true);
             }
-            ToastUtil.makeNormalToast(getContext(), R.string.magic_cant_add_more).show();
+            ToastUtil.makeNormalToast(getContext(), R.string.live_photo_cant_add_more).show();
             return;
         }
         mStickerCount.put(type, count + 1);
-        StickerView sv = new StickerView(context);
-        sv.setStickerParams(type, imagePath, dots);
-        sv.setLayoutParams(stickerParams);
-        sv.setOnStickerActionListener(new StickerView.OnStickerActionListener() {
+        StickerView stickerView = new StickerView(context);
+        stickerView.setStickerParams(type, imagePath, points, isRandom, matrixF);
+        LayoutParams stickerParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        stickerView.setLayoutParams(stickerParams);
+        stickerView.setOnStickerActionListener(new StickerView.OnStickerActionListener() {
             @Override
             public void onDelete(StickerView stickerView) {
-                if (DEBUG) {
-                    Log.d(TAG, "onDelete: ");
+                if (StickerView.DEBUG) {
+                    Log.d(TAG, "onDelete: " + stickerView);
                 }
                 int tp = stickerView.getType();
                 mStickerCount.put(tp, mStickerCount.get(tp) - 1);
@@ -127,8 +132,8 @@ public class StickerLayout extends FrameLayout {
 
             @Override
             public void onEdit(StickerView stickerView) {
-                if (DEBUG) {
-                    Log.d(TAG, "onEdit: ");
+                if (StickerView.DEBUG) {
+                    Log.d(TAG, "onEdit: " + stickerView);
                 }
                 int position = stickerViews.indexOf(stickerView);
                 stickerView.bringToFront();
@@ -148,46 +153,39 @@ public class StickerLayout extends FrameLayout {
 
             @Override
             public void onIncrease(StickerView stickerView) {
-                if (DEBUG) {
-                    Log.d(TAG, "onIncrease: ");
+                if (StickerView.DEBUG) {
+                    Log.d(TAG, "onIncrease: " + stickerView);
                 }
                 inEditIndex = stickerViews.indexOf(stickerView);
                 stickerView.setEdit(false);
-                addSticker(type, imagePath, dots);
+                addSticker(type, imagePath, points, isRandom, matrixF);
                 if (mOnChildViewStatusListener != null) {
                     mOnChildViewStatusListener.onViewAdded(stickerViews.size());
                 }
             }
         });
-        addView(sv);
-        stickerViews.add(sv);
+        addView(stickerView);
+        stickerViews.add(stickerView);
         inEditIndex = stickerViews.size() - 1;
         redraw();
     }
-
 
     /**
      * 重置贴纸的操作列表
      */
     private void redraw() {
-        redraw(true);
-    }
-
-    /**
-     * 重置贴纸的操作列表
-     */
-    private void redraw(boolean isNotGenerate) {
         int size = stickerViews.size();
         if (size <= 0) {
             return;
         }
+
         for (int i = size - 1; i >= 0; i--) {
             StickerView item = stickerViews.get(i);
-            item.setIncreaseRes(increaseRes);
-            item.setRotateRes(rotateRes);
-            item.setRemoveRes(removeRes);
+            item.setIncreasePath(increasePath);
+            item.setRotatePath(rotatePath);
+            item.setRemovePath(removePath);
             if (i == size - 1) {
-                item.setEdit(isNotGenerate);
+                item.setEdit(true);
             } else {
                 item.setEdit(false);
             }
@@ -215,23 +213,42 @@ public class StickerLayout extends FrameLayout {
         }
     }
 
-    public void setFixedLandmarkPoints(float[] points) {
+    public float[] getMappedBorders() {
         StickerView stickerView = getEditingStickerView();
         if (stickerView != null) {
-            stickerView.getSticker().setLandmarkPoints(points);
+            return stickerView.getMappedRectVertex();
+        } else {
+            return null;
         }
     }
 
-    public void setRotateRes(int rotateRes) {
-        this.rotateRes = rotateRes;
+    public void setAdjustPoints(float[] pointsOfLandmark, float[] pointsOfView) {
+        StickerView stickerView = getEditingStickerView();
+        if (stickerView != null) {
+            Sticker sticker = stickerView.getSticker();
+            sticker.setLandmarkPoints(pointsOfLandmark);
+            Matrix matrix = sticker.getMatrix();
+            Matrix inverted = new Matrix();
+            // 矩阵逆向，映射修改过的 View 系坐标，然后修改五官的默认点位
+            boolean invert = matrix.invert(inverted);
+            if (invert) {
+                float[] newPoints = new float[pointsOfView.length];
+                inverted.mapPoints(newPoints, pointsOfView);
+                sticker.setPoints(newPoints);
+            }
+        }
     }
 
-    public void setIncreaseRes(int increaseRes) {
-        this.increaseRes = increaseRes;
+    public void setRotatePath(String rotatePath) {
+        this.rotatePath = rotatePath;
     }
 
-    public void setRemoveRes(int removeRes) {
-        this.removeRes = removeRes;
+    public void setIncreasePath(String increasePath) {
+        this.increasePath = increasePath;
+    }
+
+    public void setRemovePath(String removePath) {
+        this.removePath = removePath;
     }
 
     public interface OnChildViewStatusListener {
@@ -244,6 +261,7 @@ public class StickerLayout extends FrameLayout {
 
         /**
          * view 移除
+         *
          * @param visibleChildCount
          */
         void onViewRemoved(int visibleChildCount);

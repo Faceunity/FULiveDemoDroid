@@ -34,12 +34,16 @@
     <color name="line_302D33">#FF302D33</color>
 
     <color name="black_dialog_text">#31373E</color>
-    <color name="btn_magic_text">#2C2E30</color>
-    <color name="magic_button_disable">#C6C6C6</color>
+    <color name="btn_live_photo_text">#2C2E30</color>
+    <color name="live_photo_button_disable">#C6C6C6</color>
 
     <color name="avatar_blue_btn">#1FB2FF</color>
     <color name="avatar_list_bg">#BF050F14</color>
     <color name="avatar_model_bg">#F9F9FC</color>
     <color name="avatar_model_name_text">#666666</color>
+
+    <color name="divider_line_color_20">#33E5E5E5</color>
+    <color name="divider_line_color_75">#BFFFFFFF</color>
+    <color name="live_photo_list_bg">#BF050F14</color>
 
 </resources>

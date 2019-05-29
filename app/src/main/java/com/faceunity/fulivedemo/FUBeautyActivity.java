@@ -3,10 +3,8 @@ package com.faceunity.fulivedemo;
 import android.content.Intent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.CompoundButton;
 
 import com.faceunity.FURenderer;
-import com.faceunity.fulivedemo.entity.BeautyParameterModel;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
@@ -22,17 +20,6 @@ public class FUBeautyActivity extends FUBaseActivity {
 
     @Override
     protected void onCreate() {
-
-        mHeightCheckBox.setVisibility(View.VISIBLE);
-        mHeightImg.setVisibility(View.VISIBLE);
-        mHeightCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mHeightImg.setImageResource(isChecked ? R.drawable.performance_checked : R.drawable.performance_normal);
-                mBeautyControlView.setHeightPerformance(isChecked);
-            }
-        });
-
         mBottomViewStub.setLayoutResource(R.layout.layout_fu_beauty);
         mBottomViewStub.inflate();
 
@@ -51,7 +38,6 @@ public class FUBeautyActivity extends FUBaseActivity {
             }
         });
 
-        mHeightCheckBox.setChecked(BeautyParameterModel.isHeightPerformance);
         mSelectDataBtn.setVisibility(View.VISIBLE);
         mSelectDataBtn.setOnClickListener(new OnMultiClickListener() {
             @Override

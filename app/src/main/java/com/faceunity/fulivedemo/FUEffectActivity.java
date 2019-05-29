@@ -31,7 +31,6 @@ public class FUEffectActivity extends FUBaseActivity {
     private EffectRecyclerAdapter mEffectRecyclerAdapter;
 
     private int mEffectType;
-    private AudioObserver mAudioObserver;
 
     @Override
     protected void onCreate() {
@@ -69,7 +68,8 @@ public class FUEffectActivity extends FUBaseActivity {
     protected FURenderer initFURenderer() {
         mEffectType = getIntent().getIntExtra("EffectType", 0);
         if (mEffectType == Effect.EFFECT_TYPE_MUSIC_FILTER) {
-            mAudioObserver = new AudioObserver(this);
+            AudioObserver audioObserver = new AudioObserver(this);
+            getLifecycle().addObserver(audioObserver);
         }
 
         ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(mEffectType);
@@ -90,9 +90,6 @@ public class FUEffectActivity extends FUBaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mEffectType == Effect.EFFECT_TYPE_MUSIC_FILTER) {
-            getLifecycle().addObserver(mAudioObserver);
-        }
         mEffectRecyclerAdapter.onResume();
     }
 
@@ -100,9 +97,6 @@ public class FUEffectActivity extends FUBaseActivity {
     protected void onPause() {
         super.onPause();
         mEffectRecyclerAdapter.onPause();
-        if (mEffectType == Effect.EFFECT_TYPE_MUSIC_FILTER) {
-            getLifecycle().removeObserver(mAudioObserver);
-        }
     }
 
     @Override

@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Richie on 2019.04.01
  * 存储 avatar 捏脸中的变量、常量数据
+ * @author Richie on 2019.04.01
  */
 public final class AvatarFaceHelper {
     // 捏脸的默认头发
@@ -87,10 +87,10 @@ public final class AvatarFaceHelper {
     }
 
     static {
-        FACE_ASPECT_TYPE_MAP.put(AvatarFaceType.AVATAR_FACE_SHAPE, new HashSet<>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15")));
+        FACE_ASPECT_TYPE_MAP.put(AvatarFaceType.AVATAR_FACE_SHAPE, new HashSet<>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")));
         FACE_ASPECT_TYPE_MAP.put(AvatarFaceType.AVATAR_FACE_NOSE, new HashSet<>(Arrays.asList("18", "19", "20", "21", "22", "23")));
         FACE_ASPECT_TYPE_MAP.put(AvatarFaceType.AVATAR_FACE_LIP, new HashSet<>(Arrays.asList("11", "12", "13", "14", "15", "16", "17", "24", "25", "26")));
-        FACE_ASPECT_TYPE_MAP.put(AvatarFaceType.AVATAR_FACE_EYE, new HashSet<>(Arrays.asList("27", "28", "29", "30", "15", "31", "32", "33", "34", "35", "36")));
+        FACE_ASPECT_TYPE_MAP.put(AvatarFaceType.AVATAR_FACE_EYE, new HashSet<>(Arrays.asList("27", "28", "29", "30", "31", "32", "33", "34", "35", "36")));
 
         resetAvatarFaceSelectedPosition();
     }

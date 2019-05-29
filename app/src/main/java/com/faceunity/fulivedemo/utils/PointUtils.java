@@ -2,6 +2,7 @@ package com.faceunity.fulivedemo.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.PointF;
 
 /**
  * 作者：ZhouYou
@@ -34,4 +35,23 @@ public final class PointUtils {
     public static void getMappedPoints(float[] src, float[] dest, Matrix matrix) {
         matrix.mapPoints(dest, src);
     }
+
+    private static float getCross(PointF p1, PointF p2, PointF p) {
+        return (p2.x - p1.x) * (p.y - p1.y) - (p.x - p1.x) * (p2.y - p1.y);
+    }
+
+    /**
+     * 点是否在矩形内
+     *
+     * @param p1
+     * @param p2
+     * @param p3
+     * @param p4
+     * @param p
+     * @return
+     */
+    public static boolean IsPointInMatrix(PointF p1, PointF p2, PointF p3, PointF p4, PointF p) {
+        return getCross(p1, p2, p) * getCross(p3, p4, p) >= 0 && getCross(p2, p3, p) * getCross(p4, p1, p) >= 0;
+    }
+
 }

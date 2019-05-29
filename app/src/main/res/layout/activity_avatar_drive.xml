@@ -28,7 +28,8 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/delete_avatar_model"
-            android:textColor="@color/btn_magic_text"
+            android:textStyle="bold"
+            android:textColor="@color/btn_live_photo_text"
             android:textSize="@dimen/x22" />
 
     </android.support.v7.widget.CardView>
@@ -50,6 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
+            android:textStyle="bold"
             android:text="@string/new_avatar_model"
             android:textColor="@color/colorWhite"
             android:textSize="@dimen/x22" />

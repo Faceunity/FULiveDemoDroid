@@ -2,33 +2,38 @@ package com.faceunity.fulivedemo.ui.sticker;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.view.MotionEvent;
 
 import com.faceunity.fulivedemo.R;
+import com.faceunity.utils.BitmapUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * 作者：ZhouYou
  * 日期：2016/12/2.
  */
 class StickerActionIcon {
-
+    private static final boolean SHOW_AREA = false;
     private Context context;
     // 资源缩放图片的位图
     private Bitmap srcIcon;
     private Rect rect;
     private Paint bmpPaint;
     private Paint shadowPaint;
+    private Paint mRectPaint;
     private boolean iconEnable = true;
     // 增加交互区域
     private int padding;
     private int enlargedSize;
 
-    public StickerActionIcon(Context context) {
+    StickerActionIcon(Context context) {
         this.context = context;
         rect = new Rect();
         bmpPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -37,7 +42,14 @@ class StickerActionIcon {
         shadowPaint.setColor(Color.BLACK);
         // 40% black
         shadowPaint.setShadowLayer(context.getResources().getDimensionPixelSize(R.dimen.x4), 0, 0, Color.parseColor("#66000000"));
-        padding = context.getResources().getDimensionPixelSize(R.dimen.x20);
+        // 热区 72px
+        padding = context.getResources().getDimensionPixelSize(R.dimen.x12);
+        if (SHOW_AREA) {
+            mRectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mRectPaint.setStyle(Paint.Style.STROKE);
+            mRectPaint.setStrokeWidth(context.getResources().getDimensionPixelSize(R.dimen.x2));
+            mRectPaint.setColor(Color.RED);
+        }
     }
 
     public void setAlpha(int alpha) {
@@ -62,8 +74,17 @@ class StickerActionIcon {
         return false;
     }
 
-    public void setSrcIcon(int resource) {
-        srcIcon = BitmapFactory.decodeResource(context.getResources(), resource);
+    public void setSrcIcon(String assetsPath) {
+        int size = context.getResources().getDimensionPixelSize(R.dimen.x48);
+        try {
+            InputStream isBounds = context.getAssets().open(assetsPath);
+            InputStream isData = context.getAssets().open(assetsPath);
+            srcIcon = BitmapUtil.decodeSampledBitmapFromStream(isBounds, isData, size, size);
+            isBounds.close();
+            isData.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void draw(Canvas canvas, float x, float y) {
@@ -72,22 +93,24 @@ class StickerActionIcon {
         rect.right = (int) (x + srcIcon.getWidth() / 2) + enlargedSize;
         rect.top = (int) (y - srcIcon.getHeight() / 2) - enlargedSize;
         rect.bottom = (int) (y + srcIcon.getHeight() / 2) + enlargedSize;
-        canvas.drawCircle(rect.centerX(), rect.centerY(), rect.width() / 2, shadowPaint);
+        canvas.drawCircle(rect.centerX(), rect.centerY(), (float) rect.width() / 2, shadowPaint);
         canvas.drawBitmap(srcIcon, null, rect, bmpPaint);
+
+        // 绘制热区
+        if (SHOW_AREA) {
+            RectF rectF = new RectF(rect.left - padding, rect.top - padding, rect.right + padding, rect.bottom + padding);
+            canvas.drawRect(rectF, mRectPaint);
+        }
     }
 
     /**
-     * 判断手指触摸的区域是否在顶点的操作按钮内
+     * 判断手指触摸的区域是否在顶点的操作按钮内，热区 72px
      *
      * @param event
      * @return
      */
     public boolean isInActionCheck(MotionEvent event) {
-        int left = rect.left;
-        int right = rect.right;
-        int top = rect.top;
-        int bottom = rect.bottom;
-        return event.getX(0) >= left - padding && event.getX(0) <= right + padding
-                && event.getY(0) >= top - padding && event.getY(0) <= bottom + padding;
+        RectF rectF = new RectF(rect.left - padding, rect.top - padding, rect.right + padding, rect.bottom + padding);
+        return rectF.contains(event.getX(), event.getY());
     }
 }

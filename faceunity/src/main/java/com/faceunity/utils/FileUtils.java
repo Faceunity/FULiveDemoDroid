@@ -3,7 +3,6 @@ package com.faceunity.utils;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -35,10 +34,13 @@ public class FileUtils {
      */
     private static final String TMP_PHOTO_NAME = "photo.jpg";
     /**
-     * 异图存放文件夹
+     * 海报换脸模板文件的文件夹
      */
-    public static final String MAGIC_PHOTO_PREFIX = "magic_photo";
     public static final String TEMPLATE_PREFIX = "template_";
+    /**
+     * 表情动图模板文件的文件夹
+     */
+    private static final String LIVE_PHOTO_PREFIX = "live_photo";
     private static final String TAG = "FileUtils";
 
     private FileUtils() {
@@ -61,18 +63,6 @@ public class FileUtils {
             }
         }
         return file.getAbsolutePath();
-    }
-
-    public static Bitmap loadTempBitmap(File file) throws IOException {
-        InputStream is = null;
-        try {
-            is = new FileInputStream(file);
-            return BitmapFactory.decodeStream(is);
-        } finally {
-            if (is != null) {
-                is.close();
-            }
-        }
     }
 
     public static File getSavePathFile(Context context) {
@@ -146,24 +136,6 @@ public class FileUtils {
     }
 
     /**
-     * 异图的文件夹
-     *
-     * @param context
-     * @return
-     */
-    public static File getMagicPhotoDir(Context context) {
-        File fileDir = getExternalFileDir(context);
-        File magicDir = new File(fileDir, "magic_photo");
-        if (!magicDir.exists()) {
-            boolean b = magicDir.mkdirs();
-            if (!b) {
-                return fileDir;
-            }
-        }
-        return magicDir;
-    }
-
-    /**
      * 应用外部的缓存目录
      *
      * @param context
@@ -186,6 +158,20 @@ public class FileUtils {
         return thumbDir;
     }
 
+    /**
+     * 表情动图的文件夹
+     *
+     * @param context
+     * @return
+     */
+    public static File getLivePhotoDir(Context context) {
+        File fileDir = getExternalFileDir(context);
+        File photoDir = new File(fileDir, LIVE_PHOTO_PREFIX);
+        if (!photoDir.exists()) {
+            photoDir.mkdirs();
+        }
+        return photoDir;
+    }
 
     /**
      * 生成唯一标示
@@ -219,50 +205,40 @@ public class FileUtils {
         }
     }
 
-    /**
-     * 获取预置的异图数量
-     *
-     * @param context
-     * @return
-     */
-    public static int getDefaultMagicPhotoCount(Context context) {
-        List<String> photoPaths = new ArrayList<>(8);
+    public static String readStringFromAssetsFile(Context context, String path) throws IOException {
+        InputStream is = null;
         try {
-            String[] paths = context.getAssets().list("");
-            for (String path : paths) {
-                if (path.startsWith(MAGIC_PHOTO_PREFIX)) {
-                    photoPaths.add(path);
-                }
+            is = context.getAssets().open(path);
+            byte[] bytes = new byte[is.available()];
+            is.read(bytes);
+            return new String(bytes);
+        } finally {
+            if (is != null) {
+                is.close();
             }
-        } catch (IOException e) {
-            Log.e(TAG, "getDefaultMagicPhotoCount: ", e);
         }
-        return photoPaths.size();
     }
 
-    public static void copyAssetsMagicPhoto(Context context) {
+    public static void copyAssetsLivePhoto(Context context) {
         try {
             AssetManager assets = context.getAssets();
-            String[] paths = assets.list("");
-            List<String> photoPaths = new ArrayList<>(8);
-            for (String path : paths) {
-                if (path.startsWith(MAGIC_PHOTO_PREFIX)) {
-                    photoPaths.add(path);
-                }
-            }
-            for (String photoPath : photoPaths) {
-                String[] pPhoto = assets.list(photoPath);
-                for (String s : pPhoto) {
-                    File dir = new File(FileUtils.getMagicPhotoDir(context), photoPath);
-                    if (!dir.exists()) {
-                        dir.mkdirs();
+            String photoTemplate = "live_photo_template";
+            String[] paths = assets.list(photoTemplate);
+            if (paths != null) {
+                for (String path : paths) {
+                    String photoDir = photoTemplate + File.separator + path;
+                    String[] photos = assets.list(photoDir);
+                    File dir = new File(FileUtils.getLivePhotoDir(context), path);
+                    if (photos != null) {
+                        for (String photo : photos) {
+                            String p = photoDir + File.separator + photo;
+                            FileUtils.copyAssetsFile(context, dir, p);
+                        }
                     }
-                    copyAssetsFile(context, dir, photoPath.concat(File.separator).concat(s));
                 }
             }
-
         } catch (IOException e) {
-            Log.e(TAG, "copyAssetsMagicPhoto: ", e);
+            Log.e(TAG, "copyAssetsLivePhoto: ", e);
         }
     }
 
@@ -292,7 +268,10 @@ public class FileUtils {
     }
 
     private static void copyAssetsFile(Context context, File dir, String assetsPath) {
-        String fileName = assetsPath.substring(assetsPath.lastIndexOf("/") + 1, assetsPath.length());
+        String fileName = assetsPath.substring(assetsPath.lastIndexOf("/") + 1);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
         File dest = new File(dir, fileName);
         if (!dest.exists()) {
             try {

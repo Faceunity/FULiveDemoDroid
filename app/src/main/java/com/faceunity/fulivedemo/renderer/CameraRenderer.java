@@ -19,6 +19,7 @@ import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.ProgramTextureOES;
 import com.faceunity.gles.core.GlUtil;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -88,6 +89,30 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         mGLSurfaceView = glSurfaceView;
         mOnCameraRendererStatusListener = onCameraRendererStatusListener;
         mFPSUtil = new FPSUtil();
+//        setGlThreadLogEnable();
+    }
+
+    // 打开 GLSurfaceView 的日志
+    private void setGlThreadLogEnable() {
+        Log.d(TAG, "setGlThreadLogEnable() called");
+        mGLSurfaceView.setDebugFlags(GLSurfaceView.DEBUG_LOG_GL_CALLS | GLSurfaceView.DEBUG_CHECK_GL_ERROR);
+        setAccess("LOG_ATTACH_DETACH");
+        setAccess("LOG_THREADS");
+        setAccess("LOG_PAUSE_RESUME");
+        setAccess("LOG_SURFACE");
+        setAccess("LOG_RENDERER");
+        setAccess("LOG_RENDERER_DRAW_FRAME");
+        setAccess("LOG_EGL");
+    }
+
+    private void setAccess(String fieldName) {
+        try {
+            Field logField = GLSurfaceView.class.getDeclaredField(fieldName);
+            logField.setAccessible(true);
+            logField.set(null, true);
+        } catch (Exception e) {
+            Log.w(TAG, "setAccess: ", e);
+        }
     }
 
     public void onCreate() {
@@ -143,7 +168,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
-        mMvpMatrix = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+        mMvpMatrix = GlUtil.changeMVPMatrixCrop(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
         mOnCameraRendererStatusListener.onSurfaceChanged(gl, width, height);
         Log.i(TAG, "onSurfaceChanged: viewWidth:" + mViewWidth + ", viewHeight:" + mViewHeight + ". cameraOrientation:" + mCameraOrientation
                 + ", cameraWidth:" + mCameraWidth + ", cameraHeight:" + mCameraHeight);
@@ -306,7 +331,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                 mCameraWidth = size[0];
                 mCameraHeight = size[1];
                 if (mViewWidth != 0 && mViewHeight != 0) {
-                    mMvpMatrix = GlUtil.changeMVPMatrix(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+                    mMvpMatrix = GlUtil.changeMVPMatrixCrop(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
                 }
 
                 mCamera.setParameters(parameters);

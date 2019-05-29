@@ -153,7 +153,9 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
             mSelectedItems.put(mLastSelected, data);
             notifyItemChanged(mLastSelected);
         }
-        mSelectedItems.remove(lastSelected);
+        if (mLastSelected != lastSelected) {
+            mSelectedItems.remove(lastSelected);
+        }
         notifyItemChanged(lastSelected);
     }
 

@@ -39,7 +39,7 @@
             android:layout_height="@dimen/x98"
             android:background="@color/colorWhite"
             android:gravity="center"
-            android:textColor="@color/btn_magic_text"
+            android:textColor="@color/btn_live_photo_text"
             android:textSize="@dimen/x26"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:text="脸型" />

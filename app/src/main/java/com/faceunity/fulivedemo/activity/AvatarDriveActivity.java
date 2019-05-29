@@ -385,6 +385,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                     setButtonText(true);
                 }
             }
+            mAvatarModel = mAvatarModelAdapter.getSelectedItems().valueAt(0);
         }
     }
 

@@ -246,18 +246,27 @@ public class BitmapUtil {
         return inSampleSize;
     }
 
-    public static Bitmap decodeSampledBitmapFromStream(InputStream is, int reqWidth, int reqHeight) {
+    /**
+     * Why using double inputStream? one is for decoding bounds, and other is for decoding bitmap.
+     *
+     * @param isForBounds
+     * @param isForData
+     * @param reqWidth
+     * @param reqHeight
+     * @return
+     */
+    public static Bitmap decodeSampledBitmapFromStream(InputStream isForBounds, InputStream isForData, int reqWidth, int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(is, null, options);
+        BitmapFactory.decodeStream(isForBounds, null, options);
 
         // Calculate inSampleSize
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeStream(is, null, options);
+        return BitmapFactory.decodeStream(isForData, null, options);
     }
 
     public static Bitmap decodeSampledBitmapFromFile(String imagePath, int reqWidth, int reqHeight) {

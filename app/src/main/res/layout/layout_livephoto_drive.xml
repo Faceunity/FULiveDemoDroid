@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_live_photo"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x168"
+        android:background="@color/avatar_list_bg"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/fl_delete_effect"
+        android:layout_width="@dimen/x168"
+        android:layout_height="@dimen/x64"
+        android:layout_marginLeft="@dimen/x34"
+        android:layout_marginBottom="@dimen/x36"
+        app:cardCornerRadius="@dimen/x32"
+        app:cardElevation="@dimen/x12"
+        app:cardPreventCornerOverlap="false"
+        app:layout_constraintBottom_toTopOf="@id/rv_live_photo"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/live_photo_delete_effect"
+            android:textColor="@color/btn_live_photo_text"
+            android:textSize="@dimen/x22"
+            android:textStyle="bold" />
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/fl_edit_effect"
+        android:layout_width="@dimen/x168"
+        android:layout_height="@dimen/x64"
+        android:layout_marginRight="@dimen/x34"
+        app:cardBackgroundColor="@color/main_color"
+        app:cardCornerRadius="@dimen/x32"
+        app:cardElevation="@dimen/x12"
+        app:cardPreventCornerOverlap="false"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/fl_delete_effect">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/live_photo_edit_effect"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/x22"
+            android:textStyle="bold" />
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.constraint.Group
+        android:id="@+id/group_live_photo_operation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="fl_delete_effect,fl_edit_effect" />
+
+</android.support.constraint.ConstraintLayout>

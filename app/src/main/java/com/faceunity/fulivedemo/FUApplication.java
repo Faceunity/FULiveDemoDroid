@@ -26,7 +26,7 @@ public class FUApplication extends Application {
             @Override
             public void run() {
                 // 拷贝 assets 资源
-                FileUtils.copyAssetsMagicPhoto(sContext);
+                FileUtils.copyAssetsLivePhoto(sContext);
                 FileUtils.copyAssetsTemplate(sContext);
                 // 初始化数据库，一定在拷贝文件之后
                 GreenDaoUtils.initGreenDao(sContext);

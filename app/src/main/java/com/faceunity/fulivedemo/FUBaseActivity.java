@@ -40,7 +40,6 @@ import com.faceunity.fulivedemo.ui.CameraFocus;
 import com.faceunity.fulivedemo.ui.RecordBtn;
 import com.faceunity.fulivedemo.ui.VerticalSeekBar;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
-import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
@@ -75,8 +74,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
     private TextView mEffectDescription;
     protected RecordBtn mTakePicBtn;
     protected ViewStub mBottomViewStub;
-    protected CheckBox mHeightCheckBox;
-    protected ImageView mHeightImg;
     protected ImageView mSelectDataBtn;
     private LinearLayout mLlLight;
     private VerticalSeekBar mVerticalSeekBar;
@@ -386,14 +383,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
         });
         mClOperationView = (ConstraintLayout) findViewById(R.id.cl_custom_view);
         mRootView = (ConstraintLayout) findViewById(R.id.cl_root);
-        mHeightCheckBox = (CheckBox) findViewById(R.id.fu_base_height);
-        mHeightImg = (ImageView) findViewById(R.id.fu_base_height_img);
-        mHeightImg.setOnClickListener(new OnMultiClickListener() {
-            @Override
-            protected void onMultiClick(View v) {
-                mHeightCheckBox.setChecked(!mHeightCheckBox.isChecked());
-            }
-        });
         mSelectDataBtn = (ImageView) findViewById(R.id.fu_base_select_data);
         mBottomViewStub = (ViewStub) findViewById(R.id.fu_base_bottom);
         mBottomViewStub.setInflatedId(R.id.fu_base_bottom);

@@ -238,21 +238,20 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
             return;
         }
         mIsNeedTakePic = false;
-        BitmapUtil.glReadBitmap(textureId, PhotoRenderer.imgDataMatrix, PhotoRenderer.ROTATE_90, texWidth, texHeight, new BitmapUtil.OnReadBitmapListener() {
+        BitmapUtil.glReadBitmap(textureId, PhotoRenderer.IMG_DATA_MATRIX, PhotoRenderer.ROTATE_90, texWidth, texHeight, new BitmapUtil.OnReadBitmapListener() {
             @Override
             public void onReadBitmapListener(Bitmap bitmap) {
                 String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
-                String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
+                final String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
                 if (result != null) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             ToastUtil.showToast(ShowPhotoActivity.this, R.string.save_photo_success);
+                            File resultFile = new File(result);
+                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
                         }
                     });
-                    File resultFile = new File(result);
-                    // 最后通知图库更新
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
                 }
                 mTakePicing = false;
             }

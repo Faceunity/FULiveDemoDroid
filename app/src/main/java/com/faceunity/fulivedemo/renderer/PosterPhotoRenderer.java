@@ -130,6 +130,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
             return;
         }
 
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         float[] matrix;
         if (mDrawPhoto) {
             matrix = mMvpPhotoMatrix;
