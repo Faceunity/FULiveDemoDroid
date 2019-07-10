@@ -5,6 +5,32 @@
     android:layout_height="match_parent">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_makeup_color_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="invisible">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_makeup_color"
+            android:layout_width="@dimen/x80"
+            android:layout_height="@dimen/x540"
+            android:layout_marginRight="@dimen/x34"
+            android:layout_marginBottom="@dimen/x360"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <com.faceunity.fulivedemo.ui.colorfulcircle.ShadowCircleRingView
+            android:layout_width="@dimen/x96"
+            android:layout_height="@dimen/x96"
+            app:layout_constraintBottom_toBottomOf="@id/rv_makeup_color"
+            app:layout_constraintLeft_toLeftOf="@id/rv_makeup_color"
+            app:layout_constraintRight_toRightOf="@id/rv_makeup_color"
+            app:layout_constraintTop_toTopOf="@id/rv_makeup_color" />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/cl_makeup_item"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -86,8 +112,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/x268"
         android:layout_gravity="bottom"
-        android:background="#BD050F14"
-        android:visibility="visible">
+        android:background="#BD050F14">
 
         <ImageView
             android:id="@+id/iv_custom_makeup"
@@ -101,6 +126,7 @@
             app:layout_constraintLeft_toLeftOf="parent" />
 
         <TextView
+            android:id="@+id/tv_custom_makeup"
             android:layout_width="@dimen/x108"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/x16"
@@ -116,18 +142,16 @@
             android:layout_width="@dimen/x1"
             android:layout_height="@dimen/x80"
             android:layout_marginLeft="@dimen/x20"
-            android:background="@color/divider_line_color"
+            android:background="#33E5E5E5"
             app:layout_constraintBottom_toBottomOf="@id/iv_custom_makeup"
             app:layout_constraintLeft_toRightOf="@id/iv_custom_makeup"
             app:layout_constraintTop_toTopOf="@id/iv_custom_makeup" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_face_makeup"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/x166"
-            android:layout_marginLeft="@dimen/x25"
-            android:scrollbars="none"
-            app:layout_constraintLeft_toRightOf="@id/iv_custom_makeup"
+            android:layout_marginLeft="@dimen/x172"
             app:layout_constraintTop_toTopOf="@id/iv_custom_makeup" />
 
         <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar

@@ -19,10 +19,6 @@ public abstract class BeautyParameterModel {
     public static Map<String, Float> sFilterLevel = new HashMap<>(16);
     public static Filter sFilter = FilterEnum.fennen.filter();
     /**
-     * key: name, value: level
-     */
-    public static Map<String, Float> sMakeupLevel = new HashMap<>(64);
-    /**
      * key: name，value: level
      */
     public static Map<String, Float> sBatchMakeupLevel = new HashMap<>(8);

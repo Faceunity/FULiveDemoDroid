@@ -1,7 +1,12 @@
 package com.faceunity.fulivedemo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.opengl.EGL14;
@@ -43,7 +48,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
-public class ShowVideoActivity extends AppCompatActivity implements VideoRenderer.OnRendererStatusListener {
+public class ShowVideoActivity extends AppCompatActivity implements VideoRenderer.OnRendererStatusListener, SensorEventListener {
     public final static String TAG = ShowVideoActivity.class.getSimpleName();
 
     private GLSurfaceView mGLSurfaceView;
@@ -55,6 +60,9 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     private BeautyControlView mBeautyControlView;
     private FURenderer mFURenderer;
     private String mVideoFilePath;
+    private MakeupControlView mMakeupControlView;
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +70,8 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_show_video);
 
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         Uri uri = getIntent().getData();
         String selectDataType = getIntent().getStringExtra(SelectDataActivity.SELECT_DATA_KEY);
         int selectEffectType = getIntent().getIntExtra(FUEffectActivity.SELECT_EFFECT_KEY, -1);
@@ -90,8 +100,6 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         mFURenderer = new FURenderer
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
-                .createEGLContext(false)
-                .needReadBackImage(false)
                 .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
                 .build();
 
@@ -121,13 +129,18 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
                 }
             });
         } else if (FUMakeupActivity.TAG.equals(selectDataType)) {
-            MakeupControlView makeupControlView = findViewById(R.id.fu_makeup_control);
-            makeupControlView.setVisibility(View.VISIBLE);
-            makeupControlView.setOnFUControlListener(mFURenderer);
-            makeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
+            mMakeupControlView = findViewById(R.id.fu_makeup_control);
+            mMakeupControlView.setVisibility(View.VISIBLE);
+            mMakeupControlView.setOnFUControlListener(mFURenderer);
+            mMakeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
                 @Override
                 public void onBottomAnimatorChangeListener(float showRate) {
                     mSaveImageView.setAlpha(1 - showRate);
+                }
+
+                @Override
+                public void onFirstMakeupAnimatorChangeListener(float hideRate) {
+
                 }
             });
         } else if (FUAnimojiActivity.TAG.equals(selectDataType)) {
@@ -173,12 +186,14 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         }
         mPlayImageView.setVisibility(View.VISIBLE);
         mPlayImageView.setImageResource(R.drawable.show_video_play);
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mVideoRenderer.onPause();
+        mSensorManager.unregisterListener(this);
     }
 
     @Override
@@ -198,6 +213,9 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         mFURenderer.onSurfaceCreated();
+        if (mMakeupControlView != null) {
+            mMakeupControlView.selectDefault();
+        }
     }
 
     @Override
@@ -317,5 +335,26 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         mEffectDescription.setVisibility(View.VISIBLE);
         mEffectDescription.setText(str);
         mEffectDescription.postDelayed(effectDescriptionHide, time);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+            if (Math.abs(x) > 3 || Math.abs(y) > 3) {
+                if (Math.abs(x) > Math.abs(y)) {
+                    mFURenderer.setTrackOrientation(x > 0 ? 0 : 180);
+                } else {
+                    mFURenderer.setTrackOrientation(y > 0 ? 90 : 270);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }

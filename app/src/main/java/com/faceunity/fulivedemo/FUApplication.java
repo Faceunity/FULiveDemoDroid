@@ -3,8 +3,8 @@ package com.faceunity.fulivedemo;
 import android.app.Application;
 import android.content.Context;
 
+import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
-import com.faceunity.greendao.GreenDaoUtils;
 import com.faceunity.utils.FileUtils;
 
 
@@ -22,14 +22,13 @@ public class FUApplication extends Application {
     public void onCreate() {
         super.onCreate();
         sContext = this;
+        DatabaseOpenHelper.register(this);
         ThreadHelper.getInstance().execute(new Runnable() {
             @Override
             public void run() {
                 // 拷贝 assets 资源
                 FileUtils.copyAssetsLivePhoto(sContext);
                 FileUtils.copyAssetsTemplate(sContext);
-                // 初始化数据库，一定在拷贝文件之后
-                GreenDaoUtils.initGreenDao(sContext);
             }
         });
     }

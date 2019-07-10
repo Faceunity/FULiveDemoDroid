@@ -1,15 +1,15 @@
 apply plugin: 'com.android.library'
-apply plugin: 'org.greenrobot.greendao'
+apply from: rootProject.file('script.gradle')
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 18
-        targetSdkVersion 27
-        versionCode 70
-        versionName "6.1.0-release3"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.namaSdkVersionCode
+        versionName rootProject.ext.namaSdkVersionName
     }
 
     buildTypes {
@@ -19,74 +19,12 @@ android {
         }
     }
 
-    greendao {
-        schemaVersion 1 //数据库版本号
-        daoPackage 'com.faceunity.greendao' //设置DaoMaster、DaoSession、Dao包名
-        targetGenDir 'src/main/java' //设置DaoMaster、DaoSession、Dao目录
+    lintOptions {
+        abortOnError false
     }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    api 'com.android.support:appcompat-v7:27.1.1'
-    api 'org.greenrobot:greendao:3.2.2'
-}
-
-// eg: gradlew faceunity:copySdk2Project -Pfrom=D:\NamaSDK\Distribution\LibUpdate_6.1.0_tf_20190521132120
-task copySdk2Project << {
-    def fromDir = findProperty('from')
-    if (fromDir == null) {
-        return
-    }
-    def srcJarLibs = new File(fromDir, 'Android' + File.separator + 'libs' + File.separator + 'nama.jar')
-    def destJarLibs = new File(project.projectDir, 'libs' + File.separator + 'nama.jar')
-    println("srcJarLibs:${srcJarLibs}, srcJarLibs:${destJarLibs}")
-    copyFile(srcJarLibs, destJarLibs)
-    def srcJniLibs = new File(fromDir, 'Android' + File.separator + 'jniLibs')
-    def destJniLibs = new File(project.projectDir, 'src' + File.separator + 'main' + File.separator + 'jniLibs')
-    println("srcJniLibs:${srcJniLibs}, destJniLibs:${destJniLibs}")
-    copyDir(srcJniLibs, destJniLibs)
-    def srcAssets = new File(fromDir, 'assets')
-    def destAssets = new File(project.projectDir, 'src' + File.separator + 'main' + File.separator + 'assets')
-    println("srcAssets:${srcAssets}, destAssets:${destAssets}")
-    copyDir(srcAssets, destAssets)
-    println('================Game Over================')
-}
-
-static def copyFile(File src, File dest) {
-    if (!src.exists()) {
-        return
-    }
-    def parentFile = dest.getParentFile()
-    if (!parentFile.exists()) {
-        parentFile.mkdirs()
-    }
-    if (dest.exists()) {
-        dest.delete()
-    }
-    def bis = new BufferedInputStream(new FileInputStream(src))
-    def bos = new BufferedOutputStream(new FileOutputStream(dest))
-    def bytes = new byte[bis.available()]
-    bis.read(bytes)
-    bos.write(bytes)
-    bos.flush()
-    bos.close()
-    bis.close()
-}
-
-static def copyDir(File src, File dest) {
-    if (!src.exists()) {
-        return
-    }
-    def files = src.listFiles()
-    if (files != null) {
-        for (File f : files) {
-            def desF = new File(dest, f.getName())
-            if (f.isDirectory()) {
-                copyDir(f, desF)
-            } else {
-                copyFile(f, desF)
-            }
-        }
-    }
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    api "com.android.support:appcompat-v7:${rootProject.ext.supportCompatV7Version}"
 }

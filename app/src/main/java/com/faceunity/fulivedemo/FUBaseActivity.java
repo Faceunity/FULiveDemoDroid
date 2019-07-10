@@ -77,7 +77,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     protected ImageView mSelectDataBtn;
     private LinearLayout mLlLight;
     private VerticalSeekBar mVerticalSeekBar;
-    private CameraFocus mCameraFocus;
+    protected CameraFocus mCameraFocus;
     protected ConstraintLayout mClOperationView;
     protected ConstraintLayout mRootView;
 
@@ -88,6 +88,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
         public void run() {
             mCameraFocus.layout(0, 0, 0, 0);
             mLlLight.setVisibility(View.INVISIBLE);
+            onLightFocusVisibilityChanged(false);
         }
     };
 
@@ -118,6 +119,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
             mCameraRenderer.handleFocus(event.getRawX(), event.getRawY());
             mCameraFocus.showCameraFocus(event.getRawX(), event.getRawY());
             mLlLight.setVisibility(View.VISIBLE);
+            onLightFocusVisibilityChanged(true);
             mVerticalSeekBar.setProgress((int) (100 * mCameraRenderer.getExposureCompensation()));
 
             mHandler.removeCallbacks(mCameraFocusDismiss);
@@ -125,6 +127,9 @@ public abstract class FUBaseActivity extends AppCompatActivity
             return true;
         }
         return false;
+    }
+
+    protected void onLightFocusVisibilityChanged(boolean visible) {
     }
 
     @Override
@@ -231,7 +236,9 @@ public abstract class FUBaseActivity extends AppCompatActivity
             System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
             fuTextureId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
         }
-//        mCameraRenderer.setLandmarksData(mFURenderer.getLandmarksData(0));
+        if (CameraRenderer.DRAW_LANDMARK) {
+            mCameraRenderer.setLandmarksData(mFURenderer.getLandmarksData(0));
+        }
         sendRecordingData(fuTextureId, mtx, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
         checkPic(fuTextureId, mtx, cameraHeight, cameraWidth);
         return fuTextureId;
@@ -492,7 +499,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
             mMuxer.prepare();
             mMuxer.startRecording();
-        } catch (final IOException e) {
+        } catch (IOException e) {
             Log.e(TAG, "startCapture:", e);
         }
     }

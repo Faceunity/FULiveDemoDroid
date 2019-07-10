@@ -11,10 +11,11 @@
         android:layout_height="@dimen/x108"
         android:padding="@dimen/x4"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/icon_punk_make_up" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:id="@+id/tv_makeup"
         android:layout_width="@dimen/x108"
         android:layout_height="wrap_content"
@@ -22,8 +23,6 @@
         android:gravity="center_horizontal"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/text_size_20"
-        app:layout_constraintLeft_toLeftOf="@id/iv_custom_makeup"
-        app:layout_constraintRight_toRightOf="@id/iv_custom_makeup"
         app:layout_constraintTop_toBottomOf="@id/iv_makeup"
         tools:text="自定义" />
 

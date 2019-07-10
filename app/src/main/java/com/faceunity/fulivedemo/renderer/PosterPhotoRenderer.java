@@ -78,7 +78,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         try {
             count.await(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e(TAG, "onDestroy: ", e);
         }
         mGLSurfaceView.onPause();
     }
@@ -130,15 +130,14 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
             return;
         }
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         float[] matrix;
         if (mDrawPhoto) {
             matrix = mMvpPhotoMatrix;
         } else {
             matrix = mMvpTemplateMatrix;
         }
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mImgTextureId, mPhotoWidth, mPhotoHeight);
-        gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
         mFullFrameRectTexture2D.drawFrame(fuTextureId, IMG_DATA_MATRIX, matrix);
         // 解决前几帧黑屏问题
         if (mFrameCount++ >= 2) {

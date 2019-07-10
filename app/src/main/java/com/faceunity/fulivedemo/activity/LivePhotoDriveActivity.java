@@ -1,6 +1,7 @@
 package com.faceunity.fulivedemo.activity;
 
 import android.content.Intent;
+import android.database.SQLException;
 import android.hardware.Camera;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -21,13 +22,13 @@ import com.faceunity.FURenderer;
 import com.faceunity.entity.LivePhoto;
 import com.faceunity.fulivedemo.FUBaseActivity;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
 import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
-import com.faceunity.greendao.GreenDaoUtils;
 import com.faceunity.utils.FileUtils;
 import com.faceunity.utils.MiscUtil;
 
@@ -112,7 +113,7 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
             public void run() {
                 int lastPosition = mOnItemClickListener.mLastPosition;
                 LivePhoto livePhoto = mAdapter.getItem(lastPosition);
-                if (livePhoto == null || OPERATION_ADD.equals(livePhoto.getImagePath())) {
+                if (livePhoto == null || OPERATION_ADD.equals(livePhoto.getTemplateImagePath())) {
                     livePhoto = mAdapter.getItem(0);
                     mOnItemClickListener.mLastPosition = 0;
                     lastPosition = 0;
@@ -161,7 +162,7 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
         List<LivePhoto> livePhotos = new ArrayList<>(8);
         LivePhoto addLivePhoto = new LivePhoto(0, 0, null, null, OPERATION_ADD, null, null, null);
         livePhotos.addAll(mDefaultLivePhotos);
-        List<LivePhoto> dbLivePhotos = GreenDaoUtils.getInstance().getDaoSession().getLivePhotoDao().loadAll();
+        List<LivePhoto> dbLivePhotos = DatabaseOpenHelper.getInstance().getLivePhotoDao().queryAll();
         livePhotos.addAll(dbLivePhotos);
         livePhotos.add(addLivePhoto);
         return livePhotos;
@@ -178,7 +179,7 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
                         LivePhoto livePhoto = selectedItems.valueAt(0);
                         Intent intent = new Intent(LivePhotoDriveActivity.this, LivePhotoMakeActivity.class);
                         intent.putExtra(LivePhotoMakeActivity.EDIT_LIVE_PHOTO, livePhoto);
-                        intent.putExtra(LivePhotoMakeActivity.MODEL_PATH, livePhoto.getImagePath());
+                        intent.putExtra(LivePhotoMakeActivity.MODEL_PATH, livePhoto.getTemplateImagePath());
                         startActivityForResult(intent, REQ_UPDATE);
                     }
                 }
@@ -189,15 +190,15 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
                         public void onConfirm() {
                             try {
                                 LivePhoto livePhoto = mAdapter.getSelectedItems().valueAt(0);
-                                GreenDaoUtils.getInstance().getDaoSession().getLivePhotoDao().deleteInTx(livePhoto);
-                                FileUtils.deleteFile(new File(livePhoto.getImagePath()));
+                                DatabaseOpenHelper.getInstance().getLivePhotoDao().delete(livePhoto);
+                                FileUtils.deleteFile(new File(livePhoto.getTemplateImagePath()));
                                 mAdapter.remove(livePhoto);
                                 ToastUtil.makeNormalToast(LivePhotoDriveActivity.this, getString(R.string.toast_delete_succeed)).show();
                                 // 删除后选中第一个
                                 mAdapter.setItemSelected(0);
                                 mRecyclerView.scrollToPosition(0);
                                 mOnItemClickListener.onItemClick(mAdapter, null, 0);
-                            } catch (Exception e) {
+                            } catch (SQLException e) {
                                 Log.e(TAG, "delete model error", e);
                                 ToastUtil.makeNormalToast(LivePhotoDriveActivity.this, getString(R.string.toast_delete_failed)).show();
                             }
@@ -223,7 +224,7 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
         @Override
         protected void bindViewHolder(BaseViewHolder viewHolder, LivePhoto item) {
             ImageView iv = viewHolder.getViewById(R.id.effect_recycler_img);
-            String imagePath = item.getImagePath();
+            String imagePath = item.getTemplateImagePath();
             if (OPERATION_ADD.equals(imagePath)) {
                 Glide.with(LivePhotoDriveActivity.this)
                         .load(R.drawable.live_photo_add)
@@ -231,7 +232,7 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
                         .into(iv);
             } else {
                 Glide.with(LivePhotoDriveActivity.this)
-                        .load(item.getImagePath())
+                        .load(item.getTemplateImagePath())
                         .apply(RequestOptions.bitmapTransform(new CenterCrop()))
                         .into(iv);
             }

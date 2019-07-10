@@ -15,6 +15,7 @@ import android.util.Log;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.FPSUtil;
+import com.faceunity.gles.ProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.ProgramTextureOES;
 import com.faceunity.gles.core.GlUtil;
@@ -36,6 +37,10 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Renderer {
     public final static String TAG = CameraRenderer.class.getSimpleName();
+    /**
+     * 显示 Landmark 点位
+     */
+    public static final boolean DRAW_LANDMARK = false;
 
     private Activity mActivity;
     private GLSurfaceView mGLSurfaceView;
@@ -56,20 +61,20 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     private OnRendererStatusListener mOnCameraRendererStatusListener;
 
-    protected int mViewWidth = 1280;
-    protected int mViewHeight = 720;
+    private int mViewWidth = 1280;
+    private int mViewHeight = 720;
 
     private final Object mCameraLock = new Object();
     private Camera mCamera;
     private static final int PREVIEW_BUFFER_COUNT = 3;
     private byte[][] previewCallbackBuffer;
     private int mCurrentCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
-    protected int mCameraWidth = 1280;
-    protected int mCameraHeight = 720;
+    private int mCameraWidth = 1280;
+    private int mCameraHeight = 720;
 
-    private boolean isDraw = false;
-    private final float[] mtx = {0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
-    private byte[] mCameraNV21Byte;
+    private volatile boolean isDraw = false;
+    private final float[] mTexMatrix = {0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
+    private volatile byte[] mCameraNV21Byte;
     private SurfaceTexture mSurfaceTexture;
     private int mCameraTextureId;
 
@@ -78,9 +83,8 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
     private volatile float[] mMvpMatrix = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
     private ProgramTextureOES mTextureOES;
-    // 快速打开 landmark 人脸检测点位，相关的注释不要删
-//    private ProgramLandmarks mProgramLandmarks;
-//    private float[] landmarksData;
+    private ProgramLandmarks mProgramLandmarks;
+    private float[] landmarksData;
 
     private FPSUtil mFPSUtil;
 
@@ -139,13 +143,14 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         try {
             count.await(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e(TAG, "onDestroy: ", e);
         }
         mGLSurfaceView.onPause();
     }
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        // invoked in mainThread
         mCameraNV21Byte = data;
         mCamera.addCallbackBuffer(data);
         if (!isNeedStopDrawFrame) {
@@ -155,10 +160,10 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        Log.d(TAG, "onSurfaceCreated()");
+        Log.d(TAG, "onSurfaceCreated. thread:" + Thread.currentThread().getName());
         mFullFrameRectTexture2D = new ProgramTexture2d();
         mTextureOES = new ProgramTextureOES();
-//        mProgramLandmarks = new ProgramLandmarks();
+        mProgramLandmarks = new ProgramLandmarks();
         mCameraTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         cameraStartPreview();
 
@@ -170,7 +175,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
         mMvpMatrix = GlUtil.changeMVPMatrixCrop(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
         mOnCameraRendererStatusListener.onSurfaceChanged(gl, width, height);
-        Log.i(TAG, "onSurfaceChanged: viewWidth:" + mViewWidth + ", viewHeight:" + mViewHeight + ". cameraOrientation:" + mCameraOrientation
+        Log.d(TAG, "onSurfaceChanged. viewWidth:" + mViewWidth + ", viewHeight:" + mViewHeight + ". cameraOrientation:" + mCameraOrientation
                 + ", cameraWidth:" + mCameraWidth + ", cameraHeight:" + mCameraHeight);
         mFPSUtil.resetLimit();
         isDraw = false;
@@ -181,36 +186,36 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         if (mTextureOES == null || mFullFrameRectTexture2D == null) {
             return;
         }
+
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         if (mCameraNV21Byte == null) {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mMvpMatrix);
+            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mTexMatrix, mMvpMatrix);
             return;
-        } else {
-            try {
-                mSurfaceTexture.updateTexImage();
-                mSurfaceTexture.getTransformMatrix(mtx);
-            } catch (Exception e) {
-                Log.w(TAG, "onDrawFrame: ", e);
-                return;
-            }
+        }
+
+        try {
+            mSurfaceTexture.updateTexImage();
+            mSurfaceTexture.getTransformMatrix(mTexMatrix);
+        } catch (Exception e) {
+            Log.e(TAG, "onDrawFrame: ", e);
         }
 
         if (!isNeedStopDrawFrame) {
             mFuTextureId = mOnCameraRendererStatusListener.onDrawFrame(mCameraNV21Byte, mCameraTextureId,
-                    mCameraWidth, mCameraHeight, mtx, mSurfaceTexture.getTimestamp());
+                    mCameraWidth, mCameraHeight, mTexMatrix, mSurfaceTexture.getTimestamp());
         }
         //用于屏蔽切换调用SDK处理数据方法导致的绿屏（切换SDK处理数据方法是用于展示，实际使用中无需切换，故无需调用做这个判断,直接使用else分支绘制即可）
         if (mFuTextureId <= 0) {
-            mTextureOES.drawFrame(mCameraTextureId, mtx, mMvpMatrix);
+            mTextureOES.drawFrame(mCameraTextureId, mTexMatrix, mMvpMatrix);
         } else {
-            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mMvpMatrix);
+            mFullFrameRectTexture2D.drawFrame(mFuTextureId, mTexMatrix, mMvpMatrix);
         }
 
-        // draw landmarks view
-//        if (!isNeedStopDrawFrame && landmarksData != null) {
-//            mProgramLandmarks.refresh(landmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCurrentCameraType);
-//            mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
-//        }
+        // 绘制 landmark 点位
+        if (!isNeedStopDrawFrame && landmarksData != null) {
+            mProgramLandmarks.refresh(landmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCurrentCameraType);
+            mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
+        }
 
         mFPSUtil.limit();
         if (!isNeedStopDrawFrame) {
@@ -278,16 +283,14 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
             mFullFrameRectTexture2D.release();
             mFullFrameRectTexture2D = null;
         }
-
         if (mTextureOES != null) {
             mTextureOES.release();
             mTextureOES = null;
         }
-
-//        if (mProgramLandmarks != null) {
-//            mProgramLandmarks.release();
-//            mProgramLandmarks = null;
-//        }
+        if (mProgramLandmarks != null) {
+            mProgramLandmarks.release();
+            mProgramLandmarks = null;
+        }
 
         mOnCameraRendererStatusListener.onSurfaceDestroy();
     }
@@ -321,7 +324,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
 
                 mCameraOrientation = CameraUtils.getCameraOrientation(cameraId);
                 CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
-                Log.d(TAG, "openCamera: orientation:" + mCameraOrientation);
+                Log.d(TAG, "openCamera. orientation:" + mCameraOrientation);
 
                 Camera.Parameters parameters = mCamera.getParameters();
 
@@ -342,7 +345,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
             mOnCameraRendererStatusListener.onCameraChange(mCurrentCameraType, mCameraOrientation);
             mFPSUtil.resetLimit();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "openCamera: ", e);
             releaseCamera();
             new AlertDialog.Builder(mActivity)
                     .setTitle(R.string.camera_dialog_title)
@@ -365,7 +368,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         }
     }
 
-    protected void cameraStartPreview() {
+    private void cameraStartPreview() {
         try {
             if (mCameraTextureId == 0 || mCamera == null) {
                 return;
@@ -385,11 +388,12 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                 mCamera.startPreview();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "cameraStartPreview: ", e);
         }
     }
 
     private void releaseCamera() {
+        Log.d(TAG, "releaseCamera()");
         try {
             synchronized (mCameraLock) {
                 mCameraNV21Byte = null;
@@ -402,7 +406,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "releaseCamera: ", e);
         }
     }
 
@@ -439,7 +443,8 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         CameraUtils.setExposureCompensation(mCamera, v);
     }
 
-//    public void setLandmarksData(float[] landmarksData) {
-//        this.landmarksData = landmarksData;
-//    }
+    public void setLandmarksData(float[] landmarksData) {
+        this.landmarksData = landmarksData;
+    }
+
 }

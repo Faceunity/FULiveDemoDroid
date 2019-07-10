@@ -1,11 +1,15 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2019-05-27
-SDK版本: 6.1.0
+更新日期：2019-06-27
+SDK版本: 6.2.0
 
 ------
 ### 最新更新内容：
+
+2019-06-27 v6.2.0:
+
+1. fuSetFaceDetParam函数新增加参数，enable_large_pose_detection。
 
 2019-05-27 v6.1.0：
 
@@ -753,11 +757,12 @@ public static native int fuSetFaceDetParam(String name, float value);
 `value`: 参数值
 
 - 设置 `name == "use_new_cnn_detection"` ，且 `pvalue == 1` 则使用默认的CNN-Based人脸检测算法，否则 `pvalue == 0`则使用传统人脸检测算法。默认开启该模式。
-- 设置 `name == "other_face_detection_frame_step"` ，如果当前状态已经检测到一张人脸后，可以通过设置该参数，每隔`step`帧再进行其他人脸检测，有助于提高性能，设置过大会导致延迟感明显。
+- 设置 `name == "other_face_detection_frame_step"` ，如果当前状态已经检测到一张人脸后，可以通过设置该参数，每隔`step`帧再进行其他人脸检测，有助于提高性能，设置过大会导致延迟感明显，默认值10。。
 
 如果`name == "use_new_cnn_detection"` ，且 `pvalue == 1` 已经开启：
 
 - `name == "use_cross_frame_speedup"`，`pvalue==1`表示，开启交叉帧执行推理，每帧执行半个网络，下帧执行下半个网格，可提高性能。默认 `pvalue==0`关闭。
+- `name == "enable_large_pose_detection"`，`pvalue==1`表示，开启正脸大角度(45度)检测优化。`pvalue==0`表示关闭。默认 `pvalue==1`开启。
 - `name == "small_face_frame_step"`，`pvalue`表示每隔多少帧加强小脸检测。极小脸检测非常耗费性能，不适合每帧都做。默认`pvalue==5`。
 - 检测小脸时，小脸也可以定义为范围。范围下限`name == "min_facesize_small"`，默认`pvalue==18`，表示最小脸为屏幕宽度的18%。范围上限`name == "min_facesize_big"`，默认`pvalue==27`，表示最小脸为屏幕宽度的27%。该参数必须在`fuSetup`前设置。
 
@@ -769,7 +774,6 @@ public static native int fuSetFaceDetParam(String name, float value);
 - `name == "size_max"`，最大人脸大小，多少像素。 默认最大，参考640x480分辨率。
 - `name == "min_neighbors"`，内部参数, 默认 3.f
 - `name == "min_required_variance"`， 内部参数, 默认 15.f
-- `name == "is_mono"`，设置输入源是否是单目相机。
 
 __返回值:__  
 

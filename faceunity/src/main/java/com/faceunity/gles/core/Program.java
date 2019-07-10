@@ -13,8 +13,9 @@ public abstract class Program {
     // Handles to the GL program and various components of it.
     protected int mProgramHandle;
 
-
     protected Drawable2d mDrawable2d;
+
+    private int[] mOriginViewport = new int[4];
 
     /**
      * Prepares the program in the current EGL context.
@@ -54,11 +55,10 @@ public abstract class Program {
     }
 
     public void drawFrame(int textureId, float[] texMatrix, float[] mvpMatrix, int x, int y, int width, int height) {
-        int[] originalViewport = new int[4];
-        GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, originalViewport, 0);
+        GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mOriginViewport, 0);
         GLES20.glViewport(x, y, width, height);
         drawFrame(textureId, texMatrix, mvpMatrix);
-        GLES20.glViewport(originalViewport[0], originalViewport[1], originalViewport[2], originalViewport[3]);
+        GLES20.glViewport(mOriginViewport[0], mOriginViewport[1], mOriginViewport[2], mOriginViewport[3]);
     }
 
     /**

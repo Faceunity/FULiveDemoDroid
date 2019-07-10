@@ -41,11 +41,7 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
 
     private OnRendererStatusListener mOnPhotoRendererStatusListener;
 
-    private int mViewWidth = 1280;
-    private int mViewHeight = 720;
-
     private String mPhotoPath;
-
     private byte[] mPhotoBytes;
     private int mImgTextureId;
     private int mPhotoWidth = 720;
@@ -56,9 +52,9 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
 
     private FPSUtil mFPSUtil;
 
-    public PhotoRenderer(String photoPath, GLSurfaceView GLSurfaceView, OnRendererStatusListener onPhotoRendererStatusListener) {
+    public PhotoRenderer(String photoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onPhotoRendererStatusListener) {
         mPhotoPath = photoPath;
-        mGLSurfaceView = GLSurfaceView;
+        mGLSurfaceView = glSurfaceView;
         mOnPhotoRendererStatusListener = onPhotoRendererStatusListener;
         mFPSUtil = new FPSUtil();
     }
@@ -79,7 +75,7 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         try {
             count.await(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e(TAG, "onDestroy: ", e);
         }
         mGLSurfaceView.onPause();
     }
@@ -93,8 +89,8 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
-        mvp = GlUtil.changeMVPMatrixCrop(ROTATE_90, mViewWidth, mViewHeight, mPhotoWidth, mPhotoHeight);
+        GLES20.glViewport(0, 0, width, height);
+        mvp = GlUtil.changeMVPMatrixCrop(ROTATE_90, width, height, mPhotoWidth, mPhotoHeight);
         mOnPhotoRendererStatusListener.onSurfaceChanged(gl, width, height);
         mFPSUtil.resetLimit();
     }

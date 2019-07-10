@@ -1,32 +1,30 @@
 # Android Nama SDK 集成指导文档  
 级别：Public
-更新日期：2019-05-27
-SDK版本: 6.1.0  
+更新日期：2019-06-27
+SDK版本: 6.2.0  
 
 ------
 ## 最新更新内容：
 
-2019-05-27 v6.1.0：
+2019-06-27 v6.2.0：
 
-- 新增fuSetupLocal函数，支持离线鉴权。  
-- 新增fuDestroyLibData函数，支持tracker内存释放。  
-- 美型优化新增v脸、小脸、窄脸三款瘦脸形式。  
-- 优化“表情动图”功能，玩转图片表情包。 
-- 人脸跟踪模块优化边缘人脸抖动问题。 
-- 修复并支持i420格式。
-- 修复asan问题。
+- 优化人脸检测，提高正脸大角度检测率。
 
-2019-05-01 v6.0.0：
+- 优化背景分割，提高边缘稳定性。
 
-- 优化人脸检测，提高检测率，提高性能。
-- 新增质感美颜功能（注：道具支持SDK v6.0.0以上版本）。
-- 人脸融合（海报换脸）效果优化（注：道具支持 SDK v6.0.0以上版本）。
-- 背景分割分割精度优化（注：此版本背景分割、手势识别道具只支持 SDK v6.0.0以上版本）。
-- 舌头跟踪trackface逻辑支持，Getfaceinfo支持。
-- 新增Avatar捏脸功能，需FUEditor 6.0.0以上版本。
-- 美颜滤镜优化（注：原有滤镜整合，重命名归类及效果新增， 道具支持SDK v5.5.0以上版本）。
-- 修复mebedtls符号冲突问题。
-- 注：美发、Animoji道具支持FUEditor v5.6.0以上制作版本，其余道具在任意SDK皆可兼容
+- 优化手势识别，提供15种手势；手势模型支持独立运行，见FUCreator文档。
+
+- 优化人脸美妆，提高准确度，支持更丰富的效果。
+
+- 修复多人脸舌头跟踪相互影响问题。 
+
+- 修复avatar模式下fxaa抗锯齿失效问题。
+
+- 废弃高精度模型 armesh_ex.bundle，以及对应的接口 fuLoadExtendedARData。
+
+- 废弃人脸表情动画模型 anim_model.bundle, 以及对应的接口 fuLoadAnimModel。
+
+  注：废弃的数据以及接口，可能引起编译不通过，移除代码即可。
 
 ------
 
@@ -77,23 +75,64 @@ SDK版本: 6.1.0
 ------
 ## 3. 集成指引
 
-### 3.1 开发环境
-#### 3.1.1 支持平台
+### 3.1 集成方式
+
+#### 3.1.1 Gradle 配置
+
+全功能版本（支持 TensorFlow 和物理特效）：
+
+```groovy
+implementation 'com.faceunity:nama:6.2.0'
+```
+
+lite 版（不含物理特效的版本）：
+
+```groovy
+implementation 'com.faceunity:nama:6.2.0-lite'
+```
+
+**注：**Gradle 集成的 aar 中仅包含库文件（libnama.so 与 nama.jar）以及初始化必须的数据模型（v3.bundle）等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
+
+#### 3.1.2 Github 下载
+
+全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v6.2.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.2/Faceunity-Android-v6.2.zip)
+
+lite 版（不含物理特效的版本）：[Faceunity-Android-v6.2-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.2/Faceunity-Android-v6.2-lite.zip)
+
+#### 3.1.3 库文件说明
+
+1. 库文件
+   - jniLibs 文件夹下 libnama.so 人脸跟踪及道具绘制核心静态库
+   -  libs 文件夹下 nama.jar 是 Java 层对 native 接口的封装
+
+2. 数据文件
+
+	- v3.bundle：初始化 SDK 必备的数据模型
+	- tongue.bundle：Animoji 舌头驱动的数据模型
+	- fxaa.bundle：3D 道具抗锯齿的道具
+	- effects 文件夹下的 \*.bundle 文件是我司制作的特效贴纸道具，如需制作自定义的特效贴纸，请联系我司获取相关工具和说明。
+
+**注：**这些数据文件都是二进制数据，与扩展名无关。实际使用时，可以将数据包打包在应用内或者通过网络下载，只要在函数接口传入正确的文件字节数组即可。
+
+### 3.2 开发环境
+
+#### 3.2.1 支持平台
 ```
 Android API 18 及以上
 ```
-#### 3.1.2 开发环境
+#### 3.2.2 开发环境
 ```
 Android Studio 3.0 及以上，GLES 2.0 及以上
 ```
 
-### 3.2 准备工作 
+### 3.3 准备工作 
+
 - 下载 [FULiveDemoDroid](https://github.com/Faceunity/FULiveDemoDroid) 工程
 - 获取证书：
   1. 拨打电话 **0571-88069272** 
   2. 发送邮件至 **marketing@faceunity.com** 进行咨询
 
-### 3.3 相关配置
+### 3.4  工程配置
 
 Android 端发放的证书为 authpack.java 文件，如果您已经获取到鉴权证书，将证书文件放到工程中 faceunity 模块 com.faceunity.fulivedemo 包下即可。
 
@@ -105,7 +144,7 @@ Android 端发放的证书为 authpack.java 文件，如果您已经获取到鉴
 
 ![AS-Run](imgs/as-run.png)
 
-### 3.4 初始化
+### 3.5 初始化
 
 初始化SDK环境，加载SDK数据，并进行网络鉴权。必须在调用SDK其他接口前执行，否则会引发崩溃。
 
@@ -130,8 +169,9 @@ faceunity.fuSetup(v3Data, authpack.A());
 ```
 注：app 启动后只需要 setup 一次即可，其中 authpack.A() 密钥数组声明在 authpack.java 中。
 
-### 3.5 道具创建、销毁、切换
-#### 3.5.1 道具创建
+### 3.6 道具创建、销毁、切换
+
+#### 3.6.1 道具创建
 
 **创建道具句柄接口：**
 
@@ -158,7 +198,7 @@ mItemsArray[ITEM_ARRAYS_EFFECT] = faceunity.fuCreateItemFromPackage(itemData);
 updateEffectItemParams( mItemsArray[ITEM_ARRAYS_EFFECT]);//更新道具参数
 ```
 
-#### 3.5.2 道具销毁
+#### 3.6.2 道具销毁
 
 **销毁单个道具：**
 
@@ -190,7 +230,7 @@ Arrays.fill(mItemsArray, 0);
 faceunity.fuDestroyAllItems();
 ```
 
-#### 3.5.3 道具切换
+#### 3.6.3 道具切换
 
 如果需要切换句柄数组中某一位的句柄时，需要先创建一个新的道具句柄，并将该句柄替换到句柄数组中需要被替换的位置上，最后再把被替换的句柄销毁掉。下面以替换句柄数组的第ITEM_ARRAYS_EFFECT位为例进行说明：
 
@@ -213,11 +253,11 @@ queueEvent(new Runnable() {
 
 注意，如果这里先销毁了老的道具，再创建新的道具会可能出现卡顿的现象。
 
-### 3.6 视频处理
+### 3.7 视频处理
 
 将视频图像数据及道具句柄一同传入我们的绘制接口，处理完成之后道具中的特效就被绘制到图像中了。
 
-#### 3.6.1 图像处理双输入接口
+#### 3.7.1 图像处理双输入接口
 
 ```java
 public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags, int w, int h, int frame_id, int[] h);
@@ -252,7 +292,7 @@ if (mCurrentCameraType != Camera.CameraInfo.CAMERA_FACING_FRONT)
 int fuTex = faceunity.fuDualInputToTexture(img, tex, flags, w, h, mFrameId++, mItemsArray);
 ```
 
-#### 3.6.2 图像处理单输入接口
+#### 3.7.2 图像处理单输入接口
 
 ```java
 public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame_id, int[] items, int flags);
@@ -429,7 +469,7 @@ __使用方法__：
 - 加载face_beautification.bundle
 - 调整如下参数
   `face_shape`: 4,   // 4为开启高级美型模式，0～3为基本美型
-  `cheek_thinning`: 0.0,   // 范围0 - 1，0为正常大小，大于0开始V脸，默认0.0
+  `cheek_v`: 0.0,   // 范围0 - 1，0为正常大小，大于0开始V脸，默认0.0
 
 **大眼**
 
@@ -678,7 +718,7 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_NORMAL_INDEX], "Ind
 
 #### 渐变色
 
-首先加载 hair_gradient.bundle，然后使用参数 `Index`` 来切换发色，该参数的推荐取值范围为0~4。通过参数 Strength` 可以调节发色的强度，该参数的推荐取值范围为0~1。示例：
+首先加载 hair_gradient.bundle，然后使用参数 `Index` 来切换发色，该参数的推荐取值范围为0~4。通过参数 `Strength` 可以调节发色的强度，该参数的推荐取值范围为0~1。示例：
 
 ```java
 /**设置美发参数**/

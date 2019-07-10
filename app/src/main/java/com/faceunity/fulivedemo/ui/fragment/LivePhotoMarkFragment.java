@@ -1,6 +1,7 @@
 package com.faceunity.fulivedemo.ui.fragment;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -24,6 +25,7 @@ import com.faceunity.fulivedemo.activity.LivePhotoMakeActivity;
 import com.faceunity.fulivedemo.activity.LivePhotoPortraitType;
 import com.faceunity.fulivedemo.activity.LivePhotoSticker;
 import com.faceunity.fulivedemo.activity.LivePhotoStickerEnum;
+import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.renderer.LivePhotoRenderer;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
@@ -34,8 +36,6 @@ import com.faceunity.fulivedemo.ui.sticker.StickerLayout;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.PointUtils;
 import com.faceunity.fulivedemo.utils.ToastUtil;
-import com.faceunity.greendao.GreenDaoUtils;
-import com.faceunity.greendao.LivePhotoDao;
 import com.faceunity.utils.BitmapUtil;
 
 import java.io.File;
@@ -127,7 +127,7 @@ public class LivePhotoMarkFragment extends Fragment {
             float[] adjustPointsF = editableLivePhoto.getAdjustPointsF();
             int offset = 0;
             LivePhotoSticker livePhotoSticker = new LivePhotoSticker();
-            livePhotoSticker.setImagePath(editableLivePhoto.getImagePath());
+            livePhotoSticker.setImagePath(editableLivePhoto.getTemplateImagePath());
             String[] stickerImagePaths = editableLivePhoto.getStickerImagePaths();
             float[] matrixF = editableLivePhoto.getMatrixF();
             float[] stickerMatrix;
@@ -271,14 +271,13 @@ public class LivePhotoMarkFragment extends Fragment {
                                     mLivePhoto.setMatrixF(matrix);
                                     mLivePhoto.setAdjustPointsF(adjustPointsF);
                                 }
-                                Log.i(TAG, "onPhotoChecked: insertOrReplace LivePhoto " + mLivePhoto);
+                                Log.d(TAG, "onPhotoChecked: insertOrReplace LivePhoto " + mLivePhoto);
                                 saveLivePhoto(mLivePhoto);
                             }
 
                             private void saveLivePhoto(LivePhoto livePhoto) {
                                 try {
-                                    LivePhotoDao livePhotoDao = GreenDaoUtils.getInstance().getDaoSession().getLivePhotoDao();
-                                    livePhotoDao.insertOrReplace(livePhoto);
+                                    DatabaseOpenHelper.getInstance().getLivePhotoDao().insertOrUpdate(livePhoto);
                                     mActivity.setSavedModel(true);
                                     ToastUtil.makeFineToast(mActivity, getString(R.string.live_photo_save_succeed), R.drawable.icon_confirm).show();
                                     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -288,7 +287,7 @@ public class LivePhotoMarkFragment extends Fragment {
                                             mActivity.onBackPressed();
                                         }
                                     }, LivePhotoMakeActivity.TOAST_DELAY);
-                                } catch (Exception e) {
+                                } catch (SQLException e) {
                                     ToastUtil.makeFineToast(mActivity, getString(R.string.live_photo_save_failed), R.drawable.icon_fail).show();
                                     Log.e(TAG, "LivePhotoDao insert failed", e);
                                 }

@@ -24,6 +24,7 @@ import com.faceunity.FURenderer;
 import com.faceunity.entity.AvatarModel;
 import com.faceunity.fulivedemo.FUBaseActivity;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.entity.AvatarFaceAspect;
 import com.faceunity.fulivedemo.entity.AvatarFaceHelper;
 import com.faceunity.fulivedemo.entity.EffectEnum;
@@ -34,7 +35,6 @@ import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.ColorConstant;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
-import com.faceunity.greendao.GreenDaoUtils;
 import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.FileUtils;
@@ -82,11 +82,11 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                     .getAbsolutePath(), FileUtils.getUUID32() + ".jpg");
             AvatarModel clone = mAvatarModel.cloneIt();
             clone.setIconPath(path);
-            clone.setConfigJson(AvatarFaceHelper.array2Config());
+            clone.setParamJson(AvatarFaceHelper.array2Config());
             clone.setUiJson(AvatarFaceHelper.uiConfig2Array());
             Log.i(TAG, "onReadBitmapListener: save " + clone);
             try {
-                GreenDaoUtils.getInstance().getDaoSession().getAvatarModelDao().insertOrReplace(clone);
+                DatabaseOpenHelper.getInstance().getAvatarModelDao().insertOrUpdate(clone);
                 mFURenderer.recomputeFaceup();
                 runOnUiThread(new Runnable() {
                     @Override
@@ -248,7 +248,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
     }
 
     private List<AvatarModel> queryAvatarModel() {
-        return GreenDaoUtils.getInstance().getDaoSession().getAvatarModelDao().loadAll();
+        return DatabaseOpenHelper.getInstance().getAvatarModelDao().queryAll();
     }
 
     @Override
@@ -271,7 +271,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
         avatarModels.add(new AvatarModel(R.drawable.demo_avatar_icon_cancel, false));
         AvatarModel avatarMale = new AvatarModel(R.drawable.demo_icon_template_male, true);
         // 默认模型有个默认头发，鼻子修正过
-        avatarMale.setConfigJson(AvatarFaceHelper.array2Config());
+        avatarMale.setParamJson(AvatarFaceHelper.array2Config());
         avatarModels.add(avatarMale);
         return avatarModels;
     }
@@ -401,7 +401,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             return;
         }
 
-        String configJson = avatarModel.getConfigJson();
+        String configJson = avatarModel.getParamJson();
         Log.d(TAG, "setAvatarConfig: configJson " + configJson);
         if (configJson != null) {
             List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(configJson);
@@ -465,7 +465,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                         mFURenderer.onEffectSelected(EffectEnum.AVATAR_MALE.effect());
                     }
                     if (!mFURenderer.isAvatarMakeupItemLoaded()) {
-                        List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(mAvatarModel.getConfigJson());
+                        List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(mAvatarModel.getParamJson());
                         if (avatarFaceAspects != null) {
                             for (AvatarFaceAspect avatarFaceAspect : avatarFaceAspects) {
                                 String bundlePath = avatarFaceAspect.getBundlePath();
@@ -530,7 +530,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
         protected void bindViewHolder(BaseViewHolder viewHolder, AvatarModel item) {
             int iconId = item.getIconId();
             String iconPath = item.getIconPath();
-            if (iconPath != null) {
+            if (!TextUtils.isEmpty(iconPath)) {
                 viewHolder.setImageBitmap(R.id.iv_avatar_item_icon, BitmapUtil.decodeSampledBitmapFromFile(
                         iconPath, getResources().getDimensionPixelSize(R.dimen.x120), getResources().getDimensionPixelSize(R.dimen.x120)));
                 ImageView imageView = viewHolder.getViewById(R.id.iv_avatar_item_icon);

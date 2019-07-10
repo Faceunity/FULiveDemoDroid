@@ -6,6 +6,7 @@ import com.faceunity.entity.LivePhoto;
 import com.faceunity.entity.MakeupItem;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * FURenderer与界面之间的交互接口
@@ -185,36 +186,6 @@ public interface OnFUControlListener {
     void onCartoonFilterSelected(int style);
 
     /**
-     * 选择美妆效果
-     *
-     * @param makeupItem
-     * @param level
-     */
-    void onMakeupSelected(MakeupItem makeupItem, float level);
-
-    /**
-     * 调节美妆强度
-     *
-     * @param makeupType
-     * @param level
-     */
-    void onMakeupLevelChanged(int makeupType, float level);
-
-    /**
-     * 调节多个妆容
-     *
-     * @param makeupItems
-     */
-    void onMakeupBatchSelected(List<MakeupItem> makeupItems);
-
-    /**
-     * 妆容总体调节
-     *
-     * @param level
-     */
-    void onMakeupOverallLevelChanged(float level);
-
-    /**
      * 调节多个妆容（轻美妆，质感美颜）
      *
      * @param makeupItems
@@ -234,4 +205,29 @@ public interface OnFUControlListener {
      * @param livePhoto
      */
     void setLivePhoto(LivePhoto livePhoto);
+
+    /**
+     * 选择美妆妆容
+     *
+     * @param paramMap
+     * @param removePrevious
+     */
+    void selectMakeupItem(Map<String, Object> paramMap, boolean removePrevious);
+
+    /**
+     * 调节美妆妆容强度
+     *
+     * @param name
+     * @param density
+     */
+    void setMakeupItemIntensity(String name, double density);
+
+    /**
+     * 设置美妆妆容颜色
+     *
+     * @param name
+     * @param colors RGBA color
+     */
+    void setMakeupItemColor(String name, double[] colors);
+
 }

@@ -6,10 +6,6 @@ import android.os.Parcelable;
 
 import com.faceunity.utils.FileUtils;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Transient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,25 +16,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author LiuQiang on 2018.12.12
  * 保存到数据库的表情动图的数据
+ *
+ * @author LiuQiang on 2018.12.12
  */
-@Entity
 public class LivePhoto implements Parcelable {
 
-    public static final Creator<LivePhoto> CREATOR = new Creator<LivePhoto>() {
-        @Override
-        public LivePhoto createFromParcel(Parcel source) {
-            return new LivePhoto(source);
-        }
-
-        @Override
-        public LivePhoto[] newArray(int size) {
-            return new LivePhoto[size];
-        }
-    };
-    @Id(autoincrement = true)
-    private Long id;
+    private int id = -1;
     // 背景图的宽
     private int width;
     // 背景图的高
@@ -46,64 +30,69 @@ public class LivePhoto implements Parcelable {
     /**
      * 五官贴图的点位，以视图左上角为原点
      */
-    @Transient
     private double[] groupPoints;
-    @Transient
     private double[] groupType;
     // 五官点位 JSONArray
-    private String groupPointsStr;
+    private String groupPointsStr = "";
     // 五官类型 JSONArray
-    private String groupTypeStr;
+    private String groupTypeStr = "";
     // 背景图
-    private String imagePath;
+    private String templateImagePath = "";
     // 五官贴纸路径 JSONArray
-    private String stickerImagePath;
+    private String stickerImagePathStr = "";
     // 变换矩阵 3*3，JSONArray
-    private String matrix;
+    private String transformMatrixStr = "";
     // 调整过的点位，JSONArray
-    private String adjustPoints;
+    private String adjustedPointsStr = "";
 
     public LivePhoto() {
     }
 
-    public LivePhoto(int width, int height, double[] groupPoints, double[] groupType, String imagePath,
-                     String[] stickerImagePaths, float[] matrix, float[] adjustPoints) {
+    public LivePhoto(int width, int height, double[] groupPoints, double[] groupType, String templateImagePath,
+                     String[] stickerImagePaths, float[] transformMatrix, float[] adjustPoints) {
         this.width = width;
         this.height = height;
-        this.imagePath = imagePath;
+        if (templateImagePath == null) {
+            templateImagePath = "";
+        }
+        this.templateImagePath = templateImagePath;
         setGroupType(groupType);
         setGroupPoints(groupPoints);
         setStickerImagePath(stickerImagePaths);
-        setMatrixF(matrix);
+        setMatrixF(transformMatrix);
         setAdjustPointsF(adjustPoints);
     }
 
-    @Generated(hash = 1602637951)
-    public LivePhoto(Long id, int width, int height, String groupPointsStr, String groupTypeStr,
-                     String imagePath, String stickerImagePath, String matrix, String adjustPoints) {
+    public LivePhoto(int id, int width, int height, String groupPointsStr, String groupTypeStr,
+                     String templateImagePath, String stickerImagePathStr, String transformMatrixStr,
+                     String adjustedPointsStr) {
         this.id = id;
         this.width = width;
         this.height = height;
+        if (groupPointsStr == null) {
+            groupPointsStr = "";
+        }
         this.groupPointsStr = groupPointsStr;
+        if (groupTypeStr == null) {
+            groupTypeStr = "";
+        }
         this.groupTypeStr = groupTypeStr;
-        this.imagePath = imagePath;
-        this.stickerImagePath = stickerImagePath;
-        this.matrix = matrix;
-        this.adjustPoints = adjustPoints;
-    }
-
-    protected LivePhoto(Parcel in) {
-        this.id = (Long) in.readValue(Long.class.getClassLoader());
-        this.width = in.readInt();
-        this.height = in.readInt();
-        this.groupPoints = in.createDoubleArray();
-        this.groupType = in.createDoubleArray();
-        this.groupPointsStr = in.readString();
-        this.groupTypeStr = in.readString();
-        this.imagePath = in.readString();
-        this.stickerImagePath = in.readString();
-        this.matrix = in.readString();
-        this.adjustPoints = in.readString();
+        if (templateImagePath == null) {
+            templateImagePath = "";
+        }
+        this.templateImagePath = templateImagePath;
+        if (stickerImagePathStr == null) {
+            stickerImagePathStr = "";
+        }
+        this.stickerImagePathStr = stickerImagePathStr;
+        if (transformMatrixStr == null) {
+            transformMatrixStr = "";
+        }
+        this.transformMatrixStr = transformMatrixStr;
+        if (adjustedPointsStr == null) {
+            adjustedPointsStr = "";
+        }
+        this.adjustedPointsStr = adjustedPointsStr;
     }
 
     public static List<LivePhoto> getDefaultLivePhotos(Context context) {
@@ -144,7 +133,7 @@ public class LivePhoto implements Parcelable {
                                 e.printStackTrace();
                             }
                         } else if (name.endsWith(".jpg") || name.endsWith(".png")) {
-                            livePhoto.setImagePath(f.getAbsolutePath());
+                            livePhoto.setTemplateImagePath(f.getAbsolutePath());
                         }
                     }
                     livePhotos.add(livePhoto);
@@ -204,9 +193,9 @@ public class LivePhoto implements Parcelable {
     }
 
     public String[] getStickerImagePaths() {
-        if (this.stickerImagePath != null) {
+        if (this.stickerImagePathStr != null) {
             try {
-                JSONArray jsonArray = new JSONArray(this.stickerImagePath);
+                JSONArray jsonArray = new JSONArray(this.stickerImagePathStr);
                 int length = jsonArray.length();
                 String[] images = new String[length];
                 for (int i = 0; i < length; i++) {
@@ -218,6 +207,16 @@ public class LivePhoto implements Parcelable {
             }
         }
         return null;
+    }
+
+    public void setStickerImagePath(String[] stickerImagePaths) {
+        if (stickerImagePaths != null) {
+            JSONArray jsonArray = new JSONArray();
+            for (String path : stickerImagePaths) {
+                jsonArray.put(path);
+            }
+            stickerImagePathStr = jsonArray.toString();
+        }
     }
 
     public double[] getGroupType() {
@@ -253,19 +252,19 @@ public class LivePhoto implements Parcelable {
         this.groupType = groupType;
     }
 
-    public String getMatrix() {
-        return this.matrix;
+    public String getTransformMatrixStr() {
+        return this.transformMatrixStr;
     }
 
-    public void setMatrix(String matrix) {
-        this.matrix = matrix;
+    public void setTransformMatrixStr(String transformMatrixStr) {
+        this.transformMatrixStr = transformMatrixStr;
     }
 
-    public Long getId() {
+    public int getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -285,18 +284,18 @@ public class LivePhoto implements Parcelable {
         this.groupTypeStr = groupTypeStr;
     }
 
-    public String getImagePath() {
-        return this.imagePath;
+    public String getTemplateImagePath() {
+        return this.templateImagePath;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setTemplateImagePath(String templateImagePath) {
+        this.templateImagePath = templateImagePath;
     }
 
     public float[] getMatrixF() {
-        if (this.matrix != null) {
+        if (this.transformMatrixStr != null) {
             try {
-                JSONArray jsonArray = new JSONArray(this.matrix);
+                JSONArray jsonArray = new JSONArray(this.transformMatrixStr);
                 int length = jsonArray.length();
                 float[] matrix = new float[length];
                 for (int i = 0; i < length; i++) {
@@ -320,14 +319,14 @@ public class LivePhoto implements Parcelable {
                     e.printStackTrace();
                 }
             }
-            this.matrix = jsonArray.toString();
+            this.transformMatrixStr = jsonArray.toString();
         }
     }
 
     public float[] getAdjustPointsF() {
-        if (this.adjustPoints != null) {
+        if (this.adjustedPointsStr != null) {
             try {
-                JSONArray jsonArray = new JSONArray(this.adjustPoints);
+                JSONArray jsonArray = new JSONArray(this.adjustedPointsStr);
                 int length = jsonArray.length();
                 float[] adjustPoints = new float[length];
                 for (int i = 0; i < length; i++) {
@@ -351,45 +350,36 @@ public class LivePhoto implements Parcelable {
                     e.printStackTrace();
                 }
             }
-            this.adjustPoints = jsonArray.toString();
+            this.adjustedPointsStr = jsonArray.toString();
         }
     }
 
-    public String getAdjustPoints() {
-        return adjustPoints;
+    public String getAdjustedPointsStr() {
+        return adjustedPointsStr;
     }
 
-    public void setAdjustPoints(String adjustPoints) {
-        this.adjustPoints = adjustPoints;
+    public void setAdjustedPointsStr(String adjustedPointsStr) {
+        this.adjustedPointsStr = adjustedPointsStr;
+    }
+
+
+    public String getStickerImagePathStr() {
+        return stickerImagePathStr;
+    }
+
+    public void setStickerImagePathStr(String stickerImagePathStr) {
+        this.stickerImagePathStr = stickerImagePathStr;
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = id;
         result = 31 * result + width;
         result = 31 * result + height;
         result = 31 * result + Arrays.hashCode(groupPoints);
         result = 31 * result + Arrays.hashCode(groupType);
-        result = 31 * result + (imagePath != null ? imagePath.hashCode() : 0);
+        result = 31 * result + (templateImagePath != null ? templateImagePath.hashCode() : 0);
         return result;
-    }
-
-    public String getStickerImagePath() {
-        return this.stickerImagePath;
-    }
-
-    public void setStickerImagePath(String stickerImagePath) {
-        this.stickerImagePath = stickerImagePath;
-    }
-
-    public void setStickerImagePath(String[] stickerImagePaths) {
-        if (stickerImagePaths != null) {
-            JSONArray jsonArray = new JSONArray();
-            for (String path : stickerImagePaths) {
-                jsonArray.put(path);
-            }
-            this.stickerImagePath = jsonArray.toString();
-        }
     }
 
     @Override
@@ -403,13 +393,13 @@ public class LivePhoto implements Parcelable {
 
         LivePhoto that = (LivePhoto) o;
 
+        if (id != that.id) {
+            return false;
+        }
         if (width != that.width) {
             return false;
         }
         if (height != that.height) {
-            return false;
-        }
-        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
         if (!Arrays.equals(groupPoints, that.groupPoints)) {
@@ -418,7 +408,22 @@ public class LivePhoto implements Parcelable {
         if (!Arrays.equals(groupType, that.groupType)) {
             return false;
         }
-        return imagePath != null ? imagePath.equals(that.imagePath) : that.imagePath == null;
+        return templateImagePath != null ? templateImagePath.equals(that.templateImagePath) : that.templateImagePath == null;
+    }
+
+    @Override
+    public String toString() {
+        return "LivePhoto{" +
+                "id=" + id +
+                ", width=" + width +
+                ", height=" + height +
+                ", groupPointsStr='" + groupPointsStr + '\'' +
+                ", groupTypeStr='" + groupTypeStr + '\'' +
+                ", templateImagePath='" + templateImagePath + '\'' +
+                ", stickerImagePathStr='" + stickerImagePathStr + '\'' +
+                ", transformMatrixStr='" + transformMatrixStr + '\'' +
+                ", adjustedPointsStr='" + adjustedPointsStr + '\'' +
+                '}';
     }
 
     @Override
@@ -427,31 +432,43 @@ public class LivePhoto implements Parcelable {
     }
 
     @Override
-    public String toString() {
-        return "LivePhoto{" +
-                "width=" + width +
-                ", height=" + height +
-                ", groupTypeStr='" + groupTypeStr + '\'' +
-                ", groupPointsStr='" + groupPointsStr + '\'' +
-                ", imagePath='" + imagePath + '\'' +
-                ", stickerImagePath='" + stickerImagePath + '\'' +
-                ", matrix='" + matrix + '\'' +
-                ", adjustPoints='" + adjustPoints + '\'' +
-                '}';
-    }
-
-    @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(this.id);
+        dest.writeInt(this.id);
         dest.writeInt(this.width);
         dest.writeInt(this.height);
         dest.writeDoubleArray(this.groupPoints);
         dest.writeDoubleArray(this.groupType);
         dest.writeString(this.groupPointsStr);
         dest.writeString(this.groupTypeStr);
-        dest.writeString(this.imagePath);
-        dest.writeString(this.stickerImagePath);
-        dest.writeString(this.matrix);
-        dest.writeString(this.adjustPoints);
+        dest.writeString(this.templateImagePath);
+        dest.writeString(this.stickerImagePathStr);
+        dest.writeString(this.transformMatrixStr);
+        dest.writeString(this.adjustedPointsStr);
     }
+
+    protected LivePhoto(Parcel in) {
+        this.id = in.readInt();
+        this.width = in.readInt();
+        this.height = in.readInt();
+        this.groupPoints = in.createDoubleArray();
+        this.groupType = in.createDoubleArray();
+        this.groupPointsStr = in.readString();
+        this.groupTypeStr = in.readString();
+        this.templateImagePath = in.readString();
+        this.stickerImagePathStr = in.readString();
+        this.transformMatrixStr = in.readString();
+        this.adjustedPointsStr = in.readString();
+    }
+
+    public static final Parcelable.Creator<LivePhoto> CREATOR = new Parcelable.Creator<LivePhoto>() {
+        @Override
+        public LivePhoto createFromParcel(Parcel source) {
+            return new LivePhoto(source);
+        }
+
+        @Override
+        public LivePhoto[] newArray(int size) {
+            return new LivePhoto[size];
+        }
+    };
 }

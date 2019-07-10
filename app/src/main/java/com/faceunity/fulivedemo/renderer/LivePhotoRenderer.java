@@ -29,7 +29,7 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * 表情动图
  *
- * @author LiuQaing
+ * @author LiuQiang
  */
 public class LivePhotoRenderer implements GLSurfaceView.Renderer {
     public final static String TAG = LivePhotoRenderer.class.getSimpleName();

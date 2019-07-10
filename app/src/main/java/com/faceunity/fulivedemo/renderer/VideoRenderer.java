@@ -56,7 +56,6 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private int mVideoHeight = 720;
     private int mVideoRotation = 0;
 
-    private int mFuTextureId;
     private final float[] mtx = new float[16];
     private float[] mvp = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
@@ -88,7 +87,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         try {
             count.await(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e(TAG, "onPause: ", e);
         }
         mGLSurfaceView.onPause();
     }
@@ -106,12 +105,12 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
         mOnVideoRendererStatusListener.onSurfaceChanged(gl, width, height);
         MediaMetadataRetriever retr = new MediaMetadataRetriever();
-        retr.setDataSource(mVideoPath);
         try {
+            retr.setDataSource(mVideoPath);
             mVideoWidth = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
             mVideoHeight = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
             mVideoRotation = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             Log.e(TAG, "onSurfaceChanged: ", e);
             mVideoWidth = 720;
             mVideoHeight = 1280;
@@ -125,6 +124,9 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        if (mFullFrameRectTexture2D == null) {
+            return;
+        }
         try {
             mVideoSurfaceTexture.updateTexImage();
             mVideoSurfaceTexture.getTransformMatrix(mtx);
@@ -132,10 +134,9 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             return;
         }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        mFuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth, mVideoHeight, mtx, mVideoSurfaceTexture.getTimestamp());
-        mFullFrameRectTexture2D.drawFrame(mFuTextureId, mtx, mvp);
+        int fuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth, mVideoHeight, mtx, mVideoSurfaceTexture.getTimestamp());
+        mFullFrameRectTexture2D.drawFrame(fuTextureId, mtx, mvp);
         mFPSUtil.limit();
-        mGLSurfaceView.requestRender();
     }
 
     private void onSurfaceDestroy() {
@@ -153,18 +154,15 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     }
 
     private void createMedia() {
-        if (mMediaPlayer != null) {
-            releaseMedia();
-        }
+        releaseMedia();
         try {
             mVideoSurfaceTexture = new SurfaceTexture(mVideoTextureId);
             mVideoSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                 @Override
                 public void onFrameAvailable(SurfaceTexture surfaceTexture) {
                     mGLSurfaceView.requestRender();
-                    if (!isNeedPlay && mMediaPlayer != null) {
+                    if (!isNeedPlay && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                         mMediaPlayer.pause();
-                        mMediaPlayer.setVolume(1, 1);
                     }
                 }
             });
@@ -177,7 +175,6 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(final MediaPlayer mp) {
-                    mMediaPlayer.setLooping(false);
                     mMediaPlayer.start();
                     mGLSurfaceView.requestRender();
                 }
@@ -193,7 +190,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             });
             mMediaPlayer.prepareAsync();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "createMedia: ", e);
         }
     }
 
@@ -209,20 +206,18 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             isNeedPlay = false;
             mMediaPlayer.stop();
             mMediaPlayer.setSurface(null);
-            mMediaPlayer.setOnPreparedListener(null);
             mMediaPlayer.release();
             mMediaPlayer = null;
-            if (mVideoSurfaceTexture != null) {
-                mVideoSurfaceTexture.release();
-                mVideoSurfaceTexture = null;
-            }
+        }
+        if (mVideoSurfaceTexture != null) {
+            mVideoSurfaceTexture.release();
+            mVideoSurfaceTexture = null;
         }
     }
 
     public void setOnCompletionListener(MediaPlayer.OnCompletionListener onCompletionListener) {
         mOnCompletionListener = onCompletionListener;
     }
-
 
     public int getVideoWidth() {
         return mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight;

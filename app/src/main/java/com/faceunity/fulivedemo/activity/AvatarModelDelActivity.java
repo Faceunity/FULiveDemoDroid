@@ -21,14 +21,13 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.faceunity.entity.AvatarModel;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
-import com.faceunity.greendao.AvatarModelDao;
-import com.faceunity.greendao.GreenDaoUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,7 +40,6 @@ import java.util.Set;
  * @author Richie on 2019.03.20
  */
 public class AvatarModelDelActivity extends AppCompatActivity {
-    private static final String TAG = "AvatarModelDelActivity";
     private Button mBtnDelete;
     private Button mBtnAll;
     private boolean mIsDeleted;
@@ -136,9 +134,10 @@ public class AvatarModelDelActivity extends AppCompatActivity {
                             mBtnAll.setText(R.string.live_photo__delete_all);
                             mBtnDelete.setEnabled(false);
                             mBtnDelete.setText(getResources().getString(R.string.live_photo_btn_delete));
-                            try {
-                                AvatarModelDao avatarModelDao = GreenDaoUtils.getInstance().getDaoSession().getAvatarModelDao();
-                                avatarModelDao.deleteInTx(toDelete);
+                            List<AvatarModel> failedList = DatabaseOpenHelper.getInstance().getAvatarModelDao().delete(toDelete);
+                            if (failedList.size() > 0) {
+                                ToastUtil.makeNormalToast(AvatarModelDelActivity.this, getString(R.string.toast_delete_failed)).show();
+                            } else {
                                 mDeleteAvatarAdapter.mSelectedEntities.clear();
                                 for (AvatarModel avatarModel : toDelete) {
                                     mDeleteAvatarAdapter.mAvatarModels.remove(avatarModel);
@@ -147,9 +146,6 @@ public class AvatarModelDelActivity extends AppCompatActivity {
                                 checkEmpty();
                                 ToastUtil.makeNormalToast(AvatarModelDelActivity.this, getString(R.string.toast_delete_succeed)).show();
                                 mIsDeleted = true;
-                            } catch (Exception e) {
-                                Log.e(TAG, "delete avatar:", e);
-                                ToastUtil.makeNormalToast(AvatarModelDelActivity.this, getString(R.string.toast_delete_failed)).show();
                             }
                         }
 
@@ -233,7 +229,7 @@ public class AvatarModelDelActivity extends AppCompatActivity {
             ImageView mIvIcon;
             ImageView mIvMask;
 
-            public VH(View itemView) {
+            VH(View itemView) {
                 super(itemView);
                 mIvIcon = itemView.findViewById(R.id.iv_live_photo_photo);
                 mIvMask = itemView.findViewById(R.id.iv_live_photo_mask);

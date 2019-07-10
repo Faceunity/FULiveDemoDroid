@@ -1,8 +1,13 @@
 package com.faceunity.fulivedemo;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -36,7 +41,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class ShowPhotoActivity extends AppCompatActivity implements PhotoRenderer.OnRendererStatusListener,
-        FURenderer.OnTrackingStatusChangedListener {
+        FURenderer.OnTrackingStatusChangedListener, SensorEventListener {
     public final static String TAG = ShowPhotoActivity.class.getSimpleName();
 
     private PhotoRenderer mPhotoRenderer;
@@ -47,21 +52,9 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     private FURenderer mFURenderer;
 
     private volatile boolean mTakePicing = false;
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mPhotoRenderer.onCreate();
-        if (mBeautyControlView != null) {
-            mBeautyControlView.onResume();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mPhotoRenderer.onDestroy();
-    }
+    private MakeupControlView mMakeupControlView;
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
 
     @Override
     public void onTrackingStatusChanged(final int status) {
@@ -74,8 +67,13 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     }
 
     @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        mFURenderer.onSurfaceCreated();
+    protected void onResume() {
+        super.onResume();
+        mPhotoRenderer.onCreate();
+        if (mBeautyControlView != null) {
+            mBeautyControlView.onResume();
+        }
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -97,10 +95,28 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     private volatile boolean mIsNeedTakePic = false;
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        mPhotoRenderer.onDestroy();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        mFURenderer.onSurfaceCreated();
+        if (mMakeupControlView != null) {
+            mMakeupControlView.selectDefault();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_show_photo);
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         Uri uri = getIntent().getData();
         String selectDataType = getIntent().getStringExtra(SelectDataActivity.SELECT_DATA_KEY);
@@ -122,9 +138,6 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                 .Builder(this)
                 .maxFaces(4)
                 .inputTextureType(0)
-                .createEGLContext(false)
-                .needReadBackImage(false)
-                .defaultEffect(null)
                 .inputImageOrientation(360)
                 .inputIsImage(1)
                 .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
@@ -157,13 +170,18 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                 }
             });
         } else if (FUMakeupActivity.TAG.equals(selectDataType)) {
-            MakeupControlView makeupControlView = findViewById(R.id.fu_makeup_control);
-            makeupControlView.setVisibility(View.VISIBLE);
-            makeupControlView.setOnFUControlListener(mFURenderer);
-            makeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
+            mMakeupControlView = findViewById(R.id.fu_makeup_control);
+            mMakeupControlView.setVisibility(View.VISIBLE);
+            mMakeupControlView.setOnFUControlListener(mFURenderer);
+            mMakeupControlView.setOnBottomAnimatorChangeListener(new MakeupControlView.OnBottomAnimatorChangeListener() {
                 @Override
                 public void onBottomAnimatorChangeListener(float showRate) {
                     mSaveImageView.setAlpha(1 - showRate);
+                }
+
+                @Override
+                public void onFirstMakeupAnimatorChangeListener(float hideRate) {
+
                 }
             });
         } else if (FUAnimojiActivity.TAG.equals(selectDataType)) {
@@ -274,5 +292,26 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         mEffectDescription.setVisibility(View.VISIBLE);
         mEffectDescription.setText(str);
         mEffectDescription.postDelayed(effectDescriptionHide, time);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+            if (Math.abs(x) > 3 || Math.abs(y) > 3) {
+                if (Math.abs(x) > Math.abs(y)) {
+                    mFURenderer.setTrackOrientation(x > 0 ? 0 : 180);
+                } else {
+                    mFURenderer.setTrackOrientation(y > 0 ? 90 : 270);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }

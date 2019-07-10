@@ -42,6 +42,7 @@ import com.faceunity.utils.MiscUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -354,7 +355,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements PosterPho
             mIsTrackedPhoto = true;
             mIsNeedReInput = true;
             mFURenderer.trackFace(img, width, height);
-            mPhotoLandmarks = mFURenderer.getLandmarksData(mFaceIndex);
+            mPhotoLandmarks = getCopyOfLandmark(mFaceIndex);
             mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
             return;
         }
@@ -376,7 +377,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements PosterPho
                         mGlSurfaceView.queueEvent(new Runnable() {
                             @Override
                             public void run() {
-                                mPhotoLandmarks = mFURenderer.getLandmarksData(mFaceIndex);
+                                mPhotoLandmarks = getCopyOfLandmark(mFaceIndex);
                                 mIsNeedReInput = true;
                                 mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
                             }
@@ -426,7 +427,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements PosterPho
                 if (!checked) {
                     mIsTrackedPhoto = true;
                     mIsNeedReInput = true;
-                    mPhotoLandmarks = mFURenderer.getLandmarksData(mFaceIndex);
+                    mPhotoLandmarks = getCopyOfLandmark(mFaceIndex);
                     mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
                 }
             }
@@ -438,11 +439,16 @@ public class FUPosterFaceActivity extends AppCompatActivity implements PosterPho
         }
     }
 
+    private float[] getCopyOfLandmark(int faceId) {
+        float[] landmarksData = mFURenderer.getLandmarksData(faceId);
+        return Arrays.copyOf(landmarksData, landmarksData.length);
+    }
+
     @Override
     public void onTemplateLoaded(byte[] img, int width, int height) {
         Log.d(TAG, "onTemplateLoaded() called width = [" + width + "], height = [" + height + "]");
         if (mFURenderer.trackFace(img, width, height) > 0) {
-            mTemplateLandmarks = mFURenderer.getLandmarksData(0);
+            mTemplateLandmarks = getCopyOfLandmark(0);
             mIsTrackedTemplate = true;
             mIsTrackedPhoto = true;
             mIsNeedReInput = true;
@@ -556,7 +562,7 @@ public class FUPosterFaceActivity extends AppCompatActivity implements PosterPho
                         mIsSavingPhoto = false;
                         mIsNeedSavePhoto = false;
                     }
-                },false);
+                }, false);
     }
 
     public class PosterTempListAdapter extends BaseRecyclerAdapter<PosterTemplate> {

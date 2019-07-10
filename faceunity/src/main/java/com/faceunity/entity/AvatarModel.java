@@ -3,63 +3,31 @@ package com.faceunity.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.annotation.Id;
-import org.greenrobot.greendao.annotation.Transient;
-
 /**
  * @author Richie on 2019.03.20
  */
-@Entity
 public class AvatarModel implements Parcelable {
-
-    public static final Parcelable.Creator<AvatarModel> CREATOR = new Parcelable.Creator<AvatarModel>() {
-        @Override
-        public AvatarModel createFromParcel(Parcel source) {
-            return new AvatarModel(source);
-        }
-
-        @Override
-        public AvatarModel[] newArray(int size) {
-            return new AvatarModel[size];
-        }
-    };
-    @Id(autoincrement = true)
-    private Long id;
-    @Transient
+    private int id = -1;
     private int iconId;
-    @Transient
     private boolean isDefault;
-    private String iconPath;
+    private String iconPath = "";
     // 参数配置
-    private String configJson;
-    // 界面位置数据
-    private String uiJson;
+    private String paramJson = "";
+    // 界面配置
+    private String uiJson = "";
 
     public AvatarModel(int iconId, boolean isDefault) {
         this.iconId = iconId;
         this.isDefault = isDefault;
     }
 
-    @Generated(hash = 1677474030)
     public AvatarModel() {
     }
 
-    protected AvatarModel(Parcel in) {
-        this.id = (Long) in.readValue(Long.class.getClassLoader());
-        this.iconId = in.readInt();
-        this.isDefault = in.readByte() != 0;
-        this.iconPath = in.readString();
-        this.configJson = in.readString();
-        this.uiJson = in.readString();
-    }
-
-    @Generated(hash = 2046086955)
-    public AvatarModel(Long id, String iconPath, String configJson, String uiJson) {
+    public AvatarModel(int id, String iconPath, String paramJson, String uiJson) {
         this.id = id;
         this.iconPath = iconPath;
-        this.configJson = configJson;
+        this.paramJson = paramJson;
         this.uiJson = uiJson;
     }
 
@@ -87,20 +55,20 @@ public class AvatarModel implements Parcelable {
         this.iconPath = iconPath;
     }
 
-    public Long getId() {
+    public int getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public String getConfigJson() {
-        return this.configJson;
+    public String getParamJson() {
+        return this.paramJson;
     }
 
-    public void setConfigJson(String configJson) {
-        this.configJson = configJson;
+    public void setParamJson(String paramJson) {
+        this.paramJson = paramJson;
     }
 
     public String getUiJson() {
@@ -113,19 +81,24 @@ public class AvatarModel implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         AvatarModel that = (AvatarModel) o;
 
-        if (iconId != that.iconId)
+        if (iconId != that.iconId) {
             return false;
-        if (iconPath != null ? !iconPath.equals(that.iconPath) : that.iconPath != null)
+        }
+        if (iconPath != null ? !iconPath.equals(that.iconPath) : that.iconPath != null) {
             return false;
-        if (configJson != null ? !configJson.equals(that.configJson) : that.configJson != null)
+        }
+        if (paramJson != null ? !paramJson.equals(that.paramJson) : that.paramJson != null) {
             return false;
+        }
         return uiJson != null ? uiJson.equals(that.uiJson) : that.uiJson == null;
     }
 
@@ -133,18 +106,19 @@ public class AvatarModel implements Parcelable {
     public int hashCode() {
         int result = iconId;
         result = 31 * result + (iconPath != null ? iconPath.hashCode() : 0);
-        result = 31 * result + (configJson != null ? configJson.hashCode() : 0);
+        result = 31 * result + (paramJson != null ? paramJson.hashCode() : 0);
         result = 31 * result + (uiJson != null ? uiJson.hashCode() : 0);
         return result;
     }
 
     public AvatarModel cloneIt() {
         AvatarModel avatarModel = new AvatarModel();
-        if (this.id != null && this.id > 0) {
+        if (this.id > 0) {
             avatarModel.id = this.id;
         }
         avatarModel.iconId = this.iconId;
-        avatarModel.configJson = this.configJson + ""; // deep copy string
+        // deep copy string
+        avatarModel.paramJson = this.paramJson + "";
         avatarModel.uiJson = this.uiJson + "";
         avatarModel.iconPath = this.iconPath + "";
         return avatarModel;
@@ -157,7 +131,7 @@ public class AvatarModel implements Parcelable {
                 ", iconId=" + iconId +
                 ", isDefault=" + isDefault +
                 ", iconPath='" + iconPath + '\'' +
-                ", configJson='" + configJson + '\'' +
+                ", paramJson='" + paramJson + '\'' +
                 ", uiJson='" + uiJson + '\'' +
                 '}';
     }
@@ -169,11 +143,28 @@ public class AvatarModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(this.id);
-        dest.writeInt(this.iconId);
-        dest.writeByte(this.isDefault ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.id);
         dest.writeString(this.iconPath);
-        dest.writeString(this.configJson);
+        dest.writeString(this.paramJson);
         dest.writeString(this.uiJson);
     }
+
+    protected AvatarModel(Parcel in) {
+        this.id = in.readInt();
+        this.iconPath = in.readString();
+        this.paramJson = in.readString();
+        this.uiJson = in.readString();
+    }
+
+    public static final Parcelable.Creator<AvatarModel> CREATOR = new Parcelable.Creator<AvatarModel>() {
+        @Override
+        public AvatarModel createFromParcel(Parcel source) {
+            return new AvatarModel(source);
+        }
+
+        @Override
+        public AvatarModel[] newArray(int size) {
+            return new AvatarModel[size];
+        }
+    };
 }

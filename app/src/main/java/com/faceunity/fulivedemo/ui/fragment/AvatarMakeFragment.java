@@ -221,7 +221,7 @@ public class AvatarMakeFragment extends Fragment {
     }
 
     private void fillParams(AvatarModel avatarModel) {
-        List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(avatarModel.getConfigJson());
+        List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(avatarModel.getParamJson());
         mCustomedLevelMaps.clear();
         if (avatarFaceAspects == null) {
             return;

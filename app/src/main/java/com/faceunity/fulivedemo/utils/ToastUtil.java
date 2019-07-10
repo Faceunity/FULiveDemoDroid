@@ -20,6 +20,7 @@ import com.faceunity.fulivedemo.R;
 public final class ToastUtil {
     private static Toast sNormalToast;
     private static Toast sFineToast;
+    private static Toast sWhiteTextToast;
 
     public static Toast makeFineToast(Context context, String text, int iconId) {
         View view;
@@ -57,6 +58,33 @@ public final class ToastUtil {
         toast.show();
     }
 
+    public static void showWhiteTextToast(Context context, @StringRes int strId) {
+        showWhiteTextToast(context, context.getString(strId));
+    }
+
+    public static void showWhiteTextToast(Context context, String text) {
+        if (sWhiteTextToast == null) {
+            Resources resources = context.getResources();
+            TextView textView = new TextView(context);
+            textView.setTextColor(resources.getColor(R.color.colorWhite));
+            textView.setGravity(Gravity.CENTER);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.x64));
+            textView.setText(text);
+            sWhiteTextToast = new Toast(context);
+            sWhiteTextToast.setView(textView);
+            sWhiteTextToast.setDuration(Toast.LENGTH_SHORT);
+            int yOffset = context.getResources().getDimensionPixelSize(R.dimen.x560);
+            sWhiteTextToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP, 0, yOffset);
+            sWhiteTextToast.show();
+        } else {
+            TextView view = (TextView) sWhiteTextToast.getView();
+            view.setText(text);
+            if (!view.isShown()) {
+                sWhiteTextToast.show();
+            }
+        }
+    }
+
     public static Toast makeNormalToast(Context context, @StringRes int strId) {
         return makeNormalToast(context, context.getString(strId));
     }
@@ -66,7 +94,7 @@ public final class ToastUtil {
             context = context.getApplicationContext();
             Resources resources = context.getResources();
             TextView textView = new TextView(context);
-            textView.setTextColor(resources.getColor(android.R.color.white));
+            textView.setTextColor(resources.getColor(R.color.colorWhite));
             textView.setGravity(Gravity.CENTER);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.x26));
             textView.setBackgroundResource(R.drawable.more_toast_background);

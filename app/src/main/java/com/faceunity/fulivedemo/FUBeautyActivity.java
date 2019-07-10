@@ -63,9 +63,6 @@ public class FUBeautyActivity extends FUBaseActivity {
                 .Builder(this)
                 .maxFaces(4)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
-                .createEGLContext(false)
-                .needReadBackImage(false)
-                .defaultEffect(null)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .build();

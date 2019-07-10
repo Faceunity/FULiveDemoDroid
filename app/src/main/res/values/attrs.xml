@@ -10,4 +10,18 @@
         <attr name="stroke_width" format="dimension" />
         <attr name="stroke_color" format="color|reference" />
     </declare-styleable>
+
+
+    <declare-styleable name="ColorfulCircleView">
+        <attr name="fill_color_1" format="color" />
+        <attr name="fill_color_2" format="color" />
+        <attr name="fill_color_3" format="color" />
+        <attr name="fill_color_4" format="color" />
+        <attr name="fill_mode" format="enum">
+            <enum name="single" value="0" />
+            <enum name="dual" value="1" />
+            <enum name="triple" value="2" />
+            <enum name="quadruple" value="3" />
+        </attr>
+    </declare-styleable>
 </resources>
