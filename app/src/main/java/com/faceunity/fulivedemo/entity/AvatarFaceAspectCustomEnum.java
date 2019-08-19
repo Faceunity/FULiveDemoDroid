@@ -6,8 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Richie on 2019.03.22
  * 自定义 avatar 脸型
+ *
+ * @author Richie on 2019.03.22
  */
 public enum AvatarFaceAspectCustomEnum {
 

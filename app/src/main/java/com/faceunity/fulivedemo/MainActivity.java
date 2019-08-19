@@ -17,7 +17,13 @@ import android.widget.TextView;
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.activity.AvatarDriveActivity;
+import com.faceunity.fulivedemo.activity.FUAnimojiActivity;
+import com.faceunity.fulivedemo.activity.FUBeautyActivity;
+import com.faceunity.fulivedemo.activity.FUEffectActivity;
+import com.faceunity.fulivedemo.activity.FUHairActivity;
+import com.faceunity.fulivedemo.activity.FUMakeupActivity;
 import com.faceunity.fulivedemo.activity.LivePhotoDriveActivity;
+import com.faceunity.fulivedemo.activity.PosterChangeListActivity;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ScreenUtils;
 import com.faceunity.fulivedemo.utils.ToastUtil;
@@ -210,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                             intent = new Intent(MainActivity.this, FUHairActivity.class);
                             startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_poster_face) {
-                            intent = new Intent(MainActivity.this, PosterListActivity.class);
+                            intent = new Intent(MainActivity.this, PosterChangeListActivity.class);
                             startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_animoji) {
                             intent = new Intent(MainActivity.this, FUAnimojiActivity.class);

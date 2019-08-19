@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.SQLException;
 import android.graphics.Point;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,13 +21,13 @@ import android.view.ViewGroup;
 import com.faceunity.entity.LivePhoto;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.activity.LivePhotoMakeActivity;
-import com.faceunity.fulivedemo.activity.LivePhotoPortraitType;
-import com.faceunity.fulivedemo.activity.LivePhotoSticker;
-import com.faceunity.fulivedemo.activity.LivePhotoStickerEnum;
 import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
+import com.faceunity.fulivedemo.entity.LivePhotoPortraitType;
+import com.faceunity.fulivedemo.entity.LivePhotoSticker;
+import com.faceunity.fulivedemo.entity.LivePhotoStickerEnum;
 import com.faceunity.fulivedemo.renderer.LivePhotoRenderer;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
-import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
+import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
 import com.faceunity.fulivedemo.ui.sticker.Sticker;
@@ -45,7 +44,7 @@ import java.util.List;
 /**
  * 表情动图 五官标记页面
  *
- * @author LiuQiang on 2018.12.17
+ * @author Richie on 2018.12.17
  */
 public class LivePhotoMarkFragment extends Fragment {
     public static final String TAG = "LivePhotoMarkFragment";
@@ -96,18 +95,9 @@ public class LivePhotoMarkFragment extends Fragment {
         mRvOrganSticker.setHasFixedSize(true);
         mRvOrganSticker.setLayoutManager(new LinearLayoutManager(mActivity, LinearLayoutManager.HORIZONTAL, false));
         ((SimpleItemAnimator) mRvOrganSticker.getItemAnimator()).setSupportsChangeAnimations(false);
-        mRvOrganSticker.addItemDecoration(new VHSpaceItemDecoration(0, 0) {
-            @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                super.getItemOffsets(outRect, view, parent, state);
-                int childAdapterPosition = parent.getChildAdapterPosition(view);
-                if (childAdapterPosition == 0) {
-                    outRect.left += getResources().getDimensionPixelSize(R.dimen.x10);
-                } else if (childAdapterPosition == parent.getChildCount() - 1) {
-                    outRect.right += getResources().getDimensionPixelSize(R.dimen.x10);
-                }
-            }
-        });
+        int extraPadding = getResources().getDimensionPixelSize(R.dimen.x10);
+        RecyclerView.ItemDecoration itemDecoration = new SpaceItemDecoration(0, 0, extraPadding, extraPadding);
+        mRvOrganSticker.addItemDecoration(itemDecoration);
         List<LivePhotoSticker> stickers = LivePhotoStickerEnum.getStickerByPortraitType(portraitTypeAdapter.getSelectedItems().valueAt(0).getType());
         mOrganStickerAdapter = new OrganStickerAdapter(new ArrayList<>(stickers));
         mOrganStickerAdapter.setOnItemClickListener(new StickerClickListener());

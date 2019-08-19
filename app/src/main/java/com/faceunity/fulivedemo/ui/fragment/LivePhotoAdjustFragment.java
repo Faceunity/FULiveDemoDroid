@@ -24,7 +24,7 @@ import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 /**
  * 表情动图 五官调整页面
  *
- * @author LiuQiang on 2018.12.17
+ * @author Richie on 2018.12.17
  */
 public class LivePhotoAdjustFragment extends Fragment {
     public static final String TAG = "LivePhotoAdjustFragment";

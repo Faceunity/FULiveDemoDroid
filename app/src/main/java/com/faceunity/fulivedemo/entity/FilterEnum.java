@@ -20,21 +20,6 @@ public enum FilterEnum {
     lengsediao(Filter.Key.LENGSEDIAO_1, R.drawable.lengsediao1, R.string.lengsediao),
     nuansediao(Filter.Key.NUANSEDIAO_1, R.drawable.nuansediao1, R.string.nuansediao);
 
-    /*
-    slowlived(Filter.Key.SLOWLIVED, R.drawable.slowlived, R.string.slowlived, Filter.FILTER_TYPE_FILTER),
-    qingxin(Filter.Key.QINGXIN, R.drawable.ziran, R.string.qingxin, Filter.FILTER_TYPE_FILTER),
-    warm(Filter.Key.WARM, R.drawable.warm, R.string.warm, Filter.FILTER_TYPE_FILTER),
-
-    delta(Filter.Key.DELTA, R.drawable.delta, R.string.delta, Filter.FILTER_TYPE_FILTER),
-    electric(Filter.Key.ELECTRIC, R.drawable.electric, R.string.electric, Filter.FILTER_TYPE_FILTER),
-    tokyo(Filter.Key.TOKYO, R.drawable.tokyo, R.string.tokyo, Filter.FILTER_TYPE_FILTER),
-
-    nature_beauty(Filter.Key.ORIGIN, R.drawable.nature, R.string.origin_beauty, Filter.FILTER_TYPE_FILTER),
-    ziran(Filter.Key.ZIRAN, R.drawable.origin, R.string.ziran, Filter.FILTER_TYPE_FILTER),
-    danya(Filter.Key.DANYA, R.drawable.qingxin, R.string.danya, Filter.FILTER_TYPE_FILTER),
-    hongrun(Filter.Key.HONGRUN, R.drawable.hongrun, R.string.hongrun, Filter.FILTER_TYPE_FILTER);
-    */
-
     private String filterName;
     private int resId;
     private int description;

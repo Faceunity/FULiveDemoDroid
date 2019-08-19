@@ -62,7 +62,7 @@
     <string name="beauty_box_intensity_nose">Nose</string>
     <string name="beauty_box_intensity_mouth">Mouth</string>
     <string name="beauty_radio_skin_beauty">Skin</string>
-    <string name="beauty_radio_face_shape">Style</string>
+    <string name="beauty_radio_face_shape">Reshape</string>
     <string name="beauty_radio_beauty_filter">Beauty Filter</string>
     <string name="beauty_radio_filter">Filter</string>
     <string name="makeup_radio_lipstick">Lipstick</string>
@@ -101,14 +101,14 @@
     <string name="xiaobianzi_zh_fu">Have a Smile</string>
     <string name="xiaoxueshen_ztt_fu">Whistle</string>
     <string name="hez_ztt_fu">Open Your Mouth</string>
-    <string name="push_hand">Push hand</string>
-    <string name="fu_lm_koreaheart">Heart_a</string>
+    <string name="push_hand">High Five</string>
+    <string name="fu_lm_koreaheart">Finger Heart</string>
     <string name="fu_zh_baoquan">Fist</string>
     <string name="fu_zh_hezxiong">Namaste</string>
     <string name="fu_ztt_live520">Heart_b</string>
     <string name="ssd_thread_thumb">Thumb_up</string>
     <string name="ssd_thread_six">Shaka sign</string>
-    <string name="ssd_thread_cute">Be cute</string>
+    <string name="ssd_thread_cute">Holding Fist</string>
 
     <string name="origin">Origin</string>
     <string name="delta">Delta</string>

@@ -100,7 +100,7 @@
             android:background="@drawable/debug"
             android:button="@null"
             android:checked="false"
-            app:layout_constraintRight_toLeftOf="@+id/fu_base_camera_change"
+            app:layout_constraintRight_toLeftOf="@id/fu_base_camera_change"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton

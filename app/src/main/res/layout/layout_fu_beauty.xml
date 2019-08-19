@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<com.faceunity.fulivedemo.ui.control.BeautyControlView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fu_beauty_control"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <com.faceunity.fulivedemo.ui.control.BeautyControlView
-        android:id="@+id/fu_beauty_control"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/x98"
-        android:layout_gravity="bottom"/>
-</FrameLayout>
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom" />

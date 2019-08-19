@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author LiuQiang on 2018.11.14
+ * @author Richie on 2018.11.14
  */
 public enum CartoonFilterEnum {
     /**

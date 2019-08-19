@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<com.faceunity.fulivedemo.ui.ShapedImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/iv_poster_temp"
     android:layout_width="@dimen/x324"
-    android:layout_height="@dimen/x358"
-    android:scaleType="centerCrop"
-    app:round_radius="@dimen/x10"
-    app:shape_mode="round_rect" />
+    android:layout_height="@dimen/x358" />

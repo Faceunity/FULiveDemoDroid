@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/x120"
     android:layout_height="@dimen/x120"
-    tools:context=".FUEffectActivity">
+    tools:context=".activity.FUEffectActivity">
 
-    <com.faceunity.fulivedemo.ui.CircleImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/iv_poster_temp"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

@@ -1,8 +1,9 @@
 package com.faceunity.entity;
 
 /**
- * @author LiuQiang on 2018.11.14
  * 动漫滤镜
+ *
+ * @author Richie on 2018.11.14
  */
 public class CartoonFilter {
     // 切换风格滤镜

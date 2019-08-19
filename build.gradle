@@ -4,12 +4,11 @@ buildscript {
     repositories {
         google()
         jcenter()
-        mavenCentral()
-        //阿里云的镜像服务器
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.3.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -20,8 +19,8 @@ allprojects {
     repositories {
         google()
         jcenter()
-        //阿里云的镜像服务器
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
     }
 }
 
@@ -35,8 +34,9 @@ ext {
     supportCompatV7Version = "28.0.0"
     minSdkVersion = 18
     targetSdkVersion = 28
-    namaSdkVersionCode = 72
-    namaSdkVersionName = "6.2.0-release1"
-    appVersionCode = 32
+    // update when releasing new version
+    namaSdkVersionCode = 74
+    namaSdkVersionName = "6.3.0-release1"
+    appVersionCode = 33
     appVersionName = namaSdkVersionName
 }

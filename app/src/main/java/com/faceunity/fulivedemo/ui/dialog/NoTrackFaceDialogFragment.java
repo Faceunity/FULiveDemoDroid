@@ -15,8 +15,9 @@ import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 
 /**
- * @author LiuQiang on 2018.08.28
  * 没有检测到人脸的提示框
+ *
+ * @author Richie on 2018.08.28
  */
 public class NoTrackFaceDialogFragment extends BaseDialogFragment {
     public static final String MESSAGE = "message";

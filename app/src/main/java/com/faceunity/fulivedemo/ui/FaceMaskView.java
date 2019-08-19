@@ -23,8 +23,9 @@ import com.faceunity.fulivedemo.R;
 import java.util.Arrays;
 
 /**
- * @author LiuQiang on 2018.09.01
  * 多人模式下的选择蒙版
+ *
+ * @author Richie on 2018.09.01
  */
 public class FaceMaskView extends View {
     public static final int MAX_FACE = 4;

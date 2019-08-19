@@ -3,8 +3,9 @@ package com.faceunity.entity;
 import java.util.List;
 
 /**
- * @author LiuQiang on 2018.11.15
- * 妆容组合
+ * 轻美妆妆容组合
+ *
+ * @author Richie on 2018.11.15
  */
 public class FaceMakeup {
     // 无妆

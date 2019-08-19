@@ -10,8 +10,8 @@ import android.util.SparseArray;
 
 import com.faceunity.entity.NewMakeupItem;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.param.MakeupParamHelper;
 import com.faceunity.utils.FileUtils;
-import com.faceunity.utils.MakeupParamHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,14 +28,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * 新版美妆配置
+ *
  * @author Richie on 2019.06.14
  */
 public class FaceMakeupConfig {
     // makeup list. read only, key is type, value is list.
-    public static final Map<Integer, List<NewMakeupItem>> MAKEUP_ITEM_MAP = new HashMap<>(10);
+    public static final Map<Integer, List<NewMakeupItem>> MAKEUP_ITEM_MAP = new HashMap<>(16);
     private static final String TAG = "FaceMakeupConfig";
-    private static final String MAKEUP_RESOURCE_DIR = "makeup_resource" + File.separator;
-    private static final String MAKEUP_RESOURCE_COMMON_DIR = MAKEUP_RESOURCE_DIR + "common" + File.separator;
+    private static final String MAKEUP_RESOURCE_DIR = "makeup" + File.separator;
+    private static final String MAKEUP_RESOURCE_COMMON_DIR = MAKEUP_RESOURCE_DIR + "common_resource" + File.separator;
     private static final double[] TRANSPARENT = new double[]{0.0, 0.0, 0.0, 0.0};
 
     public static void initConfigs(Context context) {
@@ -59,9 +61,9 @@ public class FaceMakeupConfig {
         List<NewMakeupItem> makeupItems = new ArrayList<>(8);
         Map<String, Object> paramMap = new HashMap<>(4);
         MAKEUP_ITEM_MAP.put(type, makeupItems);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_FOUNDATION, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_FOUNDATION, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_FOUNDATION, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_FOUNDATION, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_FOUNDATION, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
 
         NewMakeupItem makeupItem;
         Drawable iconDrawable;
@@ -71,11 +73,11 @@ public class FaceMakeupConfig {
             for (int i = 3; i < 8; i++) {
                 double[] colors = foundationColorList.get(i);
                 paramMap = new HashMap<>(4);
-                paramMap.put(MakeupParamHelper.MakeupParams.TEX_FOUNDATION, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_foundation_01.png");
+                paramMap.put(MakeupParamHelper.MakeupParam.TEX_FOUNDATION, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_foundation_01.png");
                 iconDrawable = new ColorDrawable(Color.argb((int) (colors[3] * 255), (int) (colors[0] * 255), (int) (colors[1] * 255), (int) (colors[2] * 255)));
                 // 粉底没有名称，这里就用位置替代一下
-                makeupItem = new NewMakeupItem(type, -i, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_FOUNDATION,
-                        MakeupParamHelper.MakeupParams.MAKEUP_FOUNDATION_COLOR, foundationColorList, iconDrawable, paramMap);
+                makeupItem = new NewMakeupItem(type, -i, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_FOUNDATION,
+                        MakeupParamHelper.MakeupParam.MAKEUP_FOUNDATION_COLOR, foundationColorList, iconDrawable, paramMap);
                 makeupItems.add(makeupItem);
             }
         }
@@ -84,62 +86,62 @@ public class FaceMakeupConfig {
         type = NewMakeupItem.FACE_MAKEUP_TYPE_LIPSTICK;
         makeupItems = new ArrayList<>(4);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_LIP, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_LIP, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_LIPSTICK, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_LIP, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_LIP, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
         MAKEUP_ITEM_MAP.put(type, makeupItems);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_lip_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.LIP_TYPE, 0.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.IS_TWO_COLOR, 0.0);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_lip_fog, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_LIP,
-                MakeupParamHelper.MakeupParams.MAKEUP_LIP_COLOR, makeupColorMap.get("color_mu_style_lip_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.LIP_TYPE, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.IS_TWO_COLOR, 0.0);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_lip_fog, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_LIP,
+                MakeupParamHelper.MakeupParam.MAKEUP_LIP_COLOR, makeupColorMap.get("color_mu_style_lip_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_lip_02);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.LIP_TYPE, 1.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.IS_TWO_COLOR, 0.0);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_lip_satin, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_LIP,
-                MakeupParamHelper.MakeupParams.MAKEUP_LIP_COLOR, makeupColorMap.get("color_mu_style_lip_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.LIP_TYPE, 1.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.IS_TWO_COLOR, 0.0);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_lip_satin, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_LIP,
+                MakeupParamHelper.MakeupParam.MAKEUP_LIP_COLOR, makeupColorMap.get("color_mu_style_lip_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         // 腮红
         type = NewMakeupItem.FACE_MAKEUP_TYPE_BLUSHER;
         makeupItems = new ArrayList<>(8);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_BLUSHER, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_BLUSHER, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_BLUSHER, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
         MAKEUP_ITEM_MAP.put(type, makeupItems);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_blush_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BLUSHER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_blush_01.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_blusher_apple, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_BLUSHER,
-                MakeupParamHelper.MakeupParams.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BLUSHER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_blush_01.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_blusher_apple, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER,
+                MakeupParamHelper.MakeupParam.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_blush_02);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BLUSHER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_blush_02.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_blusher_fan, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_BLUSHER,
-                MakeupParamHelper.MakeupParams.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_02"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BLUSHER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_blush_02.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_blusher_fan, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER,
+                MakeupParamHelper.MakeupParam.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_02"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_blush_03);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BLUSHER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_blush_03.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_blusher_eye_corner, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_BLUSHER,
-                MakeupParamHelper.MakeupParams.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_03"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BLUSHER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_blush_03.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_blusher_eye_corner, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER,
+                MakeupParamHelper.MakeupParam.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_03"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_blush_04);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BLUSHER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_blush_04.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_blusher_slight_drunk, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_BLUSHER,
-                MakeupParamHelper.MakeupParams.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_04"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BLUSHER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_blush_04.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_blusher_slight_drunk, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER,
+                MakeupParamHelper.MakeupParam.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_04"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         // 眉毛
@@ -147,72 +149,72 @@ public class FaceMakeupConfig {
         makeupItems = new ArrayList<>(4);
         MAKEUP_ITEM_MAP.put(type, makeupItems);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW, 0.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP, 0.0);
         makeupItems.add(new NewMakeupItem(type, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyebrow_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP, 1.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE, MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_WILLOW);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_willow, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP, 1.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE, MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_WILLOW);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_willow, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyebrow_02);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP, 1.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE, MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_STANDARD);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_standard, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP, 1.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE, MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_STANDARD);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_standard, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyebrow_03);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP, 1.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE, MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_HILL);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_hill, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP, 1.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE, MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_HILL);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_hill, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyebrow_04);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP, 1.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE, MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_ONE_WORD);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_one_word, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP, 1.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE, MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_ONE_WORD);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_one_word, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyebrow_05);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP, 1.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE, MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_SHAPE);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_shape, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP, 1.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE, MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_SHAPE);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_shape, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyebrow_06);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP, 1.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE, MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_DAILY);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_daily, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP, 1.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE, MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_DAILY);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_daily, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyebrow_07);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP, 1.0);
-        paramMap.put(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE, MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_JAPAN);
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_japan, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BROW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyebrow_01.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP, 1.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE, MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_JAPAN);
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyebrow_japan, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR, makeupColorMap.get("color_mu_style_eyebrow_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         // 眼影
@@ -220,57 +222,57 @@ public class FaceMakeupConfig {
         makeupItems = new ArrayList<>(8);
         MAKEUP_ITEM_MAP.put(type, makeupItems);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_EYE_SHADOW, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_01.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_single, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_01.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_single, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_02);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_02.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_02.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_double1, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_02"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_02.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_02.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_double1, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_02"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_03);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_03.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_03.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_double2, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_03"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_03.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_03.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_double2, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_03"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_04);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_04.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_04.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_double3, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_04"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_04.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_04.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_double3, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_04"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_05);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_05.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_05.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE3, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow3_05.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_triple1, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_05"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_05.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_05.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE3, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow3_05.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_triple1, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_05"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_06);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_06.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_06.png");
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE3, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow3_06.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_triple2, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_06"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow1_06.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE2, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow2_06.png");
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE3, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeshadow3_06.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_shadow_triple2, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_06"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         // 眼线
@@ -278,50 +280,50 @@ public class FaceMakeupConfig {
         makeupItems = new ArrayList<>(8);
         MAKEUP_ITEM_MAP.put(type, makeupItems);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_EYE_LINER, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeliner_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_01.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_cat, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_01.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_cat, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeliner_02);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_02.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_drooping, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_02"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_02.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_drooping, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_02"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeliner_03);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_03.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_pull_open, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_03"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_03.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_pull_open, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_03"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeliner_04);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_04.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_pull_close, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_04"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_04.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_pull_close, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_04"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeliner_05);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_05.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_long, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_05"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_05.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_long, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_05"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeliner_06);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_06.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_circular, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_06"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LINER, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyeliner_06.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eye_linear_circular, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_06"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         // 睫毛
@@ -329,72 +331,72 @@ public class FaceMakeupConfig {
         makeupItems = new ArrayList<>(8);
         MAKEUP_ITEM_MAP.put(type, makeupItems);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_EYELASH, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyelash_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_01.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_natural1, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_01.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_natural1, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyelash_02);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_02.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_natural2, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_02"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_02.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_natural2, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_02"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyelash_03);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_03.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_thick1, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_03"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_03.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_thick1, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_03"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyelash_04);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_04.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_thick2, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_04"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_04.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_thick2, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_04"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyelash_05);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_05.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_exaggerate1, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_05"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_05.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_exaggerate1, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_05"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyelash_06);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_06.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_exaggerate2, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH,
-                MakeupParamHelper.MakeupParams.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_06"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LASH, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyelash_06.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_eyelash_exaggerate2, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH,
+                MakeupParamHelper.MakeupParam.MAKEUP_EYELASH_COLOR, makeupColorMap.get("color_mu_style_eyelash_06"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         // 高光
         type = NewMakeupItem.FACE_MAKEUP_TYPE_HIGHLIGHT;
         makeupItems = new ArrayList<>(4);
         MAKEUP_ITEM_MAP.put(type, makeupItems);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_HIGHLIGHT, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_HIGHLIGHT, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_HIGHLIGHT, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_HIGHLIGHT, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_HIGHLIGHT, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_highlight_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_HIGHLIGHT, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_highlight_01.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_highlight_one, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_HIGHLIGHT,
-                MakeupParamHelper.MakeupParams.MAKEUP_HIGHLIGHT_COLOR, makeupColorMap.get("color_mu_style_highlight_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_HIGHLIGHT, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_highlight_01.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_highlight_one, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_HIGHLIGHT,
+                MakeupParamHelper.MakeupParam.MAKEUP_HIGHLIGHT_COLOR, makeupColorMap.get("color_mu_style_highlight_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_highlight_02);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_HIGHLIGHT, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_highlight_02.png");
-        makeupItem = new NewMakeupItem(type, R.string.makeup_highlight_two, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_HIGHLIGHT,
-                MakeupParamHelper.MakeupParams.MAKEUP_HIGHLIGHT_COLOR, makeupColorMap.get("color_mu_style_highlight_02"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_HIGHLIGHT, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_highlight_02.png");
+        makeupItem = new NewMakeupItem(type, R.string.makeup_highlight_two, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_HIGHLIGHT,
+                MakeupParamHelper.MakeupParam.MAKEUP_HIGHLIGHT_COLOR, makeupColorMap.get("color_mu_style_highlight_02"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         // 阴影
@@ -402,15 +404,15 @@ public class FaceMakeupConfig {
         makeupItems = new ArrayList<>(2);
         MAKEUP_ITEM_MAP.put(type, makeupItems);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_SHADOW, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_SHADOW, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_SHADOW, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_SHADOW, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_SHADOW, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_contour_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_SHADOW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_contour_01.png");
-        makeupItem = new NewMakeupItem(type, 0, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_SHADOW,
-                MakeupParamHelper.MakeupParams.MAKEUP_SHADOW_COLOR, makeupColorMap.get("color_mu_style_contour_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_SHADOW, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_contour_01.png");
+        makeupItem = new NewMakeupItem(type, 0, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_SHADOW,
+                MakeupParamHelper.MakeupParam.MAKEUP_SHADOW_COLOR, makeupColorMap.get("color_mu_style_contour_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
         // 美瞳
@@ -418,15 +420,15 @@ public class FaceMakeupConfig {
         makeupItems = new ArrayList<>(2);
         MAKEUP_ITEM_MAP.put(type, makeupItems);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_PUPIL, 0.0);
+        paramMap.put(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PUPIL, 0.0);
         makeupItems.add(new NewMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_EYE_PUPIL, R.string.makeup_radio_remove,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_PUPIL, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PUPIL, resources.getDrawable(R.drawable.makeup_none_normal), paramMap));
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyepupil_01);
         paramMap = new HashMap<>(4);
-        paramMap.put(MakeupParamHelper.MakeupParams.TEX_PUPIL, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyepupil_01.png");
-        makeupItem = new NewMakeupItem(type, 0, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_PUPIL,
-                MakeupParamHelper.MakeupParams.MAKEUP_PUPIL_COLOR, makeupColorMap.get("color_mu_style_eyepupil_01"), iconDrawable, paramMap);
+        paramMap.put(MakeupParamHelper.MakeupParam.TEX_PUPIL, MAKEUP_RESOURCE_COMMON_DIR + "mu_style_eyepupil_01.png");
+        makeupItem = new NewMakeupItem(type, 0, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PUPIL,
+                MakeupParamHelper.MakeupParam.MAKEUP_PUPIL_COLOR, makeupColorMap.get("color_mu_style_eyepupil_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
     }
 
@@ -480,10 +482,10 @@ public class FaceMakeupConfig {
     public static List<MakeupCombination> createMakeupCombination(Context context) {
         List<MakeupCombination> makeupCombinations = new ArrayList<>(6);
         Map<String, Object> removeParams = new HashMap<>(16);
-        for (String makeupIntensity : MakeupParamHelper.MakeupParams.MAKEUP_INTENSITIES) {
+        for (String makeupIntensity : MakeupParamHelper.MakeupParam.MAKEUP_INTENSITIES) {
             removeParams.put(makeupIntensity, 0.0);
         }
-        removeParams.put(MakeupParamHelper.MakeupParams.BROW_WARP, 0.0);
+        removeParams.put(MakeupParamHelper.MakeupParam.BROW_WARP, 0.0);
         makeupCombinations.add(new MakeupCombination(R.string.makeup_radio_remove, R.drawable.makeup_none_normal, removeParams));
 
         // 日常妆
@@ -543,43 +545,43 @@ public class FaceMakeupConfig {
 
     private static void createMakeupSubItems(Map<String, Object> paramMap, SparseArray<MakeupCombination.SubItem> subItems) {
         int type = NewMakeupItem.FACE_MAKEUP_TYPE_EYEBROW;
-        MakeupCombination.SubItem subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_BROW,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW, MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR);
+        MakeupCombination.SubItem subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_BROW,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW, MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_EYE_SHADOW;
-        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_EYE,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE, MakeupParamHelper.MakeupParams.MAKEUP_EYE_COLOR);
+        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_EYE,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE, MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_EYE_PUPIL;
-        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_PUPIL,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_PUPIL, MakeupParamHelper.MakeupParams.MAKEUP_PUPIL_COLOR);
+        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_PUPIL,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PUPIL, MakeupParamHelper.MakeupParam.MAKEUP_PUPIL_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_EYELASH;
-        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_EYE_LASH,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH, MakeupParamHelper.MakeupParams.MAKEUP_EYELASH_COLOR);
+        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_EYE_LASH,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH, MakeupParamHelper.MakeupParam.MAKEUP_EYELASH_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_EYE_LINER;
-        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_EYE_LINER,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER, MakeupParamHelper.MakeupParams.MAKEUP_EYE_LINER_COLOR);
+        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_EYE_LINER,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER, MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_BLUSHER;
-        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_BLUSHER,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_BLUSHER, MakeupParamHelper.MakeupParams.MAKEUP_BLUSHER_COLOR);
+        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_BLUSHER,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER, MakeupParamHelper.MakeupParam.MAKEUP_BLUSHER_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_FOUNDATION;
-        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_FOUNDATION,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_FOUNDATION, MakeupParamHelper.MakeupParams.MAKEUP_FOUNDATION_COLOR);
+        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_FOUNDATION,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_FOUNDATION, MakeupParamHelper.MakeupParam.MAKEUP_FOUNDATION_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_HIGHLIGHT;
-        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_HIGHLIGHT,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_HIGHLIGHT, MakeupParamHelper.MakeupParams.MAKEUP_HIGHLIGHT_COLOR);
+        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_HIGHLIGHT,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_HIGHLIGHT, MakeupParamHelper.MakeupParam.MAKEUP_HIGHLIGHT_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_SHADOW;
-        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParams.TEX_SHADOW,
-                MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_SHADOW, MakeupParamHelper.MakeupParams.MAKEUP_SHADOW_COLOR);
+        subItem = createSubItem(paramMap, type, MakeupParamHelper.MakeupParam.TEX_SHADOW,
+                MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_SHADOW, MakeupParamHelper.MakeupParam.MAKEUP_SHADOW_COLOR);
         subItems.put(type, subItem);
         type = NewMakeupItem.FACE_MAKEUP_TYPE_LIPSTICK;
-        subItem = createSubItem(paramMap, type, null, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_LIP, MakeupParamHelper.MakeupParams.MAKEUP_LIP_COLOR);
+        subItem = createSubItem(paramMap, type, null, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_LIP, MakeupParamHelper.MakeupParam.MAKEUP_LIP_COLOR);
         subItems.put(type, subItem);
     }
 
@@ -587,8 +589,8 @@ public class FaceMakeupConfig {
         List<NewMakeupItem> makeupItems = MAKEUP_ITEM_MAP.get(type);
         double intensity = (double) combinationMap.get(intensityName);
         double browType = 0;
-        if (combinationMap.containsKey(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE)) {
-            browType = (double) combinationMap.get(MakeupParamHelper.MakeupParams.BROW_WARP_TYPE);
+        if (combinationMap.containsKey(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE)) {
+            browType = (double) combinationMap.get(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE);
         }
         for (NewMakeupItem makeupItem : makeupItems) {
             Map<String, Object> paramMap = makeupItem.getParamMap();
@@ -607,7 +609,7 @@ public class FaceMakeupConfig {
                             break;
                         }
                     }
-                    double lipType = (double) combinationMap.get(MakeupParamHelper.MakeupParams.LIP_TYPE);
+                    double lipType = (double) combinationMap.get(MakeupParamHelper.MakeupParam.LIP_TYPE);
                     int itemPosition = (int) lipType + 1;
 //                    Log.d(TAG, "createSubItem: type: " + type + ",  intensity: " + intensity + ", itemPos: " + itemPosition + ", colorPos:" + colorPosition);
                     MakeupCombination.SubItem subItem = new MakeupCombination.SubItem(type, intensity, itemPosition, colorPosition);
@@ -658,19 +660,19 @@ public class FaceMakeupConfig {
 
     private static int getPositionOfEyebrow(int browType) {
         switch (browType) {
-            case (int) MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_WILLOW:
+            case (int) MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_WILLOW:
                 return 0;
-            case (int) MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_STANDARD:
+            case (int) MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_STANDARD:
                 return 1;
-            case (int) MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_HILL:
+            case (int) MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_HILL:
                 return 2;
-            case (int) MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_ONE_WORD:
+            case (int) MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_ONE_WORD:
                 return 3;
-            case (int) MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_SHAPE:
+            case (int) MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_SHAPE:
                 return 4;
-            case (int) MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_DAILY:
+            case (int) MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_DAILY:
                 return 5;
-            case (int) MakeupParamHelper.MakeupParams.BROW_WARP_TYPE_JAPAN:
+            case (int) MakeupParamHelper.MakeupParam.BROW_WARP_TYPE_JAPAN:
                 return 6;
             default:
                 return 0;
@@ -681,7 +683,7 @@ public class FaceMakeupConfig {
         try {
             String content = FileUtils.readStringFromAssetsFile(context, path + "makeup.json");
             Map<String, Object> map = new HashMap<>(32);
-            for (String makeupIntensity : MakeupParamHelper.MakeupParams.MAKEUP_INTENSITIES) {
+            for (String makeupIntensity : MakeupParamHelper.MakeupParam.MAKEUP_INTENSITIES) {
                 map.put(makeupIntensity, 0.0);
             }
             map.putAll(readParamsFromJson(content));
@@ -702,43 +704,43 @@ public class FaceMakeupConfig {
         Map<String, Object> map = new HashMap<>(32);
         try {
             JSONObject jsonObject = new JSONObject(jsonStr);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_BROW);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_EYE);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_EYE2);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_EYE3);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_PUPIL);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_EYE_LASH);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_EYE_LINER);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_BLUSHER);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_FOUNDATION);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_HIGHLIGHT);
-            parseString(map, jsonObject, MakeupParamHelper.MakeupParams.TEX_SHADOW);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.IS_TWO_COLOR);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.LIP_TYPE);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.BROW_WARP);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.BROW_WARP_TYPE);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_LIP);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_PUPIL);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_LINER);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYELASH);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_EYE_BROW);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_BLUSHER);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_FOUNDATION);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_HIGHLIGHT);
-            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_SHADOW);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_EYE_BROW_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_LIP_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_LIP_COLOR2);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_EYE_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_EYE_LINER_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_EYELASH_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_BLUSHER_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_FOUNDATION_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_HIGHLIGHT_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_SHADOW_COLOR);
-            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParams.MAKEUP_PUPIL_COLOR);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_BROW);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_EYE);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_EYE2);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_EYE3);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_PUPIL);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_EYE_LASH);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_EYE_LINER);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_BLUSHER);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_FOUNDATION);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_HIGHLIGHT);
+            parseString(map, jsonObject, MakeupParamHelper.MakeupParam.TEX_SHADOW);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.IS_TWO_COLOR);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.LIP_TYPE);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.BROW_WARP);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.BROW_WARP_TYPE);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_LIP);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PUPIL);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYELASH);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_BROW);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_FOUNDATION);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_HIGHLIGHT);
+            parseDouble(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_SHADOW);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_EYE_BROW_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_LIP_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_LIP_COLOR2);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_EYELASH_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_BLUSHER_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_FOUNDATION_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_HIGHLIGHT_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_SHADOW_COLOR);
+            parseFloatArray(map, jsonObject, MakeupParamHelper.MakeupParam.MAKEUP_PUPIL_COLOR);
         } catch (JSONException e) {
             Log.e(TAG, "readParamsFromJson: ", e);
         }

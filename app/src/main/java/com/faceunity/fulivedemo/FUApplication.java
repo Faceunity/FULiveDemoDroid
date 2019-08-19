@@ -26,9 +26,9 @@ public class FUApplication extends Application {
         ThreadHelper.getInstance().execute(new Runnable() {
             @Override
             public void run() {
-                // 拷贝 assets 资源
-                FileUtils.copyAssetsLivePhoto(sContext);
-                FileUtils.copyAssetsTemplate(sContext);
+                // 异步拷贝 assets 资源
+                FileUtils.copyAssetsLivePhotoTemplate(sContext);
+                FileUtils.copyAssetsChangeFaceTemplate(sContext);
             }
         });
     }

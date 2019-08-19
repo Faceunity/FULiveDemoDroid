@@ -34,13 +34,13 @@ import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.FaceMakeupConfig;
 import com.faceunity.fulivedemo.entity.MakeupCombination;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
-import com.faceunity.fulivedemo.ui.adapter.VHSpaceItemDecoration;
+import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.colorfulcircle.CircleFilledColor;
 import com.faceunity.fulivedemo.ui.colorfulcircle.ColorfulCircleView;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
-import com.faceunity.utils.MakeupParamHelper;
+import com.faceunity.param.MakeupParamHelper;
 import com.wuyr.pathlayoutmanager.PathLayoutManager;
 
 import java.util.ArrayList;
@@ -129,7 +129,7 @@ public class MakeupControlView extends FrameLayout {
         rvMakeupCombination.setHasFixedSize(true);
         ((SimpleItemAnimator) rvMakeupCombination.getItemAnimator()).setSupportsChangeAnimations(false);
         rvMakeupCombination.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        rvMakeupCombination.addItemDecoration(new VHSpaceItemDecoration(0, getResources().getDimensionPixelSize(R.dimen.x15)));
+        rvMakeupCombination.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.x15), 0));
         mMakeupCombinationAdapter = new MakeupCombinationAdapter(FaceMakeupConfig.createMakeupCombination(mContext));
         MakeupCombinationClickListener makeupCombinationClickListener = new MakeupCombinationClickListener();
         mMakeupCombinationAdapter.setOnItemClickListener(makeupCombinationClickListener);
@@ -155,7 +155,7 @@ public class MakeupControlView extends FrameLayout {
                     Set<Map.Entry<String, Object>> entries = makeupCombination.getParamMap().entrySet();
                     for (Map.Entry<String, Object> entry : entries) {
                         String key = entry.getKey();
-                        if (key.startsWith(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_PREFIX)) {
+                        if (key.startsWith(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PREFIX)) {
                             mOnFUControlListener.setMakeupItemIntensity(key, intensity * ((Double) entry.getValue()));
                         }
                     }
@@ -422,12 +422,13 @@ public class MakeupControlView extends FrameLayout {
 
     public void setColorListVisible(boolean visible) {
         if (Math.abs(mClFaceMakeup.getHeight()) < 2 && mClMakeupColorList != null) {
-            TitleEntity titleEntity = mSubTitleAdapter.getSelectedItems().valueAt(0);
-            if (mSubTitleAdapter.indexOf(titleEntity) == 0) {
-                // 粉底
-                mClMakeupColorList.setVisibility(INVISIBLE);
-            } else {
-                if (titleEntity != null) {
+            SparseArray<TitleEntity> selectedItems = mSubTitleAdapter.getSelectedItems();
+            if (selectedItems.size() > 0) {
+                TitleEntity titleEntity = selectedItems.valueAt(0);
+                if (mSubTitleAdapter.indexOf(titleEntity) == 0) {
+                    // 粉底
+                    mClMakeupColorList.setVisibility(INVISIBLE);
+                } else {
                     SelectedMakeupItem selectedMakeupItem = mSelectedItems.get(titleEntity.type);
                     if (selectedMakeupItem != null && selectedMakeupItem.position == 0) {
                         mClMakeupColorList.setVisibility(INVISIBLE);
@@ -600,10 +601,13 @@ public class MakeupControlView extends FrameLayout {
         }
 
         public void setPositionHighlight(boolean selected) {
-            TitleEntity titleEntity = getSelectedItems().valueAt(0);
-            if (titleEntity != null) {
-                titleEntity.hasSelectedItem = selected;
-                notifyItemChanged(indexOf(titleEntity));
+            SparseArray<TitleEntity> selectedItems = getSelectedItems();
+            if (selectedItems.size() > 0) {
+                TitleEntity titleEntity = selectedItems.valueAt(0);
+                if (titleEntity != null) {
+                    titleEntity.hasSelectedItem = selected;
+                    notifyItemChanged(indexOf(titleEntity));
+                }
             }
         }
 
@@ -873,7 +877,7 @@ public class MakeupControlView extends FrameLayout {
                 for (Map.Entry<String, Object> entry : entries) {
                     String key = entry.getKey();
                     Object value = entry.getValue();
-                    if (key.startsWith(MakeupParamHelper.MakeupParams.MAKEUP_INTENSITY_PREFIX)) {
+                    if (key.startsWith(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PREFIX)) {
                         double v = ((Double) value) * intensity;
                         paramMapCopy.put(key, v);
                     }

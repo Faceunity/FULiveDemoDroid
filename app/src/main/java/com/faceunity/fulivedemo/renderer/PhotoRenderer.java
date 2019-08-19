@@ -16,56 +16,41 @@ import java.util.concurrent.TimeUnit;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-
 /**
+ * 使用 GLSurfaceView 渲染图像，采用居中裁剪（CenterCrop）的方式显示
+ *
  * Created by tujh on 2018/3/2.
  */
-
 public class PhotoRenderer implements GLSurfaceView.Renderer {
     public final static String TAG = PhotoRenderer.class.getSimpleName();
-
     public static final float[] IMG_DATA_MATRIX = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
     public static final float[] ROTATE_90 = {0.0F, 1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F};
-    private GLSurfaceView mGLSurfaceView;
 
-    private void loadImgData(String path) {
-        Log.e(TAG, "loadImgData");
-        Bitmap src = BitmapUtil.loadBitmap(path, 720);
-        if (src == null) {
-            mOnPhotoRendererStatusListener.onLoadPhotoError("图片加载失败");
-            return;
-        }
-        mImgTextureId = GlUtil.createImageTexture(src);
-        mPhotoBytes = BitmapUtil.getNV21(mPhotoWidth = src.getWidth() / 2 * 2, mPhotoHeight = src.getHeight() / 2 * 2, src);
-    }
-
-    private OnRendererStatusListener mOnPhotoRendererStatusListener;
-
+    private GLSurfaceView mGlSurfaceView;
+    private OnRendererStatusListener mOnRendererStatusListener;
     private String mPhotoPath;
-    private byte[] mPhotoBytes;
-    private int mImgTextureId;
+    private byte[] mPhotoNV21Bytes;
+    private int mPhotoTextureId;
     private int mPhotoWidth = 720;
     private int mPhotoHeight = 1280;
-
-    private float[] mvp = new float[16];
-    private ProgramTexture2d mFullFrameRectTexture2D;
-
+    private float[] mMvpMatrix;
+    private ProgramTexture2d mProgramTexture2d;
     private FPSUtil mFPSUtil;
 
-    public PhotoRenderer(String photoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onPhotoRendererStatusListener) {
+    public PhotoRenderer(String photoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         mPhotoPath = photoPath;
-        mGLSurfaceView = glSurfaceView;
-        mOnPhotoRendererStatusListener = onPhotoRendererStatusListener;
+        mGlSurfaceView = glSurfaceView;
+        mOnRendererStatusListener = onRendererStatusListener;
         mFPSUtil = new FPSUtil();
     }
 
     public void onCreate() {
-        mGLSurfaceView.onResume();
+        mGlSurfaceView.onResume();
     }
 
     public void onDestroy() {
         final CountDownLatch count = new CountDownLatch(1);
-        mGLSurfaceView.queueEvent(new Runnable() {
+        mGlSurfaceView.queueEvent(new Runnable() {
             @Override
             public void run() {
                 onSurfaceDestroy();
@@ -75,64 +60,109 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         try {
             count.await(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            Log.e(TAG, "onDestroy: ", e);
+            // ignored
         }
-        mGLSurfaceView.onPause();
+        mGlSurfaceView.onPause();
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        mFullFrameRectTexture2D = new ProgramTexture2d();
-        loadImgData(mPhotoPath);
-        mOnPhotoRendererStatusListener.onSurfaceCreated(gl, config);
+        Log.d(TAG, "onSurfaceCreated. Thread:" + Thread.currentThread().getName());
+        mProgramTexture2d = new ProgramTexture2d();
+        loadPhoto(mPhotoPath);
+        mOnRendererStatusListener.onSurfaceCreated();
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        Log.d(TAG, "onSurfaceChanged: viewWidth:" + width + ", viewHeight:" + height + ", photoWidth:"
+                + mPhotoWidth + ", photoHeight:" + mPhotoHeight + ", textureId:" + mPhotoTextureId);
         GLES20.glViewport(0, 0, width, height);
-        mvp = GlUtil.changeMVPMatrixCrop(ROTATE_90, width, height, mPhotoWidth, mPhotoHeight);
-        mOnPhotoRendererStatusListener.onSurfaceChanged(gl, width, height);
+        mMvpMatrix = GlUtil.changeMVPMatrixCrop(ROTATE_90, width, height, mPhotoWidth, mPhotoHeight);
         mFPSUtil.resetLimit();
+
+        mOnRendererStatusListener.onSurfaceChanged(width, height);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mFullFrameRectTexture2D == null) {
+        if (mProgramTexture2d == null || mPhotoNV21Bytes == null) {
             return;
         }
+
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mPhotoBytes, mImgTextureId, mPhotoWidth, mPhotoHeight);
-        mFullFrameRectTexture2D.drawFrame(fuTextureId, IMG_DATA_MATRIX, mvp);
+        int fuTextureId = mOnRendererStatusListener.onDrawFrame(mPhotoNV21Bytes, mPhotoTextureId, mPhotoWidth, mPhotoHeight);
+        mProgramTexture2d.drawFrame(fuTextureId, IMG_DATA_MATRIX, mMvpMatrix);
 
         mFPSUtil.limit();
-        mGLSurfaceView.requestRender();
+        mGlSurfaceView.requestRender();
+    }
+
+    private void loadPhoto(String path) {
+        Log.d(TAG, "loadPhoto() path:" + path);
+        Bitmap bitmap = BitmapUtil.loadBitmap(path, mPhotoWidth, mPhotoHeight);
+        if (bitmap == null) {
+            mOnRendererStatusListener.onLoadPhotoError("图片加载失败:" + path);
+            return;
+        }
+
+        mPhotoTextureId = GlUtil.createImageTexture(bitmap);
+        mPhotoWidth = bitmap.getWidth() / 2 * 2;
+        mPhotoHeight = bitmap.getHeight() / 2 * 2;
+        mPhotoNV21Bytes = BitmapUtil.getNV21(mPhotoWidth, mPhotoHeight, bitmap);
     }
 
     private void onSurfaceDestroy() {
-        if (mImgTextureId != 0) {
-            int[] textures = new int[]{mImgTextureId};
+        Log.d(TAG, "onSurfaceDestroy");
+        if (mPhotoTextureId != 0) {
+            int[] textures = new int[]{mPhotoTextureId};
             GLES20.glDeleteTextures(1, textures, 0);
-            mImgTextureId = 0;
+            mPhotoTextureId = 0;
         }
 
-        if (mFullFrameRectTexture2D != null) {
-            mFullFrameRectTexture2D.release();
-            mFullFrameRectTexture2D = null;
+        if (mProgramTexture2d != null) {
+            mProgramTexture2d.release();
+            mProgramTexture2d = null;
         }
 
-        mOnPhotoRendererStatusListener.onSurfaceDestroy();
+        mOnRendererStatusListener.onSurfaceDestroy();
     }
 
     public interface OnRendererStatusListener {
+        /**
+         * Called when surface is created or recreated.
+         */
+        void onSurfaceCreated();
 
-        void onSurfaceCreated(GL10 gl, EGLConfig config);
+        /**
+         * Called when surface'size changed.
+         *
+         * @param viewWidth
+         * @param viewHeight
+         */
+        void onSurfaceChanged(int viewWidth, int viewHeight);
 
-        void onSurfaceChanged(GL10 gl, int width, int height);
+        /**
+         * Called when drawing current frame.
+         *
+         * @param photoNV21Bytes
+         * @param photoTextureId
+         * @param photoWidth
+         * @param photoHeight
+         * @return
+         */
+        int onDrawFrame(byte[] photoNV21Bytes, int photoTextureId, int photoWidth, int photoHeight);
 
-        int onDrawFrame(byte[] photoBytes, int photoTextureId, int photoWidth, int photoHeight);
-
+        /**
+         * Called when surface is destroyed
+         */
         void onSurfaceDestroy();
 
+        /**
+         * Called when error happened
+         *
+         * @param error
+         */
         void onLoadPhotoError(String error);
     }
 

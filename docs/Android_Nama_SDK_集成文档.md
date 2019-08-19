@@ -1,30 +1,18 @@
 # Android Nama SDK 集成指导文档  
 级别：Public
-更新日期：2019-06-27
-SDK版本: 6.2.0  
+
+更新日期：2019-08-14
+
+SDK版本: 6.3.0
 
 ------
 ## 最新更新内容：
 
-2019-06-27 v6.2.0：
+2019-08-14 v6.3.0：
 
-- 优化人脸检测，提高正脸大角度检测率。
-
-- 优化背景分割，提高边缘稳定性。
-
-- 优化手势识别，提供15种手势；手势模型支持独立运行，见FUCreator文档。
-
-- 优化人脸美妆，提高准确度，支持更丰富的效果。
-
-- 修复多人脸舌头跟踪相互影响问题。 
-
-- 修复avatar模式下fxaa抗锯齿失效问题。
-
-- 废弃高精度模型 armesh_ex.bundle，以及对应的接口 fuLoadExtendedARData。
-
-- 废弃人脸表情动画模型 anim_model.bundle, 以及对应的接口 fuLoadAnimModel。
-
-  注：废弃的数据以及接口，可能引起编译不通过，移除代码即可。
+- 优化人脸美妆功能，提高性能，降低功耗。
+- 新增fuSetFaceTrackParam接口，用于设置人脸表情跟踪参数。 
+- 新增人脸美颜精细磨皮效果。
 
 ------
 
@@ -47,29 +35,64 @@ SDK版本: 6.2.0
 
 ```
 +FULiveDemoDroid
-  +app            // app 模块
+  +app 			                           // app 模块
     +src
       +main
-        +assets       // Assets 文件
-          +image      // 原始图片
-        +effects      // 道具文件
-          +bundle     // bundle 文件
-          +res        // icon
-        +java         // Java 源码
-        +makeup       // 美妆资源
-          +material   // 五官美妆贴纸
-          +res        // icon
-        +poster       // 海报换脸
-        +res          // App 资源文件
-  +faceunity          // faceunity 模块
-    +libs             // nama.jar 文件
+        +assets                            
+          +avatar                          // Avatar 捏脸
+            +avatar_hair                   // Avatar 头发道具
+            -avatar_background.bundle      // Avatar 背景道具
+            -avatar_male.bundle            // Avatar 男性头部道具
+            -avatar_color.json             // 颜色配置
+          +beautify_face                   // 美颜
+            -face_beautification.bundle    // 美颜道具
+          +cartoon_filter                  // 卡通滤镜
+            -fuzzytoonfilter.bundle        // 卡通滤镜道具
+          +change_face                     // 海报换脸
+            +template_xx                   // 模板资源
+            -change_face.bundle            // 海报换脸道具
+          +effect                          // 各种道具
+            +animoji                       // Animoji
+            +ar                            // AR 面具
+            +background                    // 背景分割
+            +beautify_hair                 // 美发
+            +change                        // 换脸
+            +expression                    // 表情识别
+            +facewarp                      // 哈哈镜
+            +gesture                       // 手势识别
+            +musicfilter                   // 音乐滤镜
+            +normal                        // 道具贴纸
+            +portrait_drive                // 人像驱动
+          +image                           // 图片
+          +light_makeup                    // 轻美妆
+            +blusher...                    // 腮红等资源
+            -light_makeup.bundle           // 轻美妆道具
+          +live_photo                      // 表情动图
+            +resource_xx                   // 五官资源
+            +template_xx                   // 模板资源
+            -photolive.bundle              // 表情动图道具
+          +makeup                          // 美妆
+            +combination_xx                // 组合妆资源
+            +common_resource               // 通用妆容资源
+            -face_makeup.bundle            // 美妆道具
+            -makeup_color_setup.json       // 颜色配置
+            -new_face_tracker.bundle       // 75+134 点位人脸识别道具
+        +java                              // Java 源码
+        +res                               // App 资源文件
+
+  +faceunity                               // faceunity 模块
+    +libs                                  
+      -nama.jar                            // nama.jar
     +src
       +main
-        +assets       // Nama 资源文件     
-        +java         // Java 源码
-        +jniLibs      // Nama so 文件
-  +docs           // 文档目录
-  +README.md      // 工程说明文档
+        +assets                           
+          -fxaa.bundle                     // 3D 绘制抗锯齿数据包
+          -tongue.bundle                   // 舌头道具
+          -v3.bundle                       // 人脸识别核心数据包
+        +java                              // Java 源码
+        +jniLibs                           // Nama so 库
+  +docs		    	                       // 开发文档目录
+  +README.md	 	                       // 工程说明文档
 ```
 
 ------
@@ -82,22 +105,22 @@ SDK版本: 6.2.0
 全功能版本（支持 TensorFlow 和物理特效）：
 
 ```groovy
-implementation 'com.faceunity:nama:6.2.0'
+implementation 'com.faceunity:nama:6.3.0'
 ```
 
 lite 版（不含物理特效的版本）：
 
 ```groovy
-implementation 'com.faceunity:nama:6.2.0-lite'
+implementation 'com.faceunity:nama:6.3.0-lite'
 ```
 
 **注：**Gradle 集成的 aar 中仅包含库文件（libnama.so 与 nama.jar）以及初始化必须的数据模型（v3.bundle）等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
 
 #### 3.1.2 Github 下载
 
-全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v6.2.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.2/Faceunity-Android-v6.2.zip)
+全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v6.3.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.3/Faceunity-Android-v6.3.zip)
 
-lite 版（不含物理特效的版本）：[Faceunity-Android-v6.2-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.2/Faceunity-Android-v6.2-lite.zip)
+lite 版（不含物理特效的版本）：[Faceunity-Android-v6.3-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.3/Faceunity-Android-v6.3-lite.zip)
 
 #### 3.1.3 库文件说明
 
@@ -122,7 +145,7 @@ Android API 18 及以上
 ```
 #### 3.2.2 开发环境
 ```
-Android Studio 3.0 及以上，GLES 2.0 及以上
+Android Studio 3.0 及以上，Open GLES 2.0 及以上
 ```
 
 ### 3.3 准备工作 
@@ -132,7 +155,7 @@ Android Studio 3.0 及以上，GLES 2.0 及以上
   1. 拨打电话 **0571-88069272** 
   2. 发送邮件至 **marketing@faceunity.com** 进行咨询
 
-### 3.4  工程配置
+### 3.4 工程配置
 
 Android 端发放的证书为 authpack.java 文件，如果您已经获取到鉴权证书，将证书文件放到工程中 faceunity 模块 com.faceunity.fulivedemo 包下即可。
 
@@ -479,7 +502,7 @@ __使用方法__：
 - 加载face_beautification.bundle
 - 调整如下参数
   `face_shape`: 4,   // 4为开启高级美型模式，0～3为基本美型
-  `eye_enlarging`: 0.0,   // 范围0 - 1，大于0.5 变大，小于0.5变小，默认0.5
+  `eye_enlarging`: 0.5,   // 范围0 - 1，大于0.5 变大，小于0.5变小，默认0.5
 
 **额头调整**
 
@@ -542,11 +565,9 @@ __使用方法__：
 
 目前我们的手势识别功能也是以道具的形式进行加载的。一个手势识别的道具中包含了要识别的手势、识别到该手势时触发的动效、及控制脚本。加载该道具的过程和加载普通道具、美颜道具的方法一致。
 
-线上例子中 heart_v2.bundle 为爱心手势演示道具。将其作为道具加载进行绘制即可启用手势识别功能。手势识别道具可以和普通道具及美颜共存，类似美颜将手势道具句柄保存在items句柄数组即可。
+Demo 中 ssd_thread_korheart.bundle 为单手比心手势道具，将其作为道具加载进行绘制即可启用手势识别功能。手势识别道具可以和普通道具及美颜共存，类似美颜将手势道具句柄保存在items句柄数组即可。
 
 自定义手势道具的流程和2D道具制作一致，具体打包的细节可以联系我司技术支持。
-
-注：新版手势道具中部分道具需要使用非lite版SDK才能正常使用
 
 ------
 
@@ -589,7 +610,7 @@ __使用方法__：
 __使用方法__：
 
 - 直接加载对应的道具
-- 需要带有照片驱动权限的证书
+- 需要带有人脸变形权限的证书
 
 ### 4.6 音乐滤镜
 

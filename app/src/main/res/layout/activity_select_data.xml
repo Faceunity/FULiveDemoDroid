@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#090017"
-    tools:context=".SelectDataActivity">
+    tools:context=".activity.SelectDataActivity">
 
     <ImageView
         android:id="@+id/back"

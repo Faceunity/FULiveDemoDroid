@@ -6,6 +6,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,18 +15,19 @@ import com.faceunity.OnFUControlListener;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.EffectEnum;
-import com.faceunity.fulivedemo.ui.CircleImageView;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 import java.io.IOException;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 /**
  * Created by tujh on 2018/6/29.
  */
 public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAdapter.HomeRecyclerHolder> {
-
+    private static final String TAG = "EffectRecyclerAdapter";
     private Context mContext;
     private int mEffectType;
     private List<Effect> mEffects;
@@ -101,7 +103,7 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
     private MediaPlayer mediaPlayer;
     private Handler mMusicHandler;
     private static final int MUSIC_TIME = 50;
-    Runnable mMusicRunnable = new Runnable() {
+    private Runnable mMusicRunnable = new Runnable() {
         @Override
         public void run() {
             if (mediaPlayer != null && mediaPlayer.isPlaying())
@@ -116,7 +118,6 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
             mediaPlayer.release();
             mediaPlayer = null;
             mMusicHandler.removeCallbacks(mMusicRunnable);
-
         }
     }
 
@@ -136,7 +137,7 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
          * mp3
          */
         try {
-            AssetFileDescriptor descriptor = mContext.getAssets().openFd("musicfilter/" + effect.bundleName() + ".mp3");
+            AssetFileDescriptor descriptor = mContext.getAssets().openFd("effect/musicfilter/" + effect.bundleName() + ".mp3");
             mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
             descriptor.close();
 
@@ -151,12 +152,7 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    // 装载完毕回调
-                    //mediaPlayer.setVolume(1f, 1f);
-                    mediaPlayer.setLooping(false);
-                    mediaPlayer.seekTo(0);
                     mediaPlayer.start();
-
                     mMusicHandler.postDelayed(mMusicRunnable, MUSIC_TIME);
                 }
             });
@@ -168,7 +164,7 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
                 }
             });
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "playMusic: ", e);
             mediaPlayer = null;
         }
     }

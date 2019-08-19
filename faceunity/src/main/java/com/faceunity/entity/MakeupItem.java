@@ -3,7 +3,7 @@ package com.faceunity.entity;
 /**
  * 妆容单项
  *
- * @author LiuQiang on 2018.11.12
+ * @author Richie on 2018.11.12
  */
 public class MakeupItem {
     private static final float DEFAULT_MAKEUP_LEVEL = 0.4f;

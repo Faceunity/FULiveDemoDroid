@@ -13,7 +13,7 @@ import java.util.List;
  * Created by tujh on 2018/11/6.
  */
 public final class ColorConstant {
-    private static final String COLOR_PATH = "avatar_color.json";
+    private static final String COLOR_PATH = "avatar/avatar_color.json";
 
     /* 0--1 颜色值*/
     public static double[][] skin_color;

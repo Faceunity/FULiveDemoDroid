@@ -1,30 +1,16 @@
 # Demo运行说明文档-Android
 
 级别：Public 
-更新日期：2019-06-27
+更新日期：2019-08-14
 
 ------
 ### 最新更新内容：
 
-2019-06-27 v6.2.0：
+2019-08-14 v6.3.0：
 
-- 优化人脸检测，提高正脸大角度检测率。
-
-- 优化背景分割，提高边缘稳定性。
-
-- 优化手势识别，提供15种手势；手势模型支持独立运行，见FUCreator文档。
-
-- 优化人脸美妆，提高准确度，支持更丰富的效果。
-
-- 修复多人脸舌头跟踪相互影响问题。 
-
-- 修复avatar模式下fxaa抗锯齿失效问题。
-
-- 废弃高精度模型 armesh_ex.bundle，以及对应的接口 fuLoadExtendedARData。
-
-- 废弃人脸表情动画模型 anim_model.bundle, 以及对应的接口 fuLoadAnimModel。
-
-  注：废弃的数据以及接口，可能引起编译不通过，移除代码即可。
+- 优化人脸美妆功能，提高性能，降低功耗。
+- 新增fuSetFaceTrackParam接口，用于设置人脸表情跟踪参数。 
+- 新增人脸美颜精细磨皮效果。
 
 文档：
 
@@ -65,32 +51,68 @@ Demo新增了一个展示Faceunity产品列表的主界面，新版Demo将根据
 
 ```
 +FULiveDemoDroid
-  +app 			      // app 模块
+  +app 			                           // app 模块
     +src
       +main
-        +assets       // Assets 文件
-          +image      // 原始图片
-        +effects      // 道具文件
-          +bundle     // bundle 文件
-          +res        // icon
-        +java         // Java 源码
-        +makeup       // 美妆资源
-          +material   // 五官美妆贴纸
-          +res        // icon
-        +poster       // 海报换脸
-        +res          // App 资源文件
-  +faceunity          // faceunity 模块
-    +libs             // nama.jar 文件
+        +assets                            
+          +avatar                          // Avatar 捏脸
+            +avatar_hair                   // Avatar 头发道具
+            -avatar_background.bundle      // Avatar 背景道具
+            -avatar_male.bundle            // Avatar 男性头部道具
+            -avatar_color.json             // 颜色配置
+          +beautify_face                   // 美颜
+            -face_beautification.bundle    // 美颜道具
+          +cartoon_filter                  // 卡通滤镜
+            -fuzzytoonfilter.bundle        // 卡通滤镜道具
+          +change_face                     // 海报换脸
+            +template_xx                   // 模板资源
+            -change_face.bundle            // 海报换脸道具
+          +effect                          // 各种道具
+            +animoji                       // Animoji
+            +ar                            // AR 面具
+            +background                    // 背景分割
+            +beautify_hair                 // 美发
+            +change                        // 换脸
+            +expression                    // 表情识别
+            +facewarp                      // 哈哈镜
+            +gesture                       // 手势识别
+            +musicfilter                   // 音乐滤镜
+            +normal                        // 道具贴纸
+            +portrait_drive                // 人像驱动
+          +image                           // 图片
+          +light_makeup                    // 轻美妆
+            +blusher...                    // 腮红等资源
+            -light_makeup.bundle           // 轻美妆道具
+          +live_photo                      // 表情动图
+            +resource_xx                   // 五官资源
+            +template_xx                   // 模板资源
+            -photolive.bundle              // 表情动图道具
+          +makeup                          // 美妆
+            +combination_xx                // 组合妆资源
+            +common_resource               // 通用妆容资源
+            -face_makeup.bundle            // 美妆道具
+            -makeup_color_setup.json       // 颜色配置
+            -new_face_tracker.bundle       // 75+134 点位人脸识别道具
+        +java                              // Java 源码
+        +res                               // App 资源文件
+
+  +faceunity                               // faceunity 模块
+    +libs                                  
+      -nama.jar                            // nama.jar
     +src
       +main
-        +assets       // Nama 资源文件     
-        +java         // Java 源码
-        +jniLibs      // Nama so 文件
-  +docs		    	  // 文档目录
-  +README.md	 	  // 工程说明文档
+        +assets                           
+          -fxaa.bundle                     // 3D 绘制抗锯齿数据包
+          -tongue.bundle                   // 舌头道具
+          -v3.bundle                       // 人脸识别核心数据包
+        +java                              // Java 源码
+        +jniLibs                           // Nama so 库
+  +docs		    	                       // 开发文档目录
+  +README.md	 	                       // 工程说明文档
 ```
 
 ------
+
 ### 3. 运行Demo 
 
 #### 3.1 开发环境

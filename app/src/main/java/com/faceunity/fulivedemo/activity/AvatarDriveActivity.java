@@ -22,7 +22,6 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.faceunity.FURenderer;
 import com.faceunity.entity.AvatarModel;
-import com.faceunity.fulivedemo.FUBaseActivity;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.entity.AvatarFaceAspect;
@@ -45,9 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
 
 /**
  * Avatar 驱动页和生成页，使用 fragment 显示
@@ -116,14 +112,14 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
     };
 
     @Override
-    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mtx, long timeStamp) {
+    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mvpMatrix, long timeStamp) {
         int fuTextureId = 0;
         if (mInMakeMode) {
             // 捏脸模式
             fuTextureId = mFURenderer.onDrawFrameAvatar(cameraNV21Byte, cameraWidth, cameraHeight);
             if (mSnapShot) {
                 mSnapShot = false;
-                BitmapUtil.glReadBitmap(fuTextureId, mtx, mCameraRenderer.getMvpMatrix(), cameraHeight,
+                BitmapUtil.glReadBitmap(fuTextureId, mvpMatrix, mCameraRenderer.getMvpMatrix(), cameraHeight,
                         cameraWidth, mSnapshotBitmapListener, false);
             }
         } else {
@@ -137,15 +133,15 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                 System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
                 fuTextureId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
             }
-            sendRecordingData(fuTextureId, mtx, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
-            checkPic(fuTextureId, mtx, cameraHeight, cameraWidth);
+            sendRecordingData(fuTextureId, mvpMatrix, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
+            checkPic(fuTextureId, mvpMatrix, cameraHeight, cameraWidth);
         }
         return fuTextureId;
     }
 
     @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        super.onSurfaceCreated(gl, config);
+    public void onSurfaceCreated() {
+        super.onSurfaceCreated();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -481,7 +477,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                 }
                 break;
                 case R.id.fl_delete_model: {
-                    Intent intent = new Intent(AvatarDriveActivity.this, AvatarModelDelActivity.class);
+                    Intent intent = new Intent(AvatarDriveActivity.this, AvatarDeleteActivity.class);
                     intent.putParcelableArrayListExtra(AVATAR_MODEL_LIST, new ArrayList<>(queryAvatarModel()));
                     startActivityForResult(intent, REQ_DELETE);
                 }

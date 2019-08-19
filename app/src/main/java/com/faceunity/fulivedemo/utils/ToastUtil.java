@@ -85,6 +85,35 @@ public final class ToastUtil {
         }
     }
 
+    public static void showNormalToast(Context context, @StringRes int strId) {
+        String text = context.getString(strId);
+        if (sNormalToast == null) {
+            context = context.getApplicationContext();
+            Resources resources = context.getResources();
+            TextView textView = new TextView(context);
+            textView.setTextColor(resources.getColor(R.color.colorWhite));
+            textView.setGravity(Gravity.CENTER);
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.x26));
+            textView.setBackgroundResource(R.drawable.more_toast_background);
+            int hPadding = resources.getDimensionPixelSize(R.dimen.x28);
+            int vPadding = resources.getDimensionPixelSize(R.dimen.x16);
+            textView.setPadding(hPadding, vPadding, hPadding, vPadding);
+            textView.setText(text);
+            sNormalToast = new Toast(context);
+            sNormalToast.setView(textView);
+            sNormalToast.setDuration(Toast.LENGTH_SHORT);
+            int yOffset = context.getResources().getDimensionPixelSize(R.dimen.x582);
+            sNormalToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP, 0, yOffset);
+            sNormalToast.show();
+        } else {
+            TextView textView = (TextView) sNormalToast.getView();
+            textView.setText(text);
+            if (!textView.isShown()) {
+                sNormalToast.show();
+            }
+        }
+    }
+
     public static Toast makeNormalToast(Context context, @StringRes int strId) {
         return makeNormalToast(context, context.getString(strId));
     }

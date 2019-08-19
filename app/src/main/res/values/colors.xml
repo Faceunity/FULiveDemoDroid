@@ -46,4 +46,12 @@
     <color name="divider_line_color_75">#BFFFFFFF</color>
     <color name="live_photo_list_bg">#BF050F14</color>
 
+    <!--For DiscreteSeekBar-->
+    <color name="dsb_progress_color">#ff009688</color>
+    <color name="dsb_track_color">#ff939393</color>
+    <color name="dsb_disabled_color">#66939393</color>
+    <color name="dsb_ripple_color_pressed">#77939393</color>
+    <color name="dsb_ripple_color_focused">#99999999</color>
+
+
 </resources>

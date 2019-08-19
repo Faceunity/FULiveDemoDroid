@@ -13,8 +13,9 @@ import com.faceunity.fulivedemo.R;
 
 
 /**
- * @author LiuQiang on 2018.08.28
  * 确认对话框
+ *
+ * @author Richie on 2018.08.28
  */
 public class ConfirmDialogFragment extends BaseDialogFragment {
     private static final String TITLE = "content";

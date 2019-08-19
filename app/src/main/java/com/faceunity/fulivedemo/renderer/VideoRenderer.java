@@ -20,64 +20,43 @@ import java.util.concurrent.TimeUnit;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-
 /**
+ * 使用 GLSurfaceView 渲染视频，采用居中裁剪（CenterCrop）的方式显示
+ *
  * Created by tujh on 2018/3/2.
  */
-
 public class VideoRenderer implements GLSurfaceView.Renderer {
     public final static String TAG = VideoRenderer.class.getSimpleName();
-
-    private GLSurfaceView mGLSurfaceView;
-
-    public interface OnRendererStatusListener {
-
-        void onSurfaceCreated(GL10 gl, EGLConfig config);
-
-        void onSurfaceChanged(GL10 gl, int width, int height);
-
-        int onDrawFrame(int videoTextureId, int videoWidth, int videoHeight, float[] mtx, long timeStamp);
-
-        void onSurfaceDestroy();
-    }
-
+    private GLSurfaceView mGlSurfaceView;
     private OnRendererStatusListener mOnVideoRendererStatusListener;
-
-    private int mViewWidth = 1280;
-    private int mViewHeight = 720;
-
     private String mVideoPath;
-
     private boolean isNeedPlay = false;
     private MediaPlayer mMediaPlayer;
     private SurfaceTexture mVideoSurfaceTexture;
     private int mVideoTextureId;
-    private int mVideoWidth = 1280;
-    private int mVideoHeight = 720;
+    private int mVideoWidth = 720;
+    private int mVideoHeight = 1280;
     private int mVideoRotation = 0;
-
-    private final float[] mtx = new float[16];
-    private float[] mvp = new float[16];
-    private ProgramTexture2d mFullFrameRectTexture2D;
-
+    private float[] mTexMatrix = new float[16];
+    private float[] mMvpMatrix;
+    private ProgramTexture2d mProgramTexture2d;
     private MediaPlayer.OnCompletionListener mOnCompletionListener;
     private FPSUtil mFPSUtil;
 
-    public VideoRenderer(String filePath, GLSurfaceView GLSurfaceView, OnRendererStatusListener onVideoRendererStatusListener) {
-        mVideoPath = filePath;
-        mGLSurfaceView = GLSurfaceView;
-        mOnVideoRendererStatusListener = onVideoRendererStatusListener;
+    public VideoRenderer(String videoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
+        mVideoPath = videoPath;
+        mGlSurfaceView = glSurfaceView;
+        mOnVideoRendererStatusListener = onRendererStatusListener;
         mFPSUtil = new FPSUtil();
-        Log.d(TAG, "VideoRenderer: path:" + mVideoPath);
     }
 
     public void onResume() {
-        mGLSurfaceView.onResume();
+        mGlSurfaceView.onResume();
     }
 
     public void onPause() {
         final CountDownLatch count = new CountDownLatch(1);
-        mGLSurfaceView.queueEvent(new Runnable() {
+        mGlSurfaceView.queueEvent(new Runnable() {
             @Override
             public void run() {
                 onSurfaceDestroy();
@@ -87,68 +66,73 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         try {
             count.await(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            Log.e(TAG, "onPause: ", e);
+            // ignored
         }
-        mGLSurfaceView.onPause();
+        mGlSurfaceView.onPause();
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        mFullFrameRectTexture2D = new ProgramTexture2d();
+        Log.d(TAG, "onSurfaceCreated");
+        mProgramTexture2d = new ProgramTexture2d();
         mVideoTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
-        mOnVideoRendererStatusListener.onSurfaceCreated(gl, config);
+        mOnVideoRendererStatusListener.onSurfaceCreated();
         createMedia();
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
-        mOnVideoRendererStatusListener.onSurfaceChanged(gl, width, height);
-        MediaMetadataRetriever retr = new MediaMetadataRetriever();
+        GLES20.glViewport(0, 0, width, height);
+        mOnVideoRendererStatusListener.onSurfaceChanged(width, height);
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
         try {
-            retr.setDataSource(mVideoPath);
-            mVideoWidth = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-            mVideoHeight = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-            mVideoRotation = Integer.parseInt(retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+            mediaMetadataRetriever.setDataSource(mVideoPath);
+            mVideoWidth = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            mVideoHeight = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            mVideoRotation = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
         } catch (Exception e) {
-            Log.e(TAG, "onSurfaceChanged: ", e);
-            mVideoWidth = 720;
-            mVideoHeight = 1280;
-            mVideoRotation = 0;
+            Log.e(TAG, "MediaMetadataRetriever extractMetadata: ", e);
         }
-        Log.d(TAG, "onSurfaceChanged() called with: width = [" + width + "], height = [" + height + "]"
-                + ", videoWidth:" + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation);
-        mvp = GlUtil.changeMVPMatrixCrop(GlUtil.IDENTITY_MATRIX, mViewWidth, mViewHeight, mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
+        Log.d(TAG, "onSurfaceChanged() width:" + width + ", height:" + height + ", videoWidth:"
+                + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation);
+        mMvpMatrix = GlUtil.changeMVPMatrixCrop(GlUtil.IDENTITY_MATRIX, width, height,
+                mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
         mFPSUtil.resetLimit();
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mFullFrameRectTexture2D == null) {
+        if (mProgramTexture2d == null) {
             return;
         }
+
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         try {
             mVideoSurfaceTexture.updateTexImage();
-            mVideoSurfaceTexture.getTransformMatrix(mtx);
+            mVideoSurfaceTexture.getTransformMatrix(mTexMatrix);
         } catch (Exception e) {
+            Log.e(TAG, "onDrawFrame: ", e);
             return;
         }
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        int fuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth, mVideoHeight, mtx, mVideoSurfaceTexture.getTimestamp());
-        mFullFrameRectTexture2D.drawFrame(fuTextureId, mtx, mvp);
+
+        int fuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth,
+                mVideoHeight, mTexMatrix, mVideoSurfaceTexture.getTimestamp());
+        mProgramTexture2d.drawFrame(fuTextureId, mTexMatrix, mMvpMatrix);
         mFPSUtil.limit();
+        mGlSurfaceView.requestRender();
     }
 
     private void onSurfaceDestroy() {
+        Log.d(TAG, "onSurfaceDestroy");
         releaseMedia();
         if (mVideoTextureId != 0) {
             int[] textures = new int[]{mVideoTextureId};
             GLES20.glDeleteTextures(1, textures, 0);
             mVideoTextureId = 0;
         }
-        if (mFullFrameRectTexture2D != null) {
-            mFullFrameRectTexture2D.release();
-            mFullFrameRectTexture2D = null;
+        if (mProgramTexture2d != null) {
+            mProgramTexture2d.release();
+            mProgramTexture2d = null;
         }
         mOnVideoRendererStatusListener.onSurfaceDestroy();
     }
@@ -160,7 +144,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             mVideoSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                 @Override
                 public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                    mGLSurfaceView.requestRender();
+                    mGlSurfaceView.requestRender();
                     if (!isNeedPlay && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                         mMediaPlayer.pause();
                     }
@@ -169,19 +153,21 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
             mMediaPlayer = new MediaPlayer();
             mMediaPlayer.setDataSource(mVideoPath);
+            mMediaPlayer.setVolume(0, 0);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setSurface(new Surface(mVideoSurfaceTexture));
-            mMediaPlayer.setVolume(0, 0);
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(final MediaPlayer mp) {
+                    Log.d(TAG, "onPrepared");
                     mMediaPlayer.start();
-                    mGLSurfaceView.requestRender();
+                    mGlSurfaceView.requestRender();
                 }
             });
             mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+                    Log.d(TAG, "onCompletion");
                     isNeedPlay = false;
                     if (mOnCompletionListener != null) {
                         mOnCompletionListener.onCompletion(mp);
@@ -191,12 +177,14 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             mMediaPlayer.prepareAsync();
         } catch (Exception e) {
             Log.e(TAG, "createMedia: ", e);
+            mOnVideoRendererStatusListener.onLoadVideoError(e.getMessage());
         }
     }
 
     public void playMedia() {
         if (mMediaPlayer != null) {
             mMediaPlayer.start();
+            mMediaPlayer.setVolume(1, 1);
             isNeedPlay = true;
         }
     }
@@ -225,5 +213,46 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     public int getVideoHeight() {
         return mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth;
+    }
+
+
+    public interface OnRendererStatusListener {
+
+        /**
+         * Called when surface is created or recreated.
+         */
+        void onSurfaceCreated();
+
+        /**
+         * Called when surface'size changed.
+         *
+         * @param viewWidth
+         * @param viewHeight
+         */
+        void onSurfaceChanged(int viewWidth, int viewHeight);
+
+        /**
+         * Called when drawing current frame
+         *
+         * @param videoTextureId
+         * @param videoWidth
+         * @param videoHeight
+         * @param mvpMatrix
+         * @param timeStamp
+         * @return
+         */
+        int onDrawFrame(int videoTextureId, int videoWidth, int videoHeight, float[] mvpMatrix, long timeStamp);
+
+        /**
+         * Called when surface is destroyed
+         */
+        void onSurfaceDestroy();
+
+        /**
+         * Called when error happened
+         *
+         * @param error
+         */
+        void onLoadVideoError(String error);
     }
 }

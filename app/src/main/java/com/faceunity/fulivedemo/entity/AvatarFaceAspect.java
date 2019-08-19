@@ -3,8 +3,8 @@ package com.faceunity.fulivedemo.entity;
 import java.util.Arrays;
 
 /**
- * @author Richie on 2019.03.22
  * Avatar 捏脸维度
+ * @author Richie on 2019.03.22
  */
 public class AvatarFaceAspect {
     // 图像开发定义的奇葩键值，两个 channel0，完全看不懂含义，需要自己处理

@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import com.faceunity.fulivedemo.R;
 
 /**
- * @author LiuQiang on 2018.09.19
+ * @author Richie on 2018.09.19
  */
 public abstract class BaseDialogFragment extends DialogFragment {
 

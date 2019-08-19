@@ -22,13 +22,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * @author LiuQiang on 2018.08.30
+ * @author Richie on 2018.08.30
  */
 public class FileUtils {
-    /**
-     * 海报换脸临时生成文件
-     */
-    public static final String TMP_PHOTO_POSTER_NAME = "photo_poster.jpg";
     /**
      * 拍照后的临时保存路径，用于下一步的编辑
      */
@@ -90,9 +86,12 @@ public class FileUtils {
         try {
             bis = new BufferedInputStream(is);
             bos = new BufferedOutputStream(new FileOutputStream(dest));
-            byte[] bytes = new byte[bis.available()];
-            bis.read(bytes);
-            bos.write(bytes);
+            byte[] bytes = new byte[1024 * 10];
+            int length;
+            while ((length = bis.read(bytes)) != -1) {
+                bos.write(bytes, 0, length);
+            }
+            bos.flush();
         } finally {
             if (bos != null) {
                 bos.close();
@@ -109,9 +108,9 @@ public class FileUtils {
      * @param context
      * @return
      */
-    public static File getTemplatesDir(Context context) {
+    public static File getChangeFaceTemplatesDir(Context context) {
         File fileDir = getExternalFileDir(context);
-        File templates = new File(fileDir, "templates");
+        File templates = new File(fileDir, "change_face");
         if (!templates.exists()) {
             boolean b = templates.mkdirs();
             if (!b) {
@@ -187,7 +186,6 @@ public class FileUtils {
      *
      * @param file
      * @return
-     * @throws Exception
      */
     public static String getMd5ByFile(File file) throws Exception {
         FileInputStream in = null;
@@ -219,33 +217,36 @@ public class FileUtils {
         }
     }
 
-    public static void copyAssetsLivePhoto(Context context) {
+    public static void copyAssetsLivePhotoTemplate(Context context) {
         try {
             AssetManager assets = context.getAssets();
-            String photoTemplate = "live_photo_template";
+            String photoTemplate = "live_photo";
             String[] paths = assets.list(photoTemplate);
             if (paths != null) {
                 for (String path : paths) {
-                    String photoDir = photoTemplate + File.separator + path;
-                    String[] photos = assets.list(photoDir);
-                    File dir = new File(FileUtils.getLivePhotoDir(context), path);
-                    if (photos != null) {
-                        for (String photo : photos) {
-                            String p = photoDir + File.separator + photo;
-                            FileUtils.copyAssetsFile(context, dir, p);
+                    if (path.startsWith("template_")) {
+                        String photoDir = photoTemplate + File.separator + path;
+                        String[] photos = assets.list(photoDir);
+                        File dir = new File(FileUtils.getLivePhotoDir(context), path);
+                        if (photos != null) {
+                            for (String photo : photos) {
+                                String p = photoDir + File.separator + photo;
+                                FileUtils.copyAssetsFile(context, dir, p);
+                            }
                         }
                     }
                 }
             }
         } catch (IOException e) {
-            Log.e(TAG, "copyAssetsLivePhoto: ", e);
+            Log.e(TAG, "copyAssetsLivePhotoTemplate: ", e);
         }
     }
 
-    public static void copyAssetsTemplate(Context context) {
+    public static void copyAssetsChangeFaceTemplate(Context context) {
         try {
             AssetManager assets = context.getAssets();
-            String[] paths = assets.list("");
+            String baseDirPath = "change_face";
+            String[] paths = assets.list(baseDirPath);
             List<String> tempPaths = new ArrayList<>(16);
             for (String path : paths) {
                 if (path.startsWith(TEMPLATE_PREFIX)) {
@@ -253,17 +254,18 @@ public class FileUtils {
                 }
             }
             for (String tempPath : tempPaths) {
-                String[] list = assets.list(tempPath);
+                String path = baseDirPath + File.separator + tempPath;
+                String[] list = assets.list(path);
                 for (String s : list) {
-                    File dir = new File(FileUtils.getTemplatesDir(context), tempPath);
+                    File dir = new File(FileUtils.getChangeFaceTemplatesDir(context), tempPath);
                     if (!dir.exists()) {
                         dir.mkdirs();
                     }
-                    copyAssetsFile(context, dir, tempPath.concat(File.separator).concat(s));
+                    copyAssetsFile(context, dir, path + File.separator + s);
                 }
             }
         } catch (IOException e) {
-            Log.e(TAG, "copyAssetsTemplate: ", e);
+            Log.e(TAG, "copyAssetsChangeFaceTemplate: ", e);
         }
     }
 
@@ -329,10 +331,13 @@ public class FileUtils {
         BufferedOutputStream bos = null;
         try {
             bis = new BufferedInputStream(new FileInputStream(srcFile));
-            byte[] bytes = new byte[bis.available()];
-            bis.read(bytes);
             bos = new BufferedOutputStream(new FileOutputStream(dest));
-            bos.write(bytes);
+            byte[] bytes = new byte[1024 * 10];
+            int length;
+            while ((length = bis.read(bytes)) != -1) {
+                bos.write(bytes, 0, length);
+            }
+            bos.flush();
         } finally {
             if (bos != null) {
                 bos.close();

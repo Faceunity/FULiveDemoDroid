@@ -67,19 +67,18 @@ public interface OnFUControlListener {
     void onSkinDetectSelected(float isOpen);
 
     /**
-     * 美肤类型
+     * 磨皮类型
      *
-     * @param isOpen 0:清晰美肤 1:朦胧美肤
+     * @param blurType 0 清晰磨皮，1 重度磨皮，2 精细磨皮
      */
-    void onHeavyBlurSelected(float isOpen);
+    void onBlurTypeSelected(float blurType);
 
     /**
-     * 磨皮选择
+     * 磨皮程度
      *
-     * @param level 磨皮level
+     * @param level 磨皮程度 [0, 6]，默认 6.0
      */
     void onBlurLevelSelected(float level);
-
     /**
      * 美白选择
      *

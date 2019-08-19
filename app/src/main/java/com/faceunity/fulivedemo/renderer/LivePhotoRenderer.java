@@ -27,9 +27,9 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * 表情动图
+ * 表情动图，图像渲染器
  *
- * @author LiuQiang
+ * @author Richie on 2019.04.12
  */
 public class LivePhotoRenderer implements GLSurfaceView.Renderer {
     public final static String TAG = LivePhotoRenderer.class.getSimpleName();
@@ -148,7 +148,7 @@ public class LivePhotoRenderer implements GLSurfaceView.Renderer {
         if (mPointsOfLand != null) {
             refreshLandmarks();
         }
-        mOnPhotoRendererStatusListener.onSurfaceCreated(gl, config);
+        mOnPhotoRendererStatusListener.onSurfaceCreated();
     }
 
     @Override
@@ -164,7 +164,7 @@ public class LivePhotoRenderer implements GLSurfaceView.Renderer {
         mShowAreaPointY = mViewHeight - mAreaSize / 2 - mAreaMargin - mClickPointAreaSizeHalf;
 
         calculateViewport();
-        mOnPhotoRendererStatusListener.onSurfaceChanged(gl, width, height);
+        mOnPhotoRendererStatusListener.onSurfaceChanged(width, height);
         mFPSUtil.resetLimit();
     }
 
@@ -616,9 +616,9 @@ public class LivePhotoRenderer implements GLSurfaceView.Renderer {
 
     public interface OnRendererStatusListener {
 
-        void onSurfaceCreated(GL10 gl, EGLConfig config);
+        void onSurfaceCreated();
 
-        void onSurfaceChanged(GL10 gl, int width, int height);
+        void onSurfaceChanged(int width, int height);
 
         int onDrawFrame(byte[] photoBytes, int photoTextureId, int photoWidth, int photoHeight);
 

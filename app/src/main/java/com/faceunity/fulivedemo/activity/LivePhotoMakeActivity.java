@@ -31,13 +31,10 @@ import com.faceunity.utils.MiscUtil;
 
 import java.util.Arrays;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 /**
  * 表情动图模板生成页
  *
- * @author LiuQiang
+ * @author Richie on 2019.04.12
  */
 public class LivePhotoMakeActivity extends AppCompatActivity implements LivePhotoRenderer.OnRendererStatusListener,
         LivePhotoAdjustFragment.OnBackClickListener {
@@ -58,7 +55,7 @@ public class LivePhotoMakeActivity extends AppCompatActivity implements LivePhot
         }
         setContentView(R.layout.activity_livephoto_make);
         GLSurfaceView glSurfaceView = findViewById(R.id.gl_surface);
-        glSurfaceView.setEGLContextClientVersion(2);
+        glSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGLVersion(this));
         String path = getIntent().getStringExtra(MODEL_PATH);
         mLivePhotoRenderer = new LivePhotoRenderer(path, glSurfaceView, this);
         glSurfaceView.setRenderer(mLivePhotoRenderer);
@@ -116,12 +113,12 @@ public class LivePhotoMakeActivity extends AppCompatActivity implements LivePhot
     }
 
     @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+    public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
     }
 
     @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
+    public void onSurfaceChanged(int width, int height) {
 
     }
 

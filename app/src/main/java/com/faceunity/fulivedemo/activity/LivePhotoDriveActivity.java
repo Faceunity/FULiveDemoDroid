@@ -20,7 +20,6 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.faceunity.FURenderer;
 import com.faceunity.entity.LivePhoto;
-import com.faceunity.fulivedemo.FUBaseActivity;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
@@ -36,13 +35,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 /**
  * 表情动图驱动页
  *
- * @author LiuQiang
+ * @author Richie on 2019.04.12
  */
 public class LivePhotoDriveActivity extends FUBaseActivity {
     private static final String TAG = "LivePhotoDriveActivity";
@@ -106,8 +102,8 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
     }
 
     @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        super.onSurfaceCreated(gl, config);
+    public void onSurfaceCreated() {
+        super.onSurfaceCreated();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -152,9 +148,9 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
     }
 
     @Override
-    public void onCameraChange(int currentCameraType, int cameraOrientation) {
-        super.onCameraChange(currentCameraType, cameraOrientation);
-        boolean isFront = currentCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT;
+    public void onCameraChange(int cameraType, int cameraOrientation) {
+        super.onCameraChange(cameraType, cameraOrientation);
+        boolean isFront = cameraType == Camera.CameraInfo.CAMERA_FACING_FRONT;
         mFURenderer.setIsFrontCamera(isFront);
     }
 
@@ -188,19 +184,22 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
                     ConfirmDialogFragment.newInstance(getString(R.string.dialog_confirm_delete), new BaseDialogFragment.OnClickListener() {
                         @Override
                         public void onConfirm() {
-                            try {
-                                LivePhoto livePhoto = mAdapter.getSelectedItems().valueAt(0);
-                                DatabaseOpenHelper.getInstance().getLivePhotoDao().delete(livePhoto);
-                                FileUtils.deleteFile(new File(livePhoto.getTemplateImagePath()));
-                                mAdapter.remove(livePhoto);
-                                ToastUtil.makeNormalToast(LivePhotoDriveActivity.this, getString(R.string.toast_delete_succeed)).show();
-                                // 删除后选中第一个
-                                mAdapter.setItemSelected(0);
-                                mRecyclerView.scrollToPosition(0);
-                                mOnItemClickListener.onItemClick(mAdapter, null, 0);
-                            } catch (SQLException e) {
-                                Log.e(TAG, "delete model error", e);
-                                ToastUtil.makeNormalToast(LivePhotoDriveActivity.this, getString(R.string.toast_delete_failed)).show();
+                            SparseArray<LivePhoto> selectedItems = mAdapter.getSelectedItems();
+                            if (selectedItems.size() > 0) {
+                                LivePhoto livePhoto = selectedItems.valueAt(0);
+                                try {
+                                    DatabaseOpenHelper.getInstance().getLivePhotoDao().delete(livePhoto);
+                                    FileUtils.deleteFile(new File(livePhoto.getTemplateImagePath()));
+                                    mAdapter.remove(livePhoto);
+                                    ToastUtil.makeNormalToast(LivePhotoDriveActivity.this, getString(R.string.toast_delete_succeed)).show();
+                                    // 删除后选中第一个
+                                    mAdapter.setItemSelected(0);
+                                    mRecyclerView.scrollToPosition(0);
+                                    mOnItemClickListener.onItemClick(mAdapter, null, 0);
+                                } catch (SQLException e) {
+                                    Log.e(TAG, "delete model error", e);
+                                    ToastUtil.makeNormalToast(LivePhotoDriveActivity.this, getString(R.string.toast_delete_failed)).show();
+                                }
                             }
                         }
 

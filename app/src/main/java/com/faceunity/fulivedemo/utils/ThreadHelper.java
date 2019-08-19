@@ -4,40 +4,42 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author Richie
  * 多线程工具类
+ * @author Richie
  */
 public final class ThreadHelper {
     private final Handler mMainHandler;
-    private final ExecutorService mExecutorService;
+    private final ThreadPoolExecutor mExecutorService;
     private Handler mWorkHandler;
 
     private ThreadHelper() {
         mMainHandler = new Handler(Looper.getMainLooper());
+        // copy from AsyncTask THREAD_POOL_EXECUTOR
         ThreadFactory threadFactory = new ThreadFactory() {
             private final AtomicInteger mCount = new AtomicInteger(1);
 
             @Override
             public Thread newThread(Runnable r) {
-                return new Thread(r, "ThreadHelper#".concat(String.valueOf(mCount.getAndIncrement())));
+                return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
             }
         };
         int cpuCount = Runtime.getRuntime().availableProcessors();
-        int corePoolSize = cpuCount + 1;
+        int corePoolSize = Math.max(2, Math.min(cpuCount - 1, 4));
         int maxPoolSize = cpuCount * 2 + 1;
-        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(128);
-        mExecutorService = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 10, TimeUnit.SECONDS, queue, threadFactory);
+        BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>(128);
+        mExecutorService = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 30, TimeUnit.SECONDS, blockingQueue, threadFactory);
+        mExecutorService.allowCoreThreadTimeOut(true);
     }
 
     public static ThreadHelper getInstance() {
@@ -53,32 +55,119 @@ public final class ThreadHelper {
     }
 
     /**
-     * 无返回值的异步任务，使用线程池
+     * 有返回值的异步任务，主线程调用并接收回调
      *
-     * @param r
+     * @param callable
+     * @param callback
      */
-    public void execute(Runnable r) {
-        try {
-            mExecutorService.execute(r);
-        } catch (Throwable e) {
-            e.printStackTrace();
+    public <T> void enqueueOnUiThread(final Callable<T> callable, final Callback<T> callback) {
+        if (callable != null) {
+            mExecutorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        final CountDownLatch countDownLatch = new CountDownLatch(1);
+                        if (callback != null) {
+                            mMainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onStart();
+                                    countDownLatch.countDown();
+                                }
+                            });
+                        }
+                        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+                        final T t = callable.call();
+                        if (callback != null) {
+                            mMainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onSuccess(t);
+                                }
+                            });
+                        }
+                    } catch (final Throwable throwable) {
+                        if (callback != null) {
+                            mMainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onFailure(throwable);
+                                }
+                            });
+                        }
+                    } finally {
+                        if (callback != null) {
+                            mMainHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    callback.onFinish();
+                                }
+                            });
+                        }
+                    }
+                }
+            });
         }
     }
 
     /**
-     * 有返回值的异步任务，使用线程池
+     * 有返回值的异步任务，在工作线程回调
+     *
+     * @param callable
+     * @param callback
+     */
+    public <T> void enqueue(final Callable<T> callable, final Callback<T> callback) {
+        if (callable != null) {
+            mExecutorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (callback != null) {
+                            callback.onStart();
+                        }
+                        final T t = callable.call();
+                        if (callback != null) {
+                            callback.onSuccess(t);
+                        }
+                    } catch (final Throwable throwable) {
+                        if (callback != null) {
+                            callback.onFailure(throwable);
+                        }
+                    } finally {
+                        if (callback != null) {
+                            callback.onFinish();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+
+    /**
+     * 无返回值的异步任务
+     *
+     * @param r
+     */
+    public void execute(Runnable r) {
+        if (r != null) {
+            mExecutorService.execute(r);
+        }
+    }
+
+    /**
+     * 有返回值的异步任务
      *
      * @param task
      * @param <T>
      * @return
      */
     public <T> Future<T> submit(Callable<T> task) {
-        try {
+        if (task != null) {
             return mExecutorService.submit(task);
-        } catch (Throwable e) {
-            e.printStackTrace();
+        } else {
+            return null;
         }
-        return null;
     }
 
     /**
@@ -126,7 +215,11 @@ public final class ThreadHelper {
      * @return
      */
     public boolean runOnUiPostDelayed(Runnable r, long delay) {
-        return mMainHandler.postDelayed(r, delay);
+        if (r != null) {
+            return mMainHandler.postDelayed(r, delay);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -137,7 +230,11 @@ public final class ThreadHelper {
      * @return
      */
     public boolean runOnUiPostAtTime(Runnable r, long uptimeMillis) {
-        return mMainHandler.postAtTime(r, uptimeMillis);
+        if (r != null) {
+            return mMainHandler.postAtTime(r, uptimeMillis);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -146,7 +243,9 @@ public final class ThreadHelper {
      * @param r
      */
     public void removeUiCallbacks(Runnable r) {
-        mMainHandler.removeCallbacks(r);
+        if (r != null) {
+            mMainHandler.removeCallbacks(r);
+        }
     }
 
     /**
@@ -161,6 +260,13 @@ public final class ThreadHelper {
     }
 
     /**
+     * 移除主线程所有任务
+     */
+    public void removeUiAllTasks() {
+        mMainHandler.removeCallbacksAndMessages(null);
+    }
+
+    /**
      * 结束线程
      */
     public void shutdown() {
@@ -168,16 +274,33 @@ public final class ThreadHelper {
             mExecutorService.shutdown();
         }
         if (mWorkHandler != null) {
-            try {
-                mWorkHandler.getLooper().getThread().interrupt();
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
+            mWorkHandler.getLooper().quitSafely();
+        }
+    }
+
+
+    /**
+     * 主线程的回调
+     * 执行顺序：
+     * onStart-->onSuccess-->onFinish
+     * onStart-->onFailure-->onFinish
+     */
+    public static abstract class Callback<T> {
+        protected void onStart() {
+        }
+
+        protected void onFinish() {
+        }
+
+        protected void onSuccess(T result) {
+        }
+
+        protected void onFailure(Throwable throwable) {
         }
     }
 
     private static class ThreadHelperHolder {
-        private static ThreadHelper instance = new ThreadHelper();
+        private static final ThreadHelper instance = new ThreadHelper();
     }
 
 }

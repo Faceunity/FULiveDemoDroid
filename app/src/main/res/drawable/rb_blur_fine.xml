@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <layer-list>
+            <item android:gravity="center">
+                <shape android:shape="oval">
+                    <solid android:color="@color/primary_list" />
+                    <size android:width="@dimen/x88" android:height="@dimen/x88" />
+                </shape>
+            </item>
+            <item android:bottom="@dimen/x22" android:left="@dimen/x24" android:right="@dimen/x24" android:top="@dimen/x22">
+                <bitmap android:gravity="center" android:src="@drawable/demo_icon_list_fine_buffing_sel" />
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <layer-list>
+            <item android:gravity="center">
+                <shape android:shape="oval">
+                    <solid android:color="@color/primary_list" />
+                    <size android:width="@dimen/x88" android:height="@dimen/x88" />
+                </shape>
+            </item>
+            <item android:bottom="@dimen/x22" android:left="@dimen/x24" android:right="@dimen/x24" android:top="@dimen/x22">
+                <bitmap android:gravity="center" android:src="@drawable/demo_icon_list_fine_buffing_nor" />
+            </item>
+        </layer-list>
+    </item>
+</selector>

@@ -27,8 +27,9 @@ import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import java.util.List;
 
 /**
- * @author LiuQiang on 2018.11.13
  * Animoji 和动漫滤镜效果
+ *
+ * @author Richie on 2018.11.13
  */
 public class AnimControlView extends FrameLayout implements CheckGroup.OnCheckedChangeListener {
     private static final String TAG = "AnimControlView";

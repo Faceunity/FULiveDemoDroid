@@ -23,8 +23,9 @@ import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import java.util.List;
 
 /**
+ * RecyclerView 通用适配器，该抽象类简洁高效，建议使用
+ *
  * @author Richie on 2017.10.02
- * RecyclerView 通用适配器
  */
 public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRecyclerAdapter.BaseViewHolder> {
     /**
@@ -129,12 +130,12 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
      */
     protected abstract void bindViewHolder(BaseViewHolder viewHolder, T item);
 
-    public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener) {
-        this.mOnItemClickListener = onItemClickListener;
-    }
-
     public OnItemClickListener<T> getOnItemClickListener() {
         return mOnItemClickListener;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener<T> onItemClickListener) {
+        this.mOnItemClickListener = onItemClickListener;
     }
 
     public void setOnItemLongClickListener(OnItemLongClickListener<T> onItemLongClickListener) {
@@ -153,7 +154,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
             mSelectedItems.put(mLastSelected, data);
             notifyItemChanged(mLastSelected);
         }
-        if (mLastSelected != lastSelected) {
+        if (lastSelected != mLastSelected) {
             mSelectedItems.remove(lastSelected);
         }
         if (lastSelected >= 0) {
@@ -229,7 +230,7 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
      */
     public void add(@NonNull T data) {
         mData.add(data);
-        int index = indexOf(data);
+        int index = lastIndexOf(data);
         notifyItemInserted(index);
     }
 
@@ -351,6 +352,10 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
 
     public int indexOf(@NonNull T data) {
         return mData.indexOf(data);
+    }
+
+    public int lastIndexOf(@NonNull T data) {
+        return mData.lastIndexOf(data);
     }
 
     @IntDef({NO_CHOICE_MODE, SINGLE_CHOICE_MODE, MULTI_CHOICE_MODE})

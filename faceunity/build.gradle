@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply from: rootProject.file('script.gradle')
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -18,13 +17,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-    lintOptions {
-        abortOnError false
-    }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-    api "com.android.support:appcompat-v7:${rootProject.ext.supportCompatV7Version}"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportCompatV7Version}"
 }

@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/beauty_box_img"
         android:layout_width="@dimen/x88"
         android:layout_height="@dimen/x88"
@@ -16,7 +16,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/beauty_box_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

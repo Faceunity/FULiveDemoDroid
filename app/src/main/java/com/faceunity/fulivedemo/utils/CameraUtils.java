@@ -128,7 +128,6 @@ public final class CameraUtils {
     public static int[] choosePreviewSize(Camera.Parameters parms, int width, int height) {
         // We should make sure that the requested MPEG size is less than the preferred
         // size, and has the same aspect ratio.
-        Camera.Size ppsfv = parms.getPreferredPreviewSizeForVideo();
 
         if (DEBUG) {
             for (Camera.Size size : parms.getSupportedPreviewSizes()) {
@@ -144,6 +143,7 @@ public final class CameraUtils {
         }
 
         Log.e(TAG, "Unable to set preview size to " + width + "x" + height);
+        Camera.Size ppsfv = parms.getPreferredPreviewSizeForVideo();
         if (ppsfv != null) {
             parms.setPreviewSize(ppsfv.width, ppsfv.height);
             return new int[]{ppsfv.width, ppsfv.height};
@@ -155,11 +155,15 @@ public final class CameraUtils {
     public static void setExposureCompensation(Camera camera, float v) {
         if (camera == null)
             return;
-        Camera.Parameters parameters = camera.getParameters();
-        float min = parameters.getMinExposureCompensation();
-        float max = parameters.getMaxExposureCompensation();
-        parameters.setExposureCompensation((int) (v * (max - min) + min));
-        camera.setParameters(parameters);
+        try {
+            Camera.Parameters parameters = camera.getParameters();
+            float min = parameters.getMinExposureCompensation();
+            float max = parameters.getMaxExposureCompensation();
+            parameters.setExposureCompensation((int) (v * (max - min) + min));
+            camera.setParameters(parameters);
+        } catch (Exception e) {
+            Log.e(TAG, "setExposureCompensation: ", e);
+        }
     }
 
     public static void handleFocus(Camera camera, float x, float y, int width, int height, int cameraWidth, int cameraHeight) {

@@ -1,11 +1,15 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2019-06-27
-SDK版本: 6.2.0
+更新日期：2019-08-14
+SDK版本: 6.3.0
 
 ------
 ### 最新更新内容：
+
+2019-08-14 v6.3.0:
+
+1. 新增fuSetFaceTrackParam函数，用于设置人脸跟踪参数。
 
 2019-06-27 v6.2.0:
 
@@ -15,14 +19,6 @@ SDK版本: 6.2.0
 
 1. 新增fuSetupLocal函数，支持离线鉴权。
 2. 新增fuDestroyLibData函数，支持tracker内存释放。
-
-2019-03-31 v6.0.0：
-
-1. 新增fuSetFaceDetParam函数，用于设置人脸检测参数。
-2. 新增fuTrackFaceWithTongue函数，支持舌头跟踪。
-3. 新增fuSetTongueTracking，开/关舌头跟踪。
-4. fuGetFaceInfo新增参数expression_with_tongue，获取舌头信息。
-5. 废弃fuLoadExtendedARData。
 
 ------
 
@@ -737,6 +733,28 @@ __备注:__
 
 当使用`fuTrackFaceWithTongue`接口时，加载了tongue.bundle后，需要`fuSetTongueTracking(1)`开启舌头跟踪的支持。 
 如果道具本身带舌头bs，则不需要主动开启。
+
+----
+
+##### fuSetFaceTrackParam 设置人脸表情跟踪参数
+```java
+public static native int fuSetFaceTrackParam(String name, float value);
+```
+**接口说明：**
+
+设置人脸表情跟踪相关参数，__建议使用默认参数__。
+
+__参数说明：__  
+
+`name`: 参数名
+
+`value`: 参数值
+
+- 设置 `name = "mouth_expression_more_flexible"` ，`value = [0,1]`，默认 `value = 0` ，从0到1，数值越大，嘴部表情越灵活。  
+
+__返回值:__  
+
+设置后状态，1 设置成功，0 设置失败。
 
 -------
 

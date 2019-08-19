@@ -3,7 +3,7 @@
     android:layout_width="@dimen/x140"
     android:layout_height="@dimen/x167">
 
-    <com.faceunity.fulivedemo.ui.CircleImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/iv_anim_item"
         android:layout_width="@dimen/x120"
         android:layout_height="@dimen/x120"

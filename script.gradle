@@ -1,29 +1,31 @@
 /**
  * 自动拷贝 Nama SDK 到工程
- * cmd 执行：gradlew faceunity:copySdk2Project -Pfrom=路径，路径为包含 release_note 的文件夹。
- * eg: gradlew faceunity:copySdk2Project -Pfrom=D:\Documents\NamaSDKDistribution\LibUpdate_6.0.2_ALL_20190513191047\LibUpdate_6.0.2_tf_phy_20190513191047
+ * cmd 执行：gradlew app:copySdk2Project -Pfrom=路径，路径为包含 release_note 的文件夹。
+ * eg: gradlew app:copySdk2Project -Pfrom=D:\NamaSDKDistribution\LibUpdate_6.0.2_ALL_20190513191047\LibUpdate_6.0.2_tf_phy_20190513191047
  */
 task copySdk2Project << {
     def fromDir = findProperty('from')
     if (fromDir == null) {
         return
     }
+    def fuProject = rootProject.findProject('faceunity')
+    def fuProjectDir = fuProject.projectDir
     def srcJarLibs = new File(fromDir, 'Android' + File.separator + 'libs')
-    def destJarLibs = new File(projectDir, 'libs')
+    def destJarLibs = new File(fuProjectDir, 'libs')
     println("srcJarLibs ${srcJarLibs}, destJarLibs ${destJarLibs}")
     copy {
         from(srcJarLibs)
         into(destJarLibs)
     }
     def srcJniLibs = new File(fromDir, 'Android' + File.separator + 'jniLibs')
-    def destJniLibs = new File(projectDir, 'src' + File.separator + 'main' + File.separator + 'jniLibs')
+    def destJniLibs = new File(fuProjectDir, 'src' + File.separator + 'main' + File.separator + 'jniLibs')
     println("srcJniLibs ${srcJniLibs}, destJniLibs ${destJniLibs}")
     copy {
         from(srcJniLibs)
         into(destJniLibs)
     }
     def srcAssets = new File(fromDir, 'assets')
-    def destAssets = new File(projectDir, 'src' + File.separator + 'main' + File.separator + 'assets')
+    def destAssets = new File(fuProjectDir, 'src' + File.separator + 'main' + File.separator + 'assets')
     println("srcAssets ${srcAssets}, destAssets ${destAssets}")
     copy {
         from(srcAssets)

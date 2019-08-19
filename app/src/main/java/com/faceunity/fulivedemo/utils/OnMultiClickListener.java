@@ -3,8 +3,9 @@ package com.faceunity.fulivedemo.utils;
 import android.view.View;
 
 /**
- * @author LiuQiang on 2018.11.09
  * 防止控件快速点击
+ *
+ * @author Richie on 2018.11.09
  */
 public abstract class OnMultiClickListener implements View.OnClickListener {
     private static final int MIN_CLICK_DELAY_TIME = 500;

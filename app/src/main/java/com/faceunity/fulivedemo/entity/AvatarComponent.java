@@ -3,8 +3,9 @@ package com.faceunity.fulivedemo.entity;
 import java.util.List;
 
 /**
- * @author Richie on 2019.03.22
  * Avatar 组件，脸型、鼻子、眼睛等等
+ *
+ * @author Richie on 2019.03.22
  */
 public class AvatarComponent {
     public static final int CUSTOM = 1;

@@ -20,6 +20,7 @@
         android:label="${appName}"
         android:resizeableActivity="false"
         android:supportsRtl="false"
+        android:maxAspectRatio="2.4"
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
@@ -31,47 +32,47 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FUBeautyActivity"
+            android:name=".activity.FUBeautyActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".FUMakeupActivity"
+            android:name=".activity.FUMakeupActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".FUEffectActivity"
+            android:name=".activity.FUEffectActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".FUHairActivity"
+            android:name=".activity.FUHairActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".SelectDataActivity"
+            android:name=".activity.SelectDataActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ActivityBaseTheme" />
         <activity
-            android:name=".ShowPhotoActivity"
+            android:name=".activity.ShowPhotoActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".ShowVideoActivity"
+            android:name=".activity.ShowVideoActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".PosterListActivity"
+            android:name=".activity.PosterChangeListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".FUPosterTakeActivity"
+            android:name=".activity.PosterChangeFaceCameraActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".FUPosterFaceActivity"
+            android:name=".activity.PosterChangeFaceActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".FUAnimojiActivity"
+            android:name=".activity.FUAnimojiActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
@@ -79,7 +80,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".activity.AvatarModelDelActivity"
+            android:name=".activity.AvatarDeleteActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity

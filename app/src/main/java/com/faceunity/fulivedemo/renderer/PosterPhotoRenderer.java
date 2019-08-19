@@ -21,8 +21,9 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * @author LiuQiang on 2018.10.09
  * 海报换脸 渲染器
+ *
+ * @author Richie on 2018.10.09
  */
 public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
     public static final float[] IMG_DATA_MATRIX = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
@@ -88,7 +89,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         Log.d(TAG, "onSurfaceCreated() called");
         mFullFrameRectTexture2D = new ProgramTexture2d();
         mDrawPhoto = true;
-        mOnPhotoRendererStatusListener.onSurfaceCreated(gl, config);
+        mOnPhotoRendererStatusListener.onSurfaceCreated();
         if (!TextUtils.isEmpty(mMixedPhotoPath)) {
             mFirstDrawPhoto = false;
             loadMixedPhoto(mMixedPhotoPath);
@@ -120,7 +121,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
             mViewPortScale = (float) mViewWidth / mPhotoWidth;
         }
 
-        mOnPhotoRendererStatusListener.onSurfaceChanged(gl, width, height);
+        mOnPhotoRendererStatusListener.onSurfaceChanged(width, height);
         mFPSUtil.resetLimit();
     }
 
@@ -277,9 +278,9 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
 
     public interface OnRendererStatusListener {
 
-        void onSurfaceCreated(GL10 gl, EGLConfig config);
+        void onSurfaceCreated();
 
-        void onSurfaceChanged(GL10 gl, int width, int height);
+        void onSurfaceChanged(int viewWidth, int viewHeight);
 
         int onDrawFrame(int photoTextureId, int photoWidth, int photoHeight);
 

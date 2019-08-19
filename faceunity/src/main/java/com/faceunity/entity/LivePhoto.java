@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * 保存到数据库的表情动图的数据
  *
- * @author LiuQiang on 2018.12.12
+ * @author Richie on 2018.12.12
  */
 public class LivePhoto implements Parcelable {
 
