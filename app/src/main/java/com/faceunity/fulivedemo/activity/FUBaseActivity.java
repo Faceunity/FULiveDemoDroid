@@ -50,6 +50,7 @@ import com.faceunity.utils.MiscUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Base Activity, 主要封装FUBeautyActivity与FUEffectActivity的公用界面与方法
@@ -68,7 +69,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     protected CameraRenderer mCameraRenderer;
     protected volatile boolean isDoubleInputType = true;
     private TextView mDebugText;
-    private TextView mIsTrackingText;
+    protected TextView mIsTrackingText;
     private TextView mEffectDescription;
     protected RecordBtn mTakePicBtn;
     protected ViewStub mBottomViewStub;
@@ -259,7 +260,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
         @Override
         public void onReadBitmapListener(Bitmap bitmap) {
-            String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
+            String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".png";
             String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
             if (result != null) {
                 runOnUiThread(new Runnable() {
@@ -429,11 +430,13 @@ public abstract class FUBaseActivity extends AppCompatActivity
     private File mVideoOutFile;
     private MediaMuxerWrapper mMuxer;
     private volatile MediaVideoEncoder mVideoEncoder;
+    private CountDownLatch mCountDownLatch;
 
     /**
      * 录制封装回调
      */
     private final MediaEncoder.MediaEncoderListener mMediaEncoderListener = new MediaEncoder.MediaEncoderListener() {
+
         @Override
         public void onPrepared(final MediaEncoder encoder) {
             if (encoder instanceof MediaVideoEncoder) {
@@ -457,7 +460,9 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
         @Override
         public void onStopped(final MediaEncoder encoder) {
-            if (encoder instanceof MediaVideoEncoder) {
+            mCountDownLatch.countDown();
+            // Call when MediaVideoEncoder's callback and MediaAudioEncoder's callback both are called.
+            if (mCountDownLatch.getCount() == 0) {
                 Log.d(TAG, "onStopped: tid:" + Thread.currentThread().getId());
                 // onStopped is called on codec thread, it may be interrupted, so we execute following code async.
                 ThreadHelper.getInstance().execute(new Runnable() {
@@ -488,6 +493,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
      */
     private void startRecording() {
         try {
+            mCountDownLatch = new CountDownLatch(2);
             String videoFileName = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".mp4";
             mVideoOutFile = new File(FileUtils.getExternalCacheDir(this), videoFileName);
             mMuxer = new MediaMuxerWrapper(mVideoOutFile.getAbsolutePath());

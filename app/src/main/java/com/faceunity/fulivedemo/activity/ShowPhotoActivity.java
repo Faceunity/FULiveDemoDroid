@@ -29,6 +29,7 @@ import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.renderer.PhotoRenderer;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.control.AnimControlView;
+import com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyHairControlView;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
@@ -141,6 +142,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                 .inputTextureType(0)
                 .inputImageOrientation(360)
                 .inputIsImage(1)
+                .setUseBeautifyBody(selectEffectType == Effect.EFFECT_TYPE_BEAUTY_BODY)
                 .setNeedBeautyHair(selectEffectType == Effect.EFFECT_TYPE_HAIR_GRADIENT)
                 .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
                 .setOnTrackingStatusChangedListener(this)
@@ -200,6 +202,10 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
             BeautyHairControlView beautyHairControlView = findViewById(R.id.fu_beauty_hair);
             beautyHairControlView.setVisibility(View.VISIBLE);
             beautyHairControlView.setOnFUControlListener(mFURenderer);
+        } else if (BeautifyBodyActivity.TAG.equals(selectDataType)) {
+            BeautifyBodyControlView beautifyBodyControlView = findViewById(R.id.fu_beautify_body);
+            beautifyBodyControlView.setVisibility(View.VISIBLE);
+            beautifyBodyControlView.setOnFUControlListener(mFURenderer);
         } else {
             RecyclerView effectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
             effectRecyclerView.setVisibility(View.VISIBLE);
@@ -267,7 +273,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         BitmapUtil.glReadBitmap(textureId, PhotoRenderer.IMG_DATA_MATRIX, PhotoRenderer.ROTATE_90, texWidth, texHeight, new BitmapUtil.OnReadBitmapListener() {
             @Override
             public void onReadBitmapListener(Bitmap bitmap) {
-                String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
+                String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".png";
                 final String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
                 if (result != null) {
                     runOnUiThread(new Runnable() {

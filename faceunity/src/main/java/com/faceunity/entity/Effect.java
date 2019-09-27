@@ -25,6 +25,7 @@ public class Effect {
     public static final int EFFECT_TYPE_HAIR_GRADIENT = 14;
     public static final int EFFECT_TYPE_LIVE_PHOTO = 15;
     public static final int EFFECT_TYPE_AVATAR = 16;
+    public static final int EFFECT_TYPE_BEAUTY_BODY = 17;
 
     private String bundleName;
     private int resId;

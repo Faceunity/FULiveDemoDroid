@@ -3,6 +3,7 @@ package com.faceunity.fulivedemo.renderer;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import com.faceunity.fulivedemo.utils.FPSUtil;
@@ -78,7 +79,8 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         Log.d(TAG, "onSurfaceChanged: viewWidth:" + width + ", viewHeight:" + height + ", photoWidth:"
                 + mPhotoWidth + ", photoHeight:" + mPhotoHeight + ", textureId:" + mPhotoTextureId);
         GLES20.glViewport(0, 0, width, height);
-        mMvpMatrix = GlUtil.changeMVPMatrixCrop(ROTATE_90, width, height, mPhotoWidth, mPhotoHeight);
+        mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mPhotoWidth, mPhotoHeight);
+        Matrix.rotateM(mMvpMatrix, 0, 90, 0, 0, 1);
         mFPSUtil.resetLimit();
 
         mOnRendererStatusListener.onSurfaceChanged(width, height);

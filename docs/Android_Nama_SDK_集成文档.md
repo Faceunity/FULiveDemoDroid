@@ -1,18 +1,23 @@
 # Android Nama SDK 集成指导文档  
 级别：Public
 
-更新日期：2019-08-14
+更新日期：2019-09-25
 
-SDK版本: 6.3.0
+SDK版本: 6.4.0
 
 ------
 ## 最新更新内容：
 
-2019-08-14 v6.3.0：
+2019-09-25 v6.4.0：
 
-- 优化人脸美妆功能，提高性能，降低功耗。
-- 新增fuSetFaceTrackParam接口，用于设置人脸表情跟踪参数。 
-- 新增人脸美颜精细磨皮效果。
+- 新增美体瘦身功能，支持瘦身、长腿、美臀、细腰、肩部调整，一键美体。
+- 优化美颜功能中精细磨皮，性能以及效果提升，提升皮肤细腻程度，更好保留边缘细节。
+- 优化美发功能，边缘稳定性及性能提升。
+- 优化美妆功能，性能提升，CPU占有率降低，Android中低端机表现明显。
+- 优化手势识别功能，性能提升，CPU占有率降低，在Android机型表现明显。
+- 修复人脸检测多人脸偶现crash问题。
+- 修复捏脸功能中模型截断问题。
+- 关闭美颜道具打印冗余log。
 
 ------
 
@@ -42,8 +47,10 @@ SDK版本: 6.3.0
           +avatar                          // Avatar 捏脸
             +avatar_hair                   // Avatar 头发道具
             -avatar_background.bundle      // Avatar 背景道具
-            -avatar_male.bundle            // Avatar 男性头部道具
+            -avatar_head.bundle            // Avatar 头部道具
             -avatar_color.json             // 颜色配置
+          +beautify_body                   // 美体
+            -BodySlim.bundle               // 美体道具
           +beautify_face                   // 美颜
             -face_beautification.bundle    // 美颜道具
           +cartoon_filter                  // 卡通滤镜
@@ -105,22 +112,22 @@ SDK版本: 6.3.0
 全功能版本（支持 TensorFlow 和物理特效）：
 
 ```groovy
-implementation 'com.faceunity:nama:6.3.0'
+implementation 'com.faceunity:nama:6.4.0'
 ```
 
 lite 版（不含物理特效的版本）：
 
 ```groovy
-implementation 'com.faceunity:nama:6.3.0-lite'
+implementation 'com.faceunity:nama:6.4.0-lite'
 ```
 
 **注：**Gradle 集成的 aar 中仅包含库文件（libnama.so 与 nama.jar）以及初始化必须的数据模型（v3.bundle）等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
 
 #### 3.1.2 Github 下载
 
-全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v6.3.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.3/Faceunity-Android-v6.3.zip)
+全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v6.4.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.4/Faceunity-Android-v6.4.zip)
 
-lite 版（不含物理特效的版本）：[Faceunity-Android-v6.3-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.3/Faceunity-Android-v6.3-lite.zip)
+lite 版（不含物理特效的版本）：[Faceunity-Android-v6.4-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.4/Faceunity-Android-v6.4-lite.zip)
 
 #### 3.1.3 库文件说明
 
@@ -754,6 +761,12 @@ Nama SDK 从 6.0.0 开始支持质感美颜功能。
 质感美颜方案是一套更为精致高效的美颜解决方案，包含磨皮、美型、滤镜、美妆4大模块，提供60+套丰富素材库，支持客户任意切换风格与效果变化。
 
 首先加载 light_makeup.bundle，然后设置腮红、眼影、眼线、口红等参数，使用方法请参考 FULiveDemo 中的示例代码。
+
+### 4.14 美体功能
+
+Nama SDK 从 6.4.0 开始支持美体瘦身功能，包括瘦身、长腿、美臀、细腰、肩部调整，一键美体。
+
+首先加载 BodySlim.bundle，然后设置瘦身、长腿、美臀、细腰等参数，参数说明请查阅 [美体道具功能文档](./美体道具功能文档.md)，同时也可以参考我们 Demo 中的实际使用方法。
 
 ------
 

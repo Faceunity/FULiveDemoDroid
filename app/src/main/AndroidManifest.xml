@@ -91,6 +91,10 @@
             android:name=".activity.LivePhotoMakeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
+        <activity
+            android:name=".activity.BeautifyBodyActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme" />
     </application>
 
 </manifest>

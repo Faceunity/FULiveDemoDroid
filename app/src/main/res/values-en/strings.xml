@@ -18,6 +18,7 @@
     <string name="home_function_name_live_photo">Live Photo</string>
     <string name="home_function_name_avatar">Knead Face</string>
     <string name="home_function_name_makeup">Make Up</string>
+    <string name="home_function_name_beauty_body">Body Shape</string>
     <string name="sorry_no_permission">Sorry ,Your license is not supported for these functions.</string>
     <string name="camera_dialog_title">warning</string>
     <string name="camera_dialog_message">Camera permissions are disabled or the camera is occupied by another app!</string>
@@ -28,7 +29,6 @@
     <string name="save_photo_success">Save photo successfully!</string>
     <string name="save_video_success">Save video successfully!</string>
     <string name="fu_base_is_tracking_text">No Face Tracking</string>
-    <string name="fu_base_height">Performance preferred</string>
     <string name="fu_base_input_type_single">SingleInput</string>
     <string name="fu_base_input_type_double">DualInput</string>
 
@@ -40,8 +40,9 @@
     <string name="beauty_box_skin_detect">Skin Detect</string>
     <string name="beauty_box_skin_detect_close">Skin Detect off</string>
     <string name="beauty_box_skin_detect_open">Skin Detect on</string>
-    <string name="beauty_box_heavy_blur_double">Heavy Blur</string>
-    <string name="beauty_box_heavy_blur_normal">Light Blur</string>
+    <string name="beauty_box_heavy_blur_fine">Fine Blur Mode</string>
+    <string name="beauty_box_heavy_blur_clear">Light Blur Mode</string>
+    <string name="beauty_box_heavy_blur_hazy">Heavy Blur Mode</string>
     <string name="beauty_box_heavy_blur_double_text">Heavy Blur mode</string>
     <string name="beauty_box_heavy_blur_normal_text">Light Blur mode</string>
     <string name="beauty_radio_beauty">Light Makeup</string>
@@ -244,5 +245,12 @@
     <string name="makeup_combination_coral">Coral</string>
     <string name="makeup_combination_lady">Lady</string>
     <string name="makeup_combination_man">Tough guy</string>
+
+    <string name="slimming">Body</string>
+    <string name="long_legs">Leg</string>
+    <string name="thin_waist">Waist</string>
+    <string name="beautify_shoulder">Shoulder</string>
+    <string name="beautify_hip_slim">Hip</string>
+    <string name="toast_not_detect_body">No Body Tracking</string>
 
 </resources>

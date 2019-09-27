@@ -2,9 +2,10 @@ package com.faceunity.fulivedemo.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -129,13 +130,19 @@ public class SelectDataActivity extends AppCompatActivity {
             case R.id.back:
                 onBackPressed();
                 break;
-            case R.id.select_data_photo_layout:
+            case R.id.select_data_photo_layout: {
                 Intent intentPhoto = new Intent();
                 intentPhoto.addCategory(Intent.CATEGORY_OPENABLE);
                 intentPhoto.setType("image/*");
-                intentPhoto.setAction(Build.VERSION.SDK_INT < 19 ? Intent.ACTION_GET_CONTENT : Intent.ACTION_OPEN_DOCUMENT);
+                intentPhoto.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                ResolveInfo resolveInfo = getPackageManager().resolveActivity(intentPhoto, PackageManager.MATCH_DEFAULT_ONLY);
+                if (resolveInfo == null) {
+                    intentPhoto.setAction(Intent.ACTION_GET_CONTENT);
+                    intentPhoto.removeCategory(Intent.CATEGORY_OPENABLE);
+                }
                 startActivityForResult(intentPhoto, IMAGE_REQUEST_CODE_PHOTO);
-                break;
+            }
+            break;
 //                拍摄照片代码
 //            case R.id.select_data_take_photo:
 //                Intent intentCamera = new Intent();
@@ -156,13 +163,19 @@ public class SelectDataActivity extends AppCompatActivity {
 //                intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
 //                startActivityForResult(intentCamera, IMAGE_REQUEST_CODE_TAKE_PHOTO);
 //                break;
-            case R.id.select_data_video_layout:
+            case R.id.select_data_video_layout: {
                 Intent intentVideo = new Intent();
                 intentVideo.addCategory(Intent.CATEGORY_OPENABLE);
                 intentVideo.setType("video/*");
-                intentVideo.setAction(Build.VERSION.SDK_INT < 19 ? Intent.ACTION_GET_CONTENT : Intent.ACTION_OPEN_DOCUMENT);
+                intentVideo.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                ResolveInfo resolveInfo = getPackageManager().resolveActivity(intentVideo, PackageManager.MATCH_DEFAULT_ONLY);
+                if (resolveInfo == null) {
+                    intentVideo.setAction(Intent.ACTION_GET_CONTENT);
+                    intentVideo.removeCategory(Intent.CATEGORY_OPENABLE);
+                }
                 startActivityForResult(intentVideo, IMAGE_REQUEST_CODE_VIDEO);
-                break;
+            }
+            break;
             default:
         }
     }

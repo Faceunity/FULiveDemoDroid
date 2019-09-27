@@ -73,7 +73,6 @@ public enum EffectEnum {
     Effect_fu_lm_koreaheart("fu_lm_koreaheart", R.drawable.fu_lm_koreaheart, "effect/gesture/ssd_thread_korheart.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.fu_lm_koreaheart),
     Effect_ssd_thread_six("ssd_thread_six", R.drawable.ssd_thread_six, "effect/gesture/ssd_thread_six.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_six),
     Effect_ssd_thread_cute("ssd_thread_cute", R.drawable.ssd_thread_cute, "effect/gesture/ssd_thread_cute.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_cute),
-    Effect_ssd_thread_thumb("ssd_thread_thumb", R.drawable.ssd_thread_thumb, "effect/gesture/ssd_thread_thumb.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_thumb),
     /**
      * Animoji
      */
@@ -107,27 +106,27 @@ public enum EffectEnum {
     /**
      * 渐变美发
      */
-    Hair_Gradient_01("Gradient_Hair_01", R.drawable.icon_gradualchangehair_01, "effect/beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_02("Gradient_Hair_02", R.drawable.icon_gradualchangehair_02, "effect/beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_04("Gradient_Hair_03", R.drawable.icon_gradualchangehair_03, "effect/beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_05("Gradient_Hair_04", R.drawable.icon_gradualchangehair_04, "effect/beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_06("Gradient_Hair_05", R.drawable.icon_gradualchangehair_05, "effect/beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_01("Gradient_Hair_01", R.drawable.icon_gradualchangehair_01, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_02("Gradient_Hair_02", R.drawable.icon_gradualchangehair_02, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_04("Gradient_Hair_03", R.drawable.icon_gradualchangehair_03, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_05("Gradient_Hair_04", R.drawable.icon_gradualchangehair_04, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_06("Gradient_Hair_05", R.drawable.icon_gradualchangehair_05, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
     /**
      * 普通美发
      */
-    Hair_01("Hair_01", R.drawable.icon_beautymakeup_hairsalon_01, "effect/beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_02("Hair_02", R.drawable.icon_beautymakeup_hairsalon_02, "effect/beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_03("Hair_03", R.drawable.icon_beautymakeup_hairsalon_03, "effect/beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_04("Hair_04", R.drawable.icon_beautymakeup_hairsalon_04, "effect/beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_05("Hair_05", R.drawable.icon_beautymakeup_hairsalon_05, "effect/beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_06("Hair_06", R.drawable.icon_beautymakeup_hairsalon_06, "effect/beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "effect/beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "effect/beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_01("Hair_01", R.drawable.icon_beautymakeup_hairsalon_01, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_02("Hair_02", R.drawable.icon_beautymakeup_hairsalon_02, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_03("Hair_03", R.drawable.icon_beautymakeup_hairsalon_03, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_04("Hair_04", R.drawable.icon_beautymakeup_hairsalon_04, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_05("Hair_05", R.drawable.icon_beautymakeup_hairsalon_05, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_06("Hair_06", R.drawable.icon_beautymakeup_hairsalon_06, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
 
     /**
-     * Avatar
+     * Avatar 捏脸头部
      */
-    AVATAR_MALE("avatar_male", 0, "avatar/avatar_male.bundle", 1, Effect.EFFECT_TYPE_AVATAR, 0);
+    AVATAR_HEAD("avatar_head", 0, "avatar/avatar_head.bundle", 1, Effect.EFFECT_TYPE_AVATAR, 0);
 
     private String bundleName;
     private int resId;

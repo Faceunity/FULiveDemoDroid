@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
 import com.faceunity.FURenderer;
@@ -19,6 +20,8 @@ import com.faceunity.fulivedemo.entity.BeautyParameterModel;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
+import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.kyleduo.switchbutton.SwitchButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;

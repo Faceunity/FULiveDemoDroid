@@ -3,9 +3,10 @@ package com.faceunity.fulivedemo.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.support.constraint.ConstraintLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,6 +31,7 @@ import java.io.IOException;
 
 /**
  * 海报换脸拍照界面
+ *
  * @author Richie
  */
 public class PosterChangeFaceCameraActivity extends FUBaseActivity {
@@ -78,8 +80,12 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
                 Intent intentPhoto = new Intent();
                 intentPhoto.addCategory(Intent.CATEGORY_OPENABLE);
                 intentPhoto.setType("image/*");
-                intentPhoto.setAction(Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT ? Intent.ACTION_GET_CONTENT
-                        : Intent.ACTION_OPEN_DOCUMENT);
+                intentPhoto.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                ResolveInfo resolveInfo = getPackageManager().resolveActivity(intentPhoto, PackageManager.MATCH_DEFAULT_ONLY);
+                if (resolveInfo == null) {
+                    intentPhoto.setAction(Intent.ACTION_GET_CONTENT);
+                    intentPhoto.removeCategory(Intent.CATEGORY_OPENABLE);
+                }
                 startActivityForResult(intentPhoto, REQ_PHOTO);
             }
         });
@@ -169,7 +175,7 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
         }
         mIsNeedTakePic = false;
         mCameraRenderer.setNeedStopDraw(true);
-        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener,false);
+        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener, false);
     }
 
     private void setTakeViewVisible(boolean visible) {
@@ -193,7 +199,7 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
                 ThreadHelper.getInstance().execute(new Runnable() {
                     @Override
                     public void run() {
-                        String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
+                        String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".png";
                         String result = MiscUtil.saveBitmap(mShotBitmap, Constant.photoFilePath, name);
                         if (result != null) {
                             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(result))));

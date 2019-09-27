@@ -1,5 +1,7 @@
 package com.faceunity.fulivedemo.activity;
 
+import android.support.constraint.ConstraintLayout;
+
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.ui.control.BeautyHairControlView;
@@ -17,6 +19,14 @@ public class FUHairActivity extends FUBaseActivity {
         mBottomViewStub.inflate();
         BeautyHairControlView beautyHairControlView = findViewById(R.id.fu_beauty_hair);
         beautyHairControlView.setOnFUControlListener(mFURenderer);
+
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mTakePicBtn.getLayoutParams();
+        params.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
+        params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+        params.bottomMargin = getResources().getDimensionPixelSize(R.dimen.x298);
+        mTakePicBtn.setLayoutParams(params);
+        int size = getResources().getDimensionPixelSize(R.dimen.x122);
+        mTakePicBtn.setDrawWidth(size);
     }
 
     @Override

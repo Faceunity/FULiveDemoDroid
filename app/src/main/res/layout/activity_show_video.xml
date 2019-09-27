@@ -87,10 +87,19 @@
     <com.faceunity.fulivedemo.ui.control.BeautyHairControlView
         android:id="@+id/fu_beauty_hair"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/x268"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView
+        android:id="@+id/fu_beautify_body"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x268"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fu_effect_recycler"

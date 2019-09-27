@@ -1,16 +1,21 @@
 # Demo运行说明文档-Android
 
 级别：Public 
-更新日期：2019-08-14
+更新日期：2019-09-25
 
 ------
 ### 最新更新内容：
 
-2019-08-14 v6.3.0：
+2019-09-25 v6.4.0：
 
-- 优化人脸美妆功能，提高性能，降低功耗。
-- 新增fuSetFaceTrackParam接口，用于设置人脸表情跟踪参数。 
-- 新增人脸美颜精细磨皮效果。
+- 新增美体瘦身功能，支持瘦身、长腿、美臀、细腰、肩部调整，一键美体。
+- 优化美颜功能中精细磨皮，性能以及效果提升，提升皮肤细腻程度，更好保留边缘细节。
+- 优化美发功能，边缘稳定性及性能提升。
+- 优化美妆功能，性能提升，CPU占有率降低，Android中低端机表现明显。
+- 优化手势识别功能，性能提升，CPU占有率降低，在Android机型表现明显。
+- 修复人脸检测多人脸偶现crash问题。
+- 修复捏脸功能中模型截断问题。
+- 关闭美颜道具打印冗余log。
 
 文档：
 
@@ -19,6 +24,7 @@
 - [海报换脸功能文档](./海报换脸功能文档.md)
 - [表情动图功能文档](./表情动图功能文档.md)
 - [质感美颜功能文档](./质感美颜功能文档.md)
+- [美体道具功能文档](./美体道具功能文档.md)
 
 工程案例更新：
 
@@ -58,8 +64,10 @@ Demo新增了一个展示Faceunity产品列表的主界面，新版Demo将根据
           +avatar                          // Avatar 捏脸
             +avatar_hair                   // Avatar 头发道具
             -avatar_background.bundle      // Avatar 背景道具
-            -avatar_male.bundle            // Avatar 男性头部道具
+            -avatar_head.bundle            // Avatar 头部道具
             -avatar_color.json             // 颜色配置
+          +beautify_body                   // 美体
+            -BodySlim.bundle               // 美体道具
           +beautify_face                   // 美颜
             -face_beautification.bundle    // 美颜道具
           +cartoon_filter                  // 卡通滤镜
