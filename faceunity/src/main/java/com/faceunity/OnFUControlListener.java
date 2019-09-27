@@ -229,4 +229,38 @@ public interface OnFUControlListener {
      */
     void setMakeupItemColor(String name, double[] colors);
 
+    /**
+     * 设置瘦身程度
+     *
+     * @param intensity
+     */
+    void setBodySlimIntensity(float intensity);
+
+    /**
+     * 设置长腿程度
+     *
+     * @param intensity
+     */
+    void setLegSlimIntensity(float intensity);
+
+    /**
+     * 设置细腰程度
+     *
+     * @param intensity
+     */
+    void setWaistSlimIntensity(float intensity);
+
+    /**
+     * 设置美肩程度
+     *
+     * @param intensity
+     */
+    void setShoulderSlimIntensity(float intensity);
+
+    /**
+     * 设置美臀程度
+     *
+     * @param intensity
+     */
+    void setHipSlimIntensity(float intensity);
 }

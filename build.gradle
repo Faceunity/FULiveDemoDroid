@@ -35,8 +35,8 @@ ext {
     minSdkVersion = 18
     targetSdkVersion = 28
     // update when releasing new version
-    namaSdkVersionCode = 74
-    namaSdkVersionName = "6.3.0-release1"
-    appVersionCode = 33
+    namaSdkVersionCode = 79
+    namaSdkVersionName = "6.4.0-alpha4"
+    appVersionCode = 39
     appVersionName = namaSdkVersionName
 }

@@ -1,24 +1,15 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2019-08-14
-SDK版本: 6.3.0
+更新日期：2019-09-25
+SDK版本: 6.4.0
 
 ------
 ### 最新更新内容：
 
-2019-08-14 v6.3.0:
+2019-09-25 v6.4.0:
 
-1. 新增fuSetFaceTrackParam函数，用于设置人脸跟踪参数。
-
-2019-06-27 v6.2.0:
-
-1. fuSetFaceDetParam函数新增加参数，enable_large_pose_detection。
-
-2019-05-27 v6.1.0：
-
-1. 新增fuSetupLocal函数，支持离线鉴权。
-2. 新增fuDestroyLibData函数，支持tracker内存释放。
+1. v6.4.0 接口无变动。
 
 ------
 

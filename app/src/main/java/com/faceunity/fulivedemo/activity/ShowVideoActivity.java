@@ -35,6 +35,7 @@ import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.renderer.VideoRenderer;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.control.AnimControlView;
+import com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyHairControlView;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
@@ -130,8 +131,10 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         mFURenderer = new FURenderer
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
-                .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
                 .setNeedBeautyHair(selectEffectType == Effect.EFFECT_TYPE_HAIR_GRADIENT)
+                .setUseBeautifyBody(selectEffectType == Effect.EFFECT_TYPE_BEAUTY_BODY)
+                .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
+                .inputImageOrientation(90)
                 .build();
 
         mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
@@ -188,7 +191,11 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
             BeautyHairControlView beautyHairControlView = findViewById(R.id.fu_beauty_hair);
             beautyHairControlView.setVisibility(View.VISIBLE);
             beautyHairControlView.setOnFUControlListener(mFURenderer);
-        } else {
+        } else if (BeautifyBodyActivity.TAG.equals(selectDataType)) {
+            BeautifyBodyControlView beautifyBodyControlView = findViewById(R.id.fu_beautify_body);
+            beautifyBodyControlView.setVisibility(View.VISIBLE);
+            beautifyBodyControlView.setOnFUControlListener(mFURenderer);
+        }else {
             RecyclerView effectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
             effectRecyclerView.setVisibility(View.VISIBLE);
             effectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));

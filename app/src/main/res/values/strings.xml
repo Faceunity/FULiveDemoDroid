@@ -18,6 +18,7 @@
     <string name="home_function_name_live_photo">表情动图</string>
     <string name="home_function_name_avatar">Avatar 捏脸</string>
     <string name="home_function_name_makeup">美妆</string>
+    <string name="home_function_name_beauty_body">美体</string>
     <string name="sorry_no_permission">抱歉，你所使用的证书权限或SDK不包括该功能。</string>
     <string name="camera_dialog_title">警告</string>
     <string name="camera_dialog_message">相机权限被禁用或者相机被别的应用占用！</string>
@@ -28,7 +29,6 @@
     <string name="save_photo_success">保存照片成功！</string>
     <string name="save_video_success">保存视频成功！</string>
     <string name="fu_base_is_tracking_text">未检测到人脸</string>
-    <string name="fu_base_height">性能优先</string>
     <string name="fu_base_input_type_single">单输入</string>
     <string name="fu_base_input_type_double">双输入</string>
 
@@ -243,5 +243,12 @@
     <string name="makeup_combination_coral">珊瑚</string>
     <string name="makeup_combination_lady">仕女</string>
     <string name="makeup_combination_man">硬汉</string>
+
+    <string name="slimming">瘦身</string>
+    <string name="long_legs">长腿</string>
+    <string name="thin_waist">细腰</string>
+    <string name="beautify_shoulder">美肩</string>
+    <string name="beautify_hip_slim">美臀</string>
+    <string name="toast_not_detect_body">未检测到人体</string>
 
 </resources>

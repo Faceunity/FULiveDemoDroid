@@ -95,8 +95,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         }
         Log.d(TAG, "onSurfaceChanged() width:" + width + ", height:" + height + ", videoWidth:"
                 + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation);
-        mMvpMatrix = GlUtil.changeMVPMatrixCrop(GlUtil.IDENTITY_MATRIX, width, height,
-                mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
+        mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
         mFPSUtil.resetLimit();
     }
 

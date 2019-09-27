@@ -6,7 +6,7 @@
     <com.faceunity.fulivedemo.ui.control.BeautyHairControlView
         android:id="@+id/fu_beauty_hair"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/x268"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom" />
 
 </FrameLayout>

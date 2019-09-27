@@ -59,10 +59,12 @@ public class FURenderer implements OnFUControlListener {
     private static final String BUNDLE_FXAA = "fxaa.bundle";
     // 美颜 bundle
     private static final String BUNDLE_FACE_BEAUTIFICATION = "beautify_face/face_beautification.bundle";
+    // 美发极速版模型
+    private static final String BUNDLE_HAIR_MODEL_HIGH_SPEED = "beautify_hair/hair_model_w0305.bundle";
     // 美发正常色 bundle
-    private static final String BUNDLE_HAIR_NORMAL = "effect/beautify_hair/hair_normal.bundle";
+    private static final String BUNDLE_HAIR_NORMAL = "beautify_hair/hair_normal_no_face_no_render.bundle";
     // 美发渐变色 bundle
-    private static final String BUNDLE_HAIR_GRADIENT = "effect/beautify_hair/hair_gradient.bundle";
+    private static final String BUNDLE_HAIR_GRADIENT = "beautify_hair/hair_gradient_no_face_no_render.bundle";
     // Animoji 舌头 bundle
     private static final String BUNDLE_TONGUE = "tongue.bundle";
     // 海报换脸 bundle
@@ -79,6 +81,8 @@ public class FURenderer implements OnFUControlListener {
     private static final String BUNDLE_NEW_FACE_TRACKER = "makeup/new_face_tracker_normal.bundle";
     // Avatar 捏脸的背景 bundle
     private static final String BUNDLE_AVATAR_BACKGROUND = "avatar/avatar_background.bundle";
+    // 美体 bundle
+    private static final String BUNDLE_BEAUTIFY_BODY = "beautify_body/BodySlim.bundle";
 
     private volatile static float mFilterLevel = 1.0f;//滤镜强度
     private volatile static float mSkinDetect = 1.0f;//肤色检测开关
@@ -99,7 +103,6 @@ public class FURenderer implements OnFUControlListener {
     private volatile static float mIntensityForehead = 0.3f;//额头
     private volatile static float mIntensityMouth = 0.4f;//嘴形
     private volatile static float mIntensityNose = 0.5f;//瘦鼻
-    private static final int ITEM_ARRAYS_ABIMOJI_3D_INDEX = 3;
 
     private int mFrameId = 0;
 
@@ -107,23 +110,28 @@ public class FURenderer implements OnFUControlListener {
     private static final int ITEM_ARRAYS_FACE_BEAUTY_INDEX = 0;
     public static final int ITEM_ARRAYS_EFFECT_INDEX = 1;
     private static final int ITEM_ARRAYS_LIGHT_MAKEUP_INDEX = 2;
+    private static final int ITEM_ARRAYS_ABIMOJI_3D_INDEX = 3;
     private static final int ITEM_ARRAYS_HAIR_NORMAL_INDEX = 4;
     private static final int ITEM_ARRAYS_HAIR_GRADIENT_INDEX = 5;
-    private static final int ITEM_ARRAYS_CARTOON_FILTER_INDEX = 7;
     private static final int ITEM_ARRAYS_CHANGE_FACE_INDEX = 6;
-    private static final int ITEM_ARRAYS_NEW_FACE_TRACKER = 12;
+    private static final int ITEM_ARRAYS_CARTOON_FILTER_INDEX = 7;
     private static final int ITEM_ARRAYS_LIVE_PHOTO_INDEX = 8;
     private static final int ITEM_ARRAYS_FACE_MAKEUP_INDEX = 9;
     public static final int ITEM_ARRAYS_AVATAR_BACKGROUND = 10;
     public static final int ITEM_ARRAYS_AVATAR_HAIR = 11;
+    private static final int ITEM_ARRAYS_NEW_FACE_TRACKER = 12;
+    private static final int ITEM_ARRAYS_BEAUTIFY_BODY = 13;
+    private static final int ITEM_ARRAYS_HAIR_MODEL = 14;
+    // 句柄数量
+    private static final int ITEM_ARRAYS_COUNT = 15;
+
     // 海报换脸 track face 50次
     private static final int MAX_TRACK_COUNT = 50;
-    // 句柄数量
-    private static final int ITEM_ARRAYS_COUNT = 13;
 
     // 头发
     public static final int HAIR_NORMAL = 1;
     public static final int HAIR_GRADIENT = 2;
+
     // 默认滤镜，粉嫩效果
     private volatile static String sFilterName = Filter.Key.FENNEN_1;
     //美颜和其他道具的handle数组
@@ -141,6 +149,13 @@ public class FURenderer implements OnFUControlListener {
     private int mInputImageFormat = 0;
     //美颜和滤镜的默认参数
     private volatile boolean isNeedUpdateFaceBeauty = true;
+    // 是否启用美体
+    private boolean mUseBeautifyBody;
+    private float mBodySlimStrength = 0.0f; // 瘦身
+    private float mLegSlimStrength = 0.0f; // 长腿
+    private float mWaistSlimStrength = 0.0f; // 细腰
+    private float mShoulderSlimStrength = 0.5f; // 美肩
+    private float mHipSlimStrength = 0.0f; // 美胯
 
     private volatile int mInputImageOrientation = 270;
     private volatile int mInputPropOrientation = 270;//道具方向（针对全屏道具）
@@ -298,6 +313,7 @@ public class FURenderer implements OnFUControlListener {
             mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_FACE_BEAUTY_INDEX);
         }
         if (isNeedBeautyHair) {
+            mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_HAIR_MODEL);
             if (mHairColorType == HAIR_NORMAL) {
                 mFuItemHandler.sendEmptyMessage(ITEM_ARRAYS_HAIR_NORMAL_INDEX);
             } else {
@@ -339,6 +355,11 @@ public class FURenderer implements OnFUControlListener {
                 MakeupItem makeupItem = entry.getValue();
                 onLightMakeupSelected(makeupItem, makeupItem.getLevel());
             }
+        }
+
+        // 加载美体道具，并设置美体参数
+        if (mUseBeautifyBody) {
+            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_BEAUTIFY_BODY));
         }
 
         // 设置同步
@@ -932,10 +953,18 @@ public class FURenderer implements OnFUControlListener {
         //计算FPS等数据
         benchmarkFPS();
 
-        //获取人脸是否识别，并调用回调接口
-        int isTracking = faceunity.fuIsTracking();
-        if (mOnTrackingStatusChangedListener != null && mTrackingStatus != isTracking) {
-            mOnTrackingStatusChangedListener.onTrackingStatusChanged(mTrackingStatus = isTracking);
+        if (mUseBeautifyBody) {
+            //  是否检测到人体
+            int hasHuman = (int) faceunity.fuItemGetParam(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY], "HasHuman");
+            if (mOnTrackingStatusChangedListener != null && mTrackingStatus != hasHuman) {
+                mOnTrackingStatusChangedListener.onTrackingStatusChanged(mTrackingStatus = hasHuman);
+            }
+        } else {
+            //获取人脸是否识别，并调用回调接口
+            int isTracking = faceunity.fuIsTracking();
+            if (mOnTrackingStatusChangedListener != null && mTrackingStatus != isTracking) {
+                mOnTrackingStatusChangedListener.onTrackingStatusChanged(mTrackingStatus = isTracking);
+            }
         }
 
         //获取faceunity错误信息，并调用回调接口
@@ -1004,7 +1033,17 @@ public class FURenderer implements OnFUControlListener {
                 faceunity.fuOnCameraChange();
                 mRotMode = calculateRotMode();
                 updateEffectItemParams(mDefaultEffect, mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
-                setFaceTrackerOrientation(calculateFaceTrackerOrientation());
+                int trackerOrientation = calculateFaceTrackerOrientation();
+                setFaceTrackerOrientation(trackerOrientation);
+                if (mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] > 0) {
+                    int orientation;
+                    if (mIsInputImage == 1) {
+                        orientation = 0;
+                    } else {
+                        orientation = trackerOrientation;
+                    }
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY], BeautifyBodyParam.ORIENTATION, orientation);
+                }
             }
         });
     }
@@ -1060,10 +1099,23 @@ public class FURenderer implements OnFUControlListener {
                             || mDefaultEffect.effectType() == Effect.EFFECT_TYPE_AVATAR)) {
                         faceunity.fuOnCameraChange();
                     }
+                    int trackerOrientation = calculateFaceTrackerOrientation();
                     if (mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] > 0) {
                         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "rotMode", mRotMode);
+                        // 加载背景分割、全屏前景和全屏背景道具时，当手机发生旋转需要设置参数"rotationMode"
+                        faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "rotationMode", trackerOrientation);
                     }
-                    setFaceTrackerOrientation(calculateFaceTrackerOrientation());
+                    Log.i(TAG, "setTrackOrientation. rotation: " + rotation + ", trackOrientation" + trackerOrientation);
+                    setFaceTrackerOrientation(trackerOrientation);
+                    if (mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] > 0) {
+                        int orientation;
+                        if (mIsInputImage == 1) {
+                            orientation = 0;
+                        } else {
+                            orientation = trackerOrientation;
+                        }
+                        faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY], BeautifyBodyParam.ORIENTATION, orientation);
+                    }
                 }
             });
         }
@@ -1506,6 +1558,71 @@ public class FURenderer implements OnFUControlListener {
         });
     }
 
+    @Override
+    public void setBodySlimIntensity(final float intensity) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mBodySlimStrength = intensity;
+                if (mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] > 0) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY], BeautifyBodyParam.BODY_SLIM_STRENGTH, intensity);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setLegSlimIntensity(final float intensity) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mLegSlimStrength = intensity;
+                if (mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] > 0) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY], BeautifyBodyParam.LEG_SLIM_STRENGTH, intensity);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setWaistSlimIntensity(final float intensity) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mWaistSlimStrength = intensity;
+                if (mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] > 0) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY], BeautifyBodyParam.WAIST_SLIM_STRENGTH, intensity);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setShoulderSlimIntensity(final float intensity) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mShoulderSlimStrength = intensity;
+                if (mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] > 0) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY], BeautifyBodyParam.SHOULDER_SLIM_STRENGTH, intensity);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setHipSlimIntensity(final float intensity) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mHipSlimStrength = intensity;
+                if (mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] > 0) {
+                    faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY], BeautifyBodyParam.HIP_SLIM_STRENGTH, intensity);
+                }
+            }
+        });
+    }
+
     public void loadAvatarBackground() {
         mNeedBackground = true;
         if (mFuItemHandler == null) {
@@ -1813,6 +1930,8 @@ public class FURenderer implements OnFUControlListener {
             faceunity.fuItemSetParam(itemHandle, "loc_y_flip", back);
             faceunity.fuItemSetParam(itemHandle, "loc_x_flip", back);
             faceunity.fuItemSetParam(itemHandle, "rotMode", mRotMode);
+            int trackerOrientation = calculateFaceTrackerOrientation();
+            faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX], "rotationMode", trackerOrientation);
         }
 
         if (effectType == Effect.EFFECT_TYPE_ANIMOJI) {
@@ -1860,6 +1979,7 @@ public class FURenderer implements OnFUControlListener {
         private OnFUDebugListener onFUDebugListener;
         private OnTrackingStatusChangedListener onTrackingStatusChangedListener;
         private OnSystemErrorListener onSystemErrorListener;
+        private boolean useBeautifyBody = false;
 
         public Builder(@NonNull Context context) {
             this.context = context;
@@ -1907,6 +2027,17 @@ public class FURenderer implements OnFUControlListener {
          */
         public Builder maxFaces(int maxFaces) {
             this.maxFaces = maxFaces;
+            return this;
+        }
+
+        /**
+         * 是否使用美体
+         *
+         * @param useBeautBody
+         * @return
+         */
+        public Builder setUseBeautifyBody(boolean useBeautBody) {
+            this.useBeautifyBody = useBeautBody;
             return this;
         }
 
@@ -2082,6 +2213,7 @@ public class FURenderer implements OnFUControlListener {
             fuRenderer.isNeedPosterFace = isNeedPosterFace;
             fuRenderer.mCurrentCameraType = currentCameraType;
             fuRenderer.mComicFilterStyle = filterStyle;
+            fuRenderer.mUseBeautifyBody = useBeautifyBody;
 
             fuRenderer.mOnFUDebugListener = onFUDebugListener;
             fuRenderer.mOnTrackingStatusChangedListener = onTrackingStatusChangedListener;
@@ -2091,6 +2223,47 @@ public class FURenderer implements OnFUControlListener {
         }
     }
 
+    /**
+     * 美体道具参数
+     */
+    public class BeautifyBodyParam {
+        /**
+         * 0.0~1.0，值越大，瘦身幅度越大，0.0为不变形
+         */
+        public static final String BODY_SLIM_STRENGTH = "BodySlimStrength";
+        /**
+         * 0.0~1.0，值越大，腿拉伸幅度越大，0.0为不变形
+         */
+        public static final String LEG_SLIM_STRENGTH = "LegSlimStrength";
+        /**
+         * 0.0~1.0，值越大，瘦腰幅度越大，0.0为不变形
+         */
+        public static final String WAIST_SLIM_STRENGTH = "WaistSlimStrength";
+        /**
+         * 0.0~1.0，小于0.5肩膀变窄，大于0.5肩膀变宽，0.5为不变形
+         */
+        public static final String SHOULDER_SLIM_STRENGTH = "ShoulderSlimStrength";
+        /**
+         * 0.0~1.0，值越大，臀部变宽上提越大，0.0为不变形
+         */
+        public static final String HIP_SLIM_STRENGTH = "HipSlimStrength";
+        /**
+         * 清除所有身体变形
+         */
+        public static final String CLEAR_SLIM = "ClearSlim";
+        /**
+         * 设置相机方向 0, 1, 2, 3
+         */
+        public static final String ORIENTATION = "Orientation";
+        /**
+         * 参数 0.0 或者 1.0,  0.0 为关闭点位绘制，1.0 为打开，默认打开
+         */
+        public static final String DEBUG = "Debug";
+    }
+
+    /**
+     * Avatar 捏脸输入参数
+     */
     static class AvatarConstant {
         public static final int EXPRESSION_LENGTH = 46;
         public static final float[] ROTATION_DATA = new float[]{0f, 0f, 0f, 1f};
@@ -2343,8 +2516,27 @@ public class FURenderer implements OnFUControlListener {
                             mItemsArray[ITEM_ARRAYS_HAIR_GRADIENT_INDEX] = itemHair;
                         }
                     });
-                    break;
                 }
+                break;
+                // 加载头发模型 bundle
+                case ITEM_ARRAYS_HAIR_MODEL: {
+                    final int itemModel = loadItem(BUNDLE_HAIR_MODEL_HIGH_SPEED);
+                    if (itemModel < 0) {
+                        Log.w(TAG, "create hair model failed: " + itemModel);
+                        return;
+                    }
+                    queueEvent(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mItemsArray[ITEM_ARRAYS_HAIR_MODEL] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_HAIR_MODEL]);
+                                mItemsArray[ITEM_ARRAYS_HAIR_MODEL] = 0;
+                            }
+                            mItemsArray[ITEM_ARRAYS_HAIR_MODEL] = itemModel;
+                        }
+                    });
+                }
+                break;
                 // 加载 Animoji 风格滤镜 bundle
                 case ITEM_ARRAYS_CARTOON_FILTER_INDEX: {
                     final int style = (int) msg.obj;
@@ -2418,6 +2610,38 @@ public class FURenderer implements OnFUControlListener {
                             }
                         });
                     }
+                }
+                break;
+                // 美体
+                case ITEM_ARRAYS_BEAUTIFY_BODY: {
+                    final int itemBeautifyBody = loadItem(BUNDLE_BEAUTIFY_BODY);
+                    if (itemBeautifyBody <= 0) {
+                        Log.w(TAG, "create beautify body item failed: " + itemBeautifyBody);
+                        return;
+                    }
+                    queueEvent(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] > 0) {
+                                faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY]);
+                                mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] = 0;
+                            }
+                            faceunity.fuItemSetParam(itemBeautifyBody, BeautifyBodyParam.BODY_SLIM_STRENGTH, mBodySlimStrength);
+                            faceunity.fuItemSetParam(itemBeautifyBody, BeautifyBodyParam.LEG_SLIM_STRENGTH, mLegSlimStrength);
+                            faceunity.fuItemSetParam(itemBeautifyBody, BeautifyBodyParam.WAIST_SLIM_STRENGTH, mWaistSlimStrength);
+                            faceunity.fuItemSetParam(itemBeautifyBody, BeautifyBodyParam.SHOULDER_SLIM_STRENGTH, mShoulderSlimStrength);
+                            faceunity.fuItemSetParam(itemBeautifyBody, BeautifyBodyParam.HIP_SLIM_STRENGTH, mHipSlimStrength);
+                            int orientation;
+                            if (mIsInputImage == 1) {
+                                orientation = 0;
+                            } else {
+                                orientation = calculateFaceTrackerOrientation();
+                            }
+                            faceunity.fuItemSetParam(itemBeautifyBody, BeautifyBodyParam.DEBUG, 0.0);
+                            faceunity.fuItemSetParam(itemBeautifyBody, BeautifyBodyParam.ORIENTATION, orientation);
+                            mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY] = itemBeautifyBody;
+                        }
+                    });
                 }
                 break;
                 // 加载 Avatar 捏脸的头发 bundle

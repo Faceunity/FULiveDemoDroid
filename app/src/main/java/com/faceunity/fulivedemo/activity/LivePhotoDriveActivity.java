@@ -1,9 +1,10 @@
 package com.faceunity.fulivedemo.activity;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.SQLException;
 import android.hardware.Camera;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.Group;
@@ -258,7 +259,12 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
                 Intent intentPhoto = new Intent();
                 intentPhoto.addCategory(Intent.CATEGORY_OPENABLE);
                 intentPhoto.setType("image/*");
-                intentPhoto.setAction(Build.VERSION.SDK_INT < 19 ? Intent.ACTION_GET_CONTENT : Intent.ACTION_OPEN_DOCUMENT);
+                intentPhoto.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                ResolveInfo resolveInfo = getPackageManager().resolveActivity(intentPhoto, PackageManager.MATCH_DEFAULT_ONLY);
+                if (resolveInfo == null) {
+                    intentPhoto.setAction(Intent.ACTION_GET_CONTENT);
+                    intentPhoto.removeCategory(Intent.CATEGORY_OPENABLE);
+                }
                 startActivityForResult(intentPhoto, REQ_PHOTO);
             } else {
                 // 切换模型

@@ -75,7 +75,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             // 截取上面的一部分作为缩略图
             Bitmap cropped = BitmapUtil.clip(bitmap, 0, 0, bitmap.getWidth(), (int) (0.93f * bitmap.getWidth()), true);
             String path = MiscUtil.saveBitmap(cropped, FileUtils.getThumbnailDir(AvatarDriveActivity.this)
-                    .getAbsolutePath(), FileUtils.getUUID32() + ".jpg");
+                    .getAbsolutePath(), FileUtils.getUUID32() + ".png");
             AvatarModel clone = mAvatarModel.cloneIt();
             clone.setIconPath(path);
             clone.setParamJson(AvatarFaceHelper.array2Config());
@@ -255,7 +255,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                 .inputTextureType(1)
                 .maxFaces(1)
                 .inputImageOrientation(frontCameraOrientation)
-                .defaultEffect(EffectEnum.AVATAR_MALE.effect())
+                .defaultEffect(EffectEnum.AVATAR_HEAD.effect())
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .setOnBundleLoadCompleteListener(this)
@@ -458,7 +458,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                     }
                     mFURenderer.loadAvatarBackground();
                     if (!mFURenderer.isAvatarLoaded()) {
-                        mFURenderer.onEffectSelected(EffectEnum.AVATAR_MALE.effect());
+                        mFURenderer.onEffectSelected(EffectEnum.AVATAR_HEAD.effect());
                     }
                     if (!mFURenderer.isAvatarMakeupItemLoaded()) {
                         List<AvatarFaceAspect> avatarFaceAspects = AvatarFaceHelper.config2Array(mAvatarModel.getParamJson());
@@ -511,7 +511,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             if (mFURenderer.isAvatarLoaded()) {
                 setAvatarConfig(adapterItem);
             } else {
-                mFURenderer.onEffectSelected(EffectEnum.AVATAR_MALE.effect());
+                mFURenderer.onEffectSelected(EffectEnum.AVATAR_HEAD.effect());
             }
         }
     }

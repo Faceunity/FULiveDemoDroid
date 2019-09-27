@@ -1,38 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/x268"
-    android:background="#99050f14">
+    android:layout_height="wrap_content">
 
-    <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
-        android:id="@+id/fu_hair_recycler_seek_bar"
-        android:layout_width="@dimen/x528"
-        android:layout_marginTop="@dimen/x40"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        app:layout_constraintRight_toRightOf="parent"
-        app:dsb_indicatorColor="@color/main_color"
-        app:dsb_indicatorElevation="0dp"
-        app:dsb_indicatorPopupEnabled="true"
-        app:dsb_max="100"
-        app:dsb_min="0"
-        app:dsb_progressColor="@color/main_color"
-        app:dsb_rippleColor="@color/main_color"
-        app:dsb_scrubberHeight="@dimen/x4"
-        app:dsb_thumbSize="@dimen/x32"
-        app:dsb_trackBaseHeight="@dimen/x16"
-        app:dsb_trackColor="@color/colorWhite"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <android.support.v7.widget.RecyclerView
-        android:padding="@dimen/x14"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/cl_hair_list"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x268"
+        android:background="#99050f14"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:id="@+id/fu_hair_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent">
+
+        <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
+            android:id="@+id/fu_hair_recycler_seek_bar"
+            android:layout_width="@dimen/x528"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/x40"
+            app:dsb_indicatorColor="@color/main_color"
+            app:dsb_indicatorElevation="0dp"
+            app:dsb_indicatorPopupEnabled="true"
+            app:dsb_max="100"
+            app:dsb_min="0"
+            app:dsb_progressColor="@color/main_color"
+            app:dsb_rippleColor="@color/main_color"
+            app:dsb_scrubberHeight="@dimen/x4"
+            app:dsb_thumbSize="@dimen/x32"
+            app:dsb_trackBaseHeight="@dimen/x16"
+            app:dsb_trackColor="@color/colorWhite"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/fu_hair_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/x14"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>
