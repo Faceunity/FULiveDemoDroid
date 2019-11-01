@@ -103,6 +103,9 @@ public class MediaAudioFileEncoder extends MediaEncoder {
                 } catch (InterruptedException e) {
                     // ignored
                 }
+                if (listener != null) {
+                    listener.onTime(getPTSUs());
+                }
                 mBufferInfo.set(0, sampleSize, getPTSUs(), flags);
                 muxer.writeSampleData(mTrackIndex, mInputBuffer, mBufferInfo);
                 prevOutputPTSUs = mBufferInfo.presentationTimeUs;

@@ -199,10 +199,10 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
                 ThreadHelper.getInstance().execute(new Runnable() {
                     @Override
                     public void run() {
-                        String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".png";
-                        String result = MiscUtil.saveBitmap(mShotBitmap, Constant.photoFilePath, name);
-                        if (result != null) {
-                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(result))));
+                        String filePath = MiscUtil.saveBitmap(mShotBitmap, Constant.photoFilePath, MiscUtil.getCurrentPhotoName());
+                        if (filePath != null) {
+                            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(filePath)));
+                            sendBroadcast(intent);
                         }
                     }
                 });

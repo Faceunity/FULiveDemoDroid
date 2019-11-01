@@ -24,8 +24,20 @@ public class MediaVideoEncoder extends MediaEncoder {
     private static final int IFRAME_INTERVAL = 10;       // I-frames间隔时间
     private static final float BPP = 0.25f;
 
+    /**
+     * 视频宽、高
+     */
     private final int mWidth;
     private final int mHeight;
+    /**
+     * 纹理绘制的起始位置（左下角为（0，0））
+     */
+    private int cropX;
+    private int cropY;
+    /**
+     * 纹理的宽高
+     */
+    private int textureWidth, textureHeight;
     private RenderHandler mRenderHandler;
     private Surface mSurface;
 
@@ -35,13 +47,23 @@ public class MediaVideoEncoder extends MediaEncoder {
     private int[] mViewPort = new int[4];
     private int mFrameCount;
 
-    public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int width, final int height) {
+    public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int videoWidth, final int viewdeoHeight) {
+        this(muxer, listener, videoWidth, viewdeoHeight, 0, 0, videoWidth, viewdeoHeight);
+    }
+
+    public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int videoWidth, final int viewdeoHeight,
+                             int cropX, int cropY, int textureWidth, int textureHeight) {
         super(muxer, listener);
         if (DEBUG) Log.i(TAG, "MediaVideoEncoder: ");
-        mWidth = width;
-        mHeight = height;
+        mWidth = videoWidth;
+        mHeight = viewdeoHeight;
         mRenderHandler = RenderHandler.createHandler(TAG);
+        this.cropX = cropX;
+        this.cropY = cropY;
+        this.textureWidth = textureWidth;
+        this.textureHeight = textureHeight;
     }
+
 
     /**
      * select the first codec that match a specific MIME type
@@ -116,7 +138,7 @@ public class MediaVideoEncoder extends MediaEncoder {
     public boolean frameAvailableSoon(int texId, final float[] texMatrix, float[] mvpMatrix) {
         GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mViewPort, 0);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFBOId[0]);
-        GLES20.glViewport(0, 0, mWidth, mHeight);
+        GLES20.glViewport(cropX, cropY, textureWidth, textureHeight);
         program.drawFrame(texId, texMatrix, mvpMatrix);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
         GLES20.glViewport(mViewPort[0], mViewPort[1], mViewPort[2], mViewPort[3]);

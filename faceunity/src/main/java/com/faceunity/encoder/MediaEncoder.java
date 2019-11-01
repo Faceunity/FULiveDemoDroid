@@ -16,11 +16,20 @@ public abstract class MediaEncoder implements Runnable {
     private static final boolean DEBUG = false;
 
     protected static final int TIMEOUT_USEC = 10000;    // 10[msec]
+    protected TimeListener listener;//录制时间回调
+
+    public interface TimeListener {
+        void onTime(long time);
+    }
 
     public interface MediaEncoderListener {
         public void onPrepared(MediaEncoder encoder);
 
         public void onStopped(MediaEncoder encoder);
+    }
+
+    public void setListener(TimeListener listener) {
+        this.listener = listener;
     }
 
     protected final Object mLock = new Object();

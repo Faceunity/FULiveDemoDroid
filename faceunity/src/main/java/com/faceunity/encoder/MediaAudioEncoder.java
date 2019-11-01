@@ -128,6 +128,9 @@ public class MediaAudioEncoder extends MediaEncoder {
                                     buf.clear();
                                     readBytes = audioRecord.read(buf, SAMPLES_PER_FRAME);
                                     if (readBytes > 0) {
+                                        if (listener != null) {
+                                            listener.onTime(getPTSUs());
+                                        }
                                         // set audio data to encoder
                                         buf.position(readBytes);
                                         buf.flip();

@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.faceunity.utils.FileUtils;
+import com.faceunity.utils.MiscUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -132,7 +133,9 @@ public class LivePhoto implements Parcelable {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        } else if (name.endsWith(".jpg") || name.endsWith(".png")) {
+                        } else if (name.endsWith(MiscUtil.IMAGE_FORMAT_JPG)
+                                || name.endsWith(MiscUtil.IMAGE_FORMAT_JPEG)
+                                || name.endsWith(MiscUtil.IMAGE_FORMAT_PNG)) {
                             livePhoto.setTemplateImagePath(f.getAbsolutePath());
                         }
                     }

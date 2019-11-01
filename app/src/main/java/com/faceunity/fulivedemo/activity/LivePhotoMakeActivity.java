@@ -177,7 +177,7 @@ public class LivePhotoMakeActivity extends AppCompatActivity implements LivePhot
                     @Override
                     public void onReadBitmapListener(Bitmap bitmap) {
                         final String result = MiscUtil.saveBitmap(bitmap, FileUtils.getLivePhotoDir(LivePhotoMakeActivity.this)
-                                .getAbsolutePath(), FileUtils.getUUID32() + ".png");
+                                .getAbsolutePath(), FileUtils.getUUID32() + MiscUtil.IMAGE_FORMAT_JPG);
                         if (result != null && mOnCheckPicListener != null) {
                             runOnUiThread(new Runnable() {
                                 @Override

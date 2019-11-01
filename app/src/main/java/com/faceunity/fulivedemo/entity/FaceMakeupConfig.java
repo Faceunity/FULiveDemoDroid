@@ -587,6 +587,9 @@ public class FaceMakeupConfig {
 
     private static MakeupCombination.SubItem createSubItem(Map<String, Object> combinationMap, int type, String texName, String intensityName, String colorName) {
         List<NewMakeupItem> makeupItems = MAKEUP_ITEM_MAP.get(type);
+        if (combinationMap == null) {
+            return new MakeupCombination.SubItem(type, 1.0, 0, 0);
+        }
         double intensity = (double) combinationMap.get(intensityName);
         double browType = 0;
         if (combinationMap.containsKey(MakeupParamHelper.MakeupParam.BROW_WARP_TYPE)) {
