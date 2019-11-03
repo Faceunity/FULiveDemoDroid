@@ -1487,6 +1487,9 @@ public class FURenderer implements OnFUControlListener {
 
     @Override
     public void selectMakeupItem(final Map<String, Object> paramMap, final boolean removePrevious) {
+        if (paramMap == null) {
+            return;
+        }
         if (removePrevious) {
             final Map<String, Object> prevParams = new HashMap<>(mMakeupParams);
             queueEvent(new Runnable() {

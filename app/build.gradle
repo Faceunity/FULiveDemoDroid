@@ -8,7 +8,7 @@ def appName = 'FULiveDemo'
 /**
  *  SDK 版本号
  */
-def sdkVersionName = '6.4.0-alpha4'
+def sdkVersionName = '6.4.1-beta4'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -42,6 +42,11 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
     }
 }
 

@@ -260,17 +260,17 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
         @Override
         public void onReadBitmapListener(Bitmap bitmap) {
-            String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".png";
-            String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
-            if (result != null) {
+            // Call on async thread
+            final String filePath = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, MiscUtil.getCurrentPhotoName());
+            if (filePath != null) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         ToastUtil.showToast(FUBaseActivity.this, R.string.save_photo_success);
+                        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(filePath)));
+                        sendBroadcast(intent);
                     }
                 });
-                File resultFile = new File(result);
-                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
             }
             mTakePicing = false;
         }

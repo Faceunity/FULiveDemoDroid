@@ -535,12 +535,12 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
             if (id == R.id.iv_poster_save) {
                 if (!mIsSavedPhoto) {
                     Toast.makeText(PosterChangeFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
-                    String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".jpg";
                     try {
-                        File resultFile = new File(Constant.photoFilePath, name);
+                        File resultFile = new File(Constant.photoFilePath, MiscUtil.getCurrentPhotoName());
                         if (mMixedPhotoPath != null) {
                             FileUtils.copyFile(new File(mMixedPhotoPath), resultFile);
-                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
+                            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile));
+                            sendBroadcast(intent);
                             mIsSavedPhoto = true;
                         }
                     } catch (IOException e) {

@@ -856,11 +856,15 @@ public class MakeupControlView extends FrameLayout {
         @Override
         public void onItemClick(BaseRecyclerAdapter<MakeupCombination> adapter, View view, int position) {
             MakeupCombination makeupCombination = adapter.getItem(position);
+            Map<String, Object> paramMap = makeupCombination.getParamMap();
+            if (paramMap == null) {
+                return;
+            }
             if (position == 0) {
                 // 卸妆
                 setCustomEnable(true);
                 mMakeupCombinationSeekBar.setVisibility(View.INVISIBLE);
-                mOnFUControlListener.selectMakeupItem(makeupCombination.getParamMap(), true);
+                mOnFUControlListener.selectMakeupItem(paramMap, true);
                 clearSelectedItems();
             } else {
                 // 预置妆容：5个日常妆，5个主题妆。日常妆支持自定义，主题妆不支持
@@ -872,7 +876,7 @@ public class MakeupControlView extends FrameLayout {
                 double intensity = mSelectedCombinationIntensitys.get(makeupCombination.getNameId(), 1.0);
                 mMakeupCombinationSeekBar.setVisibility(View.VISIBLE);
                 mMakeupCombinationSeekBar.setProgress((int) (intensity * 100));
-                Map<String, Object> paramMapCopy = new HashMap<>(makeupCombination.getParamMap());
+                Map<String, Object> paramMapCopy = new HashMap<>(paramMap);
                 Set<Map.Entry<String, Object>> entries = paramMapCopy.entrySet();
                 for (Map.Entry<String, Object> entry : entries) {
                     String key = entry.getKey();

@@ -28,8 +28,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import static com.faceunity.utils.Constant.filePath;
 
@@ -38,6 +40,9 @@ import static com.faceunity.utils.Constant.filePath;
  */
 
 public class MiscUtil {
+    public static final String IMAGE_FORMAT_JPG = ".jpg";
+    public static final String IMAGE_FORMAT_JPEG = ".jpeg";
+    public static final String IMAGE_FORMAT_PNG = ".png";
 
     private static boolean isDebug = true;
     private static String TAG = "FU-MiscUtil";
@@ -174,8 +179,7 @@ public class MiscUtil {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        final String fileName = filePath + getCurrentDate() +
-                "_" + System.currentTimeMillis() + ".jpg";
+        final String fileName = filePath + getCurrentDate() + "_" + System.currentTimeMillis() + IMAGE_FORMAT_JPG;
         Logger(TAG, "file : " + fileName, false);
         AsyncTask.execute(new Runnable() {
             @Override
@@ -183,7 +187,7 @@ public class MiscUtil {
                 try {
                     File file = new File(fileName);
                     FileOutputStream fos = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                     fos.flush();
                     fos.close();
                     bitmap.recycle();
@@ -195,21 +199,27 @@ public class MiscUtil {
         return fileName;
     }
 
-    public static String saveBitmap(final Bitmap bitmap, String dir, String name) {
+    public static String saveBitmap(Bitmap bitmap, String dir, String name) {
         File dirFile = new File(dir);
         if (!dirFile.exists()) {
             dirFile.mkdirs();
         }
-        final String path = new File(dir, name).getAbsolutePath();
+        File bitmapFile = new File(dir, name);
+        OutputStream fos = null;
         try {
-            File file = new File(path);
-            FileOutputStream fos = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos = new FileOutputStream(bitmapFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             fos.flush();
-            fos.close();
-            return path;
+            return bitmapFile.getAbsolutePath();
         } catch (IOException e) {
             Log.e(TAG, "saveBitmap: ", e);
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException ex) {
+                    // ignored
+                }
+            }
         }
         return null;
     }
@@ -229,8 +239,13 @@ public class MiscUtil {
         return image;
     }
 
+    public static String getCurrentPhotoName() {
+        String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + IMAGE_FORMAT_JPG;
+        return name;
+    }
+
     public static String getCurrentDate() {
-        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
         return df.format(new Date());
     }
 

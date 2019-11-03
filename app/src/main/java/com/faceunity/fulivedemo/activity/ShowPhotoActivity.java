@@ -273,15 +273,14 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         BitmapUtil.glReadBitmap(textureId, PhotoRenderer.IMG_DATA_MATRIX, PhotoRenderer.ROTATE_90, texWidth, texHeight, new BitmapUtil.OnReadBitmapListener() {
             @Override
             public void onReadBitmapListener(Bitmap bitmap) {
-                String name = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".png";
-                final String result = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, name);
-                if (result != null) {
+                final String filePath = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, MiscUtil.getCurrentPhotoName());
+                if (filePath != null) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             ToastUtil.showToast(ShowPhotoActivity.this, R.string.save_photo_success);
-                            File resultFile = new File(result);
-                            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile)));
+                            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(filePath)));
+                            sendBroadcast(intent);
                         }
                     });
                 }

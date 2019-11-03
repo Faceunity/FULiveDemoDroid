@@ -75,7 +75,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             // 截取上面的一部分作为缩略图
             Bitmap cropped = BitmapUtil.clip(bitmap, 0, 0, bitmap.getWidth(), (int) (0.93f * bitmap.getWidth()), true);
             String path = MiscUtil.saveBitmap(cropped, FileUtils.getThumbnailDir(AvatarDriveActivity.this)
-                    .getAbsolutePath(), FileUtils.getUUID32() + ".png");
+                    .getAbsolutePath(), FileUtils.getUUID32() + MiscUtil.IMAGE_FORMAT_JPG);
             AvatarModel clone = mAvatarModel.cloneIt();
             clone.setIconPath(path);
             clone.setParamJson(AvatarFaceHelper.array2Config());

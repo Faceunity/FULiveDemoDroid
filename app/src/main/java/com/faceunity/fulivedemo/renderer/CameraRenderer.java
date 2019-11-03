@@ -201,8 +201,8 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
         }
 
         // 绘制 landmark 点位
-        if (!mIsNeedStopDraw && mLandmarksData != null) {
-            mProgramLandmarks.refresh(mLandmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCameraType);
+        if (DRAW_LANDMARK && !mIsNeedStopDraw && mLandmarksData != null) {
+            mProgramLandmarks.refresh(mLandmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCameraType, mMvpMatrix);
             mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
         }
 
@@ -343,7 +343,9 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            openCamera(cameraType);
+                            if (!mIsCameraOpen) {
+                                openCamera(cameraType);
+                            }
                         }
                     })
                     .setNeutralButton(R.string.camera_dialog_back, new DialogInterface.OnClickListener() {

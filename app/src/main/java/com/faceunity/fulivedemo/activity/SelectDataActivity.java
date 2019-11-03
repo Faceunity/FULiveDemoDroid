@@ -109,7 +109,8 @@ public class SelectDataActivity extends AppCompatActivity {
 
     private boolean checkIsImage(String path) {
         String name = new File(path).getName().toLowerCase();
-        boolean isImage = name.endsWith("png") || name.endsWith(".jpg") || name.endsWith(".jpeg");
+        boolean isImage = name.endsWith(MiscUtil.IMAGE_FORMAT_PNG) || name.endsWith(MiscUtil.IMAGE_FORMAT_JPG)
+                || name.endsWith(MiscUtil.IMAGE_FORMAT_JPEG);
         return isImage;
     }
 

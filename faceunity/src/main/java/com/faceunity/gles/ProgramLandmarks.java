@@ -46,14 +46,13 @@ public class ProgramLandmarks extends Program {
                     "  gl_FragColor = vColor;" +
                     "}";
 
-    private static final float color[] = {1.0f, 0f, 0f, 1.0f};
+    private static final float[] POINT_COLOR = {1.0f, 0f, 0f, 1.0f};
+    private static final float POINT_SIZE = 6.0f;
 
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
     private int mPointSizeHandle;
-
-    private static final float POINT_SIZE = 6.0f;
 
     public ProgramLandmarks() {
         super(vertexShaderCode, fragmentShaderCode);
@@ -94,10 +93,10 @@ public class ProgramLandmarks extends Program {
                 Drawable2d.VERTEXTURE_STRIDE, mDrawable2d.vertexArray());
 
         // Set color for drawing the triangle
-        GLES20.glUniform4fv(mColorHandle, 1, color, 0);
+        GLES20.glUniform4fv(mColorHandle, 1, POINT_COLOR, 0);
 
         // Apply the projection and view transformation
-        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMtx, 0);
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
 
         GLES20.glUniform1f(mPointSizeHandle, POINT_SIZE);
 
@@ -110,29 +109,31 @@ public class ProgramLandmarks extends Program {
     }
 
     public void drawFrame(int x, int y, int width, int height) {
-        drawFrame(0, null, null, x, y, width, height);
+        drawFrame(0, null, mMvpMatrix, x, y, width, height);
     }
 
-    private final float[] mvpMtx = new float[16];
+    private final float[] mMvpMatrix = new float[16];
     private int mCameraType;
-    private int mOrientation;
-    private int mWidth;
-    private int mHeight;
+    private int mCameraOrientation;
+    private int mCameraWidth;
+    private int mCameraHeight;
 
-    public void refresh(float[] landmarksData, int width, int height, int orientation, int cameraType) {
-        if (mWidth != width || mHeight != height || mOrientation != orientation || mCameraType != cameraType) {
+    public void refresh(float[] landmarksData, int cameraWidth, int cameraHeight, int cameraOrientation, int cameraType, float[] mvpMatrix) {
+        if (mCameraWidth != cameraWidth || mCameraHeight != cameraHeight || mCameraOrientation != cameraOrientation || mCameraType != cameraType) {
             float[] orthoMtx = new float[16];
+            Matrix.orthoM(orthoMtx, 0, 0, cameraWidth, 0, cameraHeight, -1, 1);
             float[] rotateMtx = new float[16];
-            Matrix.orthoM(orthoMtx, 0, 0, width, 0, height, -1, 1);
-            Matrix.setRotateM(rotateMtx, 0, 360 - orientation, 0.0f, 0.0f, 1.0f);
+            Matrix.setRotateM(rotateMtx, 0, 360 - cameraOrientation, 0.0f, 0.0f, 1.0f);
             if (cameraType == Camera.CameraInfo.CAMERA_FACING_BACK) {
                 Matrix.rotateM(rotateMtx, 0, 180, 1.0f, 0.0f, 0.0f);
             }
-            Matrix.multiplyMM(mvpMtx, 0, rotateMtx, 0, orthoMtx, 0);
+            float[] temp = new float[16];
+            Matrix.multiplyMM(temp, 0, rotateMtx, 0, orthoMtx, 0);
+            Matrix.multiplyMM(mMvpMatrix, 0, mvpMatrix, 0, temp, 0);
 
-            mWidth = width;
-            mHeight = height;
-            mOrientation = orientation;
+            mCameraWidth = cameraWidth;
+            mCameraHeight = cameraHeight;
+            mCameraOrientation = cameraOrientation;
             mCameraType = cameraType;
         }
 
