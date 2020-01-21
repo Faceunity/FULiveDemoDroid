@@ -1,5 +1,4 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
@@ -9,7 +8,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.2'
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -34,9 +32,8 @@ ext {
     supportCompatV7Version = "28.0.0"
     minSdkVersion = 18
     targetSdkVersion = 28
-    // update when releasing new version
-    namaSdkVersionCode = 80
-    namaSdkVersionName = "6.4.1-beta4"
-    appVersionCode = 40
-    appVersionName = namaSdkVersionName
+    // update info when releasing new version
+    namaSdkVersionCode = 660
+    namaSdkVersionName = "6.6.0-alpha21"
+    namaSdkCommitId = "6.6.0_tf_phy-93f13193-b9e3359-7fd8bd8"
 }

@@ -16,14 +16,13 @@ public enum EffectEnum {
     /**
      * 道具贴纸
      */
-    Effect_bling("bling", R.drawable.bling, "effect/normal/bling.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_fengya_ztt_fu("fengya_ztt_fu", R.drawable.fengya_ztt_fu, "effect/normal/fengya_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_hudie_lm_fu("hudie_lm_fu", R.drawable.hudie_lm_fu, "effect/normal/hudie_lm_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_touhua_ztt_fu("touhua_ztt_fu", R.drawable.touhua_ztt_fu, "effect/normal/touhua_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_juanhuzi_lm_fu("juanhuzi_lm_fu", R.drawable.juanhuzi_lm_fu, "effect/normal/juanhuzi_lm_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_mask_hat("mask_hat", R.drawable.mask_hat, "effect/normal/mask_hat.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_yazui("yazui", R.drawable.yazui, "effect/normal/yazui.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_yuguan("yuguan", R.drawable.yuguan, "effect/normal/yuguan.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
+    Effect_sdlu("sdlu", R.drawable.sdlu, "effect/normal/sdlu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
+    Effect_daisypig("daisypig", R.drawable.daisypig, "effect/normal/daisypig.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
+    Effect_fashi("fashi", R.drawable.fashi, "effect/normal/fashi.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
+    Effect_chri1("chri1", R.drawable.chri1, "effect/normal/chri1.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
+    Effect_xueqiu_lm_fu("xueqiu_lm_fu", R.drawable.xueqiu_lm_fu, "effect/normal/xueqiu_lm_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
+    Effect_wobushi("wobushi", R.drawable.wobushi, "effect/normal/wobushi.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
+    Effect_gaoshiqing("gaoshiqing", R.drawable.gaoshiqing, "effect/normal/gaoshiqing.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
     /**
      * AR面具
      */
@@ -36,16 +35,6 @@ public enum EffectEnum {
     Effect_baozi("baozi", R.drawable.baozi, "effect/ar/baozi.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
     Effect_tiger("tiger", R.drawable.tiger, "effect/ar/tiger.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
     Effect_xiongmao("xiongmao", R.drawable.xiongmao, "effect/ar/xiongmao.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
-    /**
-     * 换脸
-     */
-    Effect_mask_liudehua("mask_liudehua", R.drawable.mask_liudehua, "effect/change/mask_liudehua.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, 0),
-    Effect_mask_linzhiling("mask_linzhiling", R.drawable.mask_linzhiling, "effect/change/mask_linzhiling.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, 0),
-    Effect_mask_luhan("mask_luhan", R.drawable.mask_luhan, "effect/change/mask_luhan.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, 0),
-    Effect_mask_guocaijie("mask_guocaijie", R.drawable.mask_guocaijie, "effect/change/mask_guocaijie.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, 0),
-    Effect_mask_huangxiaoming("mask_huangxiaoming", R.drawable.mask_huangxiaoming, "effect/change/mask_huangxiaoming.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, 0),
-    Effect_mask_matianyu("mask_matianyu", R.drawable.mask_matianyu, "effect/change/mask_matianyu.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, 0),
-    Effect_mask_tongliya("mask_tongliya", R.drawable.mask_tongliya, "effect/change/mask_tongliya.bundle", 4, Effect.EFFECT_TYPE_FACE_CHANGE, 0),
     /**
      * 表情识别
      */
@@ -106,23 +95,22 @@ public enum EffectEnum {
     /**
      * 渐变美发
      */
-    Hair_Gradient_01("Gradient_Hair_01", R.drawable.icon_gradualchangehair_01, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_02("Gradient_Hair_02", R.drawable.icon_gradualchangehair_02, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_04("Gradient_Hair_03", R.drawable.icon_gradualchangehair_03, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_05("Gradient_Hair_04", R.drawable.icon_gradualchangehair_04, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
-    Hair_Gradient_06("Gradient_Hair_05", R.drawable.icon_gradualchangehair_05, "beautify_hair/hair_gradient.bundle", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_01("Gradient_Hair_01", R.drawable.icon_gradualchangehair_01, "", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_02("Gradient_Hair_02", R.drawable.icon_gradualchangehair_02, "", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_04("Gradient_Hair_03", R.drawable.icon_gradualchangehair_03, "", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_05("Gradient_Hair_04", R.drawable.icon_gradualchangehair_04, "", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
+    Hair_Gradient_06("Gradient_Hair_05", R.drawable.icon_gradualchangehair_05, "", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
     /**
      * 普通美发
      */
-    Hair_01("Hair_01", R.drawable.icon_beautymakeup_hairsalon_01, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_02("Hair_02", R.drawable.icon_beautymakeup_hairsalon_02, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_03("Hair_03", R.drawable.icon_beautymakeup_hairsalon_03, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_04("Hair_04", R.drawable.icon_beautymakeup_hairsalon_04, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_05("Hair_05", R.drawable.icon_beautymakeup_hairsalon_05, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_06("Hair_06", R.drawable.icon_beautymakeup_hairsalon_06, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "beautify_hair/hair_normal.bundle", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
-
+    Hair_01("Hair_01", R.drawable.icon_beautymakeup_hairsalon_01, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_02("Hair_02", R.drawable.icon_beautymakeup_hairsalon_02, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_03("Hair_03", R.drawable.icon_beautymakeup_hairsalon_03, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_04("Hair_04", R.drawable.icon_beautymakeup_hairsalon_04, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_05("Hair_05", R.drawable.icon_beautymakeup_hairsalon_05, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_06("Hair_06", R.drawable.icon_beautymakeup_hairsalon_06, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
+    Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
     /**
      * Avatar 捏脸头部
      */

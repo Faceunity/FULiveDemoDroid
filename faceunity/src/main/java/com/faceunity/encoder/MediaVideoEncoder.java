@@ -47,16 +47,16 @@ public class MediaVideoEncoder extends MediaEncoder {
     private int[] mViewPort = new int[4];
     private int mFrameCount;
 
-    public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int videoWidth, final int viewdeoHeight) {
-        this(muxer, listener, videoWidth, viewdeoHeight, 0, 0, videoWidth, viewdeoHeight);
+    public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int videoWidth, final int videoHeight) {
+        this(muxer, listener, videoWidth, videoHeight, 0, 0, videoWidth, videoHeight);
     }
 
-    public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int videoWidth, final int viewdeoHeight,
+    public MediaVideoEncoder(final MediaMuxerWrapper muxer, final MediaEncoderListener listener, final int videoWidth, final int videoHeight,
                              int cropX, int cropY, int textureWidth, int textureHeight) {
         super(muxer, listener);
         if (DEBUG) Log.i(TAG, "MediaVideoEncoder: ");
         mWidth = videoWidth;
-        mHeight = viewdeoHeight;
+        mHeight = videoHeight;
         mRenderHandler = RenderHandler.createHandler(TAG);
         this.cropX = cropX;
         this.cropY = cropY;
@@ -135,7 +135,7 @@ public class MediaVideoEncoder extends MediaEncoder {
         }
     }
 
-    public boolean frameAvailableSoon(int texId, final float[] texMatrix, float[] mvpMatrix) {
+    public boolean frameAvailableSoon(int texId, float[] texMatrix, float[] mvpMatrix) {
         GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mViewPort, 0);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFBOId[0]);
         GLES20.glViewport(cropX, cropY, textureWidth, textureHeight);
@@ -148,7 +148,7 @@ public class MediaVideoEncoder extends MediaEncoder {
         }
         boolean result;
         if (result = super.frameAvailableSoon()) {
-            mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX, mvpMatrix);
+            mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX);
         }
         return result;
     }
@@ -163,7 +163,9 @@ public class MediaVideoEncoder extends MediaEncoder {
 
     private int calcBitRate() {
         final int bitrate = (int) (BPP * FRAME_RATE * mWidth * mHeight);
-        Log.i(TAG, String.format("bitrate=%5.2f[Mbps]", bitrate / 1024f / 1024f));
+        if (DEBUG) {
+            Log.i(TAG, String.format("bitrate=%5.2f[Mbps]", bitrate / 1024f / 1024f));
+        }
         return bitrate;
     }
 

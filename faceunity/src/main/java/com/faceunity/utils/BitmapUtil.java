@@ -30,24 +30,22 @@ public class BitmapUtil {
     /**
      * 读取图片（glReadPixels）
      *
-     * @param textureId
-     * @param mtx
-     * @param mvp
+     * @param texId
+     * @param texMatrix
+     * @param mvpMatrix
      * @param texWidth
      * @param texHeight
      * @param listener
      * @param isOes     是否是OES纹理
      */
-    public static void glReadBitmap(int textureId, float[] mtx, float[] mvp, final int texWidth, final int texHeight, final OnReadBitmapListener listener,
-                                    boolean isOes) {
+    public static void glReadBitmap(int texId, float[] texMatrix, float[] mvpMatrix, final int texWidth, final int texHeight, final OnReadBitmapListener listener, boolean isOes) {
         int[] textures = new int[1];
         GLES20.glGenTextures(1, textures, 0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, texWidth, texHeight, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
         int[] frameBuffers = new int[1];
         GLES20.glGenFramebuffers(1, frameBuffers, 0);
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffers[0]);
         GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, textures[0], 0);
         int[] viewport = new int[4];
@@ -56,9 +54,9 @@ public class BitmapUtil {
         GLES20.glClearColor(0, 0, 0, 0);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         if (isOes) {
-            new ProgramTextureOES().drawFrame(textureId, mtx, mvp);
+            new ProgramTextureOES().drawFrame(texId, texMatrix, mvpMatrix);
         } else {
-            new ProgramTexture2d().drawFrame(textureId, mtx, mvp);
+            new ProgramTexture2d().drawFrame(texId, texMatrix, mvpMatrix);
         }
 
         final ByteBuffer buffer = ByteBuffer.allocateDirect(texWidth * texHeight * 4);

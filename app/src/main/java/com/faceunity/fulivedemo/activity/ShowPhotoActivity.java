@@ -26,6 +26,7 @@ import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.EffectEnum;
+import com.faceunity.fulivedemo.renderer.BaseCameraRenderer;
 import com.faceunity.fulivedemo.renderer.PhotoRenderer;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.control.AnimControlView;
@@ -52,6 +53,9 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     private ImageView mSaveImageView;
     private BeautyControlView mBeautyControlView;
     private FURenderer mFURenderer;
+    private float[] mLandmarksData;
+    private boolean mIsBeautyFace;
+    private boolean mIsMakeup;
 
     private volatile boolean mTakePicing = false;
     private volatile boolean mIsNeedTakePic = false;
@@ -88,6 +92,10 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     public int onDrawFrame(byte[] photoNV21Bytes, int photoTextureId, int photoWidth, int photoHeight) {
         int fuTextureId = mFURenderer.onDrawFrame(photoNV21Bytes, photoTextureId, photoWidth, photoHeight);
         checkPic(fuTextureId, photoWidth, photoHeight);
+        if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS) {
+            mFURenderer.getLandmarksData(0, mLandmarksData);
+            mPhotoRenderer.setLandmarksData(mLandmarksData);
+        }
         return fuTextureId;
     }
 
@@ -106,6 +114,13 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     @Override
     public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
+        if (mIsBeautyFace) {
+            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_75);
+        } else if (mIsMakeup) {
+            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_239);
+        } else {
+            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_DDE);
+        }
         if (mMakeupControlView != null) {
             mMakeupControlView.selectDefault();
         }
@@ -136,22 +151,36 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         //初始化FU相关 authpack 为证书文件
+        mIsBeautyFace = FUBeautyActivity.TAG.equals(selectDataType);
+        mIsMakeup = FUMakeupActivity.TAG.equals(selectDataType);
+        boolean isBodySlim = BeautifyBodyActivity.TAG.equals(selectDataType);
+        boolean isHairSeg = FUHairActivity.TAG.equals(selectDataType);
         mFURenderer = new FURenderer
                 .Builder(this)
                 .maxFaces(4)
-                .inputTextureType(0)
-                .inputImageOrientation(360)
-                .inputIsImage(1)
-                .setUseBeautifyBody(selectEffectType == Effect.EFFECT_TYPE_BEAUTY_BODY)
-                .setNeedBeautyHair(selectEffectType == Effect.EFFECT_TYPE_HAIR_GRADIENT)
-                .setCurrentCameraType(Camera.CameraInfo.CAMERA_FACING_BACK)
+                .inputIsImage(true)
+                .inputImageOrientation(0)
+                .setLoadAiFaceLandmark75(!mIsMakeup)
+                .setLoadAiFaceLandmark239(mIsMakeup)
+                .setLoadAiHumanPose(isBodySlim)
+                .setLoadAiHairSeg(isHairSeg)
+                .setLoadAiBgSeg(selectEffectType == Effect.EFFECT_TYPE_BACKGROUND)
+                .setLoadAiGesture(selectEffectType == Effect.EFFECT_TYPE_GESTURE)
+                .setUseBeautifyBody(isBodySlim)
+                .setNeedBeautyHair(isHairSeg)
+                .setCameraFacing(Camera.CameraInfo.CAMERA_FACING_BACK)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
 
+        if (mIsMakeup) {
+            mLandmarksData = new float[239 * 2];
+        } else {
+            mLandmarksData = new float[75 * 2];
+        }
         mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
         mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
         mSaveImageView = (ImageView) findViewById(R.id.show_save_btn);
-        if (FUBeautyActivity.TAG.equals(selectDataType)) {
+        if (mIsBeautyFace) {
             mBeautyControlView = (BeautyControlView) findViewById(R.id.fu_beauty_control);
             mBeautyControlView.setVisibility(View.VISIBLE);
             mBeautyControlView.setOnFUControlListener(mFURenderer);
@@ -161,19 +190,13 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                     mSaveImageView.setAlpha(1 - showRate);
                 }
             });
-            mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
-                @Override
-                public void onDescriptionShowListener(int str) {
-                    showDescription(str, 1500);
-                }
-            });
             glSurfaceView.setOnClickListener(new OnMultiClickListener() {
                 @Override
                 protected void onMultiClick(View v) {
                     mBeautyControlView.hideBottomLayoutAnimator();
                 }
             });
-        } else if (FUMakeupActivity.TAG.equals(selectDataType)) {
+        } else if (mIsMakeup) {
             mMakeupControlView = findViewById(R.id.fu_makeup_control);
             mMakeupControlView.setVisibility(View.VISIBLE);
             mMakeupControlView.setOnFUControlListener(mFURenderer);
@@ -198,11 +221,11 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                     mSaveImageView.setAlpha(1 - showRate);
                 }
             });
-        } else if (FUHairActivity.TAG.equals(selectDataType)) {
+        } else if (isHairSeg) {
             BeautyHairControlView beautyHairControlView = findViewById(R.id.fu_beauty_hair);
             beautyHairControlView.setVisibility(View.VISIBLE);
             beautyHairControlView.setOnFUControlListener(mFURenderer);
-        } else if (BeautifyBodyActivity.TAG.equals(selectDataType)) {
+        } else if (isBodySlim) {
             BeautifyBodyControlView beautifyBodyControlView = findViewById(R.id.fu_beautify_body);
             beautifyBodyControlView.setVisibility(View.VISIBLE);
             beautifyBodyControlView.setOnFUControlListener(mFURenderer);
@@ -225,7 +248,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         }
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mSaveImageView.getLayoutParams();
-        params.bottomMargin = (int) getResources().getDimension(FUBeautyActivity.TAG.equals(selectDataType) ? R.dimen.x151 : R.dimen.x199);
+        params.bottomMargin = (int) getResources().getDimension(mIsBeautyFace ? R.dimen.x151 : R.dimen.x199);
         mSaveImageView.setLayoutParams(params);
     }
 

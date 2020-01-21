@@ -19,6 +19,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -279,8 +280,19 @@ public class MiscUtil {
                 }
             } else if (isDownloadsDocument(fileUri)) {
                 String id = DocumentsContract.getDocumentId(fileUri);
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-                return getDataColumn(context, contentUri, null, null);
+                if (!TextUtils.isEmpty(id)) {
+                    if (id.startsWith("raw:")) {
+                        //fix 播放部分华为视频路径报错
+                        return id.replaceFirst("raw:", "");
+                    }
+                    try {
+                        final Uri contentUri = ContentUris.withAppendedId(
+                                Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                        return getDataColumn(context, contentUri, null, null);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                }
             } else if (isMediaDocument(fileUri)) {
                 String docId = DocumentsContract.getDocumentId(fileUri);
                 String[] split = docId.split(":");

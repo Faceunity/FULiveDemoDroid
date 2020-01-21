@@ -30,10 +30,10 @@ import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.fragment.AvatarMakeFragment;
-import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.ColorConstant;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.FileUtils;
@@ -51,7 +51,11 @@ import java.util.Set;
  * @author Richie on 2019.03.20
  */
 public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.OnBundleLoadCompleteListener {
-    private static final double[] NORMAL_XYZ = new double[]{0, 0, 0};
+    public static final float MAKE_TRANSLATION_Y = 120F;
+    public static final float MAKE_TRANSLATION_Z = 200F;
+    public static final float CUSTOM_TRANSLATION_Y = 60F;
+    public static final float CUSTOM_TRANSLATION_Z = 140F;
+    private float[] mTranslation = new float[]{0F, MAKE_TRANSLATION_Y, MAKE_TRANSLATION_Z};
     public static final String AVATAR_MODEL_LIST = "avatar_model_list";
     private static final int REQ_DELETE = 123;
     private static final String TAG = "AvatarDriveActivity";
@@ -84,6 +88,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
             try {
                 DatabaseOpenHelper.getInstance().getAvatarModelDao().insertOrUpdate(clone);
                 mFURenderer.recomputeFaceup();
+                mFURenderer.setMultiSamples(0);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -112,31 +117,31 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
     };
 
     @Override
-    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mvpMatrix, long timeStamp) {
-        int fuTextureId = 0;
+    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight,
+                           float[] mvpMatrix, float[] texMatrix, long timeStamp) {
+        int fuTexId = 0;
         if (mInMakeMode) {
             // 捏脸模式
-            fuTextureId = mFURenderer.onDrawFrameAvatar(cameraNV21Byte, cameraWidth, cameraHeight);
+            fuTexId = mFURenderer.onDrawFrameAvatar(cameraWidth, cameraHeight, mTranslation);
             if (mSnapShot) {
                 mSnapShot = false;
-                BitmapUtil.glReadBitmap(fuTextureId, mvpMatrix, mCameraRenderer.getMvpMatrix(), cameraHeight,
-                        cameraWidth, mSnapshotBitmapListener, false);
+                BitmapUtil.glReadBitmap(fuTexId, texMatrix, GlUtil.IDENTITY_MATRIX, cameraHeight, cameraWidth, mSnapshotBitmapListener, false);
             }
         } else {
             // 驱动模式
-            if (isDoubleInputType) {
-                fuTextureId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
+            if (mIsDualInput) {
+                fuTexId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
             } else if (cameraNV21Byte != null) {
                 if (mFuNV21Byte == null || mFuNV21Byte.length != cameraNV21Byte.length) {
                     mFuNV21Byte = new byte[cameraNV21Byte.length];
                 }
                 System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
-                fuTextureId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
+                fuTexId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
             }
-            sendRecordingData(fuTextureId, mvpMatrix, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
-            checkPic(fuTextureId, mvpMatrix, cameraHeight, cameraWidth);
+            sendRecordingData(fuTexId, mvpMatrix, texMatrix, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
+            takePicture(fuTexId, mvpMatrix, texMatrix, mCameraRenderer.getViewWidth(), mCameraRenderer.getViewHeight());
         }
-        return fuTextureId;
+        return fuTexId;
     }
 
     @Override
@@ -165,10 +170,6 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
 
     public void showDrivePage() {
         mFURenderer.unloadAvatarBackground();
-        mFURenderer.setAvatarTranslate(NORMAL_XYZ);
-        mFURenderer.setAvatarHairTranslate(NORMAL_XYZ);
-        mFURenderer.setAvatarScale(AvatarMakeFragment.NORMAL_SCALE);
-        mFURenderer.setAvatarHairScale(AvatarMakeFragment.NORMAL_SCALE);
         mFlFragment.setVisibility(View.INVISIBLE);
         mClOperationView.setVisibility(View.VISIBLE);
         AvatarModel avatarModel = mAvatarModelAdapter.getSelectedItems().valueAt(0);
@@ -247,14 +248,21 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
         return DatabaseOpenHelper.getInstance().getAvatarModelDao().queryAll();
     }
 
+    public void setTranslationY(float y) {
+        mTranslation[1] = y;
+    }
+
+    public void setTranslationZ(float z) {
+        mTranslation[2] = z;
+    }
+
     @Override
     protected FURenderer initFURenderer() {
-        int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
         return new FURenderer
                 .Builder(this)
                 .inputTextureType(1)
                 .maxFaces(1)
-                .inputImageOrientation(frontCameraOrientation)
+                .inputImageOrientation(mFrontCameraOrientation)
                 .defaultEffect(EffectEnum.AVATAR_HEAD.effect())
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
@@ -299,7 +307,6 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                 @Override
                 public void run() {
                     if (isMakeAvatarViewVisible()) {
-                        mAvatarMakeFragment.transformModelHead();
                         mFURenderer.enterFaceShape();
                         Set<Map.Entry<String, Float>> aspectEntries = AvatarFaceHelper.FACE_ASPECT_MAP.entrySet();
                         for (Map.Entry<String, Float> aspectEntry : aspectEntries) {
@@ -330,10 +337,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                     if (isMakeAvatarViewVisible()) {
                         mAvatarMakeFragment.showLoadingView(false);
                     }
-                    // 如果选择页显示，那么改变 y 位置
-                    mFURenderer.enterFaceShape();
                     if (isMakeAvatarViewVisible()) {
-                        mAvatarMakeFragment.transformModelHair();
                         Set<Map.Entry<String, double[]>> avatarColorEntries = AvatarFaceHelper.FACE_ASPECT_COLOR_MAP.entrySet();
                         for (Map.Entry<String, double[]> avatarColorEntry : avatarColorEntries) {
                             String key = avatarColorEntry.getKey();
@@ -348,7 +352,6 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                             }
                             mPendingHairColors.clear();
                         }
-                        mFURenderer.recomputeFaceup();
                     }
                 }
             });
@@ -450,7 +453,6 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                     showFragment();
                     mClOperationView.setVisibility(View.INVISIBLE);
                     mInMakeMode = true;
-                    mFURenderer.enterFaceShape();
                     // create or edit model
                     boolean isCreate = (boolean) mTvNewAvatar.getTag();
                     if (isCreate) {
@@ -474,6 +476,7 @@ public class AvatarDriveActivity extends FUBaseActivity implements FURenderer.On
                             mFURenderer.loadAvatarHair(AvatarFaceHelper.sFaceHairBundlePath);
                         }
                     }
+                    mFURenderer.setMultiSamples(4);
                 }
                 break;
                 case R.id.fl_delete_model: {

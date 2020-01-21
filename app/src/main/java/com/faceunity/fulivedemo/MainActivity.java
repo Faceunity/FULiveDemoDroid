@@ -23,6 +23,7 @@ import com.faceunity.fulivedemo.activity.FUBeautyActivity;
 import com.faceunity.fulivedemo.activity.FUEffectActivity;
 import com.faceunity.fulivedemo.activity.FUHairActivity;
 import com.faceunity.fulivedemo.activity.FUMakeupActivity;
+import com.faceunity.fulivedemo.activity.LightMakeupActivity;
 import com.faceunity.fulivedemo.activity.LivePhotoDriveActivity;
 import com.faceunity.fulivedemo.activity.PosterChangeListActivity;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
@@ -41,13 +42,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int[] home_function_type = {
             Effect.EFFECT_TYPE_NONE,
+            Effect.EFFECT_TYPE_BEAUTY_BODY,
             Effect.EFFECT_TYPE_NONE,
             Effect.EFFECT_TYPE_NORMAL,
             Effect.EFFECT_TYPE_ANIMOJI,
-            Effect.EFFECT_TYPE_BEAUTY_BODY,
+            Effect.EFFECT_TYPE_NONE,
             Effect.EFFECT_TYPE_NONE,
             Effect.EFFECT_TYPE_AR,
-            Effect.EFFECT_TYPE_FACE_CHANGE,
             Effect.EFFECT_TYPE_POSTER_FACE,
             Effect.EFFECT_TYPE_EXPRESSION,
             Effect.EFFECT_TYPE_MUSIC_FILTER,
@@ -61,34 +62,34 @@ public class MainActivity extends AppCompatActivity {
 
     // 文档：http://confluence.faceunity.com/pages/viewpage.action?pageId=10453059
     private static final String[] home_function_permissions_code = {
-            "9-0",                    //美颜，轻美妆
-            "524288-0",                //美妆
-            "6-0",              //道具贴纸
+            "9-0",                    //美颜
+            "0-32",                   // 美体
+            "524288-0",               //美妆
+            "6-0",                    //道具贴纸
             "16-0",                   //Animoji
-            "0-32",              // 美体
-            "1048576-0",               //美发
-            "96-0",            //AR面具
-            "128-0",                   //换脸
-            "8388608-0",               //海报换脸
-            "2048-0",                  //表情识别
-            "131072-0",                //音乐滤镜
+            "0-8",                    //轻美妆
+            "1048576-0",              //美发
+            "96-0",                   //AR面具
+            "8388608-0",              //海报换脸
+            "2048-0",                 //表情识别
+            "131072-0",               //音乐滤镜
             "256-0",                  //背景分割
             "512-0",                  //手势识别
             "65536-0",                //哈哈镜
-            "32768-0",                 //人像驱动
-            "0-16",                    //Avatar捏脸
+            "32768-0",                //人像驱动
+            "0-16",                   //Avatar捏脸
             "16777216-0"              //表情动图
     };
 
     private static final int[] home_function_name = {
             R.string.home_function_name_beauty,
+            R.string.home_function_name_beauty_body,
             R.string.home_function_name_makeup,
             R.string.home_function_name_normal,
             R.string.home_function_name_animoji,
-            R.string.home_function_name_beauty_body,
+            R.string.home_function_name_light_makeup,
             R.string.home_function_name_hair,
             R.string.home_function_name_ar,
-            R.string.home_function_name_face_change,
             R.string.home_function_name_poster_face,
             R.string.home_function_name_expression,
             R.string.home_function_name_music_filter,
@@ -102,13 +103,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int[] home_function_res = {
             R.drawable.main_beauty,
+            R.drawable.demo_icon_body,
             R.drawable.main_makeup,
             R.drawable.main_effect,
             R.drawable.main_animoji,
-            R.drawable.demo_icon_body,
+            R.drawable.demo_icon_texture_beauty,
             R.drawable.main_hair,
             R.drawable.main_ar_mask,
-            R.drawable.main_change_face,
             R.drawable.main_poster_face,
             R.drawable.main_expression,
             R.drawable.main_music_fiter,
@@ -213,33 +214,27 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent;
                         if (home_function_res[position] == R.drawable.main_beauty) {
                             intent = new Intent(MainActivity.this, FUBeautyActivity.class);
-                            startActivity(intent);
+                        } else if(home_function_res[pos] == R.drawable.demo_icon_texture_beauty){
+                            intent = new Intent(MainActivity.this, LightMakeupActivity.class);
                         } else if (home_function_res[position] == R.drawable.main_makeup) {
                             intent = new Intent(MainActivity.this, FUMakeupActivity.class);
-                            startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_hair) {
                             intent = new Intent(MainActivity.this, FUHairActivity.class);
-                            startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_poster_face) {
                             intent = new Intent(MainActivity.this, PosterChangeListActivity.class);
-                            startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_animoji) {
                             intent = new Intent(MainActivity.this, FUAnimojiActivity.class);
-                            startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_live_photo) {
                             intent = new Intent(MainActivity.this, LivePhotoDriveActivity.class);
-                            startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.main_avatar) {
                             intent = new Intent(MainActivity.this, AvatarDriveActivity.class);
-                            startActivity(intent);
                         } else if (home_function_res[position] == R.drawable.demo_icon_body) {
                             intent = new Intent(MainActivity.this, BeautifyBodyActivity.class);
-                            startActivity(intent);
                         } else {
                             intent = new Intent(MainActivity.this, FUEffectActivity.class);
-                            intent.putExtra("EffectType", home_function_type[position]);
-                            startActivity(intent);
+                            intent.putExtra(FUEffectActivity.EFFECT_TYPE, home_function_type[position]);
                         }
+                        startActivity(intent);
                     }
                 });
             }

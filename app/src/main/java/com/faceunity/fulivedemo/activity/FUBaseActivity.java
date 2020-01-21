@@ -3,6 +3,8 @@ package com.faceunity.fulivedemo.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,14 +19,17 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -35,10 +40,13 @@ import com.faceunity.encoder.MediaEncoder;
 import com.faceunity.encoder.MediaMuxerWrapper;
 import com.faceunity.encoder.MediaVideoEncoder;
 import com.faceunity.fulivedemo.R;
-import com.faceunity.fulivedemo.renderer.CameraRenderer;
+import com.faceunity.fulivedemo.renderer.BaseCameraRenderer;
+import com.faceunity.fulivedemo.renderer.Camera1Renderer;
+import com.faceunity.fulivedemo.renderer.OnRendererStatusListener;
 import com.faceunity.fulivedemo.ui.CameraFocus;
 import com.faceunity.fulivedemo.ui.RecordBtn;
 import com.faceunity.fulivedemo.ui.VerticalSeekBar;
+import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.fulivedemo.utils.ToastUtil;
@@ -50,6 +58,7 @@ import com.faceunity.utils.MiscUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -58,7 +67,7 @@ import java.util.concurrent.CountDownLatch;
  * Created by tujh on 2018/1/31.
  */
 public abstract class FUBaseActivity extends AppCompatActivity
-        implements CameraRenderer.OnRendererStatusListener,
+        implements OnRendererStatusListener,
         SensorEventListener,
         FURenderer.OnFUDebugListener,
         FURenderer.OnTrackingStatusChangedListener {
@@ -66,19 +75,21 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
     protected ImageView mTopBackground;
     protected GLSurfaceView mGLSurfaceView;
-    protected CameraRenderer mCameraRenderer;
-    protected volatile boolean isDoubleInputType = true;
+    protected BaseCameraRenderer mCameraRenderer;
+    protected volatile boolean mIsDualInput = true;
     private TextView mDebugText;
     protected TextView mIsTrackingText;
     private TextView mEffectDescription;
     protected RecordBtn mTakePicBtn;
     protected ViewStub mBottomViewStub;
-    protected ImageView mSelectDataBtn;
     private LinearLayout mLlLight;
     private VerticalSeekBar mVerticalSeekBar;
     protected CameraFocus mCameraFocus;
     protected ConstraintLayout mClOperationView;
     protected ConstraintLayout mRootView;
+    private PopupWindow mPopupWindow;
+    protected RadioGroup mInputTypeRadioGroup;
+    private ImageView mIvShowMore;
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
@@ -93,9 +104,12 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
     protected FURenderer mFURenderer;
     protected byte[] mFuNV21Byte;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
-    protected volatile boolean mTakePicing = false;
-    protected RadioGroup mInputTypeRadioGroup;
+    protected int mFrontCameraOrientation;
+    private float[][] mLandmarksDataArray;
+    private float[] mLandmarksDataNew;
+    private int mTrackedFaceCount;
+    protected Handler mMainHandler = new Handler(Looper.getMainLooper());
+    protected volatile boolean mIsTakingPic = false;
 
     protected abstract void onCreate();
 
@@ -116,14 +130,14 @@ public abstract class FUBaseActivity extends AppCompatActivity
             return false;
         }
         if (event.getPointerCount() == 1 && event.getAction() == MotionEvent.ACTION_DOWN) {
-            mCameraRenderer.handleFocus(event.getRawX(), event.getRawY());
+            mCameraRenderer.handleFocus(event.getRawX(), event.getRawY(), getResources().getDimensionPixelSize(R.dimen.x150));
             mCameraFocus.showCameraFocus(event.getRawX(), event.getRawY());
             mLlLight.setVisibility(View.VISIBLE);
             onLightFocusVisibilityChanged(true);
             mVerticalSeekBar.setProgress((int) (100 * mCameraRenderer.getExposureCompensation()));
 
-            mHandler.removeCallbacks(mCameraFocusDismiss);
-            mHandler.postDelayed(mCameraFocusDismiss, 1300);
+            mMainHandler.removeCallbacks(mCameraFocusDismiss);
+            mMainHandler.postDelayed(mCameraFocusDismiss, 1300);
             return true;
         }
         return false;
@@ -135,7 +149,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mCameraRenderer.onCreate();
         mCameraRenderer.onResume();
         mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
@@ -145,7 +158,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
         super.onPause();
         mSensorManager.unregisterListener(this);
         mCameraRenderer.onPause();
-        mCameraRenderer.onDestroy();
     }
 
     protected volatile boolean mIsNeedTakePic = false;
@@ -218,6 +230,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
     @Override
     public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
+        mFURenderer.setBeautificationOn(true);
+        mFURenderer.setFaceBeautyLandmarksType(getLandmarksType());
     }
 
     @Override
@@ -225,23 +239,22 @@ public abstract class FUBaseActivity extends AppCompatActivity
     }
 
     @Override
-    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mvpMatrix, long timeStamp) {
-        int fuTextureId = 0;
-        if (isDoubleInputType) {
-            fuTextureId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
+    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight,
+                           float[] mvpMatrix, float[] texMatrix, long timeStamp) {
+        int fuTexId = 0;
+        if (mIsDualInput) {
+            fuTexId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
         } else if (cameraNV21Byte != null) {
             if (mFuNV21Byte == null || mFuNV21Byte.length != cameraNV21Byte.length) {
                 mFuNV21Byte = new byte[cameraNV21Byte.length];
             }
             System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
-            fuTextureId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
+            fuTexId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
         }
-        if (CameraRenderer.DRAW_LANDMARK) {
-            mCameraRenderer.setLandmarksData(mFURenderer.getLandmarksData(0));
-        }
-        sendRecordingData(fuTextureId, mvpMatrix, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
-        checkPic(fuTextureId, mvpMatrix, cameraHeight, cameraWidth);
-        return fuTextureId;
+        showLandmarks();
+        sendRecordingData(fuTexId, mvpMatrix, texMatrix, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
+        takePicture(fuTexId, mvpMatrix, texMatrix, mCameraRenderer.getViewWidth(), mCameraRenderer.getViewHeight());
+        return fuTexId;
     }
 
     @Override
@@ -250,9 +263,14 @@ public abstract class FUBaseActivity extends AppCompatActivity
     }
 
     @Override
-    public void onCameraChange(int cameraType, int cameraOrientation) {
-        mFURenderer.onCameraChange(cameraType, cameraOrientation);
-        mVerticalSeekBar.setProgress((int) (100 * mCameraRenderer.getExposureCompensation()));
+    public void onCameraChanged(int cameraFacing, int cameraOrientation) {
+        mFURenderer.onCameraChange(cameraFacing, cameraOrientation);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVerticalSeekBar.setProgress((int) (100 * mCameraRenderer.getExposureCompensation()));
+            }
+        });
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~拍照录制部分~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -272,33 +290,32 @@ public abstract class FUBaseActivity extends AppCompatActivity
                     }
                 });
             }
-            mTakePicing = false;
+            mIsTakingPic = false;
         }
     };
 
     public void takePic() {
-        if (mTakePicing) {
+        if (mIsTakingPic) {
             return;
         }
         mIsNeedTakePic = true;
-        mTakePicing = true;
+        mIsTakingPic = true;
     }
 
     /**
      * 拍照
      *
-     * @param textureId
-     * @param mtx
+     * @param texId
+     * @param texMatrix
      * @param texWidth
      * @param texHeight
      */
-    protected void checkPic(int textureId, float[] mtx, final int texWidth, final int texHeight) {
+    protected void takePicture(int texId, float[] mvpMatrix, float[] texMatrix, final int texWidth, final int texHeight) {
         if (!mIsNeedTakePic) {
             return;
         }
         mIsNeedTakePic = false;
-        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener
-                , false);
+        BitmapUtil.glReadBitmap(texId, texMatrix, mvpMatrix, texWidth, texHeight, mOnReadBitmapListener, false);
     }
 
     public void onClick(View v) {
@@ -307,7 +324,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
                 onBackPressed();
                 break;
             case R.id.fu_base_camera_change:
-                mCameraRenderer.changeCamera();
+                mCameraRenderer.switchCamera();
                 break;
             default:
         }
@@ -324,7 +341,15 @@ public abstract class FUBaseActivity extends AppCompatActivity
         MiscUtil.checkPermission(this);
         mGLSurfaceView = (GLSurfaceView) findViewById(R.id.fu_base_gl_surface);
         mGLSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGLVersion(this));
-        mCameraRenderer = new CameraRenderer(this, mGLSurfaceView, this);
+//        boolean hasCamera2 = CameraUtils.hasCamera2(this);
+//        Log.i(TAG, "onCreate: hasCamera2:" + hasCamera2);
+//        if (hasCamera2) {
+//            mCameraRenderer = new Camera2Renderer(this, mGLSurfaceView, this);
+//        } else {
+        mCameraRenderer = new Camera1Renderer(this, mGLSurfaceView, this);
+//        }
+        mFrontCameraOrientation = CameraUtils.getFrontCameraOrientation();
+        mFURenderer = initFURenderer();
         mGLSurfaceView.setRenderer(mCameraRenderer);
         mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         mTopBackground = (ImageView) findViewById(R.id.fu_base_top_background);
@@ -337,10 +362,10 @@ public abstract class FUBaseActivity extends AppCompatActivity
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.fu_base_input_type_double:
-                        isDoubleInputType = true;
+                        mIsDualInput = true;
                         break;
                     case R.id.fu_base_input_type_single:
-                        isDoubleInputType = false;
+                        mIsDualInput = false;
                         break;
                     default:
                 }
@@ -354,6 +379,25 @@ public abstract class FUBaseActivity extends AppCompatActivity
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mDebugText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        mIvShowMore = findViewById(R.id.fu_base_more);
+        if (isOpenResolutionChange()) {
+            mIvShowMore.setImageResource(R.drawable.demo_icon_more);
+        } else if (isOpenPhotoVideo()) {
+            mIvShowMore.setImageResource(R.drawable.photo);
+        } else {
+            mIvShowMore.setVisibility(View.INVISIBLE);
+        }
+        mIvShowMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isOpenResolutionChange()) {
+                    showMorePopupWindow();
+                } else {
+                    onSelectPhotoVideoClick();
+                }
             }
         });
 
@@ -378,7 +422,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
         });
         mClOperationView = (ConstraintLayout) findViewById(R.id.cl_custom_view);
         mRootView = (ConstraintLayout) findViewById(R.id.cl_root);
-        mSelectDataBtn = (ImageView) findViewById(R.id.fu_base_select_data);
         mBottomViewStub = (ViewStub) findViewById(R.id.fu_base_bottom);
         mBottomViewStub.setInflatedId(R.id.fu_base_bottom);
         mLlLight = (LinearLayout) findViewById(R.id.photograph_light_layout);
@@ -388,8 +431,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mCameraRenderer.setExposureCompensation((float) progress / 100);
-                mHandler.removeCallbacks(mCameraFocusDismiss);
-                mHandler.postDelayed(mCameraFocusDismiss, 1300);
+                mMainHandler.removeCallbacks(mCameraFocusDismiss);
+                mMainHandler.postDelayed(mCameraFocusDismiss, 1300);
             }
 
             @Override
@@ -401,8 +444,53 @@ public abstract class FUBaseActivity extends AppCompatActivity
             }
         });
 
-        mFURenderer = initFURenderer();
         onCreate();
+    }
+
+    private void showLandmarks() {
+        if (!BaseCameraRenderer.ENABLE_DRAW_LANDMARKS) {
+            return;
+        }
+
+        int trackedFaceCount = mFURenderer.getTrackedFaceCount();
+        int landmarksType = getLandmarksType();
+        if (trackedFaceCount > 0) {
+            if (FURenderer.FACE_LANDMARKS_DDE == landmarksType) {
+                if (mTrackedFaceCount != trackedFaceCount) {
+                    mLandmarksDataArray = new float[trackedFaceCount][75 * 2];
+                    mTrackedFaceCount = trackedFaceCount;
+                }
+                for (int i = 0; i < trackedFaceCount; i++) {
+                    mFURenderer.getLandmarksData(i, FURenderer.LANDMARKS, mLandmarksDataArray[i]);
+                }
+                mCameraRenderer.setLandmarksDataArray(mLandmarksDataArray);
+            } else {
+                if (mTrackedFaceCount != trackedFaceCount) {
+                    mTrackedFaceCount = trackedFaceCount;
+                    if (FURenderer.FACE_LANDMARKS_75 == landmarksType) {
+                        mLandmarksDataNew = new float[trackedFaceCount * 75 * 2];
+                    } else if (FURenderer.FACE_LANDMARKS_239 == landmarksType) {
+                        mLandmarksDataNew = new float[trackedFaceCount * 239 * 2];
+                    }
+                }
+                mFURenderer.getLandmarksData(0, FURenderer.LANDMARKS_NEW, mLandmarksDataNew);
+                mCameraRenderer.setLandmarksDataNew(mLandmarksDataNew);
+            }
+        } else {
+            if (FURenderer.FACE_LANDMARKS_DDE == landmarksType) {
+                if (mLandmarksDataArray != null) {
+                    for (float[] data : mLandmarksDataArray) {
+                        Arrays.fill(data, 0F);
+                    }
+                    mCameraRenderer.setLandmarksDataArray(mLandmarksDataArray);
+                }
+            } else {
+                if (mLandmarksDataNew != null) {
+                    Arrays.fill(mLandmarksDataNew, 0F);
+                    mCameraRenderer.setLandmarksDataNew(mLandmarksDataNew);
+                }
+            }
+        }
     }
 
     /**
@@ -412,9 +500,9 @@ public abstract class FUBaseActivity extends AppCompatActivity
      * @param texMatrix
      * @param timeStamp
      */
-    protected void sendRecordingData(int texId, final float[] texMatrix, final long timeStamp) {
+    protected void sendRecordingData(int texId, float[] mvpMatrix, float[] texMatrix, final long timeStamp) {
         if (mVideoEncoder != null) {
-            mVideoEncoder.frameAvailableSoon(texId, texMatrix, GlUtil.IDENTITY_MATRIX);
+            mVideoEncoder.frameAvailableSoon(texId, texMatrix, mvpMatrix);
             if (mStartTime == 0) {
                 mStartTime = timeStamp;
             }
@@ -499,7 +587,9 @@ public abstract class FUBaseActivity extends AppCompatActivity
             mMuxer = new MediaMuxerWrapper(mVideoOutFile.getAbsolutePath());
 
             // for video capturing
-            new MediaVideoEncoder(mMuxer, mMediaEncoderListener, mCameraRenderer.getCameraHeight(), mCameraRenderer.getCameraWidth());
+            int videoWidth = BaseCameraRenderer.DEFAULT_PREVIEW_HEIGHT;
+            int videoHeight = mCameraRenderer.getHeight4Video() / 2 * 2; // 取偶数
+            new MediaVideoEncoder(mMuxer, mMediaEncoderListener, videoWidth, videoHeight);
             new MediaAudioEncoder(mMuxer, mMediaEncoderListener);
 
             mMuxer.prepare();
@@ -520,4 +610,73 @@ public abstract class FUBaseActivity extends AppCompatActivity
             mMuxer = null;
         }
     }
+
+    private void showMorePopupWindow() {
+        if (mPopupWindow == null) {
+            int width = getResources().getDimensionPixelSize(R.dimen.x682);
+            View view = LayoutInflater.from(this).inflate(R.layout.layout_popup_more, null);
+            RadioGroup rgSolution = view.findViewById(R.id.rg_resolutions);
+            rgSolution.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup group, int checkedId) {
+                    switch (checkedId) {
+                        case R.id.rb_resolution_480p:
+                            mCameraRenderer.changeResolution(640, 480);
+                            break;
+                        case R.id.rb_resolution_720p:
+                            mCameraRenderer.changeResolution(1280, 720);
+                            break;
+                        case R.id.rb_resolution_1080p:
+                            mCameraRenderer.changeResolution(1920, 1080);
+                            break;
+                        default:
+                    }
+                    mFURenderer.cameraChanged();
+                }
+            });
+            if (isOpenPhotoVideo()) {
+                ConstraintLayout clSelectPhoto = view.findViewById(R.id.cl_select_photo);
+                clSelectPhoto.setVisibility(View.VISIBLE);
+                clSelectPhoto.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onSelectPhotoVideoClick();
+                    }
+                });
+            } else {
+                ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) rgSolution.getLayoutParams();
+                params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+                params.bottomMargin = getResources().getDimensionPixelSize(R.dimen.x40);
+            }
+
+            mPopupWindow = new PopupWindow(view, width, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            mPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            mPopupWindow.setOutsideTouchable(true);
+            mPopupWindow.setTouchable(true);
+            mPopupWindow.setAnimationStyle(R.style.photo_more_popup_anim_style);
+        }
+
+        int xOffset = getResources().getDimensionPixelSize(R.dimen.x386);
+        int yOffset = getResources().getDimensionPixelSize(R.dimen.x12);
+        mPopupWindow.showAsDropDown(mIvShowMore, -xOffset + mIvShowMore.getWidth() / 2, yOffset);
+    }
+
+    protected void onSelectPhotoVideoClick() {
+        if (mPopupWindow != null) {
+            mPopupWindow.dismiss();
+        }
+    }
+
+    protected boolean isOpenPhotoVideo() {
+        return false;
+    }
+
+    protected boolean isOpenResolutionChange() {
+        return false;
+    }
+
+    protected int getLandmarksType() {
+        return FURenderer.FACE_LANDMARKS_DDE;
+    }
+
 }

@@ -37,9 +37,9 @@ public class XfermodeRadioButton extends android.support.v7.widget.AppCompatRadi
     public XfermodeRadioButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.xfermode_radio_btn, defStyleAttr, 0);
-
         textXfermode = typedArray.getString(R.styleable.xfermode_radio_btn_text_xfermode);
         textSizeXfermode = typedArray.getDimensionPixelSize(R.styleable.xfermode_radio_btn_text_size_xfermode, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, context.getResources().getDisplayMetrics()));
+        typedArray.recycle();
 
         mMyRadioButtonPaint = new Paint();
         mMyRadioButtonPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.XOR));
@@ -56,7 +56,7 @@ public class XfermodeRadioButton extends android.support.v7.widget.AppCompatRadi
         float top = fontMetrics.top;//为基线到字体上边框的距离,即上图中的top
         float bottom = fontMetrics.bottom;//为基线到字体下边框的距离,即上图中的bottom
         baseLineY = (int) (getMeasuredHeight() - top - bottom) / 2;
-        setMeasuredDimension(40 + textXfermodeWidth, getMeasuredHeight());
+        setMeasuredDimension(getMeasuredWidth(), getMeasuredHeight());
     }
 
     @Override
@@ -71,6 +71,7 @@ public class XfermodeRadioButton extends android.support.v7.widget.AppCompatRadi
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawText(textXfermode, (getMeasuredWidth() - textXfermodeWidth) / 2, baseLineY, mMyRadioButtonPaint);
+        int x = (getMeasuredWidth() - textXfermodeWidth) / 2;
+        canvas.drawText(textXfermode, x, baseLineY, mMyRadioButtonPaint);
     }
 }

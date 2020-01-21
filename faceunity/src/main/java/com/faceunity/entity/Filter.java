@@ -1,31 +1,38 @@
 package com.faceunity.entity;
 
 /**
- * 本demo中滤镜的实体类
+ * 滤镜的实体类
  * Created by tujh on 2018/2/7.
  */
 public class Filter {
-    /**
-     * 滤镜默认值，0.7
-     */
-    public static final float DEFAULT_FILTER_LEVEL = 0.7f;
-
     private String name;
-
-    public Filter(String name, int resId, int description) {
-        this.name = name;
-        this.resId = resId;
-        this.description = description;
-    }
-    private int resId;
-    private int description;
+    private int iconId;
+    private int nameId;
 
     public static Filter create(String name) {
         return new Filter(name);
     }
 
-    public Filter(String name) {
+    private Filter(String name) {
         this.name = name;
+    }
+
+    public Filter(String name, int iconId, int nameId) {
+        this.name = name;
+        this.iconId = iconId;
+        this.nameId = nameId;
+    }
+
+    public String filterName() {
+        return name;
+    }
+
+    public int getIconId() {
+        return iconId;
+    }
+
+    public int getNameId() {
+        return nameId;
     }
 
     @Override
@@ -43,8 +50,6 @@ public class Filter {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + resId;
-        result = 31 * result + description;
         return result;
     }
 
@@ -52,21 +57,7 @@ public class Filter {
     public String toString() {
         return "Filter{" +
                 "name='" + name + '\'' +
-                ", resId=" + resId +
-                ", description=" + description +
                 '}';
-    }
-
-    public String filterName() {
-        return name;
-    }
-
-    public int resId() {
-        return resId;
-    }
-
-    public int description() {
-        return description;
     }
 
     /**
@@ -74,7 +65,6 @@ public class Filter {
      */
     public static class Key {
         public static final String ORIGIN = "origin";
-        public static final String DANYA = "danya";
         public static final String FENNEN_1 = "fennen1";
         public static final String FENNEN_2 = "fennen2";
         public static final String FENNEN_3 = "fennen3";
@@ -125,6 +115,23 @@ public class Filter {
         public static final String GEXING_8 = "gexing8";
         public static final String GEXING_9 = "gexing9";
         public static final String GEXING_10 = "gexing10";
+        public static final String GEXING_11 = "gexing11";
+        public static final String ZIRAN_1 = "ziran1";
+        public static final String ZIRAN_2 = "ziran2";
+        public static final String ZIRAN_3 = "ziran3";
+        public static final String ZIRAN_4 = "ziran4";
+        public static final String ZIRAN_5 = "ziran5";
+        public static final String ZIRAN_6 = "ziran6";
+        public static final String ZIRAN_7 = "ziran7";
+        public static final String ZIRAN_8 = "ziran8";
+        public static final String ZHIGANHUI_1 = "zhiganhui1";
+        public static final String ZHIGANHUI_2 = "zhiganhui2";
+        public static final String ZHIGANHUI_3 = "zhiganhui3";
+        public static final String ZHIGANHUI_4 = "zhiganhui4";
+        public static final String ZHIGANHUI_5 = "zhiganhui5";
+        public static final String ZHIGANHUI_6 = "zhiganhui6";
+        public static final String ZHIGANHUI_7 = "zhiganhui7";
+        public static final String ZHIGANHUI_8 = "zhiganhui8";
     }
 
 }

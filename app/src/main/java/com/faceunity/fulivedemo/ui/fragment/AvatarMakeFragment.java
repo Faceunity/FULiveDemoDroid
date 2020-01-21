@@ -29,7 +29,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
-import com.faceunity.FURenderer;
 import com.faceunity.entity.AvatarModel;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.activity.AvatarDriveActivity;
@@ -59,10 +58,6 @@ import java.util.Set;
  */
 public class AvatarMakeFragment extends Fragment {
     public static final String TAG = "AvatarMakeFragment";
-    public static final int MAKE_TRANSLATION_Y = 140;
-    public static final int CUSTOM_TRANSLATION_Y = 60;
-    public static final float NORMAL_SCALE = 1f;
-    public static final float LARGE_SCALE = 1.2f;
     private static final int ANIMATION_DURATION = 300;
     // 保存进度条数值 -1 --> 1
     private final Map<String, Float> mFaceShapeLevelMap = new HashMap<>(16);
@@ -75,6 +70,7 @@ public class AvatarMakeFragment extends Fragment {
     private AvatarTypeAdapter mAvatarTypeAdapter;
     private RecyclerView mRvAvatarColor;
     private AvatarDriveActivity mActivity;
+    // 自定义模式
     private boolean mInCustom;
     private TextView mTvTitle;
     private TextView mTvItemName;
@@ -259,37 +255,10 @@ public class AvatarMakeFragment extends Fragment {
         }
     }
 
-    public void transformModelHead() {
-        FURenderer fuRenderer = mActivity.getFURenderer();
-        if (mInCustom) {
-            double[] translationValue = new double[]{0, CUSTOM_TRANSLATION_Y, 0};
-            fuRenderer.setAvatarTranslate(translationValue);
-            fuRenderer.setAvatarScale(LARGE_SCALE);
-        } else {
-            double[] translationValue = new double[]{0, MAKE_TRANSLATION_Y, 0};
-            fuRenderer.setAvatarTranslate(translationValue);
-            fuRenderer.setAvatarScale(NORMAL_SCALE);
-        }
-    }
-
-    public void transformModelHair() {
-        FURenderer fuRenderer = mActivity.getFURenderer();
-        if (mInCustom) {
-            double[] translationValue = new double[]{0, CUSTOM_TRANSLATION_Y, 0};
-            fuRenderer.setAvatarHairTranslate(translationValue);
-            fuRenderer.setAvatarScale(LARGE_SCALE);
-            fuRenderer.setAvatarHairScale(LARGE_SCALE);
-        } else {
-            double[] translationValue = new double[]{0, MAKE_TRANSLATION_Y, 0};
-            fuRenderer.setAvatarHairTranslate(translationValue);
-            fuRenderer.setAvatarHairScale(NORMAL_SCALE);
-        }
-    }
-
     public void startMakeAnimation() {
-        ValueAnimator valueAnimator = ValueAnimator.ofFloat(CUSTOM_TRANSLATION_Y, MAKE_TRANSLATION_Y).setDuration(ANIMATION_DURATION);
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(AvatarDriveActivity.CUSTOM_TRANSLATION_Y,
+                AvatarDriveActivity.MAKE_TRANSLATION_Y).setDuration(ANIMATION_DURATION);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            private double[] translationValue = new double[]{0, CUSTOM_TRANSLATION_Y, 0};
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -297,13 +266,8 @@ public class AvatarMakeFragment extends Fragment {
                     return;
                 }
                 float val = (float) animation.getAnimatedValue();
-                translationValue[1] = val;
-                mActivity.getFURenderer().setAvatarTranslate(translationValue);
-                mActivity.getFURenderer().setAvatarHairTranslate(translationValue);
+                mActivity.setTranslationY(val);
                 float animatedFraction = animation.getAnimatedFraction();
-                float scale = LARGE_SCALE - animatedFraction * (LARGE_SCALE - NORMAL_SCALE);
-                mActivity.getFURenderer().setAvatarScale(scale);
-                mActivity.getFURenderer().setAvatarHairScale(scale);
                 performMakeAnimation(animatedFraction, true);
             }
         });
@@ -312,9 +276,9 @@ public class AvatarMakeFragment extends Fragment {
     }
 
     public void startCustomAnimation() {
-        ValueAnimator valueAnimator = ValueAnimator.ofFloat(MAKE_TRANSLATION_Y, CUSTOM_TRANSLATION_Y).setDuration(ANIMATION_DURATION);
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(AvatarDriveActivity.MAKE_TRANSLATION_Y,
+                AvatarDriveActivity.CUSTOM_TRANSLATION_Y).setDuration(ANIMATION_DURATION);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            private double[] translationValue = new double[]{0, MAKE_TRANSLATION_Y, 0};
 
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -322,13 +286,8 @@ public class AvatarMakeFragment extends Fragment {
                     return;
                 }
                 float val = (float) animation.getAnimatedValue();
-                translationValue[1] = val;
-                mActivity.getFURenderer().setAvatarTranslate(translationValue);
-                mActivity.getFURenderer().setAvatarHairTranslate(translationValue);
+                mActivity.setTranslationY(val);
                 float animatedFraction = animation.getAnimatedFraction();
-                float scale = NORMAL_SCALE + animatedFraction * (LARGE_SCALE - NORMAL_SCALE);
-                mActivity.getFURenderer().setAvatarScale(scale);
-                mActivity.getFURenderer().setAvatarHairScale(scale);
                 performMakeAnimation(animatedFraction, false);
             }
         });
@@ -448,6 +407,7 @@ public class AvatarMakeFragment extends Fragment {
                     }
                     mActivity.getFURenderer().clearFaceShape();
                     mActivity.getFURenderer().quitFaceup();
+                    mActivity.getFURenderer().setMultiSamples(0);
                     mActivity.showDrivePage();
                 }
 

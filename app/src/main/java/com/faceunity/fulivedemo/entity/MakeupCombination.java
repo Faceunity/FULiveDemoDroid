@@ -2,29 +2,37 @@ package com.faceunity.fulivedemo.entity;
 
 import android.util.SparseArray;
 
+import com.faceunity.entity.MakeupEntity;
+
 import java.util.Map;
 
 /**
- * 组合妆容
+ * 新版美妆妆容组合
  *
  * @author Richie on 2019.06.18
  */
 public class MakeupCombination {
     private int nameId;
     private int iconId;
+    private MakeupEntity makeupEntity;
+    private String jsonPath;
     private Map<String, Object> paramMap;
     // <type, subItem>
     private SparseArray<SubItem> subItems;
 
-    public MakeupCombination(int nameId, int iconId, Map<String, Object> paramMap) {
-        this(nameId, iconId, paramMap, null);
-    }
-
-    public MakeupCombination(int nameId, int iconId, Map<String, Object> paramMap, SparseArray<SubItem> subItems) {
+    public MakeupCombination(int nameId, int iconId, String jsonPath, MakeupEntity makeupEntity) {
         this.nameId = nameId;
         this.iconId = iconId;
-        this.paramMap = paramMap;
-        this.subItems = subItems;
+        this.jsonPath = jsonPath;
+        this.makeupEntity = makeupEntity;
+    }
+
+    public String getJsonPath() {
+        return jsonPath;
+    }
+
+    public void setJsonPath(String jsonPath) {
+        this.jsonPath = jsonPath;
     }
 
     public int getNameId() {
@@ -59,17 +67,26 @@ public class MakeupCombination {
         this.subItems = subItems;
     }
 
+    public MakeupEntity getMakeupEntity() {
+        return makeupEntity;
+    }
+
+    public void setMakeupEntity(MakeupEntity makeupEntity) {
+        this.makeupEntity = makeupEntity;
+    }
+
     @Override
     public String toString() {
         return "MakeupCombination{" +
-                "nameId=" + nameId +
-                ", iconId=" + iconId +
+                "makeupEntity=" + makeupEntity +
+                ", jsonPath=" + jsonPath +
                 ", paramMap=" + paramMap +
+                ", subItems=" + subItems +
                 '}';
     }
 
     /**
-     * 默认选中的条目
+     * 界面上默认选中的条目
      */
     public static class SubItem {
         private int type;

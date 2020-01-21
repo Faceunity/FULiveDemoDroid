@@ -1,6 +1,7 @@
 package com.faceunity.fulivedemo.renderer;
 
 import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import com.faceunity.fulivedemo.utils.FPSUtil;
+import com.faceunity.gles.ProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
 
@@ -22,7 +24,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 /**
  * 使用 GLSurfaceView 渲染视频，采用居中裁剪（CenterCrop）的方式显示
- *
+ * <p>
  * Created by tujh on 2018/3/2.
  */
 public class VideoRenderer implements GLSurfaceView.Renderer {
@@ -36,9 +38,13 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private int mVideoTextureId;
     private int mVideoWidth = 720;
     private int mVideoHeight = 1280;
+    private int mViewWidth;
+    private int mViewHeight;
     private int mVideoRotation = 0;
     private float[] mTexMatrix = new float[16];
     private float[] mMvpMatrix;
+    private float[] mLandmarksData;
+    private ProgramLandmarks mProgramLandmarks;
     private ProgramTexture2d mProgramTexture2d;
     private MediaPlayer.OnCompletionListener mOnCompletionListener;
     private FPSUtil mFPSUtil;
@@ -75,6 +81,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(TAG, "onSurfaceCreated");
         mProgramTexture2d = new ProgramTexture2d();
+        mProgramLandmarks = new ProgramLandmarks();
         mVideoTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         mOnVideoRendererStatusListener.onSurfaceCreated();
         createMedia();
@@ -82,6 +89,8 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        mViewHeight = height;
+        mViewWidth = width;
         GLES20.glViewport(0, 0, width, height);
         mOnVideoRendererStatusListener.onSurfaceChanged(width, height);
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
@@ -117,8 +126,18 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         int fuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth,
                 mVideoHeight, mTexMatrix, mVideoSurfaceTexture.getTimestamp());
         mProgramTexture2d.drawFrame(fuTextureId, mTexMatrix, mMvpMatrix);
+        if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS && mLandmarksData != null) {
+            mProgramLandmarks.refresh(mLandmarksData, mVideoWidth, mVideoHeight, mVideoRotation,
+                    Camera.CameraInfo.CAMERA_FACING_BACK, mMvpMatrix);
+            mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
+        }
+
         mFPSUtil.limit();
         mGlSurfaceView.requestRender();
+    }
+
+    public void setLandmarksData(float[] landmarksData) {
+        mLandmarksData = landmarksData;
     }
 
     private void onSurfaceDestroy() {
@@ -133,6 +152,11 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             mProgramTexture2d.release();
             mProgramTexture2d = null;
         }
+        if (mProgramLandmarks != null) {
+            mProgramLandmarks.release();
+            mProgramLandmarks = null;
+        }
+
         mOnVideoRendererStatusListener.onSurfaceDestroy();
     }
 

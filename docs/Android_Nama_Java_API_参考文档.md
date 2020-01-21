@@ -1,15 +1,29 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2019-09-25
-SDK版本: 6.4.0
+更新日期：2020-01-19
+SDK版本: 6.6.0
 
 ------
 ### 最新更新内容：
 
-2019-09-25 v6.4.0:
+2020-01-19 v6.6.0:
 
-1. v6.4.0 接口无变动。
+注意：更新SDK 6.6.0时，在fuSetup之后，需要马上调用 fuLoadAIModelFromPackage 加载ai_faceprocessor.bundle 到 FUAITYPE::FUAITYPE_FACEPROCESSOR!!!
+
+在Nama 6.6.0及以上，AI能力的调用会按道具需求调用，避免同一帧多次调用；同时由Nama AI子系统管理推理，简化调用过程；将能力和产品功能进行拆分，避免在道具bundle内的冗余AI模型资源，方便维护升级，同时加快道具的加载；方便各新旧AI能力集成，后续的升级迭代。
+
+基本逻辑：Nama初始化后，可以预先加载一个或多个将来可能使用到的AI能力模块。调用实时render处理接口时，Nama主pipe会在最开始的时候，分析当前全部道具需要AI能力，然后由AI子系统执行相关能力推理，然后开始调用各个道具的生命周期函数，各道具只需要按需在特定的生命周期函数调用JS接口获取AI推理的结果即可，并用于相关逻辑处理或渲染。
+
+1. 新增加接口 fuLoadAIModelFromPackage 用于加载AI能力模型。
+2. 新增加接口 fuReleaseAIModel 用于释放AI能力模型。
+3. 新增加接口 fuIsAIModelLoaded 判断AI能力是否已经加载。
+4. 新增fuSetMultiSamples接口，MSAA抗锯齿接口，解决虚拟形象等内容边缘锯齿问题。
+
+例子1：背景分割
+	a. 加载AI能力模型，fuLoadAIModelFromPackage加载ai_bgseg.bundle 到 FUAITYPE_BACKGROUNDSEGMENTATION上。
+	b. 加载产品业务道具A，A道具使用了背景分割能力。
+	c. 切换产品业务道具B，B道具同样使用了背景分割能力，但这时AI能力不需要重新加载。
 
 ------
 
@@ -101,6 +115,130 @@ App 启动后只需要 setup 一次即可，其中 authpack.A() 鉴权数据声�
 第一次需要联网鉴权，鉴权成功后，保存新的证书，后面不要联网。
 
 需要在有GL Context的地方进行初始化。  
+
+##### fuLoadAIModelFromPackage 加载 AI 模型接口
+
+**接口说明：**
+
+SDK6.6.0 新增接口，在fuSetup后，可以预先加载未来可能需要使用到的AI能力。AI模型和SDK一起发布，在Assets目录下。
+
+```java
+public static native int fuLoadAIModelFromPackage(byte[] data, int type);
+```
+
+__参数说明:__
+
+`data`： 内存指针，指向SDK提供的 ai****.bundle 文件内容，为AI能力模型。
+
+`type`：描述bundle对应的AI能力类型，如下：
+
+```java
+    public static final int FUAITYPE_DDE = 1;
+    public static final int FUAITYPE_BACKGROUNDSEGMENTATION = 2;
+    public static final int FUAITYPE_HAIRSEGMENTATION = 4;
+    public static final int FUAITYPE_HANDGESTURE = 8;
+    public static final int FUAITYPE_TONGUETRACKING = 16;
+    public static final int FUAITYPE_FACELANDMARKS75 = 32;
+    public static final int FUAITYPE_FACELANDMARKS209 = 64;
+    public static final int FUAITYPE_FACELANDMARKS239 = 128;
+    public static final int FUAITYPE_HUMANPOSE2D = 256;
+    public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
+    public static final int FUAITYPE_FACEPROCESSOR = 1024;
+```
+
+__返回值:__
+
+`int` 返回1代表成功，返回0代表失败。
+
+可以通过fuReleaseAIModel释放模型，以及通过fuIsAIModelLoaded查询是否AI能力模型是否已经加载。
+
+__备注:__  
+
+AI能力会随SDK一起发布，存放在assets/AI_Model目录中。
+
+- ai_bgseg.bundle 为背景分割AI能力模型。
+- ai_hairseg.bundle 为头发分割AI能力模型。
+- ai_gesture.bundle 为手势识别AI能力模型。
+- ai_facelandmarks75.bundle 为脸部特征点75点AI能力模型。
+- ai_facelandmarks209.bundle 为脸部特征点209点AI能力模型。
+- ai_facelandmarks239.bundle 为脸部特征点239点AI能力模型。
+- ai_humanpose.bundle 为人体2D点位AI能力模型。
+- ai_bgseg_green.bundle 为绿幕背景分割AI能力模型。
+- ai_face_processor 为人脸面具以及人脸面罩AI能力模型，需要默认加载。
+
+##### fuReleaseAIModel 释放 AI 模型接口
+
+**接口说明：**
+
+当不需要是使用特定的AI能力时，可以释放其资源，节省内存空间。
+
+```java
+public static native int fuReleaseAIModel(int type);
+```
+
+__参数说明:__
+
+`type`：描述bundle对应的AI能力类型，如下：
+
+```java
+    public static final int FUAITYPE_DDE = 1;
+    public static final int FUAITYPE_BACKGROUNDSEGMENTATION = 2;
+    public static final int FUAITYPE_HAIRSEGMENTATION = 4;
+    public static final int FUAITYPE_HANDGESTURE = 8;
+    public static final int FUAITYPE_TONGUETRACKING = 16;
+    public static final int FUAITYPE_FACELANDMARKS75 = 32;
+    public static final int FUAITYPE_FACELANDMARKS209 = 64;
+    public static final int FUAITYPE_FACELANDMARKS239 = 128;
+    public static final int FUAITYPE_HUMANPOSE2D = 256;
+    public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
+    public static final int FUAITYPE_FACEPROCESSOR = 1024;
+```
+
+__返回值:__
+
+`int` 1为已释放，0为未释放。
+
+__备注:__  
+
+AI能力模型内存占用不高，建议长驻内存。  
+
+------
+
+##### fuIsAIModelLoaded  是否加载 AI 模型接口
+
+**接口说明：**
+
+获取AI能力是否已经加载的状态。
+
+```java
+public static native int fuIsAIModelLoaded(int type);
+```
+
+__参数说明:__
+
+`type`：描述bundle对应的AI能力类型，如下：
+
+```java
+    public static final int FUAITYPE_DDE = 1;
+    public static final int FUAITYPE_BACKGROUNDSEGMENTATION = 2;
+    public static final int FUAITYPE_HAIRSEGMENTATION = 4;
+    public static final int FUAITYPE_HANDGESTURE = 8;
+    public static final int FUAITYPE_TONGUETRACKING = 16;
+    public static final int FUAITYPE_FACELANDMARKS75 = 32;
+    public static final int FUAITYPE_FACELANDMARKS209 = 64;
+    public static final int FUAITYPE_FACELANDMARKS239 = 128;
+    public static final int FUAITYPE_HUMANPOSE2D = 256;
+    public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
+    public static final int FUAITYPE_FACEPROCESSOR = 1024;
+```
+
+__返回值:__
+
+`int` 0为未加载，1为加载。
+
+__备注:__  
+
+AI能力模型内存占用不高，建议长驻内存。
 
 -----
 
@@ -832,7 +970,29 @@ public static native int fuIsTracking();
 
 正在跟踪的人脸数量会受到 `fuSetMaxFaces` 函数的影响，不会超过该函数设定的最大值。
 
----
+----
+
+#####  fuSetMultiSamples 设置MSAA抗锯齿功能的采样数
+```java
+public static native int fuSetMultiSamples(int samples);
+```
+**接口说明：**
+
+设置 MSAA 抗锯齿功能的采样数。默认为 0，处于关闭状态。
+
+__参数说明:__  
+
+`samples`：默认为 0，处于关闭状态。samples 要小于等于设备 GL_MAX_SAMPLES，通常可以设置 4。
+
+__返回值: __ 
+
+设置后系统的采样数，设置成功返回 samples。 
+
+__备注:__  
+
+该功能为硬件抗锯齿功能，需要 ES3 的 Context。
+
+----
 
 ##### fuSetMaxFaces 设置系统跟踪的最大人脸数
 

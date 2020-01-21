@@ -1,0 +1,82 @@
+{
+    "blend_type_tex_blusher": 0,
+    "blend_type_tex_blusher2": 0,
+    "makeup_blusher_color": [
+        0.929411768913269,
+        0.3490196168422699,
+        0.4313725531101227,
+        1.0
+    ],
+    "tex_blusher": "mu_style_blush_04.bundle",
+    "makeup_intensity_blusher": 1.0,
+    "makeup_brow_color": [
+        0.3294117748737335,
+        0.09019608050584793,
+        0.18039216101169587,
+        1.0
+    ],
+    "tex_brow": "mu_style_eyebrow_01.bundle",
+    "brow_warp": 1.0,
+    "brow_warp_type": 6,
+    "makeup_intensity_eyeBrow": 0.5,
+    "makeup_eyeLiner_color": [
+        0.3294117748737335,
+        0.09019608050584793,
+        0.18039216101169587,
+        1.0
+    ],
+    "tex_eyeLiner": "mu_style_eyeliner_02.bundle",
+    "makeup_intensity_eyeLiner": 0.5,
+    "makeup_eyeLash_color": [
+        0.3294117748737335,
+        0.09019608050584793,
+        0.18039216101169587,
+        1.0
+    ],
+    "tex_eyeLash": "mu_style_eyelash_02.bundle",
+    "makeup_intensity_eyelash": 0.5,
+    "blend_type_tex_eye": 0,
+    "blend_type_tex_eye2": 0,
+    "blend_type_tex_eye3": 0,
+    "blend_type_tex_eye4": 0,
+    "makeup_eye_color": [
+        1.0,
+        0.4313725531101227,
+        0.43921568989753725,
+        1.0
+    ],
+    "tex_eye": "mu_style_eyeshadow_01.bundle",
+    "makeup_intensity_eye": 0.699999988079071,
+    "makeup_foundation_color": [
+        0.8705882430076599,
+        0.7411764860153198,
+        0.6901960968971252,
+        1.0
+    ],
+    "tex_foundation": "mu_style_foundation_01.bundle",
+    "makeup_intensity_foundation": 1.0,
+    "makeup_highlight_color": [
+        1.0,
+        0.9607843160629273,
+        0.929411768913269,
+        1.0
+    ],
+    "tex_highlight": "mu_style_highlight_01.bundle",
+    "makeup_intensity_highlight": 1.0,
+    "makeup_shadow_color": [
+        0.41960784792900088,
+        0.12941177189350129,
+        0.12941177189350129,
+        1.0
+    ],
+    "tex_shadow": "mu_style_contour_01.bundle",
+    "makeup_intensity_shadow": 1.0,
+    "makeup_lip_color": [
+        0.8392156958580017,
+        0.16078431904315949,
+        0.2705882489681244,
+        1.0
+    ],
+    "lip_type": 0,
+    "makeup_intensity_lip": 0.5
+}
