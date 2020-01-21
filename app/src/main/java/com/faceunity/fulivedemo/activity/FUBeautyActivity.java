@@ -3,12 +3,10 @@ package com.faceunity.fulivedemo.activity;
 import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 import android.view.MotionEvent;
-import android.view.View;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
-import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 /**
  * 美颜界面
@@ -42,13 +40,6 @@ public class FUBeautyActivity extends FUBaseActivity {
                         * (1 - showRate * 0.265)));
             }
         });
-        mBeautyControlView.setOnDescriptionShowListener(new BeautyControlView.OnDescriptionShowListener() {
-            @Override
-            public void onDescriptionShowListener(int str) {
-                showDescription(str, 1000);
-            }
-        });
-
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mTakePicBtn.getLayoutParams();
         params.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
         params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
@@ -57,16 +48,6 @@ public class FUBeautyActivity extends FUBaseActivity {
         mTakePicBtn.setLayoutParams(params);
         mTakePicBtn.setDrawWidth(size);
         mTakePicBtn.bringToFront();
-
-        mSelectDataBtn.setVisibility(View.VISIBLE);
-        mSelectDataBtn.setOnClickListener(new OnMultiClickListener() {
-            @Override
-            protected void onMultiClick(View v) {
-                Intent intent = new Intent(FUBeautyActivity.this, SelectDataActivity.class);
-                intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, TAG);
-                startActivity(intent);
-            }
-        });
     }
 
     @Override
@@ -82,6 +63,7 @@ public class FUBeautyActivity extends FUBaseActivity {
         return new FURenderer
                 .Builder(this)
                 .maxFaces(4)
+                .inputImageOrientation(mFrontCameraOrientation)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
@@ -94,6 +76,29 @@ public class FUBeautyActivity extends FUBaseActivity {
         if (mBeautyControlView != null) {
             mBeautyControlView.onResume();
         }
+    }
+
+    @Override
+    protected boolean isOpenPhotoVideo() {
+        return true;
+    }
+
+    @Override
+    protected boolean isOpenResolutionChange() {
+        return true;
+    }
+
+    @Override
+    protected void onSelectPhotoVideoClick() {
+        super.onSelectPhotoVideoClick();
+        Intent intent = new Intent(FUBeautyActivity.this, SelectDataActivity.class);
+        intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, TAG);
+        startActivity(intent);
+    }
+
+    @Override
+    protected int getLandmarksType() {
+        return FURenderer.FACE_LANDMARKS_75;
     }
 
 }

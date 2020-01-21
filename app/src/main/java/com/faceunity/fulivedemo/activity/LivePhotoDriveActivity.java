@@ -90,11 +90,10 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
 
     @Override
     protected FURenderer initFURenderer() {
-        int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
         return new FURenderer
                 .Builder(this)
-                .inputTextureType(1)
-                .inputImageOrientation(frontCameraOrientation)
+                .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
+                .inputImageOrientation(mFrontCameraOrientation)
                 .maxFaces(1)
                 .setNeedFaceBeauty(false)
                 .setOnFUDebugListener(this)
@@ -105,6 +104,7 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
     @Override
     public void onSurfaceCreated() {
         super.onSurfaceCreated();
+        mFURenderer.setBeautificationOn(false);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -149,9 +149,9 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
     }
 
     @Override
-    public void onCameraChange(int cameraType, int cameraOrientation) {
-        super.onCameraChange(cameraType, cameraOrientation);
-        boolean isFront = cameraType == Camera.CameraInfo.CAMERA_FACING_FRONT;
+    public void onCameraChanged(int cameraFacing, int cameraOrientation) {
+        super.onCameraChanged(cameraFacing, cameraOrientation);
+        boolean isFront = cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT;
         mFURenderer.setIsFrontCamera(isFront);
     }
 

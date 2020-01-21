@@ -5,7 +5,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -16,48 +15,43 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.faceunity.OnFUControlListener;
-import com.faceunity.entity.FaceMakeup;
 import com.faceunity.entity.Filter;
-import com.faceunity.entity.MakeupItem;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.BeautyParameterModel;
-import com.faceunity.fulivedemo.entity.FaceMakeupEnum;
 import com.faceunity.fulivedemo.entity.FilterEnum;
 import com.faceunity.fulivedemo.ui.CheckGroup;
-import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
-import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
+import com.faceunity.fulivedemo.ui.TouchStateImageView;
 import com.faceunity.fulivedemo.ui.beautybox.BaseBeautyBox;
-import com.faceunity.fulivedemo.ui.beautybox.BeautyBox;
 import com.faceunity.fulivedemo.ui.beautybox.BeautyBoxGroup;
 import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
+import com.faceunity.fulivedemo.utils.DecimalUtils;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 
 import java.util.List;
 
+import static com.faceunity.fulivedemo.entity.BeautyParameterModel.DEFAULT_FILTER_LEVEL;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.STR_FILTER_LEVEL;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.getValue;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.isOpen;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sFilter;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sFilterLevel;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sSkinDetect;
 import static com.faceunity.fulivedemo.entity.BeautyParameterModel.setValue;
 
 /**
+ * 美颜
  * Created by tujh on 2017/8/15.
  */
-public class BeautyControlView extends FrameLayout {
+public class BeautyControlView extends FrameLayout implements TouchStateImageView.OnTouchStateListener {
     private static final String TAG = "BeautyControlView";
     private Context mContext;
 
     private OnFUControlListener mOnFUControlListener;
-    private RecyclerView mRvMakeupItems;
 
     public void setOnFUControlListener(@NonNull OnFUControlListener onFUControlListener) {
         mOnFUControlListener = onFUControlListener;
@@ -66,7 +60,7 @@ public class BeautyControlView extends FrameLayout {
     private CheckGroup mBottomCheckGroup;
     private FrameLayout mFlFaceSkinItems;
     private BeautyBoxGroup mSkinBeautyBoxGroup;
-    private BeautyBoxGroup mFaceShapeBeautyBoxGroup;
+    private BeautyBoxGroup mShapeBeautyBoxGroup;
     private FrameLayout mFlFaceShapeItems;
     private ImageView mIvRecoverFaceShape;
     private TextView mTvRecoverFaceShape;
@@ -75,11 +69,9 @@ public class BeautyControlView extends FrameLayout {
     private View mBottomView;
     private RecyclerView mFilterRecyclerView;
     private FilterRecyclerAdapter mFilterRecyclerAdapter;
-    private RadioGroup mRgBlurType;
     private DiscreteSeekBar mBeautySeekBar;
-    private FaceMakeupAdapter mFaceMakeupAdapter;
+    private TouchStateImageView mIvCompare;
     private boolean isShown;
-    private boolean mFirstShowLightMakeup = true;
     private List<Filter> mFilters;
     // 默认选中第三个粉嫩
     private int mFilterPositionSelect = 2;
@@ -108,11 +100,12 @@ public class BeautyControlView extends FrameLayout {
                 return true;
             }
         });
+        mIvCompare = findViewById(R.id.iv_compare);
+        mIvCompare.setOnTouchStateListener(this);
         initViewBottomRadio();
         initViewSkinBeauty();
         initViewFaceShape();
         initViewFilterRecycler();
-        initMakeupView();
         initViewTop();
     }
 
@@ -123,19 +116,6 @@ public class BeautyControlView extends FrameLayout {
         hideBottomLayoutAnimator();
     }
 
-    private void initMakeupView() {
-        mRvMakeupItems = findViewById(R.id.rv_face_makeup);
-        mRvMakeupItems.setHasFixedSize(true);
-        ((SimpleItemAnimator) mRvMakeupItems.getItemAnimator()).setSupportsChangeAnimations(false);
-        mRvMakeupItems.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        mRvMakeupItems.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.x15), 0));
-        mFaceMakeupAdapter = new FaceMakeupAdapter(FaceMakeupEnum.getBeautyFaceMakeup());
-        OnFaceMakeupClickListener onMpItemClickListener = new OnFaceMakeupClickListener();
-        mFaceMakeupAdapter.setOnItemClickListener(onMpItemClickListener);
-        mRvMakeupItems.setAdapter(mFaceMakeupAdapter);
-        mFaceMakeupAdapter.setItemSelected(0);
-    }
-
     @Override
     public boolean isShown() {
         return isShown;
@@ -144,66 +124,65 @@ public class BeautyControlView extends FrameLayout {
     private void initViewBottomRadio() {
         mBottomCheckGroup = findViewById(R.id.beauty_radio_group);
         mBottomCheckGroup.setOnCheckedChangeListener(new CheckGroup.OnCheckedChangeListener() {
-            int checkedidOld = View.NO_ID;
+            private int checkedIdOld = View.NO_ID;
 
             @Override
             public void onCheckedChanged(CheckGroup group, int checkedId) {
                 clickViewBottomRadio(checkedId);
-                if ((checkedId == View.NO_ID || checkedId == checkedidOld) && checkedidOld != View.NO_ID) {
+                if (checkedId != View.NO_ID) {
+                    switch (checkedId) {
+                        case R.id.beauty_radio_skin_beauty: {
+                            seekToSeekBar(mSkinBeautyBoxGroup.getCheckedBeautyBoxId());
+                        }
+                        break;
+                        case R.id.beauty_radio_face_shape: {
+                            seekToSeekBar(mShapeBeautyBoxGroup.getCheckedBeautyBoxId());
+                        }
+                        break;
+                        case R.id.beauty_radio_filter: {
+                            Float valueObj = sFilterLevel.get(STR_FILTER_LEVEL + sFilter.filterName());
+                            if (valueObj == null) {
+                                valueObj = DEFAULT_FILTER_LEVEL;
+                            }
+                            if (mFilterPositionSelect > 0) {
+                                seekToSeekBar(valueObj);
+                            } else {
+                                mBeautySeekBar.setVisibility(INVISIBLE);
+                            }
+                        }
+                        break;
+                        default:
+                    }
+                }
+                if ((checkedId == View.NO_ID || checkedId == checkedIdOld) && checkedIdOld != View.NO_ID) {
                     int endHeight = (int) getResources().getDimension(R.dimen.x1);
                     int startHeight = (int) getResources().getDimension(R.dimen.x268);
                     changeBottomLayoutAnimator(startHeight, endHeight);
-                    mRgBlurType.setVisibility(INVISIBLE);
+                    mIvCompare.setVisibility(INVISIBLE);
                     isShown = false;
-                } else if (checkedId != View.NO_ID && checkedidOld == View.NO_ID) {
+                } else if (checkedId != View.NO_ID && checkedIdOld == View.NO_ID) {
                     int startHeight = (int) getResources().getDimension(R.dimen.x1);
                     int endHeight = (int) getResources().getDimension(R.dimen.x268);
                     changeBottomLayoutAnimator(startHeight, endHeight);
-                    if (checkedId == R.id.beauty_radio_skin_beauty && mSkinBeautyBoxGroup.getCheckedBeautyBoxId() == R.id.beauty_box_blur_level) {
-                        mRgBlurType.setVisibility(VISIBLE);
-                        seekToSeekBar(getValue(mRgBlurType.getCheckedRadioButtonId()));
-                    }
                     isShown = true;
                 }
-                checkedidOld = checkedId;
+                checkedIdOld = checkedId;
             }
         });
     }
 
     private void updateViewSkinBeauty() {
-        onChangeFaceBeautyLevel(R.id.beauty_box_skin_detect);
-        onChangeFaceBeautyLevel(R.id.beauty_box_color_level);
         onChangeFaceBeautyLevel(R.id.beauty_box_blur_level);
+        onChangeFaceBeautyLevel(R.id.beauty_box_color_level);
         onChangeFaceBeautyLevel(R.id.beauty_box_red_level);
+//        onChangeFaceBeautyLevel(R.id.beauty_box_pouch);
+//        onChangeFaceBeautyLevel(R.id.beauty_box_nasolabial);
         onChangeFaceBeautyLevel(R.id.beauty_box_eye_bright);
         onChangeFaceBeautyLevel(R.id.beauty_box_tooth_whiten);
-        onChangeFaceBeautyLevel(mRgBlurType.getCheckedRadioButtonId());
     }
 
     private void initViewSkinBeauty() {
         mFlFaceSkinItems = findViewById(R.id.fl_face_skin_items);
-        mRgBlurType = findViewById(R.id.rg_blur_type);
-        mRgBlurType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                seekToSeekBar(getValue(checkedId));
-                int type = 0;
-                int desc = R.string.beauty_box_heavy_blur_clear;
-                if (checkedId == R.id.rb_blur_fine) {
-                    type = 2;
-                    desc = R.string.beauty_box_heavy_blur_fine;
-                } else if (checkedId == R.id.rb_blur_hazy) {
-                    type = 1;
-                    desc = R.string.beauty_box_heavy_blur_hazy;
-                }
-                BeautyParameterModel.sBlurType = type;
-                ToastUtil.showNormalToast(mContext, desc);
-                checkFaceSkinChanged();
-                ((BeautyBox) findViewById(R.id.beauty_box_blur_level)).setOpen(isOpen(checkedId));
-                mOnFUControlListener.onBlurTypeSelected(type);
-                mOnFUControlListener.onBlurLevelSelected(getValue(checkedId));
-            }
-        });
         mIvRecoverFaceSkin = findViewById(R.id.iv_recover_face_skin);
         mIvRecoverFaceSkin.setOnClickListener(new OnMultiClickListener() {
             @Override
@@ -213,15 +192,9 @@ public class BeautyControlView extends FrameLayout {
                     public void onConfirm() {
                         // recover params
                         BeautyParameterModel.recoverFaceSkinToDefValue();
-                        mRgBlurType.check(R.id.rb_blur_clear);
                         updateViewSkinBeauty();
                         int checkedId = mSkinBeautyBoxGroup.getCheckedBeautyBoxId();
-                        if (checkedId == R.id.beauty_box_blur_level) {
-                            checkedId = mRgBlurType.getCheckedRadioButtonId();
-                        }
-                        if (checkedId != R.id.beauty_box_skin_detect) {
-                            seekToSeekBar(checkedId);
-                        }
+                        seekToSeekBar(checkedId);
                         setRecoverFaceSkinEnable(false);
                     }
 
@@ -240,31 +213,8 @@ public class BeautyControlView extends FrameLayout {
             @Override
             public void onCheckedChanged(BeautyBoxGroup group, int checkedId) {
                 mBeautySeekBar.setVisibility(INVISIBLE);
-                if (checkedId == R.id.beauty_box_blur_level) {
-                    mRgBlurType.setVisibility(VISIBLE);
-                    onChangeFaceBeautyLevel(R.id.rb_blur_fine);
-                    onChangeFaceBeautyLevel(R.id.rb_blur_hazy);
-                    onChangeFaceBeautyLevel(R.id.rb_blur_clear);
-                } else {
-                    mRgBlurType.setVisibility(INVISIBLE);
-                }
-                if (checkedId != R.id.beauty_box_skin_detect) {
-                    if (checkedId == R.id.beauty_box_blur_level) {
-                        checkedId = mRgBlurType.getCheckedRadioButtonId();
-                    }
-                    seekToSeekBar(checkedId);
-                    onChangeFaceBeautyLevel(checkedId);
-                }
-            }
-        });
-        BeautyBox boxSkinDetect = findViewById(R.id.beauty_box_skin_detect);
-        boxSkinDetect.setOnOpenChangeListener(new BaseBeautyBox.OnOpenChangeListener() {
-            @Override
-            public void onOpenChanged(BaseBeautyBox beautyBox, boolean isOpen) {
-                sSkinDetect = isOpen ? 1 : 0;
-                setDescriptionShowStr(sSkinDetect == 0 ? R.string.beauty_box_skin_detect_close : R.string.beauty_box_skin_detect_open);
-                onChangeFaceBeautyLevel(R.id.beauty_box_skin_detect);
-                checkFaceSkinChanged();
+                seekToSeekBar(checkedId);
+                onChangeFaceBeautyLevel(checkedId);
             }
         });
         checkFaceSkinChanged();
@@ -280,6 +230,12 @@ public class BeautyControlView extends FrameLayout {
         onChangeFaceBeautyLevel(R.id.beauty_box_intensity_forehead);
         onChangeFaceBeautyLevel(R.id.beauty_box_intensity_nose);
         onChangeFaceBeautyLevel(R.id.beauty_box_intensity_mouth);
+        onChangeFaceBeautyLevel(R.id.beauty_box_canthus);
+        onChangeFaceBeautyLevel(R.id.beauty_box_eye_space);
+        onChangeFaceBeautyLevel(R.id.beauty_box_eye_rotate);
+        onChangeFaceBeautyLevel(R.id.beauty_box_long_nose);
+        onChangeFaceBeautyLevel(R.id.beauty_box_philtrum);
+        onChangeFaceBeautyLevel(R.id.beauty_box_smile);
     }
 
     private void initViewFilterRecycler() {
@@ -308,8 +264,7 @@ public class BeautyControlView extends FrameLayout {
                         // recover params
                         BeautyParameterModel.recoverFaceShapeToDefValue();
                         updateViewFaceShape();
-                        int checkedId = mFaceShapeBeautyBoxGroup.getCheckedBeautyBoxId();
-                        seekToSeekBar(checkedId);
+                        seekToSeekBar(mShapeBeautyBoxGroup.getCheckedBeautyBoxId());
                         setRecoverFaceShapeEnable(false);
                     }
 
@@ -322,8 +277,8 @@ public class BeautyControlView extends FrameLayout {
             }
         });
         mTvRecoverFaceShape = findViewById(R.id.tv_recover_face_shape);
-        mFaceShapeBeautyBoxGroup = findViewById(R.id.beauty_group_face_shape);
-        mFaceShapeBeautyBoxGroup.setOnCheckedChangeListener(new BeautyBoxGroup.OnCheckedChangeListener() {
+        mShapeBeautyBoxGroup = findViewById(R.id.beauty_group_face_shape);
+        mShapeBeautyBoxGroup.setOnCheckedChangeListener(new BeautyBoxGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(BeautyBoxGroup group, int checkedId) {
                 mBeautySeekBar.setVisibility(GONE);
@@ -364,28 +319,15 @@ public class BeautyControlView extends FrameLayout {
         }
         View view = findViewById(viewId);
         if (view instanceof BaseBeautyBox) {
-            boolean open;
-            if (viewId == R.id.beauty_box_blur_level) {
-                open = isOpen(mRgBlurType.getCheckedRadioButtonId());
-            } else {
-                open = isOpen(viewId);
-            }
+            boolean open = isOpen(viewId);
             ((BaseBeautyBox) view).setOpen(open);
         }
         if (mOnFUControlListener == null) {
             return;
         }
         switch (viewId) {
-            case R.id.beauty_box_skin_detect:
-                mOnFUControlListener.onSkinDetectSelected(getValue(viewId));
-                break;
             case R.id.beauty_box_blur_level:
-                mOnFUControlListener.onBlurLevelSelected(getValue(mRgBlurType.getCheckedRadioButtonId()));
-                break;
-            case R.id.rb_blur_clear:
-            case R.id.rb_blur_fine:
-            case R.id.rb_blur_hazy:
-                mOnFUControlListener.onBlurTypeSelected(BeautyParameterModel.sBlurType);
+                mOnFUControlListener.onBlurLevelSelected(getValue(viewId));
                 break;
             case R.id.beauty_box_color_level:
                 mOnFUControlListener.onColorLevelSelected(getValue(viewId));
@@ -393,6 +335,12 @@ public class BeautyControlView extends FrameLayout {
             case R.id.beauty_box_red_level:
                 mOnFUControlListener.onRedLevelSelected(getValue(viewId));
                 break;
+//            case R.id.beauty_box_pouch:
+//                mOnFUControlListener.setRemovePouchStrength(getValue(viewId));
+//                break;
+//            case R.id.beauty_box_nasolabial:
+//                mOnFUControlListener.setRemoveNasolabialFoldsStrength(getValue(viewId));
+//                break;
             case R.id.beauty_box_eye_bright:
                 mOnFUControlListener.onEyeBrightSelected(getValue(viewId));
                 break;
@@ -426,6 +374,24 @@ public class BeautyControlView extends FrameLayout {
             case R.id.beauty_box_intensity_mouth:
                 mOnFUControlListener.onIntensityMouthSelected(getValue(viewId));
                 break;
+            case R.id.beauty_box_canthus:
+                mOnFUControlListener.setCanthusIntensity(getValue(viewId));
+                break;
+            case R.id.beauty_box_eye_space:
+                mOnFUControlListener.setEyeSpaceIntensity(getValue(viewId));
+                break;
+            case R.id.beauty_box_eye_rotate:
+                mOnFUControlListener.setEyeRotateIntensity(getValue(viewId));
+                break;
+            case R.id.beauty_box_long_nose:
+                mOnFUControlListener.setLongNoseIntensity(getValue(viewId));
+                break;
+            case R.id.beauty_box_philtrum:
+                mOnFUControlListener.setPhiltrumIntensity(getValue(viewId));
+                break;
+            case R.id.beauty_box_smile:
+                mOnFUControlListener.setSmileIntensity(getValue(viewId));
+                break;
             default:
         }
     }
@@ -434,51 +400,24 @@ public class BeautyControlView extends FrameLayout {
         mBeautySeekBar = findViewById(R.id.beauty_seek_bar);
         mBeautySeekBar.setOnProgressChangeListener(new DiscreteSeekBar.OnSimpleProgressChangeListener() {
             @Override
-            public void onProgressChanged(DiscreteSeekBar SeekBar, int value, boolean fromUser) {
+            public void onProgressChanged(DiscreteSeekBar seekBar, int value, boolean fromUser) {
                 if (!fromUser) {
                     return;
                 }
 
-                float valueF = 1.0f * (value - SeekBar.getMin()) / 100;
+                float valueF = 1.0f * (value - seekBar.getMin()) / 100;
                 int checkedCheckBoxId = mBottomCheckGroup.getCheckedCheckBoxId();
                 if (checkedCheckBoxId == R.id.beauty_radio_skin_beauty) {
                     int skinCheckedId = mSkinBeautyBoxGroup.getCheckedBeautyBoxId();
-                    if (skinCheckedId == R.id.beauty_box_blur_level) {
-                        setValue(mRgBlurType.getCheckedRadioButtonId(), valueF);
-                    } else {
-                        setValue(skinCheckedId, valueF);
-                    }
+                    setValue(skinCheckedId, valueF);
                     onChangeFaceBeautyLevel(skinCheckedId);
                     checkFaceSkinChanged();
                 } else if (checkedCheckBoxId == R.id.beauty_radio_face_shape) {
-                    setValue(mFaceShapeBeautyBoxGroup.getCheckedBeautyBoxId(), valueF);
-                    onChangeFaceBeautyLevel(mFaceShapeBeautyBoxGroup.getCheckedBeautyBoxId());
+                    setValue(mShapeBeautyBoxGroup.getCheckedBeautyBoxId(), valueF);
+                    onChangeFaceBeautyLevel(mShapeBeautyBoxGroup.getCheckedBeautyBoxId());
                     checkFaceShapeChanged();
                 } else if (checkedCheckBoxId == R.id.beauty_radio_filter) {
                     mFilterRecyclerAdapter.setFilterLevels(valueF);
-                } else if (checkedCheckBoxId == R.id.beauty_radio_face_beauty) {
-                    // 整体妆容调节
-                    float level = 1.0f * value / 100;
-                    FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
-                    String name = getResources().getString(faceMakeup.getNameId());
-                    BeautyParameterModel.sBatchMakeupLevel.put(name, level);
-                    List<MakeupItem> makeupItems = faceMakeup.getMakeupItems();
-                    /* 数学公式
-                     * 0.4        0.7
-                     * strength  level
-                     * --> strength = 0.4 * level / 0.7
-                     *   if level = 1.0, then strength = 0.57
-                     *   if level = 0.2, then strength = 0.11
-                     *   so, float strength = item.defaultLevel * level / DEFAULT_BATCH_MAKEUP_LEVEL
-                     * */
-                    if (makeupItems != null) {
-                        for (MakeupItem makeupItem : makeupItems) {
-                            float lev = makeupItem.getDefaultLevel() * level / FaceMakeupEnum.MAKEUP_OVERALL_LEVEL.get(faceMakeup.getNameId());
-                            makeupItem.setLevel(lev);
-                        }
-                    }
-                    mOnFUControlListener.onLightMakeupOverallLevelChanged(level);
-                    mOnFUControlListener.onFilterLevelSelected(level);
                 }
             }
         });
@@ -509,49 +448,19 @@ public class BeautyControlView extends FrameLayout {
         mFlFaceShapeItems.setVisibility(GONE);
         mFlFaceSkinItems.setVisibility(GONE);
         mFilterRecyclerView.setVisibility(GONE);
-        mRvMakeupItems.setVisibility(GONE);
         mBeautySeekBar.setVisibility(GONE);
         if (viewId == R.id.beauty_radio_skin_beauty) {
             mFlFaceSkinItems.setVisibility(VISIBLE);
-            int id = mSkinBeautyBoxGroup.getCheckedBeautyBoxId();
-            if (id != R.id.beauty_box_skin_detect) {
-                if (id == R.id.beauty_box_blur_level) {
-                    id = mRgBlurType.getCheckedRadioButtonId();
-                    mRgBlurType.setVisibility(VISIBLE);
-                }
-                seekToSeekBar(id);
-            }
+            mIvCompare.setVisibility(VISIBLE);
         } else if (viewId == R.id.beauty_radio_face_shape) {
             mFlFaceShapeItems.setVisibility(VISIBLE);
-            int id = mFaceShapeBeautyBoxGroup.getCheckedBeautyBoxId();
+            int id = mShapeBeautyBoxGroup.getCheckedBeautyBoxId();
             seekToSeekBar(id);
-            mRgBlurType.setVisibility(INVISIBLE);
+            mIvCompare.setVisibility(VISIBLE);
         } else if (viewId == R.id.beauty_radio_filter) {
             mFilterRecyclerView.setVisibility(VISIBLE);
             mFilterRecyclerAdapter.setFilterProgress();
-            mRgBlurType.setVisibility(INVISIBLE);
-        } else if (viewId == R.id.beauty_radio_face_beauty) {
-            mRgBlurType.setVisibility(INVISIBLE);
-            mRvMakeupItems.setVisibility(VISIBLE);
-            mBeautySeekBar.setVisibility(INVISIBLE);
-            // 首次选中第一个桃花妆
-            if (mFirstShowLightMakeup) {
-                mFirstShowLightMakeup = false;
-                mFaceMakeupAdapter.setItemSelected(1);
-                new OnFaceMakeupClickListener().onItemClick(mFaceMakeupAdapter, null, 1);
-            }
-            FaceMakeup faceMakeup = mFaceMakeupAdapter.getSelectedItems().valueAt(0);
-            if (faceMakeup != null) {
-                String name = getResources().getString(faceMakeup.getNameId());
-                Float level = BeautyParameterModel.sBatchMakeupLevel.get(name);
-                if (level == null) {
-                    level = FaceMakeupEnum.MAKEUP_OVERALL_LEVEL.get(faceMakeup.getNameId());
-                    BeautyParameterModel.sBatchMakeupLevel.put(name, level);
-                }
-                if (level != null) {
-                    seekToSeekBar(level);
-                }
-            }
+            mIvCompare.setVisibility(VISIBLE);
         }
     }
 
@@ -574,7 +483,10 @@ public class BeautyControlView extends FrameLayout {
         float value = getValue(checkedId);
         int min = 0;
         int max = 100;
-        if (checkedId == R.id.beauty_box_intensity_chin || checkedId == R.id.beauty_box_intensity_forehead || checkedId == R.id.beauty_box_intensity_mouth) {
+        if (checkedId == R.id.beauty_box_intensity_chin || checkedId == R.id.beauty_box_intensity_forehead
+                || checkedId == R.id.beauty_box_intensity_mouth || checkedId == R.id.beauty_box_long_nose
+                || checkedId == R.id.beauty_box_eye_space || checkedId == R.id.beauty_box_eye_rotate
+                || checkedId == R.id.beauty_box_philtrum) {
             min = -50;
             max = 50;
         }
@@ -597,9 +509,28 @@ public class BeautyControlView extends FrameLayout {
                     float showRate = 1.0f * (height - startHeight) / (endHeight - startHeight);
                     mOnBottomAnimatorChangeListener.onBottomAnimatorChangeListener(startHeight > endHeight ? 1 - showRate : showRate);
                 }
+                if (DecimalUtils.floatEquals(animation.getAnimatedFraction(), 1.0f) && startHeight < endHeight) {
+                    mIvCompare.setVisibility(VISIBLE);
+                }
             }
         });
         mBottomLayoutAnimator.start();
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (mOnFUControlListener == null) {
+            return false;
+        }
+        int action = event.getAction();
+        if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
+            v.setAlpha(0.7f);
+            mOnFUControlListener.setBeautificationOn(false);
+        } else if (action == MotionEvent.ACTION_UP) {
+            v.setAlpha(1f);
+            mOnFUControlListener.setBeautificationOn(true);
+        }
+        return true;
     }
 
     public interface OnBottomAnimatorChangeListener {
@@ -614,25 +545,9 @@ public class BeautyControlView extends FrameLayout {
 
     private ValueAnimator mBottomLayoutAnimator;
 
-    private void setDescriptionShowStr(int str) {
-        if (mOnDescriptionShowListener != null) {
-            mOnDescriptionShowListener.onDescriptionShowListener(str);
-        }
-    }
-
     public void hideBottomLayoutAnimator() {
         mBottomCheckGroup.check(View.NO_ID);
     }
-
-    public interface OnDescriptionShowListener {
-        void onDescriptionShowListener(int str);
-    }
-
-    public void setOnDescriptionShowListener(OnDescriptionShowListener onDescriptionShowListener) {
-        mOnDescriptionShowListener = onDescriptionShowListener;
-    }
-
-    private OnDescriptionShowListener mOnDescriptionShowListener;
 
     public void setFilterLevel(String filterName, float faceBeautyFilterLevel) {
         sFilterLevel.put(STR_FILTER_LEVEL + filterName, faceBeautyFilterLevel);
@@ -645,7 +560,7 @@ public class BeautyControlView extends FrameLayout {
         String key = STR_FILTER_LEVEL + filterName;
         Float level = sFilterLevel.get(key);
         if (level == null) {
-            level = Filter.DEFAULT_FILTER_LEVEL;
+            level = BeautyParameterModel.DEFAULT_FILTER_LEVEL;
             sFilterLevel.put(key, level);
         }
         setFilterLevel(filterName, level);
@@ -662,23 +577,25 @@ public class BeautyControlView extends FrameLayout {
         @Override
         public void onBindViewHolder(FilterRecyclerAdapter.HomeRecyclerHolder holder, final int position) {
             final List<Filter> filters = mFilters;
-            holder.filterImg.setImageResource(filters.get(position).resId());
-            holder.filterName.setText(filters.get(position).description());
+            holder.filterImg.setImageResource(filters.get(position).getIconId());
+            holder.filterName.setText(filters.get(position).getNameId());
             if (mFilterPositionSelect == position) {
                 holder.filterImg.setBackgroundResource(R.drawable.control_filter_select);
+                holder.filterName.setSelected(true);
             } else {
                 holder.filterImg.setBackgroundResource(0);
+                holder.filterName.setSelected(false);
             }
             holder.itemView.setOnClickListener(new OnMultiClickListener() {
                 @Override
                 protected void onMultiClick(View v) {
                     mFilterPositionSelect = position;
-                    mBeautySeekBar.setVisibility(position == 0 ? INVISIBLE : VISIBLE);
                     setFilterProgress();
                     notifyDataSetChanged();
                     if (mOnFUControlListener != null) {
                         sFilter = filters.get(mFilterPositionSelect);
                         mOnFUControlListener.onFilterNameSelected(sFilter.filterName());
+                        ToastUtil.showNormalToast(mContext, sFilter.getNameId());
                     }
                 }
             });
@@ -699,18 +616,11 @@ public class BeautyControlView extends FrameLayout {
             mFilterPositionSelect = mFilters.indexOf(filter);
         }
 
-        public int indexOf(Filter filter) {
-            for (int i = 0; i < mFilters.size(); i++) {
-                if (filter.filterName().equals(mFilters.get(i).filterName())) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
         public void setFilterProgress() {
-            if (mFilterPositionSelect >= 0) {
+            if (mFilterPositionSelect > 0) {
                 seekToSeekBar(getFilterLevel(mFilters.get(mFilterPositionSelect).filterName()));
+            } else {
+                mBeautySeekBar.setVisibility(INVISIBLE);
             }
         }
 
@@ -721,88 +631,9 @@ public class BeautyControlView extends FrameLayout {
 
             public HomeRecyclerHolder(View itemView) {
                 super(itemView);
-                filterImg = (ImageView) itemView.findViewById(R.id.control_recycler_img);
-                filterName = (TextView) itemView.findViewById(R.id.control_recycler_text);
+                filterImg = itemView.findViewById(R.id.control_recycler_img);
+                filterName = itemView.findViewById(R.id.control_recycler_text);
             }
-        }
-    }
-
-    // ----------- 新添加的美妆组合，也叫质感美颜
-
-    // 美妆列表点击事件
-    private class OnFaceMakeupClickListener implements BaseRecyclerAdapter.OnItemClickListener<FaceMakeup> {
-
-        @Override
-        public void onItemClick(BaseRecyclerAdapter<FaceMakeup> adapter, View view, int position) {
-            FaceMakeup faceMakeup = adapter.getItem(position);
-            if (position == 0) {
-                // 卸妆
-                mBeautySeekBar.setVisibility(View.INVISIBLE);
-//                Filter origin = mFilters.get(0);
-//                mOnFUControlListener.onFilterNameSelected(origin);
-//                setFilterLevel(origin.filterName(), 0);
-                int old = mFilterPositionSelect;
-                mFilterPositionSelect = -1;
-                mFilterRecyclerAdapter.notifyItemChanged(old);
-                mOnFUControlListener.onLightMakeupBatchSelected(faceMakeup.getMakeupItems());
-            } else {
-                // 效果妆容
-                mBeautySeekBar.setVisibility(View.VISIBLE);
-                String name = getResources().getString(faceMakeup.getNameId());
-                Float level = BeautyParameterModel.sBatchMakeupLevel.get(name);
-                boolean used = true;
-                if (level == null) {
-                    used = false;
-                    level = FaceMakeupEnum.MAKEUP_OVERALL_LEVEL.get(faceMakeup.getNameId());
-                    BeautyParameterModel.sBatchMakeupLevel.put(name, level);
-                }
-                seekToSeekBar(level);
-                mOnFUControlListener.onLightMakeupBatchSelected(faceMakeup.getMakeupItems());
-                mOnFUControlListener.onLightMakeupOverallLevelChanged(level);
-
-                Pair<Filter, Float> filterFloatPair = FaceMakeupEnum.MAKEUP_FILTERS.get(faceMakeup.getNameId());
-                if (filterFloatPair != null) {
-                    // 滤镜调整到对应的位置，没有就不做
-                    Filter filter = filterFloatPair.first;
-                    int i = mFilterRecyclerAdapter.indexOf(filter);
-                    if (i >= 0) {
-                        mFilterPositionSelect = i;
-                        mFilterRecyclerAdapter.notifyItemChanged(i);
-                        mFilterRecyclerView.scrollToPosition(i);
-                    } else {
-                        int old = mFilterPositionSelect;
-                        mFilterPositionSelect = -1;
-                        mFilterRecyclerAdapter.notifyItemChanged(old);
-                    }
-                    mOnFUControlListener.onFilterNameSelected(filter.filterName());
-                    Float filterLevel = used ? level : filterFloatPair.second;
-                    sFilter = filter;
-                    String filterName = filter.filterName();
-                    sFilterLevel.put(STR_FILTER_LEVEL + filterName, filterLevel);
-                    setFilterLevel(filterName, filterLevel);
-                }
-            }
-        }
-    }
-
-    // 妆容组合适配器
-    private class FaceMakeupAdapter extends BaseRecyclerAdapter<FaceMakeup> {
-
-        FaceMakeupAdapter(@NonNull List<FaceMakeup> data) {
-            super(data, R.layout.layout_rv_makeup);
-        }
-
-        @Override
-        protected void bindViewHolder(BaseViewHolder viewHolder, FaceMakeup item) {
-            viewHolder.setText(R.id.tv_makeup, getResources().getString(item.getNameId()))
-                    .setImageResource(R.id.iv_makeup, item.getIconId());
-        }
-
-        @Override
-        protected void handleSelectedState(BaseViewHolder viewHolder, FaceMakeup data, boolean selected) {
-            ((TextView) viewHolder.getViewById(R.id.tv_makeup)).setTextColor(selected ?
-                    getResources().getColor(R.color.main_color) : getResources().getColor(R.color.colorWhite));
-            viewHolder.setBackground(R.id.iv_makeup, selected ? R.drawable.control_filter_select : 0);
         }
     }
 

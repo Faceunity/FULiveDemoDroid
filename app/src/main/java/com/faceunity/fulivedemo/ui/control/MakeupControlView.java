@@ -29,9 +29,11 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.faceunity.FURenderer;
 import com.faceunity.OnFUControlListener;
-import com.faceunity.entity.NewMakeupItem;
+import com.faceunity.entity.Filter;
+import com.faceunity.entity.MakeupEntity;
+import com.faceunity.entity.MakeupItem;
 import com.faceunity.fulivedemo.R;
-import com.faceunity.fulivedemo.entity.FaceMakeupConfig;
+import com.faceunity.fulivedemo.entity.MakeupConfig;
 import com.faceunity.fulivedemo.entity.MakeupCombination;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
@@ -50,12 +52,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * 美妆交互栏
  * Created by tujh on 2017/8/15.
  */
-
 public class MakeupControlView extends FrameLayout {
     private static final String TAG = "MakeupControlView";
-
     private static final int COLOR_LIST_ANIMATION_TIME = 250;
     private Context mContext;
 
@@ -85,12 +86,14 @@ public class MakeupControlView extends FrameLayout {
     // 选中的二级美妆的强度，<titlePos+itemPos, intensity>
     private Map<String, Double> mSelectedItemIntensitys = new HashMap<>(32);
     // 组合妆容的强度，<nameId, intensity>
-    private SparseArray<Double> mSelectedCombinationIntensitys = new SparseArray<>(6);
+    private SparseArray<Double> mSelectedCombinationIntensitys = new SparseArray<>(16);
+    // 组合滤镜的强度，<nameId, intensity>
+    private Map<Integer, Double> mSelectedFilterIntensitys = new HashMap<>(16);
     private int mSelectedColorPosition = 3;
-    private int mTitleSelection = 0;
+    private int mTitleSelection;
     private boolean mFirstSetup;
     private boolean mIsMakeupItemViewShown = true;
-    private int mCameraType = Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private int mCameraFacing = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
     public MakeupControlView(Context context) {
         this(context, null);
@@ -104,7 +107,7 @@ public class MakeupControlView extends FrameLayout {
         super(context, attrs, defStyleAttr);
         mContext = context;
         LayoutInflater.from(context).inflate(R.layout.layout_makeup_control, this);
-        FaceMakeupConfig.initConfigs(mContext);
+        MakeupConfig.initConfigs(mContext);
         initView();
     }
 
@@ -121,6 +124,7 @@ public class MakeupControlView extends FrameLayout {
                 return true;
             }
         });
+
         ViewClickListener viewClickListener = new ViewClickListener();
         mIvCustom = mClFaceMakeup.findViewById(R.id.iv_custom_makeup);
         mTvCustom = mClFaceMakeup.findViewById(R.id.tv_custom_makeup);
@@ -130,7 +134,7 @@ public class MakeupControlView extends FrameLayout {
         ((SimpleItemAnimator) rvMakeupCombination.getItemAnimator()).setSupportsChangeAnimations(false);
         rvMakeupCombination.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         rvMakeupCombination.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelSize(R.dimen.x15), 0));
-        mMakeupCombinationAdapter = new MakeupCombinationAdapter(FaceMakeupConfig.createMakeupCombination(mContext));
+        mMakeupCombinationAdapter = new MakeupCombinationAdapter(MakeupConfig.createMakeupCombinations());
         MakeupCombinationClickListener makeupCombinationClickListener = new MakeupCombinationClickListener();
         mMakeupCombinationAdapter.setOnItemClickListener(makeupCombinationClickListener);
         rvMakeupCombination.setAdapter(mMakeupCombinationAdapter);
@@ -145,25 +149,35 @@ public class MakeupControlView extends FrameLayout {
                 if (!fromUser) {
                     return;
                 }
-                // 组合妆容调节
-                double intensity = (double) value / 100;
                 SparseArray<MakeupCombination> selectedItems = mMakeupCombinationAdapter.getSelectedItems();
+                double intensity = (double) value / 100;
+                // 组合妆容调节
                 if (selectedItems.size() > 0) {
                     // 预置妆
                     MakeupCombination makeupCombination = selectedItems.valueAt(0);
-                    mSelectedCombinationIntensitys.put(makeupCombination.getNameId(), intensity);
-                    Set<Map.Entry<String, Object>> entries = makeupCombination.getParamMap().entrySet();
-                    for (Map.Entry<String, Object> entry : entries) {
-                        String key = entry.getKey();
-                        if (key.startsWith(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PREFIX)) {
-                            mOnFUControlListener.setMakeupItemIntensity(key, intensity * ((Double) entry.getValue()));
+                    int nameId = makeupCombination.getNameId();
+                    mSelectedCombinationIntensitys.put(nameId, intensity);
+                    Map<String, Object> paramMap = makeupCombination.getParamMap();
+                    if (paramMap != null) {
+                        Set<Map.Entry<String, Object>> entries = paramMap.entrySet();
+                        for (Map.Entry<String, Object> entry : entries) {
+                            String key = entry.getKey();
+                            if (key.startsWith(MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_PREFIX)) {
+                                mOnFUControlListener.setMakeupItemIntensity(key, intensity * ((Double) entry.getValue()));
+                            }
                         }
+                    }
+
+                    Filter filter = MakeupConfig.MAKEUP_COMBINATION_FILTER_MAP.get(nameId);
+                    if (filter != null) {
+                        mOnFUControlListener.onFilterLevelSelected((float) intensity);
+                        mSelectedFilterIntensitys.put(nameId, intensity);
                     }
                 } else {
                     // 自定义
                     for (int i = 0; i < mSelectedItems.size(); i++) {
                         SelectedMakeupItem selectedMakeupItem = mSelectedItems.valueAt(i);
-                        NewMakeupItem makeupItem = selectedMakeupItem.makeupItem;
+                        MakeupItem makeupItem = selectedMakeupItem.makeupItem;
                         mOnFUControlListener.setMakeupItemIntensity(makeupItem.getIntensityName(), intensity);
                         mSelectedCombinationIntensitys.put(R.string.makeup_customize, intensity);
                     }
@@ -183,7 +197,7 @@ public class MakeupControlView extends FrameLayout {
         mMakeupItemRecycler.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         mMakeupItemRecycler.setHasFixedSize(true);
         ((SimpleItemAnimator) mMakeupItemRecycler.getItemAnimator()).setSupportsChangeAnimations(false);
-        mMakeupItemAdapter = new MakeupItemAdapter(new ArrayList<NewMakeupItem>(8));
+        mMakeupItemAdapter = new MakeupItemAdapter(new ArrayList<>(8));
         MakeupItemClickListener makeupItemClickListener = new MakeupItemClickListener();
         mMakeupItemAdapter.setOnItemClickListener(makeupItemClickListener);
         mMakeupItemAdapter.setItemSelected(0);
@@ -211,9 +225,9 @@ public class MakeupControlView extends FrameLayout {
                 // 单项妆容调节
                 mSubTitleAdapter.setPositionHighlight(value > 0);
                 double level = (double) value / 100;
-                SparseArray<NewMakeupItem> selectedItems = mMakeupItemAdapter.getSelectedItems();
+                SparseArray<MakeupItem> selectedItems = mMakeupItemAdapter.getSelectedItems();
                 if (selectedItems.size() > 0) {
-                    NewMakeupItem makeupItem = selectedItems.valueAt(0);
+                    MakeupItem makeupItem = selectedItems.valueAt(0);
                     int selectedIndex = mMakeupItemAdapter.getSelectedIndex();
                     if (selectedIndex >= 0) {
                         int titlePos = mSubTitleAdapter.getSelectedIndex();
@@ -224,7 +238,7 @@ public class MakeupControlView extends FrameLayout {
                 }
             }
         });
-        replaceMakeupItem(NewMakeupItem.FACE_MAKEUP_TYPE_LIPSTICK);
+        replaceMakeupItem(MakeupItem.FACE_MAKEUP_TYPE_LIPSTICK);
     }
 
     private void initColorListView(final List<double[]> colorList) {
@@ -276,18 +290,19 @@ public class MakeupControlView extends FrameLayout {
                 mSelectedColorPosition = position;
                 PathLayoutManager layoutManager = (PathLayoutManager) mRvMakeupColor.getLayoutManager();
                 layoutManager.setFixingAnimationDuration(COLOR_LIST_ANIMATION_TIME);
-                SparseArray<NewMakeupItem> selectedItems = mMakeupItemAdapter.getSelectedItems();
+                SparseArray<MakeupItem> selectedItems = mMakeupItemAdapter.getSelectedItems();
                 if (selectedItems.size() > 0) {
-                    NewMakeupItem makeupItem = selectedItems.valueAt(0);
+                    MakeupItem makeupItem = selectedItems.valueAt(0);
                     double[] colors = mColorBallAdapter.getItem(position);
                     String colorName = makeupItem.getColorName();
                     if (colors != null && colorName != null) {
-                        NewMakeupItem newMakeupItem = mMakeupItemAdapter.getSelectedItems().valueAt(0);
+                        MakeupItem newMakeupItem = mMakeupItemAdapter.getSelectedItems().valueAt(0);
                         int pos = mMakeupItemAdapter.indexOf(newMakeupItem);
                         if (pos >= 0) {
                             String key = "" + mSubTitleAdapter.getSelectedIndex() + pos;
                             mSelectedColors.put(key, new SelectedMakeupItem(position, makeupItem));
-                            mOnFUControlListener.setMakeupItemColor(colorName, colors);
+                            // 对于多种颜色叠加，设置多层颜色值，比如 makeup_eye_color
+                            setMakeupColor(colorName, colors);
                         }
                     }
                 }
@@ -301,7 +316,7 @@ public class MakeupControlView extends FrameLayout {
         if (mFirstMpAnimator != null && mFirstMpAnimator.isRunning()) {
             mFirstMpAnimator.cancel();
         }
-        final int fmpHeight = getResources().getDimensionPixelSize(R.dimen.x268);
+        final int fmpHeight = getResources().getDimensionPixelSize(R.dimen.x290);
         int start = showFirstView ? 0 : fmpHeight;
         int end = showFirstView ? fmpHeight : 0;
         mFirstMpAnimator = ValueAnimator.ofInt(start, end);
@@ -328,6 +343,19 @@ public class MakeupControlView extends FrameLayout {
         });
         mFirstMpAnimator.setDuration(150);
         mFirstMpAnimator.start();
+    }
+
+    private void setMakeupColor(String colorName, double[] colorArray) {
+        double[] colorRgba;
+        for (int i = 0, j = colorArray.length / 4; i < j; i++) {
+            colorRgba = new double[4];
+            System.arraycopy(colorArray, i * 4, colorRgba, 0, colorRgba.length);
+            String colorKey = colorName;
+            if (i > 0) {
+                colorKey = colorName + (i + 1);
+            }
+            mOnFUControlListener.setMakeupItemColor(colorKey, colorRgba);
+        }
     }
 
     private void changeSecondViewWithAnimator(final boolean showSecondView) {
@@ -360,12 +388,12 @@ public class MakeupControlView extends FrameLayout {
 
     // 切换二级单项妆容
     private void replaceMakeupItem(int type) {
-        List<NewMakeupItem> makeupItems = FaceMakeupConfig.MAKEUP_ITEM_MAP.get(type);
+        List<MakeupItem> makeupItems = MakeupConfig.MAKEUP_ITEM_MAP.get(type);
         if (makeupItems != null) {
             mMakeupItemAdapter.replaceAll(makeupItems);
         }
         if (mSelectedItems.size() == 0) {
-            for (int i = 0; i <= NewMakeupItem.FACE_MAKEUP_TYPE_EYE_PUPIL; i++) {
+            for (int i = 0; i <= MakeupItem.FACE_MAKEUP_TYPE_EYE_PUPIL; i++) {
                 mSubTitleAdapter.setPositionHighlight(i, false);
             }
         }
@@ -376,7 +404,7 @@ public class MakeupControlView extends FrameLayout {
         if (selectedMakeupItem != null) {
             position = selectedMakeupItem.position;
             key = "" + titleSelectedIndex + position;
-            NewMakeupItem makeupItem = selectedMakeupItem.makeupItem;
+            MakeupItem makeupItem = selectedMakeupItem.makeupItem;
             if (mSelectedItemIntensitys.containsKey(key)) {
                 double intensity = mSelectedItemIntensitys.get(key);
                 mMakeupItemSeekBar.setProgress((int) (intensity * 100));
@@ -392,7 +420,7 @@ public class MakeupControlView extends FrameLayout {
 
         selectedMakeupItem = mSelectedColors.get(key);
         if (selectedMakeupItem != null) {
-            NewMakeupItem makeupItem = selectedMakeupItem.makeupItem;
+            MakeupItem makeupItem = selectedMakeupItem.makeupItem;
             if (makeupItem != null) {
                 List<double[]> colorList = makeupItem.getColorList();
                 if (colorList != null) {
@@ -457,12 +485,12 @@ public class MakeupControlView extends FrameLayout {
         }
     }
 
-    public void onCameraChange(int cameraType) {
-        mCameraType = cameraType;
+    public void onCameraChange(int cameraFacing) {
+        mCameraFacing = cameraFacing;
         SparseArray<MakeupCombination> selectedItems = mMakeupCombinationAdapter.getSelectedItems();
         if (selectedItems.size() > 0) {
             MakeupCombination makeupCombination = selectedItems.valueAt(0);
-            setIsFlipPoints(makeupCombination);
+            setIsFlipPoints(makeupCombination, true);
         }
     }
 
@@ -474,11 +502,7 @@ public class MakeupControlView extends FrameLayout {
         mClMakeupItem.post(new Runnable() {
             @Override
             public void run() {
-                MakeupCombination makeupCombination = mMakeupCombinationAdapter.getItem(1);
-                mMakeupCombinationSeekBar.setVisibility(View.VISIBLE);
-                double intensity = mSelectedCombinationIntensitys.get(makeupCombination.getNameId(), 1.0);
-                mMakeupCombinationSeekBar.setProgress((int) (intensity * 100));
-                mOnFUControlListener.selectMakeupItem(makeupCombination.getParamMap(), false);
+                mMakeupCombinationAdapter.getOnItemClickListener().onItemClick(mMakeupCombinationAdapter, null, 1);
             }
         });
     }
@@ -501,7 +525,7 @@ public class MakeupControlView extends FrameLayout {
                 ViewGroup.LayoutParams params = mClMakeupItem.getLayoutParams();
                 params.height = height;
                 mClMakeupItem.setLayoutParams(params);
-                float s = 1.0f * (height - startHeight) / (endHeight - startHeight);
+                float s = (float) (height - startHeight) / (endHeight - startHeight);
                 float showRate = startHeight > endHeight ? 1 - s : s;
                 if (mOnBottomAnimatorChangeListener != null) {
                     mOnBottomAnimatorChangeListener.onBottomAnimatorChangeListener(showRate);
@@ -514,16 +538,16 @@ public class MakeupControlView extends FrameLayout {
     // 顺序为：粉底 口红 腮红 眉毛 眼影 眼线 睫毛 高光 阴影 美瞳
     private List<TitleEntity> getTitles() {
         List<TitleEntity> titleEntities = new ArrayList<>();
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_foundation), NewMakeupItem.FACE_MAKEUP_TYPE_FOUNDATION, 0));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_lipstick), NewMakeupItem.FACE_MAKEUP_TYPE_LIPSTICK, 1));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_blusher), NewMakeupItem.FACE_MAKEUP_TYPE_BLUSHER, 2));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eyebrow), NewMakeupItem.FACE_MAKEUP_TYPE_EYEBROW, 3));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eye_shadow), NewMakeupItem.FACE_MAKEUP_TYPE_EYE_SHADOW, 4));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eye_liner), NewMakeupItem.FACE_MAKEUP_TYPE_EYE_LINER, 5));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eyelash), NewMakeupItem.FACE_MAKEUP_TYPE_EYELASH, 6));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_highlight), NewMakeupItem.FACE_MAKEUP_TYPE_HIGHLIGHT, 7));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_shadow), NewMakeupItem.FACE_MAKEUP_TYPE_SHADOW, 8));
-        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_contact_lens), NewMakeupItem.FACE_MAKEUP_TYPE_EYE_PUPIL, 9));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_foundation), MakeupItem.FACE_MAKEUP_TYPE_FOUNDATION, 0));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_lipstick), MakeupItem.FACE_MAKEUP_TYPE_LIPSTICK, 1));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_blusher), MakeupItem.FACE_MAKEUP_TYPE_BLUSHER, 2));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eyebrow), MakeupItem.FACE_MAKEUP_TYPE_EYEBROW, 3));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eye_shadow), MakeupItem.FACE_MAKEUP_TYPE_EYE_SHADOW, 4));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eye_liner), MakeupItem.FACE_MAKEUP_TYPE_EYE_LINER, 5));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_eyelash), MakeupItem.FACE_MAKEUP_TYPE_EYELASH, 6));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_highlight), MakeupItem.FACE_MAKEUP_TYPE_HIGHLIGHT, 7));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_shadow), MakeupItem.FACE_MAKEUP_TYPE_SHADOW, 8));
+        titleEntities.add(new TitleEntity(getResources().getString(R.string.makeup_radio_contact_lens), MakeupItem.FACE_MAKEUP_TYPE_EYE_PUPIL, 9));
         return titleEntities;
     }
 
@@ -558,9 +582,9 @@ public class MakeupControlView extends FrameLayout {
 
     static class SelectedMakeupItem {
         int position;
-        NewMakeupItem makeupItem;
+        MakeupItem makeupItem;
 
-        public SelectedMakeupItem(int position, NewMakeupItem makeupItem) {
+        public SelectedMakeupItem(int position, MakeupItem makeupItem) {
             this.position = position;
             this.makeupItem = makeupItem;
         }
@@ -676,16 +700,15 @@ public class MakeupControlView extends FrameLayout {
         }
     }
 
-
     // 二级单项妆容适配器
-    private class MakeupItemAdapter extends BaseRecyclerAdapter<NewMakeupItem> {
+    private class MakeupItemAdapter extends BaseRecyclerAdapter<MakeupItem> {
 
-        MakeupItemAdapter(@NonNull List<NewMakeupItem> data) {
+        MakeupItemAdapter(@NonNull List<MakeupItem> data) {
             super(data, R.layout.layout_makeup_recycler);
         }
 
         public int getSelectedIndex() {
-            SparseArray<NewMakeupItem> selectedItems = getSelectedItems();
+            SparseArray<MakeupItem> selectedItems = getSelectedItems();
             if (selectedItems.size() > 0) {
                 return indexOf(selectedItems.valueAt(0));
             }
@@ -693,7 +716,7 @@ public class MakeupControlView extends FrameLayout {
         }
 
         @Override
-        protected void bindViewHolder(BaseViewHolder viewHolder, NewMakeupItem item) {
+        protected void bindViewHolder(BaseViewHolder viewHolder, MakeupItem item) {
             viewHolder.setImageDrawable(R.id.makeup_recycler_img, item.getIconDrawable());
             ImageView imageView = viewHolder.getViewById(R.id.makeup_recycler_img);
             RequestOptions requestOptions = new RequestOptions();
@@ -702,12 +725,12 @@ public class MakeupControlView extends FrameLayout {
         }
 
         @Override
-        protected void handleSelectedState(BaseViewHolder viewHolder, NewMakeupItem data, boolean selected) {
+        protected void handleSelectedState(BaseViewHolder viewHolder, MakeupItem data, boolean selected) {
             viewHolder.setBackground(R.id.makeup_recycler_img, selected ? R.drawable.control_filter_select : 0);
         }
 
         @Override
-        public int indexOf(@NonNull NewMakeupItem data) {
+        public int indexOf(@NonNull MakeupItem data) {
             for (int i = 0, j = mData.size(); i < j; i++) {
                 if (data.getNameId() == mData.get(i).getNameId()) {
                     return i;
@@ -774,17 +797,17 @@ public class MakeupControlView extends FrameLayout {
     }
 
     // 二级单项妆容点击事件
-    private class MakeupItemClickListener implements BaseRecyclerAdapter.OnItemClickListener<NewMakeupItem> {
+    private class MakeupItemClickListener implements BaseRecyclerAdapter.OnItemClickListener<MakeupItem> {
 
         @Override
-        public void onItemClick(BaseRecyclerAdapter<NewMakeupItem> adapter, View view, int position) {
-            NewMakeupItem makeupItem = adapter.getItem(position);
+        public void onItemClick(BaseRecyclerAdapter<MakeupItem> adapter, View view, int position) {
+            MakeupItem makeupItem = adapter.getItem(position);
             if (position == 0) {
                 // 卸妆
                 setColorListVisible(false);
                 mMakeupItemSeekBar.setVisibility(View.INVISIBLE);
                 mSubTitleAdapter.setPositionHighlight(false);
-                mOnFUControlListener.selectMakeupItem(makeupItem.getParamMap(), false);
+                mOnFUControlListener.setMakeupItemParam(makeupItem.getParamMap());
             } else {
                 int titlePos = mSubTitleAdapter.getSelectedIndex();
                 String key = "" + titlePos + position;
@@ -792,11 +815,13 @@ public class MakeupControlView extends FrameLayout {
                     ToastUtil.showWhiteTextToast(mContext, makeupItem.getNameId());
                 }
                 mMakeupItemSeekBar.setVisibility(View.VISIBLE);
+                String colorName = makeupItem.getColorName();
+                double[] colors = null;
                 if (titlePos == 0) {
                     // 粉底没有颜色滑条
                     setColorListVisible(false);
                     List<double[]> colorList = makeupItem.getColorList();
-                    mOnFUControlListener.setMakeupItemColor(makeupItem.getColorName(), colorList.get(position + 2));
+                    colors = colorList.get(position + 2);
                 } else {
                     // 其他带有颜色滑条
                     List<double[]> colorList = makeupItem.getColorList();
@@ -815,18 +840,21 @@ public class MakeupControlView extends FrameLayout {
                             mSelectedColors.put(key, selectedMakeupItem);
                         }
                         mPathLayoutManager.smoothScrollToPosition(selectedMakeupItem.position);
-                        mOnFUControlListener.setMakeupItemColor(makeupItem.getColorName(), colorList.get(selectedMakeupItem.position));
+                        colors = colorList.get(selectedMakeupItem.position);
                     } else {
                         setColorListVisible(false);
                     }
                 }
-                mOnFUControlListener.selectMakeupItem(makeupItem.getParamMap(), false);
+                // 必须先绑定子妆 bundle，再设置颜色等参数
+                mOnFUControlListener.setMakeupItemParam(makeupItem.getParamMap());
+                if (colors != null) {
+                    setMakeupColor(colorName, colors);
+                }
                 double level;
                 if (mSelectedItemIntensitys.containsKey(key)) {
                     level = mSelectedItemIntensitys.get(key);
                 } else {
-                    // 妆容强度默认值 1.0
-                    level = NewMakeupItem.DEFAULT_INTENSITY;
+                    level = 1.0F;
                     mSelectedItemIntensitys.put(key, level);
                 }
                 mMakeupItemSeekBar.setProgress((int) (level * 100));
@@ -838,16 +866,22 @@ public class MakeupControlView extends FrameLayout {
         }
     }
 
-    // 花花妆、星月妆、硬汉妆设置点位镜像
-    private void setIsFlipPoints(MakeupCombination makeupCombination) {
-        boolean isFront = mCameraType == Camera.CameraInfo.CAMERA_FACING_FRONT;
-        if (makeupCombination.getNameId() == R.string.makeup_combination_flower
-                || makeupCombination.getNameId() == R.string.makeup_combination_moon
-                || makeupCombination.getNameId() == R.string.makeup_combination_man) {
-            ((FURenderer) mOnFUControlListener).setIsFlipPoints(isFront);
-        } else {
-            ((FURenderer) mOnFUControlListener).setIsFlipPoints(false);
+    private void setCustomEnable(boolean enable) {
+        mIvCustom.setEnabled(enable);
+        float alpha = enable ? 1.0f : 0.6f;
+        mIvCustom.setAlpha(alpha);
+        mTvCustom.setAlpha(alpha);
+    }
+
+    private void setIsFlipPoints(MakeupCombination makeupCombination, boolean isSetImmediately) {
+        boolean isBackCamera = false;
+        int nameId = makeupCombination.getNameId();
+        // 人鱼和港风，妆容不对称，打开后置相机需要镜像
+        if (nameId == R.string.makeup_combination_gangfeng
+                || nameId == R.string.makeup_combination_renyu) {
+            isBackCamera = mCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK;
         }
+        ((FURenderer) mOnFUControlListener).setIsMakeupFlipPoints(isBackCamera, isSetImmediately);
     }
 
     // 一级组合妆容点击事件
@@ -857,27 +891,36 @@ public class MakeupControlView extends FrameLayout {
         public void onItemClick(BaseRecyclerAdapter<MakeupCombination> adapter, View view, int position) {
             MakeupCombination makeupCombination = adapter.getItem(position);
             Map<String, Object> paramMap = makeupCombination.getParamMap();
-            if (paramMap == null) {
-                return;
+            // 自定义妆容的时候需要使用详细配置，这里采用懒加载的方式。如果不需要自定义，完全可以忽略
+            if (position > 0 && (paramMap == null || paramMap.size() == 0)) {
+                paramMap = MakeupConfig.loadMakeupParamsFromJson(mContext, makeupCombination.getJsonPath());
+                makeupCombination.setParamMap(paramMap);
+                makeupCombination.setSubItems(MakeupConfig.createMakeupSubItems(paramMap));
             }
+
+            MakeupEntity makeupEntity = makeupCombination.getMakeupEntity();
             if (position == 0) {
                 // 卸妆
                 setCustomEnable(true);
                 mMakeupCombinationSeekBar.setVisibility(View.INVISIBLE);
-                mOnFUControlListener.selectMakeupItem(paramMap, true);
+                mOnFUControlListener.selectMakeup(makeupEntity, paramMap);
+                mOnFUControlListener.onFilterNameSelected(Filter.Key.ZIRAN_2);
+                mOnFUControlListener.onFilterLevelSelected(0.4F);
                 clearSelectedItems();
             } else {
-                // 预置妆容：5个日常妆，5个主题妆。日常妆支持自定义，主题妆不支持
-                if (position > 5) {
-                    setCustomEnable(false);
-                } else {
-                    setCustomEnable(true);
-                }
-                double intensity = mSelectedCombinationIntensitys.get(makeupCombination.getNameId(), 1.0);
+                // 切换
+                boolean isDaily = makeupEntity.getType() == MakeupEntity.TYPE_DAILY;
+                setCustomEnable(isDaily);
+                int nameId = makeupCombination.getNameId();
+                double intensity = mSelectedCombinationIntensitys.get(nameId, (double) MakeupConfig.DEFAULT_INTENSITY);
                 mMakeupCombinationSeekBar.setVisibility(View.VISIBLE);
                 mMakeupCombinationSeekBar.setProgress((int) (intensity * 100));
-                Map<String, Object> paramMapCopy = new HashMap<>(paramMap);
-                Set<Map.Entry<String, Object>> entries = paramMapCopy.entrySet();
+                // 仅组合妆需要自定义
+                Map<String, Object> paramMapCopy = new HashMap<>(32);
+                if (isDaily) {
+                    paramMapCopy.putAll(paramMap);
+                }
+                Set<Map.Entry<String, Object>> entries = paramMap.entrySet();
                 for (Map.Entry<String, Object> entry : entries) {
                     String key = entry.getKey();
                     Object value = entry.getValue();
@@ -886,16 +929,26 @@ public class MakeupControlView extends FrameLayout {
                         paramMapCopy.put(key, v);
                     }
                 }
-                mOnFUControlListener.selectMakeupItem(paramMapCopy, true);
-                setIsFlipPoints(makeupCombination);
-            }
-        }
+                mOnFUControlListener.selectMakeup(makeupEntity, paramMapCopy);
+                setIsFlipPoints(makeupCombination, false);
 
-        private void setCustomEnable(boolean enable) {
-            mIvCustom.setEnabled(enable);
-            float alpha = enable ? 1.0f : 0.6f;
-            mIvCustom.setAlpha(alpha);
-            mTvCustom.setAlpha(alpha);
+                // filter
+                Filter filter = MakeupConfig.MAKEUP_COMBINATION_FILTER_MAP.get(nameId);
+                if (filter != null) {
+                    mOnFUControlListener.onFilterNameSelected(filter.filterName());
+                    double filterLevel;
+                    if (mSelectedFilterIntensitys.containsKey(nameId)) {
+                        filterLevel = mSelectedFilterIntensitys.get(nameId);
+                    } else {
+                        filterLevel = MakeupConfig.FILTER_INTENSITY;
+                        mSelectedFilterIntensitys.put(nameId, filterLevel);
+                    }
+                    mOnFUControlListener.onFilterLevelSelected((float) filterLevel);
+                } else {
+                    mOnFUControlListener.onFilterNameSelected(Filter.Key.ZIRAN_2);
+                    mOnFUControlListener.onFilterLevelSelected(0.4F);
+                }
+            }
         }
     }
 
@@ -915,7 +968,8 @@ public class MakeupControlView extends FrameLayout {
                         SparseArray<MakeupCombination.SubItem> subItems = makeupCombination.getSubItems();
                         if (subItems != null) {
                             clearSelectedItems();
-                            Double overallDensity = mSelectedCombinationIntensitys.get(makeupCombination.getNameId(), 1.0);
+                            Double overallDensity = mSelectedCombinationIntensitys.get(makeupCombination.getNameId(),
+                                    (double) MakeupConfig.DEFAULT_INTENSITY);
                             for (int i = 0, size = subItems.size(); i < size; i++) {
                                 MakeupCombination.SubItem subItem = subItems.valueAt(i);
                                 int selType = subItem.getType();
@@ -923,8 +977,8 @@ public class MakeupControlView extends FrameLayout {
                                 int pos = subItem.getItemPosition();
                                 double intensity = subItem.getIntensity();
                                 mSubTitleAdapter.setPositionHighlight(selType, pos > 0 && intensity > 0);
-                                List<NewMakeupItem> makeupItems = FaceMakeupConfig.MAKEUP_ITEM_MAP.get(selType);
-                                NewMakeupItem makeupItem = makeupItems.get(pos);
+                                List<MakeupItem> makeupItems = MakeupConfig.MAKEUP_ITEM_MAP.get(selType);
+                                MakeupItem makeupItem = makeupItems.get(pos);
                                 SelectedMakeupItem selectedMakeupItem = new SelectedMakeupItem(pos, makeupItem);
                                 mSelectedItems.put(selType, selectedMakeupItem);
                                 // 颜色列表
@@ -974,7 +1028,7 @@ public class MakeupControlView extends FrameLayout {
                                     int type = subItem.getType();
                                     SelectedMakeupItem selectedMakeupItem = mSelectedItems.get(type);
                                     if (selectedMakeupItem != null) {
-                                        if (type == NewMakeupItem.FACE_MAKEUP_TYPE_FOUNDATION) {
+                                        if (type == MakeupItem.FACE_MAKEUP_TYPE_FOUNDATION) {
                                             if (selectedMakeupItem.position != subItem.getColorPosition()) {
                                                 Log.d(TAG, "onMultiClick back foundation: changed item");
                                                 changed = true;
@@ -991,7 +1045,8 @@ public class MakeupControlView extends FrameLayout {
                                 }
                                 // check intensity
                                 if (!changed) {
-                                    Double overallIntensity = mSelectedCombinationIntensitys.get(makeupCombination.getNameId(), 1.0);
+                                    Double overallIntensity = mSelectedCombinationIntensitys.get(makeupCombination.getNameId(),
+                                            (double) MakeupConfig.DEFAULT_INTENSITY);
                                     for (int i = 0; i < subItems.size(); i++) {
                                         MakeupCombination.SubItem subItem = subItems.valueAt(i);
                                         String key = "" + subItem.getType() + subItem.getItemPosition();

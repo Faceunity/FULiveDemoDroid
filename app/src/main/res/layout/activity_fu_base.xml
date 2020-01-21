@@ -41,7 +41,7 @@
 
         <RadioGroup
             android:id="@+id/fu_base_input_type_radio_group"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/x240"
             android:layout_height="@dimen/x52"
             android:layout_marginLeft="@dimen/x36"
             android:background="@drawable/fu_base_input_type_radio_group_background"
@@ -78,32 +78,6 @@
         </RadioGroup>
 
         <ImageButton
-            android:id="@+id/fu_base_select_data"
-            android:layout_width="@dimen/x57"
-            android:layout_height="@dimen/x55"
-            android:layout_marginTop="@dimen/x40"
-            android:layout_marginRight="@dimen/x65"
-            android:background="@color/transparent"
-            android:onClick="onClick"
-            android:scaleType="centerInside"
-            android:src="@drawable/photo"
-            android:visibility="gone"
-            app:layout_constraintRight_toLeftOf="@+id/fu_base_debug"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <android.support.v7.widget.AppCompatCheckBox
-            android:id="@+id/fu_base_debug"
-            android:layout_width="@dimen/x60"
-            android:layout_height="@dimen/x56"
-            android:layout_marginTop="@dimen/x39"
-            android:layout_marginRight="@dimen/x65"
-            android:background="@drawable/debug"
-            android:button="@null"
-            android:checked="false"
-            app:layout_constraintRight_toLeftOf="@id/fu_base_camera_change"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageButton
             android:id="@+id/fu_base_camera_change"
             android:layout_width="@dimen/x66"
             android:layout_height="@dimen/x54"
@@ -111,9 +85,30 @@
             android:layout_marginRight="@dimen/x31"
             android:background="@color/transparent"
             android:onClick="onClick"
-            android:scaleType="centerInside"
             android:src="@drawable/camera_change"
             app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/fu_base_debug"
+            android:layout_width="@dimen/x60"
+            android:layout_height="@dimen/x56"
+            android:layout_marginTop="@dimen/x39"
+            android:layout_marginRight="@dimen/x68"
+            android:background="@drawable/debug"
+            android:button="@null"
+            android:checked="false"
+            app:layout_constraintRight_toLeftOf="@id/fu_base_camera_change"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/fu_base_more"
+            android:layout_width="@dimen/x60"
+            android:layout_height="@dimen/x60"
+            android:layout_marginTop="@dimen/x38"
+            android:layout_marginRight="@dimen/x76"
+            android:src="@drawable/demo_icon_more"
+            app:layout_constraintRight_toLeftOf="@id/fu_base_debug"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

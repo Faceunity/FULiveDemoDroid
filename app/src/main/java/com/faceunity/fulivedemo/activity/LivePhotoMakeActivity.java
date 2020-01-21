@@ -22,6 +22,7 @@ import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
 import com.faceunity.fulivedemo.ui.fragment.LivePhotoAdjustFragment;
 import com.faceunity.fulivedemo.ui.fragment.LivePhotoMarkFragment;
+import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.gles.core.GlUtil;
@@ -62,10 +63,12 @@ public class LivePhotoMakeActivity extends AppCompatActivity implements LivePhot
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         showFragment(LivePhotoMarkFragment.TAG);
 
+        int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
         mFURenderer = new FURenderer
                 .Builder(this)
                 .setNeedFaceBeauty(false)
-                .inputTextureType(2)
+                .maxFaces(1)
+                .inputImageOrientation(frontCameraOrientation)
                 .build();
     }
 
@@ -115,6 +118,7 @@ public class LivePhotoMakeActivity extends AppCompatActivity implements LivePhot
     @Override
     public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
+        mFURenderer.setBeautificationOn(false);
     }
 
     @Override

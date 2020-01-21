@@ -154,10 +154,10 @@ public class FaceMaskView extends View {
     }
 
     public void addFaceRect(float[] faceRect) {
-        left[mCurrentFace] = faceRect[0];
-        top[mCurrentFace] = faceRect[1];
-        right[mCurrentFace] = faceRect[2];
-        bottom[mCurrentFace] = faceRect[3];
+        left[mCurrentFace] = faceRect[0] < faceRect[2] ? faceRect[0] : faceRect[2];
+        top[mCurrentFace] = faceRect[1] < faceRect[3] ? faceRect[1] : faceRect[3];
+        right[mCurrentFace] = faceRect[0] > faceRect[2] ? faceRect[0] : faceRect[2];
+        bottom[mCurrentFace] = faceRect[1] > faceRect[3] ? faceRect[1] : faceRect[3];
         mCurrentFace++;
     }
 

@@ -22,6 +22,7 @@
     <color name="percent50translucentBlack">#80000000</color>
     <color name="percent60translucentBlack">#99000000</color>
     <color name="percent70translucentWhite">#00FFFFFF</color>
+    <color name="percent60translucentWhite">#99FFFFFF</color>
 
     <color name="colorWhite">#FFFFFFFF</color>
     <color name="main_color">#1FB2FF</color>

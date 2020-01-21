@@ -73,22 +73,6 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
                 onBackPressed();
             }
         });
-        mSelectDataBtn.setVisibility(View.VISIBLE);
-        mSelectDataBtn.setOnClickListener(new OnMultiClickListener() {
-            @Override
-            protected void onMultiClick(View v) {
-                Intent intentPhoto = new Intent();
-                intentPhoto.addCategory(Intent.CATEGORY_OPENABLE);
-                intentPhoto.setType("image/*");
-                intentPhoto.setAction(Intent.ACTION_OPEN_DOCUMENT);
-                ResolveInfo resolveInfo = getPackageManager().resolveActivity(intentPhoto, PackageManager.MATCH_DEFAULT_ONLY);
-                if (resolveInfo == null) {
-                    intentPhoto.setAction(Intent.ACTION_GET_CONTENT);
-                    intentPhoto.removeCategory(Intent.CATEGORY_OPENABLE);
-                }
-                startActivityForResult(intentPhoto, REQ_PHOTO);
-            }
-        });
         mTakePicBtn.setOnRecordListener(new RecordBtn.OnRecordListener() {
             @Override
             public void takePic() {
@@ -114,7 +98,7 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
                         setTakeViewVisible(false);
                     }
                 });
-                mTakePicing = false;
+                mIsTakingPic = false;
             }
         };
     }
@@ -130,6 +114,7 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
         return new FURenderer
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
+                .inputImageOrientation(mFrontCameraOrientation)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
@@ -162,20 +147,40 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
                 onBackPressed();
             } else {
                 mShotBitmap = null;
-                mCameraRenderer.dismissImageTexture();
+                mCameraRenderer.hideImageTexture();
                 setTakeViewVisible(true);
             }
         }
     }
 
     @Override
-    protected void checkPic(int textureId, float[] mtx, final int texWidth, final int texHeight) {
+    protected void takePicture(int texId, float[] mvpMatrix, float[] texMatrix, final int texWidth, final int texHeight) {
         if (!mIsNeedTakePic) {
             return;
         }
         mIsNeedTakePic = false;
-        mCameraRenderer.setNeedStopDraw(true);
-        BitmapUtil.glReadBitmap(textureId, mtx, GlUtil.IDENTITY_MATRIX, texWidth, texHeight, mOnReadBitmapListener, false);
+        BitmapUtil.glReadBitmap(texId, texMatrix, mvpMatrix, texWidth, texHeight, mOnReadBitmapListener, false);
+    }
+
+
+    @Override
+    protected boolean isOpenPhotoVideo() {
+        return true;
+    }
+
+    @Override
+    protected void onSelectPhotoVideoClick() {
+        super.onSelectPhotoVideoClick();
+        Intent intentPhoto = new Intent();
+        intentPhoto.addCategory(Intent.CATEGORY_OPENABLE);
+        intentPhoto.setType("image/*");
+        intentPhoto.setAction(Intent.ACTION_OPEN_DOCUMENT);
+        ResolveInfo resolveInfo = getPackageManager().resolveActivity(intentPhoto, PackageManager.MATCH_DEFAULT_ONLY);
+        if (resolveInfo == null) {
+            intentPhoto.setAction(Intent.ACTION_GET_CONTENT);
+            intentPhoto.removeCategory(Intent.CATEGORY_OPENABLE);
+        }
+        startActivityForResult(intentPhoto, REQ_PHOTO);
     }
 
     private void setTakeViewVisible(boolean visible) {
@@ -216,7 +221,7 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
                 }
             } else if (id == R.id.iv_poster_take_back) {
                 setTakeViewVisible(true);
-                mCameraRenderer.dismissImageTexture();
+                mCameraRenderer.hideImageTexture();
             }
         }
     }

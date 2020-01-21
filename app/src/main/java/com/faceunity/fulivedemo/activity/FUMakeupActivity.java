@@ -6,7 +6,6 @@ import android.view.View;
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
-import com.faceunity.fulivedemo.utils.CameraUtils;
 
 /**
  * 美妆界面
@@ -15,15 +14,16 @@ import com.faceunity.fulivedemo.utils.CameraUtils;
 public class FUMakeupActivity extends FUBaseActivity {
     public final static String TAG = FUMakeupActivity.class.getSimpleName();
     private MakeupControlView mMakeupControlView;
-    private boolean mHide;
+    private boolean mIsHideBottomView;
 
     @Override
     protected FURenderer initFURenderer() {
-        int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
         return new FURenderer
                 .Builder(this)
                 .maxFaces(4)
-                .inputImageOrientation(frontCameraOrientation)
+                .setLoadAiFaceLandmark75(false)
+                .setLoadAiFaceLandmark239(true)
+                .inputImageOrientation(mFrontCameraOrientation)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
@@ -32,9 +32,9 @@ public class FUMakeupActivity extends FUBaseActivity {
 
     @Override
     protected void onCreate() {
-        // 隐藏单双输入切换按钮
+        // 美妆采用单输入
         mInputTypeRadioGroup.setVisibility(View.GONE);
-        isDoubleInputType = false;
+        mIsDualInput = false;
 
         mBottomViewStub.setLayoutResource(R.layout.layout_fu_makeup);
         mBottomViewStub.inflate();
@@ -61,7 +61,7 @@ public class FUMakeupActivity extends FUBaseActivity {
             @Override
             public void onBottomAnimatorChangeListener(float showRate) {
                 // 收起 1--0，弹起 0--1
-                mHide = showRate == 0;
+                mIsHideBottomView = showRate == 0;
                 double v = px166 * (1 - showRate * 0.265);
                 mTakePicBtn.setDrawWidth((int) v);
                 ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mTakePicBtn.getLayoutParams();
@@ -88,7 +88,7 @@ public class FUMakeupActivity extends FUBaseActivity {
     @Override
     protected void onLightFocusVisibilityChanged(boolean visible) {
         super.onLightFocusVisibilityChanged(visible);
-        if (!mHide) {
+        if (!mIsHideBottomView) {
             mMakeupControlView.setColorListVisible(!visible);
             if (visible) {
                 mMakeupControlView.touchScreen();
@@ -103,9 +103,14 @@ public class FUMakeupActivity extends FUBaseActivity {
     }
 
     @Override
-    public void onCameraChange(int cameraType, int cameraOrientation) {
-        super.onCameraChange(cameraType, cameraOrientation);
-        mMakeupControlView.onCameraChange(cameraType);
+    public void onCameraChanged(int cameraFacing, int cameraOrientation) {
+        super.onCameraChanged(cameraFacing, cameraOrientation);
+        mMakeupControlView.onCameraChange(cameraFacing);
+    }
+
+    @Override
+    protected int getLandmarksType() {
+        return FURenderer.FACE_LANDMARKS_239;
     }
 
 }

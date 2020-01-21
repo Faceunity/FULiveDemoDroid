@@ -5,10 +5,6 @@ apply from: rootProject.file('script.gradle')
  * 应用名称
  */
 def appName = 'FULiveDemo'
-/**
- *  SDK 版本号
- */
-def sdkVersionName = '6.4.1-beta4'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -18,8 +14,8 @@ android {
         applicationId "com.faceunity.${appName}".toLowerCase()
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.appVersionCode
-        versionName sdkVersionName
+        versionCode rootProject.ext.namaSdkVersionCode
+        versionName rootProject.ext.namaSdkVersionName
         manifestPlaceholders = ['appName': appName]
     }
 

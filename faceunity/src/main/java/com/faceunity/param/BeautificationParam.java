@@ -19,11 +19,11 @@ public class BeautificationParam {
      */
     public static final String FILTER_LEVEL = "filter_level";
     /**
-     * 美白程度，范围 [0-1]，默认 0.2
+     * 美白程度，范围 [0-2]，默认 0.2
      */
     public static final String COLOR_LEVEL = "color_level";
     /**
-     * 红润程度，范围 [0-1]，默认 0.5
+     * 红润程度，范围 [0-2]，默认 0.5
      */
     public static final String RED_LEVEL = "red_level";
     /**
@@ -31,7 +31,7 @@ public class BeautificationParam {
      */
     public static final String BLUR_LEVEL = "blur_level";
     /**
-     * 磨皮类型，0 清晰磨皮，1 重度磨皮，2 精细磨皮
+     * 磨皮类型，0 清晰磨皮，1 朦胧磨皮，2 精细磨皮。当 heavy_blur 为 0 时生效
      */
     public static final String BLUR_TYPE = "blur_type";
     /**
@@ -123,4 +123,39 @@ public class BeautificationParam {
      * 精细变形
      */
     public static final int FACE_SHAPE_CUSTOM = 4;
+
+    /**
+     * 微美型参数
+     * <p>
+     * 去黑眼圈强度，0.0 到 1.0 变强
+     */
+    public static final String REMOVE_POUCH_STRENGTH = "remove_pouch_strength";
+    /**
+     * 去法令纹强度，0.0 到 1.0 变强
+     */
+    public static final String REMOVE_NASOLABIAL_FOLDS_STRENGTH = "remove_nasolabial_folds_strength";
+    /**
+     * 微笑嘴角强度，0.0 到 1.0 变强
+     */
+    public static final String INTENSITY_SMILE = "intensity_smile";
+    /**
+     * 开眼角强度，0.0 到 1.0 变强
+     */
+    public static final String INTENSITY_CANTHUS = "intensity_canthus";
+    /**
+     * 调节人中，0.5 到 1.0 是逐渐缩短，0.5 到 0.0 是逐渐增长
+     */
+    public static final String INTENSITY_PHILTRUM = "intensity_philtrum";
+    /**
+     * 鼻子长度，0.5 到 1.0 是逐渐缩短，0.5 到 0.0 是逐渐增长
+     */
+    public static final String INTENSITY_LONG_NOSE = "intensity_long_nose";
+    /**
+     * 眼睛间距，0.5 到 1.0 是逐渐缩短，0.5 到 0.0 是逐渐增长
+     */
+    public static final String INTENSITY_EYE_SPACE = "intensity_eye_space";
+    /**
+     * 眼睛角度，0.5 到 1.0 眼角向下旋转，0.5 到 0.0 眼角向上旋转
+     */
+    public static final String INTENSITY_EYE_ROTATE = "intensity_eye_rotate";
 }

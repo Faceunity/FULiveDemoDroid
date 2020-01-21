@@ -3,6 +3,7 @@
     <string name="fu_live_demo">FU Live Demo</string>
 
     <string name="home_function_name_beauty">Beautification</string>
+    <string name="home_function_name_light_makeup">Light Makeup</string>
     <string name="home_function_name_animoji">Animoji</string>
     <string name="home_function_name_normal">Sticker</string>
     <string name="home_function_name_ar">AR Mesh</string>
@@ -45,7 +46,6 @@
     <string name="beauty_box_heavy_blur_hazy">Heavy Blur Mode</string>
     <string name="beauty_box_heavy_blur_double_text">Heavy Blur mode</string>
     <string name="beauty_box_heavy_blur_normal_text">Light Blur mode</string>
-    <string name="beauty_radio_beauty">Light Makeup</string>
     <string name="beauty_box_blur_level">Blur</string>
     <string name="beauty_box_color_level">Whiten</string>
     <string name="beauty_box_red_level">Ruddy</string>
@@ -112,20 +112,73 @@
     <string name="ssd_thread_cute">Holding Fist</string>
 
     <string name="origin">Origin</string>
-    <string name="delta">Delta</string>
-    <string name="electric">Electric</string>
-    <string name="slowlived">Slowlived</string>
-    <string name="tokyo">Tokyo</string>
-    <string name="warm">Warm</string>
-    <string name="ziran">Nature</string>
-    <string name="danya">Elegant</string>
-    <string name="fennen">Pink</string>
-    <string name="qingxin">Fresh</string>
-    <string name="hongrun">Ruddy</string>
-    <string name="lengsediao">Cold tone</string>
-    <string name="nuansediao">Warm tone</string>
-    <string name="bailiang">Bright</string>
-
+    <string name="bailiang_1">Bright 1</string>
+    <string name="bailiang_2">Bright 2</string>
+    <string name="bailiang_3">Bright 3</string>
+    <string name="bailiang_4">Bright 4</string>
+    <string name="bailiang_5">Bright 5</string>
+    <string name="bailiang_6">Bright 6</string>
+    <string name="bailiang_7">Bright 7</string>
+    <string name="fennen_1">Pink 1</string>
+    <string name="fennen_2">Pink 2</string>
+    <string name="fennen_3">Pink 3</string>
+    <string name="fennen_4">Pink 4</string>
+    <string name="fennen_5">Pink 5</string>
+    <string name="fennen_6">Pink 6</string>
+    <string name="fennen_7">Pink 7</string>
+    <string name="fennen_8">Pink 8</string>
+    <string name="xiaoqingxin_1">Fresh 1</string>
+    <string name="xiaoqingxin_2">Fresh 2</string>
+    <string name="xiaoqingxin_3">Fresh 3</string>
+    <string name="xiaoqingxin_4">Fresh 4</string>
+    <string name="xiaoqingxin_5">Fresh 5</string>
+    <string name="xiaoqingxin_6">Fresh 6</string>
+    <string name="lengsediao_1">Cold tone 1</string>
+    <string name="lengsediao_2">Cold tone 2</string>
+    <string name="lengsediao_3">Cold tone 3</string>
+    <string name="lengsediao_4">Cold tone 4</string>
+    <string name="lengsediao_5">Cold tone 5</string>
+    <string name="lengsediao_6">Cold tone 6</string>
+    <string name="lengsediao_7">Cold tone 7</string>
+    <string name="lengsediao_8">Cold tone 8</string>
+    <string name="lengsediao_9">Cold tone 9</string>
+    <string name="lengsediao_10">Cold tone 10</string>
+    <string name="lengsediao_11">Cold tone 11</string>
+    <string name="nuansediao_1">Warm tone 1</string>
+    <string name="nuansediao_2">Warm tone 2</string>
+    <string name="nuansediao_3">Warm tone 3</string>
+    <string name="gexing_1">Personality 1</string>
+    <string name="gexing_2">Personality 2</string>
+    <string name="gexing_3">Personality 3</string>
+    <string name="gexing_4">Personality 4</string>
+    <string name="gexing_5">Personality 5</string>
+    <string name="gexing_6">Personality 6</string>
+    <string name="gexing_7">Personality 7</string>
+    <string name="gexing_8">Personality 8</string>
+    <string name="gexing_9">Personality 9</string>
+    <string name="gexing_10">Personality 10</string>
+    <string name="gexing_11">Personality 11</string>
+    <string name="heibai_1">Fade 1</string>
+    <string name="heibai_2">Fade 2</string>
+    <string name="heibai_3">Fade 3</string>
+    <string name="heibai_4">Fade 4</string>
+    <string name="heibai_5">Fade 5</string>
+    <string name="ziran_1">Nature 1</string>
+    <string name="ziran_2">Nature 2</string>
+    <string name="ziran_3">Nature 3</string>
+    <string name="ziran_4">Nature 4</string>
+    <string name="ziran_5">Nature 5</string>
+    <string name="ziran_6">Nature 6</string>
+    <string name="ziran_7">Nature 7</string>
+    <string name="ziran_8">Nature 8</string>
+    <string name="zhiganhui_1">Grey 1</string>
+    <string name="zhiganhui_2">Grey 2</string>
+    <string name="zhiganhui_3">Grey 3</string>
+    <string name="zhiganhui_4">Grey 4</string>
+    <string name="zhiganhui_5">Grey 5</string>
+    <string name="zhiganhui_6">Grey 6</string>
+    <string name="zhiganhui_7">Grey 7</string>
+    <string name="zhiganhui_8">Grey 8</string>
 
     <string name="poster_take_photo">Please take photos by positive face.</string>
     <string name="dialog_no_track_face">No face detected, please re-upload</string>
@@ -204,10 +257,14 @@
 
     <string name="makeup_lip_fog">Matte</string>
     <string name="makeup_lip_satin">Satin</string>
+    <string name="makeup_lip_pearl">Pearl</string>
+    <string name="makeup_lip_moist">Moist</string>
+    <string name="makeup_lip_bitelip">Bitelip</string>
     <string name="makeup_blusher_apple">Apple muscle</string>
     <string name="makeup_blusher_fan">Sector</string>
     <string name="makeup_blusher_eye_corner">Canthus</string>
     <string name="makeup_blusher_slight_drunk">Tipsy</string>
+    <string name="makeup_blusher_sunburn">Sunburn</string>
     <string name="makeup_highlight_one">Highlight I</string>
     <string name="makeup_highlight_two">Highlight II </string>
     <string name="makeup_eyebrow_willow">Willow</string>
@@ -221,8 +278,10 @@
     <string name="makeup_eye_shadow_double1">Dichromatic I</string>
     <string name="makeup_eye_shadow_double2">Dichromatic II</string>
     <string name="makeup_eye_shadow_double3">Dichromatic III</string>
+    <string name="makeup_eye_shadow_double4">Dichromatic IV</string>
     <string name="makeup_eye_shadow_triple1">Tricolor I</string>
     <string name="makeup_eye_shadow_triple2">Tricolor II</string>
+    <string name="makeup_eye_shadow_triple3">Tricolor III</string>
     <string name="makeup_eyelash_natural1">Natural I</string>
     <string name="makeup_eyelash_natural2">Natural II</string>
     <string name="makeup_eyelash_thick1">Denseness I</string>
@@ -235,6 +294,7 @@
     <string name="makeup_eye_linear_pull_close">Shorten Eye distance</string>
     <string name="makeup_eye_linear_long">Long eye</string>
     <string name="makeup_eye_linear_circular">Round eye</string>
+    <string name="makeup_eye_linear_natural">Natural</string>
     <string name="makeup_combination_sexy">Sexy</string>
     <string name="makeup_combination_sweet">Sweet</string>
     <string name="makeup_combination_neighbor">Next-door</string>
@@ -245,6 +305,7 @@
     <string name="makeup_combination_coral">Coral</string>
     <string name="makeup_combination_lady">Lady</string>
     <string name="makeup_combination_man">Tough guy</string>
+    <string name="makeup_item">Makeup</string>
 
     <string name="slimming">Body</string>
     <string name="long_legs">Leg</string>
@@ -252,5 +313,10 @@
     <string name="beautify_shoulder">Shoulder</string>
     <string name="beautify_hip_slim">Hip</string>
     <string name="toast_not_detect_body">No Body Tracking</string>
+
+    <string name="resolution_480p">480x640</string>
+    <string name="resolution_720p">720x1280</string>
+    <string name="resolution_1080p">1080x1920</string>
+    <string name="select_data_photo_or_video">Load picture or video</string>
 
 </resources>

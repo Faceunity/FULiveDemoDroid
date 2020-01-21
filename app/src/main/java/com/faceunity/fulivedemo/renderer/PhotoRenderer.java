@@ -1,12 +1,14 @@
 package com.faceunity.fulivedemo.renderer;
 
 import android.graphics.Bitmap;
+import android.hardware.Camera;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
 
 import com.faceunity.fulivedemo.utils.FPSUtil;
+import com.faceunity.gles.ProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
@@ -34,8 +36,12 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     private int mPhotoTextureId;
     private int mPhotoWidth = 720;
     private int mPhotoHeight = 1280;
+    private int mViewWidth;
+    private int mViewHeight;
     private float[] mMvpMatrix;
+    private float[] mLandmarksData;
     private ProgramTexture2d mProgramTexture2d;
+    private ProgramLandmarks mProgramLandmarks;
     private FPSUtil mFPSUtil;
 
     public PhotoRenderer(String photoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
@@ -70,6 +76,7 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(TAG, "onSurfaceCreated. Thread:" + Thread.currentThread().getName());
         mProgramTexture2d = new ProgramTexture2d();
+        mProgramLandmarks = new ProgramLandmarks();
         loadPhoto(mPhotoPath);
         mOnRendererStatusListener.onSurfaceCreated();
     }
@@ -78,6 +85,8 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         Log.d(TAG, "onSurfaceChanged: viewWidth:" + width + ", viewHeight:" + height + ", photoWidth:"
                 + mPhotoWidth + ", photoHeight:" + mPhotoHeight + ", textureId:" + mPhotoTextureId);
+        mViewHeight = height;
+        mViewWidth = width;
         GLES20.glViewport(0, 0, width, height);
         mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mPhotoWidth, mPhotoHeight);
         Matrix.rotateM(mMvpMatrix, 0, 90, 0, 0, 1);
@@ -96,8 +105,18 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         int fuTextureId = mOnRendererStatusListener.onDrawFrame(mPhotoNV21Bytes, mPhotoTextureId, mPhotoWidth, mPhotoHeight);
         mProgramTexture2d.drawFrame(fuTextureId, IMG_DATA_MATRIX, mMvpMatrix);
 
+        if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS && mLandmarksData != null) {
+            mProgramLandmarks.refresh(mLandmarksData, mPhotoWidth, mPhotoHeight, 90,
+                    Camera.CameraInfo.CAMERA_FACING_BACK, mMvpMatrix);
+            mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
+        }
+
         mFPSUtil.limit();
         mGlSurfaceView.requestRender();
+    }
+
+    public void setLandmarksData(float[] landmarksData) {
+        mLandmarksData = landmarksData;
     }
 
     private void loadPhoto(String path) {
@@ -121,10 +140,13 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
             GLES20.glDeleteTextures(1, textures, 0);
             mPhotoTextureId = 0;
         }
-
         if (mProgramTexture2d != null) {
             mProgramTexture2d.release();
             mProgramTexture2d = null;
+        }
+        if (mProgramLandmarks != null) {
+            mProgramLandmarks.release();
+            mProgramLandmarks = null;
         }
 
         mOnRendererStatusListener.onSurfaceDestroy();

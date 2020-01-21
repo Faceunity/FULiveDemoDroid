@@ -110,4 +110,17 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <TextView
+        android:id="@+id/fu_base_is_tracking_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x558"
+        android:gravity="center"
+        android:text="@string/fu_base_is_tracking_text"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/text_size_26"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

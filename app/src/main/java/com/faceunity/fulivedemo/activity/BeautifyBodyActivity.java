@@ -1,14 +1,10 @@
 package com.faceunity.fulivedemo.activity;
 
-import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
-import android.view.View;
 
 import com.faceunity.FURenderer;
-import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView;
-import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 /**
  * 美体界面
@@ -39,7 +35,9 @@ public class BeautifyBodyActivity extends FUBaseActivity {
         return new FURenderer
                 .Builder(this)
                 .maxFaces(1)
+                .inputImageOrientation(mFrontCameraOrientation)
                 .setUseBeautifyBody(true)
+                .setLoadAiHumanPose(true)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)

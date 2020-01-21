@@ -3,7 +3,8 @@ package com.faceunity;
 
 import com.faceunity.entity.Effect;
 import com.faceunity.entity.LivePhoto;
-import com.faceunity.entity.MakeupItem;
+import com.faceunity.entity.MakeupEntity;
+import com.faceunity.entity.LightMakeupItem;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,12 @@ import java.util.Map;
  * FURenderer与界面之间的交互接口
  */
 public interface OnFUControlListener {
+    /**
+     * 美颜道具全局开关
+     *
+     * @param isOn
+     */
+    void setBeautificationOn(boolean isOn);
 
     /**
      * 音乐滤镜时间
@@ -60,13 +67,6 @@ public interface OnFUControlListener {
     void onHairLevelSelected(int type, int hairColorIndex, float hairColorLevel);
 
     /**
-     * 精准磨皮
-     *
-     * @param isOpen 是否开启精准磨皮（0关闭 1开启）
-     */
-    void onSkinDetectSelected(float isOpen);
-
-    /**
      * 磨皮类型
      *
      * @param blurType 0 清晰磨皮，1 重度磨皮，2 精细磨皮
@@ -79,6 +79,7 @@ public interface OnFUControlListener {
      * @param level 磨皮程度 [0, 6]，默认 6.0
      */
     void onBlurLevelSelected(float level);
+
     /**
      * 美白选择
      *
@@ -185,18 +186,18 @@ public interface OnFUControlListener {
     void onCartoonFilterSelected(int style);
 
     /**
-     * 调节多个妆容（轻美妆，质感美颜）
+     * 调节多个轻美妆的妆容
      *
      * @param makeupItems
      */
-    void onLightMakeupBatchSelected(List<MakeupItem> makeupItems);
+    void onLightMakeupCombinationSelected(List<LightMakeupItem> makeupItems);
 
     /**
-     * 妆容总体调节（轻美妆，质感美颜）
+     * 轻美妆妆容调节强度
      *
-     * @param level
+     * @param makeupItem
      */
-    void onLightMakeupOverallLevelChanged(float level);
+    void onLightMakeupItemLevelChanged(LightMakeupItem makeupItem);
 
     /**
      * 设置表情动图的点位和图像数据，用来驱动图像
@@ -206,12 +207,19 @@ public interface OnFUControlListener {
     void setLivePhoto(LivePhoto livePhoto);
 
     /**
-     * 选择美妆妆容
+     * 设置美妆组合妆容
+     *
+     * @param makeupEntity
+     * @param paramMap
+     */
+    void selectMakeup(MakeupEntity makeupEntity, Map<String, Object> paramMap);
+
+    /**
+     * 设置美妆妆容参数
      *
      * @param paramMap
-     * @param removePrevious
      */
-    void selectMakeupItem(Map<String, Object> paramMap, boolean removePrevious);
+    void setMakeupItemParam(Map<String, Object> paramMap);
 
     /**
      * 调节美妆妆容强度
@@ -263,4 +271,60 @@ public interface OnFUControlListener {
      * @param intensity
      */
     void setHipSlimIntensity(float intensity);
+
+    /**
+     * 设置去黑眼圈强度
+     *
+     * @param strength
+     */
+    void setRemovePouchStrength(float strength);
+
+    /**
+     * 设置去法令纹强度
+     *
+     * @param strength
+     */
+    void setRemoveNasolabialFoldsStrength(float strength);
+
+    /**
+     * 设置微笑嘴角强度
+     *
+     * @param intensity
+     */
+    void setSmileIntensity(float intensity);
+
+    /**
+     * 设置开眼角强度
+     *
+     * @param intensity
+     */
+    void setCanthusIntensity(float intensity);
+
+    /**
+     * 设置人中长度
+     *
+     * @param intensity
+     */
+    void setPhiltrumIntensity(float intensity);
+
+    /**
+     * 设置鼻子长度
+     *
+     * @param intensity
+     */
+    void setLongNoseIntensity(float intensity);
+
+    /**
+     * 设置眼睛间距
+     *
+     * @param intensity
+     */
+    void setEyeSpaceIntensity(float intensity);
+
+    /**
+     * 设置眼睛角度
+     *
+     * @param intensity
+     */
+    void setEyeRotateIntensity(float intensity);
 }

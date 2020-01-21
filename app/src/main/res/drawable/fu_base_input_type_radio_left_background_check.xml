@@ -5,4 +5,7 @@
         android:bottomLeftRadius="@dimen/x8"
         android:topLeftRadius="@dimen/x8"/>
     <solid android:color="@color/colorWhite"/>
+    <stroke
+        android:width="@dimen/x1"
+        android:color="@color/colorWhite"/>
 </shape>

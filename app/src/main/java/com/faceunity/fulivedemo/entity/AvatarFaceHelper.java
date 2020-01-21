@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public final class AvatarFaceHelper {
     // 捏脸的默认头发
-    public static final String DEFAULT_HAIR_PATH = "avatar/avatar_hair/avatarHair1.bundle";
+    public static final String DEFAULT_HAIR_PATH = "avatar/avatarHair1.bundle";
 
     // 记录捏脸期间，要保存的参数对，除了头发以外的五官参数
     public static final Map<String, Float> FACE_ASPECT_MAP = new HashMap<>(64);
@@ -481,10 +481,10 @@ public final class AvatarFaceHelper {
                 List<AvatarComponent> avatarComponents = new ArrayList<>(8);
                 avatarComponents.add(new AvatarComponent("", type, R.drawable.male_no_hair));
                 avatarComponents.add(new AvatarComponent(DEFAULT_HAIR_PATH, type, R.drawable.male_hair_01));
-                avatarComponents.add(new AvatarComponent("avatar/avatar_hair/avatarHair3.bundle", type, R.drawable.female_hair_06));
-                avatarComponents.add(new AvatarComponent("avatar/avatar_hair/avatarHair5.bundle", type, R.drawable.female_hair_04));
-                avatarComponents.add(new AvatarComponent("avatar/avatar_hair/avatarHair4.bundle", type, R.drawable.female_hair_03));
-                avatarComponents.add(new AvatarComponent("avatar/avatar_hair/avatarHair6.bundle", type, R.drawable.female_hair_05));
+                avatarComponents.add(new AvatarComponent("avatar/avatarHair3.bundle", type, R.drawable.female_hair_06));
+                avatarComponents.add(new AvatarComponent("avatar/avatarHair5.bundle", type, R.drawable.female_hair_04));
+                avatarComponents.add(new AvatarComponent("avatar/avatarHair4.bundle", type, R.drawable.female_hair_03));
+                avatarComponents.add(new AvatarComponent("avatar/avatarHair6.bundle", type, R.drawable.female_hair_05));
 
                 AVATAR_COMPONENTS.put(type, avatarComponents);
             }

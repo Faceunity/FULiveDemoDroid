@@ -110,7 +110,7 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/cl_face_makeup"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/x268"
+        android:layout_height="@dimen/x290"
         android:layout_gravity="bottom"
         android:background="#BD050F14">
 
@@ -119,7 +119,7 @@
             android:layout_width="@dimen/x108"
             android:layout_height="@dimen/x108"
             android:layout_marginLeft="@dimen/x34"
-            android:layout_marginBottom="@dimen/x58"
+            android:layout_marginBottom="@dimen/x72"
             android:padding="@dimen/x4"
             android:src="@drawable/icon_custom_nor"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -154,27 +154,32 @@
             android:layout_marginLeft="@dimen/x172"
             app:layout_constraintTop_toTopOf="@id/iv_custom_makeup" />
 
-        <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
-            android:id="@+id/seek_bar_makeup"
-            android:layout_width="@dimen/x528"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/x30"
-            android:visibility="visible"
-            app:dsb_indicatorColor="@color/main_color"
-            app:dsb_indicatorElevation="0dp"
-            app:dsb_indicatorPopupEnabled="true"
-            app:dsb_max="100"
-            app:dsb_min="0"
-            app:dsb_progressColor="@color/main_color"
-            app:dsb_rippleColor="@color/main_color"
-            app:dsb_scrubberHeight="@dimen/x4"
-            app:dsb_thumbSize="@dimen/x32"
-            app:dsb_trackBaseHeight="@dimen/x16"
-            app:dsb_trackColor="@color/colorWhite"
-            app:dsb_value="0"
-            app:layout_constraintBottom_toTopOf="@id/iv_custom_makeup"
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x102"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
+            <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
+                android:id="@+id/seek_bar_makeup"
+                android:layout_width="@dimen/x528"
+                android:layout_height="wrap_content"
+                app:dsb_indicatorColor="@color/main_color"
+                app:dsb_indicatorElevation="0dp"
+                app:dsb_indicatorPopupEnabled="true"
+                app:dsb_max="100"
+                app:dsb_min="0"
+                app:dsb_progressColor="@color/main_color"
+                app:dsb_rippleColor="@color/main_color"
+                app:dsb_scrubberHeight="@dimen/x4"
+                app:dsb_thumbSize="@dimen/x32"
+                app:dsb_trackBaseHeight="@dimen/x16"
+                app:dsb_trackColor="@color/colorWhite"
+                app:dsb_value="0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </android.support.constraint.ConstraintLayout>
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

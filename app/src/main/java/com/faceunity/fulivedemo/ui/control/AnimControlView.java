@@ -96,7 +96,6 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
 
     @Override
     public void onCheckedChanged(CheckGroup group, int checkedId) {
-        Log.i(TAG, "onCheckedChanged: checkedId:" + checkedId);
         mRvFilter.setVisibility(GONE);
         mRvAnim.setVisibility(GONE);
         if (checkedId == R.id.cb_animoji) {

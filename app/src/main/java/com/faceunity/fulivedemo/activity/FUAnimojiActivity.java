@@ -4,16 +4,16 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.faceunity.FURenderer;
+import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.ui.control.AnimControlView;
 
 /**
  * Animoji 和动漫滤镜效果
- * 关闭默认美颜效果
  *
  * @author Richie on 2018.11.13
  */
-public class FUAnimojiActivity extends FUBaseActivity {
+public class FUAnimojiActivity extends FUEffectActivity {
 
     @Override
     protected void onCreate() {
@@ -38,12 +38,14 @@ public class FUAnimojiActivity extends FUBaseActivity {
 
     @Override
     protected FURenderer initFURenderer() {
+        mEffectType = Effect.EFFECT_TYPE_ANIMOJI;
         return new FURenderer
                 .Builder(this)
                 .maxFaces(4)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .setOnFUDebugListener(this)
                 .setNeedAnimoji3D(true)
+                .inputImageOrientation(mFrontCameraOrientation)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
     }

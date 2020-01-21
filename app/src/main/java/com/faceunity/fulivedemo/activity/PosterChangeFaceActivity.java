@@ -32,6 +32,7 @@ import com.faceunity.fulivedemo.ui.FaceMaskView;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.dialog.NoTrackFaceDialogFragment;
+import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
@@ -95,6 +96,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     // 一旦生成海报，就临时保存，Home 键退出再进入，不需要重新生成。用户点击保存时，把生成的复制到相册即可。
     private volatile int mState;
     private FaceMaskView mFaceMaskView;
+    private float[] mLandmarks = new float[75 * 2];
 
     public static void startSelfActivity(Activity activity, String templatePath, String photoPath) {
         Intent intent = new Intent(activity, PosterChangeFaceActivity.class);
@@ -160,12 +162,13 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
         Glide.with(this).load(R.drawable.loading_gif).into(ivLoading);
         showLoadingView(true);
 
+        int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
         mFURenderer = new FURenderer
                 .Builder(this)
                 .maxFaces(4)
                 .setNeedPosterFace(true)
                 .setNeedFaceBeauty(false)
-                .inputTextureType(2)
+                .inputImageOrientation(frontCameraOrientation)
                 .build();
     }
 
@@ -205,6 +208,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     @Override
     public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
+        mFURenderer.setBeautificationOn(false);
         mIsFirstDraw = true;
         mIsNeedReInput = true;
         mIsTrackedTemplate = false;
@@ -216,8 +220,6 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     public int onDrawFrame(int photoTextureId, int photoWidth, int photoHeight) {
         int texId = mTexId;
         if (mIsNeedReInput) {
-            Log.i(TAG, "onDrawFrame: input params. isTrackTemplate:" + mIsTrackedTemplate +
-                    ", isTrackPhoto:" + mIsTrackedPhoto + ", multiFace:" + mIsNotSelectedMultiFace);
             if (!mMixTexIdInvalid && !mIsNotSelectedMultiFace) {
                 if (mIsTrackedTemplate) {
                     showLoadingView(true);
@@ -257,16 +259,13 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                     setSavePhotoFlag();
                 }
                 mTexId = texId = texId > 0 ? texId : mTexId;
-                Log.i(TAG, "onDrawFrame: draw template:" + texId);
             } else {
                 mTexId = texId = photoTextureId;
                 mPosterPhotoRenderer.setDrawPhoto(true);
                 mIsFirstDraw = false;
-                Log.i(TAG, "onDrawFrame: draw photo:" + texId);
             }
         }
         savePhoto(texId, 720, 1280);
-//        Log.i(TAG, "onDrawFrame: final texId " + texId);
         return texId;
     }
 
@@ -296,12 +295,11 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     @Override
     public void onTemplateLoaded(byte[] img, int width, int height) {
         Log.d(TAG, "onTemplateLoaded() called width = [" + width + "], height = [" + height + "]");
-        if (mFURenderer.trackFace(img, width, height) > 0) {
+        if (mFURenderer.trackFace(img, width, height, 0) > 0) {
             mTemplateLandmarks = getCopyOfLandmark(0);
             mIsTrackedTemplate = true;
             mIsTrackedPhoto = true;
             mIsNeedReInput = true;
-            Log.i(TAG, "onTemplateLoaded: tracking template > 0--------- ");
         } else {
             runOnUiThread(new Runnable() {
                 @Override
@@ -335,12 +333,12 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
             showLoadingView(true);
             mIsTrackedPhoto = true;
             mIsNeedReInput = true;
-            mFURenderer.trackFace(img, width, height);
+            mFURenderer.trackFace(img, width, height, 0);
             mPhotoLandmarks = getCopyOfLandmark(mFaceIndex);
             mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
             return;
         }
-        final int trackFace = mFURenderer.trackFace(img, width, height);
+        final int trackFace = mFURenderer.trackFace(img, width, height, 0);
         if (trackFace > 0) {
             if (trackFace > 1) {
                 // 多人脸
@@ -351,7 +349,6 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                 mFaceMaskView.setOnFaceSelectedListener(new FaceMaskView.OnFaceSelectedListener() {
                     @Override
                     public void onFaceSelected(final View view, int index) {
-                        Log.i(TAG, "onFaceSelected: " + index);
                         mFaceIndex = index;
                         mIsNotSelectedMultiFace = false;
                         mIsFirstDraw = true;
@@ -379,8 +376,9 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                     @Override
                     public void run() {
                         for (int i = 0; i < trackFace; i++) {
-                            float[] faceRectData = mFURenderer.getFaceRectData(i);
-                            float[] newFaceRect = mPosterPhotoRenderer.convertFaceRect(faceRectData);
+                            float[] faceRectData = mFURenderer.getFaceRectData(i, 0);
+                            float[] copy = Arrays.copyOf(faceRectData, faceRectData.length);
+                            float[] newFaceRect = mPosterPhotoRenderer.convertFaceRect(copy);
                             mFaceMaskView.addFaceRect(newFaceRect);
                         }
                         showLoadingView(false);
@@ -412,7 +410,6 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                     mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
                 }
             }
-            Log.i(TAG, "onPhotoLoaded: tracking photo > 0--------- ");
         } else {
             mIsNeedReInput = false;
             mPosterPhotoRenderer.setDrawPhoto(true);
@@ -421,8 +418,8 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     }
 
     private float[] getCopyOfLandmark(int faceId) {
-        float[] landmarksData = mFURenderer.getLandmarksData(faceId);
-        return Arrays.copyOf(landmarksData, landmarksData.length);
+        mFURenderer.getLandmarksData(faceId, FURenderer.LANDMARKS, mLandmarks);
+        return Arrays.copyOf(mLandmarks, mLandmarks.length);
     }
 
     @Override
@@ -486,7 +483,6 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mFURenderer = null;
         mPhotoLandmarks = null;
         mTemplateLandmarks = null;
     }
@@ -495,7 +491,6 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
         if (!mIsNeedSavePhoto || mIsSavingPhoto) {
             return;
         }
-        Log.d(TAG, "savePhoto: " + textureId + ", width:" + texWidth + ", height:" + texHeight);
         mIsSavingPhoto = true;
         BitmapUtil.glReadBitmap(textureId, PosterPhotoRenderer.IMG_DATA_MATRIX, PhotoRenderer.ROTATE_90, texWidth, texHeight,
                 new BitmapUtil.OnReadBitmapListener() {

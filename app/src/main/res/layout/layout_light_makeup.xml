@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:background="#BD050F14"
+    android:layout_height="wrap_content">
+
+    <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
+        android:id="@+id/seek_bar_light_makeup"
+        android:layout_width="@dimen/x528"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/x196"
+        app:dsb_indicatorColor="@color/main_color"
+        app:dsb_indicatorElevation="0dp"
+        app:dsb_indicatorPopupEnabled="true"
+        app:dsb_max="100"
+        app:dsb_min="0"
+        app:dsb_progressColor="@color/main_color"
+        app:dsb_rippleColor="@color/main_color"
+        app:dsb_scrubberHeight="@dimen/x4"
+        app:dsb_thumbSize="@dimen/x32"
+        app:dsb_trackBaseHeight="@dimen/x16"
+        app:dsb_trackColor="@color/colorWhite"
+        app:dsb_value="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_light_makeup"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x180"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

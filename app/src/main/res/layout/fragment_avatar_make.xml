@@ -184,5 +184,4 @@
             android:layout_gravity="center" />
     </FrameLayout>
 
-
 </android.support.constraint.ConstraintLayout>

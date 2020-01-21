@@ -34,6 +34,8 @@ public class FUHairActivity extends FUBaseActivity {
         return new FURenderer
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
+                .inputImageOrientation(mFrontCameraOrientation)
+                .setLoadAiHairSeg(true)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .setNeedBeautyHair(true)

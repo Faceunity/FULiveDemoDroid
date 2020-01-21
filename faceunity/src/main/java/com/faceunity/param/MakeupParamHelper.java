@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.faceunity.entity.FaceMakeup;
+import com.faceunity.entity.LightMakeupCombination;
 import com.faceunity.utils.BitmapUtil;
 
 import org.json.JSONArray;
@@ -71,19 +71,19 @@ public class MakeupParamHelper {
      */
     public static String getMakeupTextureKeyByType(int type) {
         switch (type) {
-            case FaceMakeup.FACE_MAKEUP_TYPE_LIPSTICK:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_LIPSTICK:
                 return "tex_lip";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_LINER:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_LINER:
                 return "tex_eyeLiner";
-            case FaceMakeup.FACE_MAKEUP_TYPE_BLUSHER:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_BLUSHER:
                 return "tex_blusher";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_PUPIL:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_PUPIL:
                 return "tex_pupil";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYEBROW:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYEBROW:
                 return "tex_brow";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_SHADOW:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_SHADOW:
                 return "tex_eye";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYELASH:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYELASH:
                 return "tex_eyeLash";
             default:
                 return "";
@@ -98,19 +98,19 @@ public class MakeupParamHelper {
      */
     public static String getMakeupIntensityKeyByType(int type) {
         switch (type) {
-            case FaceMakeup.FACE_MAKEUP_TYPE_LIPSTICK:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_LIPSTICK:
                 return "makeup_intensity_lip";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_LINER:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_LINER:
                 return "makeup_intensity_eyeLiner";
-            case FaceMakeup.FACE_MAKEUP_TYPE_BLUSHER:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_BLUSHER:
                 return "makeup_intensity_blusher";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_PUPIL:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_PUPIL:
                 return "makeup_intensity_pupil";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYEBROW:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYEBROW:
                 return "makeup_intensity_eyeBrow";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYE_SHADOW:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_SHADOW:
                 return "makeup_intensity_eye";
-            case FaceMakeup.FACE_MAKEUP_TYPE_EYELASH:
+            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYELASH:
                 return "makeup_intensity_eyelash";
             default:
                 return "";
@@ -194,8 +194,6 @@ public class MakeupParamHelper {
          */
         public static final String TEX_BROW = "tex_brow";
         public static final String TEX_EYE = "tex_eye";
-        public static final String TEX_EYE2 = "tex_eye2";
-        public static final String TEX_EYE3 = "tex_eye3";
         public static final String TEX_PUPIL = "tex_pupil";
         public static final String TEX_EYE_LASH = "tex_eyeLash";
         public static final String TEX_EYE_LINER = "tex_eyeLiner";
@@ -203,14 +201,12 @@ public class MakeupParamHelper {
         public static final String TEX_FOUNDATION = "tex_foundation";
         public static final String TEX_HIGHLIGHT = "tex_highlight";
         public static final String TEX_SHADOW = "tex_shadow";
-        /*非参数值，App 内使用*/
-        public static final String TEX_PREFIX = "tex_";
         /**
          * 是否使用双色口红，1 为开，0 为关
          */
         public static final String IS_TWO_COLOR = "is_two_color";
         /**
-         * 口红类型，0 雾面，1 缎面
+         * 口红类型，0 雾面，1 缎面，2 润泽，3 珠光
          */
         public static final String LIP_TYPE = "lip_type";
         /**
@@ -221,6 +217,10 @@ public class MakeupParamHelper {
          * alpha 值逆向，1 为开，0 为关
          */
         public static final String REVERSE_ALPHA = "reverse_alpha";
+        /**
+         * 点位镜像，1 为开，0 为关
+         */
+        public static final String IS_FLIP_POINTS = "is_flip_points";
         /**
          * 是否使用眉毛变形，1 为开，0 为关
          */

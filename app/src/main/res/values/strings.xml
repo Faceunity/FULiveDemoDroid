@@ -3,6 +3,7 @@
     <string name="fu_live_demo">FU Live Demo</string>
 
     <string name="home_function_name_beauty">美颜</string>
+    <string name="home_function_name_light_makeup">轻美妆</string>
     <string name="home_function_name_animoji">Animoji</string>
     <string name="home_function_name_normal">道具贴纸</string>
     <string name="home_function_name_ar">AR面具</string>
@@ -65,7 +66,15 @@
     <string name="beauty_radio_face_shape">美型</string>
     <string name="beauty_radio_beauty_filter">美颜滤镜</string>
     <string name="beauty_radio_filter">滤镜</string>
-    <string name="beauty_radio_beauty">质感美颜</string>
+    <string name="beauty_micro_pouch">去黑眼圈</string>
+    <string name="beauty_micro_nasolabial">去法令纹</string>
+    <string name="beauty_micro_smile">微笑嘴角</string>
+    <string name="beauty_micro_canthus">开眼角</string>
+    <string name="beauty_micro_philtrum">缩人中</string>
+    <string name="beauty_micro_long_nose">长鼻</string>
+    <string name="beauty_micro_eye_space">眼距</string>
+    <string name="beauty_micro_eye_rotate">眼睛角度</string>
+
     <string name="makeup_radio_lipstick">口红</string>
     <string name="makeup_radio_blusher">腮红</string>
     <string name="makeup_radio_eyebrow">眉毛</string>
@@ -111,19 +120,73 @@
     <string name="ssd_thread_cute">双拳靠近脸颊卖萌</string>
 
     <string name="origin">原图</string>
-    <string name="delta">Delta</string>
-    <string name="electric">Electric</string>
-    <string name="slowlived">Slowlived</string>
-    <string name="tokyo">Tokyo</string>
-    <string name="warm">Warm</string>
-    <string name="ziran">自然</string>
-    <string name="bailiang">白亮</string>
-    <string name="danya">淡雅</string>
-    <string name="fennen">粉嫩</string>
-    <string name="qingxin">小清新</string>
-    <string name="lengsediao">冷色调</string>
-    <string name="nuansediao">暖色调</string>
-    <string name="hongrun">红润</string>
+    <string name="bailiang_1">白亮 1</string>
+    <string name="bailiang_2">白亮 2</string>
+    <string name="bailiang_3">白亮 3</string>
+    <string name="bailiang_4">白亮 4</string>
+    <string name="bailiang_5">白亮 5</string>
+    <string name="bailiang_6">白亮 6</string>
+    <string name="bailiang_7">白亮 7</string>
+    <string name="fennen_1">粉嫩 1</string>
+    <string name="fennen_2">粉嫩 2</string>
+    <string name="fennen_3">粉嫩 3</string>
+    <string name="fennen_4">粉嫩 4</string>
+    <string name="fennen_5">粉嫩 5</string>
+    <string name="fennen_6">粉嫩 6</string>
+    <string name="fennen_7">粉嫩 7</string>
+    <string name="fennen_8">粉嫩 8</string>
+    <string name="xiaoqingxin_1">小清新 1</string>
+    <string name="xiaoqingxin_2">小清新 2</string>
+    <string name="xiaoqingxin_3">小清新 3</string>
+    <string name="xiaoqingxin_4">小清新 4</string>
+    <string name="xiaoqingxin_5">小清新 5</string>
+    <string name="xiaoqingxin_6">小清新 6</string>
+    <string name="lengsediao_1">冷色调 1</string>
+    <string name="lengsediao_2">冷色调 2</string>
+    <string name="lengsediao_3">冷色调 3</string>
+    <string name="lengsediao_4">冷色调 4</string>
+    <string name="lengsediao_5">冷色调 5</string>
+    <string name="lengsediao_6">冷色调 6</string>
+    <string name="lengsediao_7">冷色调 7</string>
+    <string name="lengsediao_8">冷色调 8</string>
+    <string name="lengsediao_9">冷色调 9</string>
+    <string name="lengsediao_10">冷色调 10</string>
+    <string name="lengsediao_11">冷色调 11</string>
+    <string name="nuansediao_1">暖色调 1</string>
+    <string name="nuansediao_2">暖色调 2</string>
+    <string name="nuansediao_3">暖色调 3</string>
+    <string name="gexing_1">个性 1</string>
+    <string name="gexing_2">个性 2</string>
+    <string name="gexing_3">个性 3</string>
+    <string name="gexing_4">个性 4</string>
+    <string name="gexing_5">个性 5</string>
+    <string name="gexing_6">个性 6</string>
+    <string name="gexing_7">个性 7</string>
+    <string name="gexing_8">个性 8</string>
+    <string name="gexing_9">个性 9</string>
+    <string name="gexing_10">个性 10</string>
+    <string name="gexing_11">个性 11</string>
+    <string name="heibai_1">黑白 1</string>
+    <string name="heibai_2">黑白 2</string>
+    <string name="heibai_3">黑白 3</string>
+    <string name="heibai_4">黑白 4</string>
+    <string name="heibai_5">黑白 5</string>
+    <string name="ziran_1">自然 1</string>
+    <string name="ziran_2">自然 2</string>
+    <string name="ziran_3">自然 3</string>
+    <string name="ziran_4">自然 4</string>
+    <string name="ziran_5">自然 5</string>
+    <string name="ziran_6">自然 6</string>
+    <string name="ziran_7">自然 7</string>
+    <string name="ziran_8">自然 8</string>
+    <string name="zhiganhui_1">质感灰 1</string>
+    <string name="zhiganhui_2">质感灰 2</string>
+    <string name="zhiganhui_3">质感灰 3</string>
+    <string name="zhiganhui_4">质感灰 4</string>
+    <string name="zhiganhui_5">质感灰 5</string>
+    <string name="zhiganhui_6">质感灰 6</string>
+    <string name="zhiganhui_7">质感灰 7</string>
+    <string name="zhiganhui_8">质感灰 8</string>
 
     <string name="poster_take_photo">对准线框 正脸拍摄</string>
     <string name="dialog_no_track_face">未检测到人脸，请重新拍摄</string>
@@ -202,10 +265,14 @@
 
     <string name="makeup_lip_fog">雾面</string>
     <string name="makeup_lip_satin">缎面</string>
+    <string name="makeup_lip_pearl">珠光</string>
+    <string name="makeup_lip_moist">润泽</string>
+    <string name="makeup_lip_bitelip">咬唇</string>
     <string name="makeup_blusher_apple">苹果肌</string>
     <string name="makeup_blusher_fan">扇形</string>
     <string name="makeup_blusher_eye_corner">眼角</string>
     <string name="makeup_blusher_slight_drunk">微醺</string>
+    <string name="makeup_blusher_sunburn">晒伤</string>
     <string name="makeup_highlight_one">高光 I</string>
     <string name="makeup_highlight_two">高光 II</string>
     <string name="makeup_eyebrow_willow">柳叶眉</string>
@@ -219,8 +286,10 @@
     <string name="makeup_eye_shadow_double1">双色眼影 I</string>
     <string name="makeup_eye_shadow_double2">双色眼影 II</string>
     <string name="makeup_eye_shadow_double3">双色眼影 III</string>
+    <string name="makeup_eye_shadow_double4">双色眼影 IV</string>
     <string name="makeup_eye_shadow_triple1">三色眼影 I</string>
     <string name="makeup_eye_shadow_triple2">三色眼影 II</string>
+    <string name="makeup_eye_shadow_triple3">三色眼影 III</string>
     <string name="makeup_eyelash_natural1">自然型 I</string>
     <string name="makeup_eyelash_natural2">自然型 II</string>
     <string name="makeup_eyelash_thick1">浓密型 I</string>
@@ -233,6 +302,7 @@
     <string name="makeup_eye_linear_pull_close">拉近眼距</string>
     <string name="makeup_eye_linear_long">长眼</string>
     <string name="makeup_eye_linear_circular">圆眼</string>
+    <string name="makeup_eye_linear_natural">自然</string>
     <string name="makeup_combination_sexy">性感</string>
     <string name="makeup_combination_sweet">甜美</string>
     <string name="makeup_combination_neighbor">邻家</string>
@@ -243,6 +313,20 @@
     <string name="makeup_combination_coral">珊瑚</string>
     <string name="makeup_combination_lady">仕女</string>
     <string name="makeup_combination_man">硬汉</string>
+    <string name="makeup_combination_jianling">减龄</string>
+    <string name="makeup_combination_nuandong">暖冬</string>
+    <string name="makeup_combination_hongfeng">红枫</string>
+    <string name="makeup_combination_shaonv">少女</string>
+    <string name="makeup_combination_ziyun">紫韵</string>
+    <string name="makeup_combination_yanshimao">厌世猫</string>
+    <string name="makeup_combination_renyu">人鱼</string>
+    <string name="makeup_combination_chuqiu">初秋</string>
+    <string name="makeup_combination_qianzhihe">千纸鹤</string>
+    <string name="makeup_combination_chaomo">超模</string>
+    <string name="makeup_combination_chuju">雏菊</string>
+    <string name="makeup_combination_gangfeng">港风</string>
+    <string name="makeup_combination_rose">Rose</string>
+    <string name="makeup_item">妆容</string>
 
     <string name="slimming">瘦身</string>
     <string name="long_legs">长腿</string>
@@ -250,5 +334,10 @@
     <string name="beautify_shoulder">美肩</string>
     <string name="beautify_hip_slim">美臀</string>
     <string name="toast_not_detect_body">未检测到人体</string>
+
+    <string name="resolution_480p">480x640</string>
+    <string name="resolution_720p">720x1280</string>
+    <string name="resolution_1080p">1080x1920</string>
+    <string name="select_data_photo_or_video">载入图片或视频</string>
 
 </resources>
