@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent;
                         if (home_function_res[position] == R.drawable.main_beauty) {
                             intent = new Intent(MainActivity.this, FUBeautyActivity.class);
-                        } else if(home_function_res[pos] == R.drawable.demo_icon_texture_beauty){
+                        } else if(home_function_res[position] == R.drawable.demo_icon_texture_beauty){
                             intent = new Intent(MainActivity.this, LightMakeupActivity.class);
                         } else if (home_function_res[position] == R.drawable.main_makeup) {
                             intent = new Intent(MainActivity.this, FUMakeupActivity.class);
