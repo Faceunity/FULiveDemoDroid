@@ -39,6 +39,7 @@ import com.faceunity.fulivedemo.ui.control.AnimControlView;
 import com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyHairControlView;
+import com.faceunity.fulivedemo.ui.control.LightMakeupControlView;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
 import com.faceunity.fulivedemo.utils.AudioObserver;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
@@ -54,7 +55,8 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 
-public class ShowVideoActivity extends AppCompatActivity implements VideoRenderer.OnRendererStatusListener, SensorEventListener, FURenderer.OnTrackingStatusChangedListener {
+public class ShowVideoActivity extends AppCompatActivity implements VideoRenderer.OnRendererStatusListener,
+        SensorEventListener, FURenderer.OnTrackingStatusChangedListener {
     public final static String TAG = ShowVideoActivity.class.getSimpleName();
 
     private GLSurfaceView mGlSurfaceView;
@@ -134,15 +136,14 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         //初始化FU相关 authpack 为证书文件
         mIsBeautyFace = FUBeautyActivity.TAG.equals(selectDataType);
         mIsMakeup = FUMakeupActivity.TAG.equals(selectDataType);
+        boolean isLightMakeup = LightMakeupActivity.TAG.equals(selectDataType);
         boolean isBodySlim = BeautifyBodyActivity.TAG.equals(selectDataType);
         boolean isHairSeg = FUHairActivity.TAG.equals(selectDataType);
         mFURenderer = new FURenderer
                 .Builder(this)
                 .maxFaces(4)
-                .inputIsImage(true)
+                .setExternalInputType(FURenderer.EXTERNAL_INPUT_TYPE_VIDEO)
                 .inputImageOrientation(0)
-                .setLoadAiFaceLandmark75(!mIsMakeup)
-                .setLoadAiFaceLandmark239(mIsMakeup)
                 .setLoadAiHumanPose(isBodySlim)
                 .setLoadAiHairSeg(isHairSeg)
                 .setLoadAiBgSeg(selectEffectType == Effect.EFFECT_TYPE_BACKGROUND)
@@ -212,8 +213,12 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
             BeautifyBodyControlView beautifyBodyControlView = findViewById(R.id.fu_beautify_body);
             beautifyBodyControlView.setVisibility(View.VISIBLE);
             beautifyBodyControlView.setOnFUControlListener(mFURenderer);
+        } else if (isLightMakeup) {
+            LightMakeupControlView lightMakeupControlView = findViewById(R.id.fu_light_makeup);
+            lightMakeupControlView.setVisibility(View.VISIBLE);
+            lightMakeupControlView.setOnFUControlListener(mFURenderer);
         } else {
-            RecyclerView effectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
+            RecyclerView effectRecyclerView = findViewById(R.id.fu_effect_recycler);
             effectRecyclerView.setVisibility(View.VISIBLE);
             effectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             EffectRecyclerAdapter effectRecyclerAdapter;
@@ -241,21 +246,14 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     @Override
     public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
-        if (mIsBeautyFace) {
-            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_75);
-        } else if (mIsMakeup) {
-            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_239);
-        } else {
-            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_DDE);
-        }
         if (mMakeupControlView != null) {
             mMakeupControlView.selectDefault();
         }
     }
 
     @Override
-    public void onSurfaceChanged(int width, int height) {
-
+    public void onSurfaceChanged(int width, int height, int videoWidth, int videoHeight, int videoRotation, boolean isSystemCameraRecord) {
+        mFURenderer.setVideoParams(videoRotation, isSystemCameraRecord);
     }
 
     @Override
@@ -318,7 +316,7 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
                     ThreadHelper.getInstance().enqueueOnUiThread(new Callable<File>() {
                         @Override
                         public File call() throws Exception {
-                            File dcimFile = new File(Constant.cameraFilePath, mOutVideoFile.getName());
+                            File dcimFile = new File(Constant.VIDEO_FILE_PATH, mOutVideoFile.getName());
                             FileUtils.copyFile(mOutVideoFile, dcimFile);
                             FileUtils.deleteFile(mOutVideoFile);
                             return dcimFile;

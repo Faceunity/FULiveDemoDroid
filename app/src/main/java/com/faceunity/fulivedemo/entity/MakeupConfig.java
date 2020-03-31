@@ -136,13 +136,13 @@ public class MakeupConfig {
                 MakeupParamHelper.MakeupParam.MAKEUP_LIP_COLOR, makeupColorMap.get("color_mu_style_lip_01"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
-//        iconDrawable = resources.getDrawable(R.drawable.demo_style_lip_02);
-//        paramMap = new HashMap<>(4);
-//        paramMap.put(MakeupParamHelper.MakeupParam.LIP_TYPE, 1.0);
-//        paramMap.put(MakeupParamHelper.MakeupParam.IS_TWO_COLOR, 0.0);
-//        makeupItem = new MakeupItem(type, R.string.makeup_lip_satin, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_LIP,
-//                MakeupParamHelper.MakeupParam.MAKEUP_LIP_COLOR, makeupColorMap.get("color_mu_style_lip_01"), iconDrawable, paramMap);
-//        makeupItems.add(makeupItem);
+        //        iconDrawable = resources.getDrawable(R.drawable.demo_style_lip_02);
+        //        paramMap = new HashMap<>(4);
+        //        paramMap.put(MakeupParamHelper.MakeupParam.LIP_TYPE, 1.0);
+        //        paramMap.put(MakeupParamHelper.MakeupParam.IS_TWO_COLOR, 0.0);
+        //        makeupItem = new MakeupItem(type, R.string.makeup_lip_satin, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_LIP,
+        //                MakeupParamHelper.MakeupParam.MAKEUP_LIP_COLOR, makeupColorMap.get("color_mu_style_lip_01"), iconDrawable, paramMap);
+        //        makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_lip_04);
         paramMap = new HashMap<>(4);
@@ -210,7 +210,7 @@ public class MakeupConfig {
 //        paramMap = new HashMap<>(4);
 //        paramMap.put(MakeupParamHelper.MakeupParam.TEX_BLUSHER, MAKEUP_RESOURCE_ITEM_BUNDLE_DIR + "mu_style_blush_05.bundle");
 //        makeupItem = new MakeupItem(type, R.string.makeup_blusher_sunburn, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_BLUSHER,
-//                MakeupParamHelper.MakeupParam.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_04"), iconDrawable, paramMap);
+//                MakeupParamHelper.MakeupParam.MAKEUP_BLUSHER_COLOR, makeupColorMap.get("color_mu_style_blush_05"), iconDrawable, paramMap);
 //        makeupItems.add(makeupItem);
 
         // 眉毛
@@ -324,12 +324,12 @@ public class MakeupConfig {
                 MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_04"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
-//        iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_08);
-//        paramMap = new HashMap<>(4);
-//        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_ITEM_BUNDLE_DIR + "mu_style_eyeshadow_05.bundle");
-//        makeupItem = new MakeupItem(type, R.string.makeup_eye_shadow_double4, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
-//                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_05"), iconDrawable, paramMap);
-//        makeupItems.add(makeupItem);
+        //        iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_08);
+        //        paramMap = new HashMap<>(4);
+        //        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_ITEM_BUNDLE_DIR + "mu_style_eyeshadow_05.bundle");
+        //        makeupItem = new MakeupItem(type, R.string.makeup_eye_shadow_double4, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
+        //                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_05"), iconDrawable, paramMap);
+        //        makeupItems.add(makeupItem);
 
         iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_05);
         paramMap = new HashMap<>(4);
@@ -345,12 +345,12 @@ public class MakeupConfig {
                 MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_06"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
-//        iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_07);
-//        paramMap = new HashMap<>(4);
-//        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_ITEM_BUNDLE_DIR + "mu_style_eyeshadow_08.bundle");
-//        makeupItem = new MakeupItem(type, R.string.makeup_eye_shadow_triple3, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
-//                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_06"), iconDrawable, paramMap);
-//        makeupItems.add(makeupItem);
+        //        iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeshadow_07);
+        //        paramMap = new HashMap<>(4);
+        //        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE, MAKEUP_RESOURCE_ITEM_BUNDLE_DIR + "mu_style_eyeshadow_08.bundle");
+        //        makeupItem = new MakeupItem(type, R.string.makeup_eye_shadow_triple3, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE,
+        //                MakeupParamHelper.MakeupParam.MAKEUP_EYE_COLOR, makeupColorMap.get("color_mu_style_eyeshadow_06"), iconDrawable, paramMap);
+        //        makeupItems.add(makeupItem);
 
         // 眼线
         type = MakeupItem.FACE_MAKEUP_TYPE_EYE_LINER;
@@ -403,12 +403,12 @@ public class MakeupConfig {
                 MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_06"), iconDrawable, paramMap);
         makeupItems.add(makeupItem);
 
-//        iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeliner_07);
-//        paramMap = new HashMap<>(4);
-//        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LINER, MAKEUP_RESOURCE_ITEM_BUNDLE_DIR + "mu_style_eyeliner_07.bundle");
-//        makeupItem = new MakeupItem(type, R.string.makeup_eye_linear_natural, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER,
-//                MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_06"), iconDrawable, paramMap);
-//        makeupItems.add(makeupItem);
+        //        iconDrawable = resources.getDrawable(R.drawable.demo_style_eyeliner_07);
+        //        paramMap = new HashMap<>(4);
+        //        paramMap.put(MakeupParamHelper.MakeupParam.TEX_EYE_LINER, MAKEUP_RESOURCE_ITEM_BUNDLE_DIR + "mu_style_eyeliner_07.bundle");
+        //        makeupItem = new MakeupItem(type, R.string.makeup_eye_linear_natural, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY_EYE_LINER,
+        //                MakeupParamHelper.MakeupParam.MAKEUP_EYE_LINER_COLOR, makeupColorMap.get("color_mu_style_eyeliner_06"), iconDrawable, paramMap);
+        //        makeupItems.add(makeupItem);
 
         // 睫毛
         type = MakeupItem.FACE_MAKEUP_TYPE_EYELASH;
@@ -567,65 +567,66 @@ public class MakeupConfig {
         List<MakeupCombination> makeupCombinations = new ArrayList<>(16);
         // 卸妆
         makeupCombinations.add(new MakeupCombination(R.string.makeup_radio_remove, R.drawable.makeup_none_normal,
-                null, new MakeupEntity()));
+                MakeupCombination.TYPE_NONE, MAKEUP_RESOURCE_JSON_DIR + "remove.json",
+                new MakeupEntity("")));
 
         // 主题妆，13 个
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_jianling, R.drawable.demo_combination_age,
-                MAKEUP_RESOURCE_JSON_DIR + "jianling.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "jianling.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "jianling.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "jianling.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_nuandong, R.drawable.demo_combination_warm_winter,
-                MAKEUP_RESOURCE_JSON_DIR + "nuandong.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "nuandong.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "nuandong.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "nuandong.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_hongfeng, R.drawable.demo_combination_red_maple,
-                MAKEUP_RESOURCE_JSON_DIR + "hongfeng.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "hongfeng.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "hongfeng.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "hongfeng.bundle")));
+        makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_rose, R.drawable.demo_combination_rose,
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "rose.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "rose.bundle", true)));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_shaonv, R.drawable.demo_combination_girl,
-                MAKEUP_RESOURCE_JSON_DIR + "shaonv.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "shaonv.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "shaonv.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "shaonv.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_ziyun, R.drawable.demo_combination_purple_rhyme,
-                MAKEUP_RESOURCE_JSON_DIR + "ziyun.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "ziyun.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "ziyun.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "ziyun.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_yanshimao, R.drawable.demo_combination_bored_cat,
-                MAKEUP_RESOURCE_JSON_DIR + "yanshimao.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "yanshimao.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "yanshimao.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "yanshimao.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_renyu, R.drawable.demo_combination_mermaid,
-                MAKEUP_RESOURCE_JSON_DIR + "renyu.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "renyu.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "renyu.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "renyu.bundle", true)));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_chuqiu, R.drawable.demo_combination_early_autumn,
-                MAKEUP_RESOURCE_JSON_DIR + "chuqiu.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "chuqiu.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "chuqiu.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "chuqiu.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_qianzhihe, R.drawable.demo_combination_paper_cranes,
-                MAKEUP_RESOURCE_JSON_DIR + "qianzhihe.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "qianzhihe.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "qianzhihe.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "qianzhihe.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_chaomo, R.drawable.demo_combination_supermodel,
-                MAKEUP_RESOURCE_JSON_DIR + "chaomo.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "chaomo.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "chaomo.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "chaomo.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_chuju, R.drawable.demo_combination_daisy,
-                MAKEUP_RESOURCE_JSON_DIR + "chuju.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "chuju.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "chuju.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "chuju.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_gangfeng, R.drawable.demo_combination_harbour_wind,
-                MAKEUP_RESOURCE_JSON_DIR + "gangfeng.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "gangfeng.bundle")));
-//        makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_rose, R.drawable.demo_combination_rose,
-//                MAKEUP_RESOURCE_JSON_DIR + "rose.json", new MakeupEntity(MakeupEntity.TYPE_THEME,
-//                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "rose.bundle")));
+                MakeupCombination.TYPE_THEME, MAKEUP_RESOURCE_JSON_DIR + "gangfeng.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "gangfeng.bundle", true)));
 
         // 日常妆，5个
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_sexy, R.drawable.demo_combination_sexy,
-                MAKEUP_RESOURCE_JSON_DIR + "xinggan.json", new MakeupEntity(MakeupEntity.TYPE_DAILY,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "xinggan.bundle")));
+                MakeupCombination.TYPE_DAILY, MAKEUP_RESOURCE_JSON_DIR + "xinggan.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "xinggan.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_sweet, R.drawable.demo_combination_sweet,
-                MAKEUP_RESOURCE_JSON_DIR + "tianmei.json", new MakeupEntity(MakeupEntity.TYPE_DAILY,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "tianmei.bundle")));
+                MakeupCombination.TYPE_DAILY, MAKEUP_RESOURCE_JSON_DIR + "tianmei.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "tianmei.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_neighbor, R.drawable.demo_combination_neighbor_girl,
-                MAKEUP_RESOURCE_JSON_DIR + "linjia.json", new MakeupEntity(MakeupEntity.TYPE_DAILY,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "linjia.bundle")));
+                MakeupCombination.TYPE_DAILY, MAKEUP_RESOURCE_JSON_DIR + "linjia.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "linjia.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_occident, R.drawable.demo_combination_occident,
-                MAKEUP_RESOURCE_JSON_DIR + "oumei.json", new MakeupEntity(MakeupEntity.TYPE_DAILY,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "oumei.bundle")));
+                MakeupCombination.TYPE_DAILY, MAKEUP_RESOURCE_JSON_DIR + "oumei.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "oumei.bundle")));
         makeupCombinations.add(new MakeupCombination(R.string.makeup_combination_charming, R.drawable.demo_combination_charming,
-                MAKEUP_RESOURCE_JSON_DIR + "wumei.json", new MakeupEntity(MakeupEntity.TYPE_DAILY,
-                MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "wumei.bundle")));
+                MakeupCombination.TYPE_DAILY, MAKEUP_RESOURCE_JSON_DIR + "wumei.json",
+                new MakeupEntity(MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR + "wumei.bundle")));
         return makeupCombinations;
     }
 

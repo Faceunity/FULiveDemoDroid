@@ -10,7 +10,7 @@ import android.opengl.GLES20;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.faceunity.gles.ProgramTexture2d;
+import com.faceunity.gles.ProgramTexture2dWithAlpha;
 import com.faceunity.gles.ProgramTextureOES;
 import com.faceunity.gles.core.GlUtil;
 
@@ -56,7 +56,7 @@ public class BitmapUtil {
         if (isOes) {
             new ProgramTextureOES().drawFrame(texId, texMatrix, mvpMatrix);
         } else {
-            new ProgramTexture2d().drawFrame(texId, texMatrix, mvpMatrix);
+            new ProgramTexture2dWithAlpha().drawFrame(texId, texMatrix, mvpMatrix);
         }
 
         final ByteBuffer buffer = ByteBuffer.allocateDirect(texWidth * texHeight * 4);

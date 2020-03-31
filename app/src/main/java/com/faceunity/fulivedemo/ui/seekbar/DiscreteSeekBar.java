@@ -333,7 +333,8 @@ public class DiscreteSeekBar extends View {
      * @see #setProgress(int)
      */
     public void setMax(int max) {
-        if (mMax == max) return;
+        if (mMax == max)
+            return;
         mMax = max;
         if (mMax < mMin) {
             setMin(mMax - 1);
@@ -361,7 +362,8 @@ public class DiscreteSeekBar extends View {
      * @see #setProgress(int)
      */
     public void setMin(int min) {
-        if (mMin == min) return;
+        if (mMin == min)
+            return;
         mMin = min;
         if (mMin > mMax) {
             setMax(mMin + 1);
@@ -791,12 +793,14 @@ public class DiscreteSeekBar extends View {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_DPAD_LEFT:
                     handled = true;
-                    if (progress <= mMin) break;
+                    if (progress <= mMin)
+                        break;
                     animateSetProgress(progress - mKeyProgressIncrement);
                     break;
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
                     handled = true;
-                    if (progress >= mMax) break;
+                    if (progress >= mMax)
+                        break;
                     animateSetProgress(progress + mKeyProgressIncrement);
                     break;
             }

@@ -34,12 +34,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.faceunity.utils.Constant.filePath;
-
 /**
  * Created by lirui on 2017/3/6.
  */
-
 public class MiscUtil {
     public static final String IMAGE_FORMAT_JPG = ".jpg";
     public static final String IMAGE_FORMAT_JPEG = ".jpeg";
@@ -136,11 +133,11 @@ public class MiscUtil {
     }
 
     public static String createFileName() {
-        File dir = new File(filePath);
+        File dir = new File(Constant.EXTERNAL_FILE_PATH);
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        return filePath + getCurrentDate() +
+        return Constant.EXTERNAL_FILE_PATH + getCurrentDate() +
                 "_" + System.currentTimeMillis();
     }
 
@@ -152,11 +149,11 @@ public class MiscUtil {
     }
 
     public static String saveDataToFile(String fileName, String fileExtName, final byte[] data) {
-        File dir = new File(filePath);
+        File dir = new File(Constant.EXTERNAL_FILE_PATH);
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        final String fileFullName = filePath + fileName + "." + fileExtName;
+        final String fileFullName = Constant.EXTERNAL_FILE_PATH + fileName + "." + fileExtName;
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -176,11 +173,11 @@ public class MiscUtil {
     }
 
     public static String saveBitmapToFile(final Bitmap bitmap) {
-        File dir = new File(filePath);
+        File dir = new File(Constant.EXTERNAL_FILE_PATH);
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        final String fileName = filePath + getCurrentDate() + "_" + System.currentTimeMillis() + IMAGE_FORMAT_JPG;
+        final String fileName = Constant.EXTERNAL_FILE_PATH + getCurrentDate() + "_" + System.currentTimeMillis() + IMAGE_FORMAT_JPG;
         Logger(TAG, "file : " + fileName, false);
         AsyncTask.execute(new Runnable() {
             @Override

@@ -60,7 +60,7 @@ public class ProgramLandmarks extends Program {
 
     @Override
     protected Drawable2d getDrawable2d() {
-        return new Drawable2dLandmarks();
+        return new Drawable2d(new float[75 * 2]);
     }
 
     @Override

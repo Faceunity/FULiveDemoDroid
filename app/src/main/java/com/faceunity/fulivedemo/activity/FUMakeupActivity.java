@@ -1,10 +1,12 @@
 package com.faceunity.fulivedemo.activity;
 
+import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 import android.view.View;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.ui.SwitchConfig;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
 
 /**
@@ -12,7 +14,7 @@ import com.faceunity.fulivedemo.ui.control.MakeupControlView;
  * Created by tujh on 2018/1/31.
  */
 public class FUMakeupActivity extends FUBaseActivity {
-    public final static String TAG = FUMakeupActivity.class.getSimpleName();
+    public static final String TAG = "FUMakeupActivity";
     private MakeupControlView mMakeupControlView;
     private boolean mIsHideBottomView;
 
@@ -21,8 +23,6 @@ public class FUMakeupActivity extends FUBaseActivity {
         return new FURenderer
                 .Builder(this)
                 .maxFaces(4)
-                .setLoadAiFaceLandmark75(false)
-                .setLoadAiFaceLandmark239(true)
                 .inputImageOrientation(mFrontCameraOrientation)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .setOnFUDebugListener(this)
@@ -113,4 +113,16 @@ public class FUMakeupActivity extends FUBaseActivity {
         return FURenderer.FACE_LANDMARKS_239;
     }
 
+    @Override
+    protected boolean isOpenPhotoVideo() {
+        return SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_MAKEUP;
+    }
+
+    @Override
+    protected void onSelectPhotoVideoClick() {
+        super.onSelectPhotoVideoClick();
+        Intent intent = new Intent(FUMakeupActivity.this, SelectDataActivity.class);
+        intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, FUMakeupActivity.TAG);
+        startActivity(intent);
+    }
 }

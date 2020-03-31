@@ -10,6 +10,8 @@ import android.util.Log;
 import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.gles.core.GlUtil;
 
+import java.util.Map;
+
 /**
  * 针对 Camera API 的渲染封装
  *
@@ -22,6 +24,8 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
     private Camera mCamera;
     private int mFrontCameraId;
     private int mBackCameraId;
+    // 曝光补偿，进度 0.5 表示实际值为 0 就是无补偿
+    private float mExposureCompensation = 0.5F;
 
     public Camera1Renderer(Activity activity, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         super(activity, glSurfaceView, onRendererStatusListener);
@@ -66,15 +70,35 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
                 CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
                 Log.i(TAG, "openCamera. facing: " + (isFront ? "front" : "back") + ", orientation:"
                         + mCameraOrientation + ", previewWidth:" + mCameraWidth + ", previewHeight:"
-                        + mCameraHeight + ", thread:" + Thread.currentThread().getName());
+                        + mCameraHeight + " exposureCompensation:" + mExposureCompensation
+                        + ", thread:" + Thread.currentThread().getName());
 
                 Camera.Parameters parameters = mCamera.getParameters();
                 CameraUtils.setFocusModes(parameters);
+                CameraUtils.chooseFrameRate(parameters);
                 int[] size = CameraUtils.choosePreviewSize(parameters, mCameraWidth, mCameraHeight);
                 mCameraWidth = size[0];
                 mCameraHeight = size[1];
                 parameters.setPreviewFormat(ImageFormat.NV21);
-                mCamera.setParameters(parameters);
+                CameraUtils.setVideoStabilization(parameters);
+                CameraUtils.setExposureCompensation(mCamera, mExposureCompensation);
+                CameraUtils.setParameters(mCamera, parameters);
+
+                // log camera all parameters
+                if (CameraUtils.DEBUG) {
+                    Map<String, String> fullCameraParameters = CameraUtils.getFullCameraParameters(mCamera);
+                    String fullParams = fullCameraParameters.toString();
+                    // log message is too long, so split it.
+                    if (fullParams.length() > 1000) {
+                        int trunk = fullParams.length() / 1000 + 1;
+                        for (int i = 0; i < trunk; i++) {
+                            int end = i == trunk - 1 ? fullParams.length() : (i + 1) * 1000;
+                            String substring = fullParams.substring(i * 1000, end);
+                            Log.v(TAG, "AFTER SET camera parameters: " + substring);
+                        }
+                    }
+                }
+
                 if (mViewWidth > 0 && mViewHeight > 0) {
                     mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
                 }
@@ -158,12 +182,14 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
             @Override
             public void run() {
                 mIsStopPreview = true;
+                mIsSwitchCamera = true;
                 mCameraWidth = cameraWidth;
                 mCameraHeight = cameraHeight;
                 mPreviewCallbackBufferArray = null;
                 closeCamera();
                 openCamera(mCameraFacing);
                 startPreview();
+                mIsSwitchCamera = false;
                 mIsStopPreview = false;
                 mOnRendererStatusListener.onCameraChanged(mCameraFacing, mCameraOrientation);
             }
@@ -172,16 +198,17 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
 
     @Override
     public void handleFocus(float rawX, float rawY, int areaSize) {
-        CameraUtils.handleFocus(mCamera, rawX, rawY, mViewWidth, mViewHeight, mCameraHeight, mCameraWidth, areaSize);
+        CameraUtils.handleFocusMetering(mCamera, rawX, rawY, mViewWidth, mViewHeight, mCameraWidth, mCameraHeight, areaSize, mCameraFacing);
     }
 
     @Override
     public float getExposureCompensation() {
-        return CameraUtils.getExposureCompensation(mCamera);
+        return mExposureCompensation;
     }
 
     @Override
     public void setExposureCompensation(float value) {
+        mExposureCompensation = value;
         CameraUtils.setExposureCompensation(mCamera, value);
     }
 

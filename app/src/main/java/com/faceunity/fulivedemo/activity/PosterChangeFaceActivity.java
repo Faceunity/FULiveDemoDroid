@@ -49,6 +49,7 @@ import java.util.List;
 
 /**
  * 海报换脸效果界面
+ *
  * @author Richie
  */
 public class PosterChangeFaceActivity extends AppCompatActivity implements PosterPhotoRenderer.OnRendererStatusListener,
@@ -65,6 +66,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     private volatile boolean mIsSavingPhoto;
     private boolean mIsTrackedTemplate;
     private boolean mIsTrackedPhoto;
+    private boolean mIsInputPhoto;
     private volatile boolean mIsFirstDraw = true;
     private volatile boolean mIsNeedReInput = true;
     private int mTexId;
@@ -165,9 +167,9 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
         int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
         mFURenderer = new FURenderer
                 .Builder(this)
+                .setNeedFaceBeauty(false)
                 .maxFaces(4)
                 .setNeedPosterFace(true)
-                .setNeedFaceBeauty(false)
                 .inputImageOrientation(frontCameraOrientation)
                 .build();
     }
@@ -228,12 +230,12 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                             mPosterPhotoRenderer.getTemplateHeight(), mPosterPhotoRenderer.getTemplateRGBABytes(), mTemplateLandmarks);
                 }
 
-                if (mIsTrackedPhoto) {
+                if (!mIsInputPhoto && mIsTrackedPhoto) {
                     showLoadingView(true);
                     if (mPhotoLandmarks != null) {
-                        mFURenderer.onPosterInputPhoto(photoWidth, photoHeight, mPosterPhotoRenderer.getPhotoRGBABytes(),
-                                mPhotoLandmarks);
+                        mFURenderer.onPosterInputPhoto(photoWidth, photoHeight, mPosterPhotoRenderer.getPhotoRGBABytes(), mPhotoLandmarks);
                         mPosterPhotoRenderer.setDrawPhoto(false);
+                        mIsInputPhoto = true;
                     }
                 }
 
@@ -295,8 +297,10 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     @Override
     public void onTemplateLoaded(byte[] img, int width, int height) {
         Log.d(TAG, "onTemplateLoaded() called width = [" + width + "], height = [" + height + "]");
-        if (mFURenderer.trackFace(img, width, height, 0) > 0) {
+        int faceCount = mFURenderer.trackFace(img, width, height, 0);
+        if (faceCount > 0) {
             mTemplateLandmarks = getCopyOfLandmark(0);
+            Log.d(TAG, "onTemplateLoaded: landmarks " + Arrays.toString(mTemplateLandmarks));
             mIsTrackedTemplate = true;
             mIsTrackedPhoto = true;
             mIsNeedReInput = true;
@@ -407,6 +411,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                     mIsTrackedPhoto = true;
                     mIsNeedReInput = true;
                     mPhotoLandmarks = getCopyOfLandmark(mFaceIndex);
+                    Log.d(TAG, "onPhotoLoaded: landmarks " + Arrays.toString(mPhotoLandmarks));
                     mPosterPhotoRenderer.reloadTemplateData(mTemplatePath);
                 }
             }
@@ -418,7 +423,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     }
 
     private float[] getCopyOfLandmark(int faceId) {
-        mFURenderer.getLandmarksData(faceId, FURenderer.LANDMARKS, mLandmarks);
+        mFURenderer.getLandmarksData(faceId, mLandmarks);
         return Arrays.copyOf(mLandmarks, mLandmarks.length);
     }
 
@@ -531,7 +536,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                 if (!mIsSavedPhoto) {
                     Toast.makeText(PosterChangeFaceActivity.this, getString(R.string.save_photo_success), Toast.LENGTH_SHORT).show();
                     try {
-                        File resultFile = new File(Constant.photoFilePath, MiscUtil.getCurrentPhotoName());
+                        File resultFile = new File(Constant.PHOTO_FILE_PATH, MiscUtil.getCurrentPhotoName());
                         if (mMixedPhotoPath != null) {
                             FileUtils.copyFile(new File(mMixedPhotoPath), resultFile);
                             Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(resultFile));

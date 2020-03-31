@@ -101,6 +101,15 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <com.faceunity.fulivedemo.ui.control.LightMakeupControlView
+        android:id="@+id/fu_light_makeup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fu_effect_recycler"
         android:layout_width="match_parent"

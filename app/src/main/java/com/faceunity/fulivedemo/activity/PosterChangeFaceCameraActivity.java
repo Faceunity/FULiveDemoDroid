@@ -20,7 +20,6 @@ import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.ui.RecordBtn;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
-import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.FileUtils;
@@ -204,7 +203,7 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
                 ThreadHelper.getInstance().execute(new Runnable() {
                     @Override
                     public void run() {
-                        String filePath = MiscUtil.saveBitmap(mShotBitmap, Constant.photoFilePath, MiscUtil.getCurrentPhotoName());
+                        String filePath = MiscUtil.saveBitmap(mShotBitmap, Constant.PHOTO_FILE_PATH, MiscUtil.getCurrentPhotoName());
                         if (filePath != null) {
                             Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(filePath)));
                             sendBroadcast(intent);

@@ -29,6 +29,7 @@
     <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS: %d\nRender time:\n\t%dms</string>
     <string name="save_photo_success">Save photo successfully!</string>
     <string name="save_video_success">Save video successfully!</string>
+    <string name="save_video_too_short">The video is to short!</string>
     <string name="fu_base_is_tracking_text">No Face Tracking</string>
     <string name="fu_base_input_type_single">SingleInput</string>
     <string name="fu_base_input_type_double">DualInput</string>

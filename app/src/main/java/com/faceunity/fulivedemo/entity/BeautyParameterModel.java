@@ -27,7 +27,7 @@ public abstract class BeautyParameterModel {
     /**
      * 默认滤镜 自然 2
      */
-    public static Filter sFilter = FilterEnum.ziran_2.filter();
+    public static Filter sFilter = FilterEnum.ziran_2.create();
     /**
      * 轻美妆整体强度，key: name，value: level
      */
@@ -93,8 +93,8 @@ public abstract class BeautyParameterModel {
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_blur_level, sBlurLevel);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_color_level, sColorLevel);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_red_level, sRedLevel);
-//        FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_pouch, sMicroPouch);
-//        FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_nasolabial, sMicroNasolabialFolds);
+        FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_pouch, sMicroPouch);
+        FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_nasolabial, sMicroNasolabialFolds);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_eye_bright, sEyeBright);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_tooth_whiten, sToothWhiten);
     }
@@ -113,10 +113,10 @@ public abstract class BeautyParameterModel {
                 return sColorLevel > 0;
             case R.id.beauty_box_red_level:
                 return sRedLevel > 0;
-//            case R.id.beauty_box_pouch:
-//                return sMicroPouch > 0;
-//            case R.id.beauty_box_nasolabial:
-//                return sMicroNasolabialFolds > 0;
+            case R.id.beauty_box_pouch:
+                return sMicroPouch > 0;
+            case R.id.beauty_box_nasolabial:
+                return sMicroNasolabialFolds > 0;
             case R.id.beauty_box_eye_bright:
                 return sEyeBright > 0;
             case R.id.beauty_box_tooth_whiten:
@@ -170,10 +170,10 @@ public abstract class BeautyParameterModel {
                 return sColorLevel;
             case R.id.beauty_box_red_level:
                 return sRedLevel;
-//            case R.id.beauty_box_pouch:
-//                return sMicroPouch;
-//            case R.id.beauty_box_nasolabial:
-//                return sMicroNasolabialFolds;
+            case R.id.beauty_box_pouch:
+                return sMicroPouch;
+            case R.id.beauty_box_nasolabial:
+                return sMicroNasolabialFolds;
             case R.id.beauty_box_eye_bright:
                 return sEyeBright;
             case R.id.beauty_box_tooth_whiten:
@@ -230,12 +230,12 @@ public abstract class BeautyParameterModel {
             case R.id.beauty_box_red_level:
                 sRedLevel = value;
                 break;
-//            case R.id.beauty_box_pouch:
-//                sMicroPouch = value;
-//                break;
-//            case R.id.beauty_box_nasolabial:
-//                sMicroNasolabialFolds = value;
-//                break;
+            case R.id.beauty_box_pouch:
+                sMicroPouch = value;
+                break;
+            case R.id.beauty_box_nasolabial:
+                sMicroNasolabialFolds = value;
+                break;
             case R.id.beauty_box_eye_bright:
                 sEyeBright = value;
                 break;
@@ -356,12 +356,12 @@ public abstract class BeautyParameterModel {
         if (Float.compare(sRedLevel, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_red_level)) != 0) {
             return true;
         }
-//        if (Float.compare(sMicroPouch, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_pouch)) != 0) {
-//            return true;
-//        }
-//        if (Float.compare(sMicroNasolabialFolds, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_nasolabial)) != 0) {
-//            return true;
-//        }
+        if (Float.compare(sMicroPouch, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_pouch)) != 0) {
+            return true;
+        }
+        if (Float.compare(sMicroNasolabialFolds, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_nasolabial)) != 0) {
+            return true;
+        }
         if (Float.compare(sEyeBright, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_eye_bright)) != 0) {
             return true;
         }
@@ -402,8 +402,8 @@ public abstract class BeautyParameterModel {
         sBlurLevel = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_blur_level);
         sColorLevel = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_color_level);
         sRedLevel = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_red_level);
-//        sMicroPouch = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_pouch);
-//        sMicroNasolabialFolds = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_nasolabial);
+        sMicroPouch = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_pouch);
+        sMicroNasolabialFolds = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_nasolabial);
         sEyeBright = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_eye_bright);
         sToothWhiten = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_tooth_whiten);
     }

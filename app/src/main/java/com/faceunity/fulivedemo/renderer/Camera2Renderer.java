@@ -189,6 +189,7 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
             @Override
             public void run() {
                 mIsStopPreview = true;
+                mIsSwitchCamera = true;
                 mCameraWidth = cameraWidth;
                 mCameraHeight = cameraHeight;
                 mYDataBuffer = null;
@@ -197,6 +198,7 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
                 closeCamera();
                 openCamera(mCameraFacing);
                 startPreview();
+                mIsSwitchCamera = false;
                 mIsStopPreview = false;
                 mOnRendererStatusListener.onCameraChanged(mCameraFacing, mCameraOrientation);
             }
@@ -215,24 +217,17 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
         mSurfaceTexture.setDefaultBufferSize(mCameraWidth, mCameraHeight);
         showImageTexture(mShotBitmap);
         try {
-            Range<Integer>[] ranges = getCurrentCameraInfo().get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
-            Range<Integer> rangeFps = null;
-            if (ranges != null) {
-                for (Range<Integer> range : ranges) {
-                    if (range.getUpper() >= FPS) {
-                        rangeFps = range;
-                        break;
-                    }
-                }
-            }
-
+            Range<Integer> rangeFps = getBestRange();
+            Log.d(TAG, "startPreview. rangeFPS: " + rangeFps);
             CaptureRequest.Builder captureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             if (rangeFps != null) {
                 captureRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, rangeFps);
             }
             captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_LOCK, false);
             captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
             captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE);
             Surface previewSurface = new Surface(mSurfaceTexture);
             captureRequestBuilder.addTarget(previewSurface);
             Surface imageReaderSurface = mImageReader.getSurface();
@@ -427,6 +422,33 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
                 }
             }
         }
+    }
+
+    private Range<Integer> getBestRange() {
+        Range<Integer> result = null;
+        try {
+            String cameraId = mCameraFacing == FACE_FRONT ? mFrontCameraId : mBackCameraId;
+            CameraCharacteristics chars = mCameraManager.getCameraCharacteristics(cameraId);
+            Range<Integer>[] ranges = chars.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+            if (ranges != null) {
+                for (Range<Integer> range : ranges) {
+                    //帧率不能太低，大于10
+                    if (range.getLower() < 10) {
+                        continue;
+                    }
+                    if (result == null) {
+                        result = range;
+                    }
+                    //FPS下限小于15，弱光时能保证足够曝光时间，提高亮度。range范围跨度越大越好，光源足够时FPS较高，预览更流畅，光源不够时FPS较低，亮度更好。
+                    else if (range.getLower() <= 15 && (range.getUpper() - range.getLower()) > (result.getUpper() - result.getLower())) {
+                        result = range;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "getBestRange: ", e);
+        }
+        return result;
     }
 
 }

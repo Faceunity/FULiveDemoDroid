@@ -29,6 +29,7 @@
     <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS: %d\nRender time:\n\t%dms</string>
     <string name="save_photo_success">保存照片成功！</string>
     <string name="save_video_success">保存视频成功！</string>
+    <string name="save_video_too_short">视频太短啦！</string>
     <string name="fu_base_is_tracking_text">未检测到人脸</string>
     <string name="fu_base_input_type_single">单输入</string>
     <string name="fu_base_input_type_double">双输入</string>

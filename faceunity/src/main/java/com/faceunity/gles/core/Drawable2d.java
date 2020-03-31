@@ -45,6 +45,15 @@ public class Drawable2d {
         updateTexCoordArray(FULL_RECTANGLE_TEX_COORDS);
     }
 
+    /**
+     * Prepares a drawable from a "pre-fabricated" shape definition.
+     * <p>
+     * Does no EGL/GL operations, so this can be done at any time.
+     */
+    public Drawable2d(float[] FULL_RECTANGLE_COORDS) {
+        updateVertexArray(FULL_RECTANGLE_COORDS);
+    }
+
     public void updateVertexArray(float[] FULL_RECTANGLE_COORDS) {
         mVertexArray = GlUtil.createFloatBuffer(FULL_RECTANGLE_COORDS);
         mVertexCount = FULL_RECTANGLE_COORDS.length / COORDS_PER_VERTEX;

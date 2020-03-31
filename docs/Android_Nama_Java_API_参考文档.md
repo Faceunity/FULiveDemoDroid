@@ -1,29 +1,27 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2020-01-19
-SDK版本: 6.6.0
+更新日期：2020-03-19
+SDK版本: 6.7.0
 
 ------
 ### 最新更新内容：
 
-2020-01-19 v6.6.0:
+**2020-3-19 v6.7.0:**
 
-注意：更新SDK 6.6.0时，在fuSetup之后，需要马上调用 fuLoadAIModelFromPackage 加载ai_faceprocessor.bundle 到 FUAITYPE::FUAITYPE_FACEPROCESSOR!!!
-
-在Nama 6.6.0及以上，AI能力的调用会按道具需求调用，避免同一帧多次调用；同时由Nama AI子系统管理推理，简化调用过程；将能力和产品功能进行拆分，避免在道具bundle内的冗余AI模型资源，方便维护升级，同时加快道具的加载；方便各新旧AI能力集成，后续的升级迭代。
-
-基本逻辑：Nama初始化后，可以预先加载一个或多个将来可能使用到的AI能力模块。调用实时render处理接口时，Nama主pipe会在最开始的时候，分析当前全部道具需要AI能力，然后由AI子系统执行相关能力推理，然后开始调用各个道具的生命周期函数，各道具只需要按需在特定的生命周期函数调用JS接口获取AI推理的结果即可，并用于相关逻辑处理或渲染。
-
-1. 新增加接口 fuLoadAIModelFromPackage 用于加载AI能力模型。
-2. 新增加接口 fuReleaseAIModel 用于释放AI能力模型。
-3. 新增加接口 fuIsAIModelLoaded 判断AI能力是否已经加载。
-4. 新增fuSetMultiSamples接口，MSAA抗锯齿接口，解决虚拟形象等内容边缘锯齿问题。
-
-例子1：背景分割
-	a. 加载AI能力模型，fuLoadAIModelFromPackage加载ai_bgseg.bundle 到 FUAITYPE_BACKGROUNDSEGMENTATION上。
-	b. 加载产品业务道具A，A道具使用了背景分割能力。
-	c. 切换产品业务道具B，B道具同样使用了背景分割能力，但这时AI能力不需要重新加载。
+1. 优化6.6.0版本表情系数的灵活度，Animoji表情跟踪更加灵活。  
+2. 新增接口 fuIsLibraryInit，检测SDK是否已初始化。  
+3. AI能力模型中人脸相关能力合并为一体。将FUAITYPE::FUAITYPE_FACELANDMARKS75,FUAITYPE_FACELANDMARKS209,FUAITYPE_FACELANDMARKS239,FUAITYPE_FACEPROCESSOR统一合并到FUAITYPE_FACEPROCESSOR。美颜美妆道具中"landmarks_type"参数关闭，由系统自动切换。  
+4. 优化美颜模块：  
+   - 新增去黑眼圈、去法令纹功能。  
+   - 优化美颜美型效果。  
+   - 美颜磨皮效果优化，新增支持仅磨人脸区域功能。  
+5. 新增接口支持图像裁剪，可用于瘦脸边缘变形裁剪。详见fuSetCropState，fuSetCropFreePixel接口。
+6. 优化美妆效果，人脸点位优化，提高准确性。 
+   - 优化口红点位与效果，解决张嘴、正脸、低抬头、左右转头、抿嘴动作的口红溢色。
+   - 优化美瞳点位效果，美瞳效果更准确。
+   - 腮红效果优化，解决了仰头角度下腮红强拉扯问题。
+7. Nama库大小裁剪优化。
 
 ------
 
@@ -39,7 +37,7 @@ SDK版本: 6.6.0
 
 本文是相芯人脸跟踪及视频特效开发包（以下简称 Nama SDK）的底层接口文档。该文档中的 Nama API 为底层 native 接口，可以直接用于 PC/iOS/Android NDK/Linux 上的开发。其中，iOS和Android平台上的开发可以利用SDK的应用层接口（Objective-C/Java），相比本文中的底层接口会更贴近平台相关的开发经验。
 
-SDK相关的所有调用要求在同一个线程中顺序执行，不支持多线程。少数接口可以异步调用（如道具加载），会在备注中特别注明。SDK所有主线程调用的接口需要保持 OpenGL context 一致，否则会引发纹理数据异常。如果需要用到SDK的绘制功能，则主线程的所有调用需要预先初始化OpenGL环境，没有初始化或初始化不正确会导致崩溃。我们对OpenGL的环境要求为 GLES 2.0 以上。具体调用方式，可以参考各平台 demo。
+SDK相关的所有调用要求在同一个线程中顺序执行，不支持多线程。少数接口可以异步调用（如道具加载），会在备注中特别注明。SDK所有渲染线程调用的接口需要保持 OpenGL context 一致，否则会引发纹理数据异常。如果需要用到SDK的绘制功能，则渲染线程的所有调用需要预先初始化OpenGL环境，没有初始化或初始化不正确会导致崩溃。我们对OpenGL的环境要求为 GLES 2.0 以上。具体调用方式，可以参考各平台 demo。
 
 底层接口根据作用逻辑归为五类：初始化、加载道具、主运行接口、销毁、功能接口、P2A相关接口。
 
@@ -64,7 +62,7 @@ public static native int fuSetup(byte[] v3data, byte[] authdata);
 
 **参数说明：**
 
-`v3data` v3.bundle 字节数组
+`v3data` v3.bundle 字节数组。**注意：**SDK 6.6.0 后 v3 不再使用，该参数传 `new byte[0]` 即可。
 
 `ardata` 已废弃，传 null 即可
 
@@ -80,8 +78,6 @@ App 启动后只需要 setup 一次即可，其中 authpack.A() 鉴权数据声�
 
 根据应用需求，鉴权数据也可以运行时提供（如网络下载），不过要注意证书泄露风险，防止证书被滥用。
 
-需要在有GL Context的地方进行初始化。  
-
 ##### fuSetupLocal 离线初始化接口
 
 初始化系统环境，加载系统数据，并进行离线鉴权。必须在调用SDK其他接口前执行，否则会引发崩溃。
@@ -96,7 +92,7 @@ public static native int fuSetupLocal(byte[] v3data, byte[] ardata, byte[] authd
 
 **参数说明：**
 
-`v3data` v3.bundle 字节数组
+`v3data` v3.bundle 字节数组。**注意：**SDK 6.6.0 后 v3 不再使用，该参数传 `new byte[0]` 即可。
 
 `ardata` 已废弃，传 null 即可
 
@@ -114,13 +110,29 @@ App 启动后只需要 setup 一次即可，其中 authpack.A() 鉴权数据声�
 
 第一次需要联网鉴权，鉴权成功后，保存新的证书，后面不要联网。
 
-需要在有GL Context的地方进行初始化。  
+----
+
+##### fuIsLibraryInit 检测接口是否已经初始化
+
+**接口说明：**
+
+检测接口是否已经初始化。
+
+```java
+public static native int fuIsLibraryInit();
+```
+
+__返回值:__  
+
+返回状态0为未初始化，1为已初始化。
+
+----
 
 ##### fuLoadAIModelFromPackage 加载 AI 模型接口
 
 **接口说明：**
 
-SDK6.6.0 新增接口，在fuSetup后，可以预先加载未来可能需要使用到的AI能力。AI模型和SDK一起发布，在Assets目录下。
+SDK6.6.0 新增接口，在fuSetup后，可以预先加载未来可能需要使用到的AI能力。AI模型和SDK一起发布，在Assets目录下。该函数不需要 GL 环境，可以异步调用。
 
 ```java
 public static native int fuLoadAIModelFromPackage(byte[] data, int type);
@@ -138,9 +150,9 @@ __参数说明:__
     public static final int FUAITYPE_HAIRSEGMENTATION = 4;
     public static final int FUAITYPE_HANDGESTURE = 8;
     public static final int FUAITYPE_TONGUETRACKING = 16;
-    public static final int FUAITYPE_FACELANDMARKS75 = 32;
-    public static final int FUAITYPE_FACELANDMARKS209 = 64;
-    public static final int FUAITYPE_FACELANDMARKS239 = 128;
+    public static final int FUAITYPE_FACELANDMARKS75 = 32; // 废弃
+    public static final int FUAITYPE_FACELANDMARKS209 = 64; // 废弃
+    public static final int FUAITYPE_FACELANDMARKS239 = 128; // 废弃
     public static final int FUAITYPE_HUMANPOSE2D = 256;
     public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
     public static final int FUAITYPE_FACEPROCESSOR = 1024;
@@ -159,9 +171,9 @@ AI能力会随SDK一起发布，存放在assets/AI_Model目录中。
 - ai_bgseg.bundle 为背景分割AI能力模型。
 - ai_hairseg.bundle 为头发分割AI能力模型。
 - ai_gesture.bundle 为手势识别AI能力模型。
-- ai_facelandmarks75.bundle 为脸部特征点75点AI能力模型。
-- ai_facelandmarks209.bundle 为脸部特征点209点AI能力模型。
-- ai_facelandmarks239.bundle 为脸部特征点239点AI能力模型。
+- ai_facelandmarks75.bundle 为脸部特征点75点AI能力模型。（废弃）
+- ai_facelandmarks209.bundle 为脸部特征点209点AI能力模型。（废弃）
+- ai_facelandmarks239.bundle 为脸部特征点239点AI能力模型。（废弃）
 - ai_humanpose.bundle 为人体2D点位AI能力模型。
 - ai_bgseg_green.bundle 为绿幕背景分割AI能力模型。
 - ai_face_processor 为人脸面具以及人脸面罩AI能力模型，需要默认加载。
@@ -186,9 +198,9 @@ __参数说明:__
     public static final int FUAITYPE_HAIRSEGMENTATION = 4;
     public static final int FUAITYPE_HANDGESTURE = 8;
     public static final int FUAITYPE_TONGUETRACKING = 16;
-    public static final int FUAITYPE_FACELANDMARKS75 = 32;
-    public static final int FUAITYPE_FACELANDMARKS209 = 64;
-    public static final int FUAITYPE_FACELANDMARKS239 = 128;
+    public static final int FUAITYPE_FACELANDMARKS75 = 32 // 废弃
+    public static final int FUAITYPE_FACELANDMARKS209 = 64; // 废弃
+    public static final int FUAITYPE_FACELANDMARKS239 = 128; // 废弃
     public static final int FUAITYPE_HUMANPOSE2D = 256;
     public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
     public static final int FUAITYPE_FACEPROCESSOR = 1024;
@@ -224,9 +236,9 @@ __参数说明:__
     public static final int FUAITYPE_HAIRSEGMENTATION = 4;
     public static final int FUAITYPE_HANDGESTURE = 8;
     public static final int FUAITYPE_TONGUETRACKING = 16;
-    public static final int FUAITYPE_FACELANDMARKS75 = 32;
-    public static final int FUAITYPE_FACELANDMARKS209 = 64;
-    public static final int FUAITYPE_FACELANDMARKS239 = 128;
+    public static final int FUAITYPE_FACELANDMARKS75 = 32; // 废弃
+    public static final int FUAITYPE_FACELANDMARKS209 = 64; // 废弃
+    public static final int FUAITYPE_FACELANDMARKS239 = 128; // 废弃
     public static final int FUAITYPE_HUMANPOSE2D = 256;
     public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
     public static final int FUAITYPE_FACEPROCESSOR = 1024;
@@ -264,7 +276,7 @@ public static native int fuCreateItemFromPackage(byte[] data);
 
 **备注：**
 
-该接口可以和主线程异步执行。为了避免加载道具阻塞主线程，建议异步调用该接口。
+该接口可以和渲染异步执行，不需要 GL 环境，为了避免加载道具阻塞渲染线程，建议异步调用。
 
 ---
 
@@ -316,7 +328,7 @@ public static native double fuItemGetParam(int item,String name);
 
 **备注：**
 
-该接口可以和主线程异步执行。
+该接口可以和渲染线程异步执行。
 
 ---
 
@@ -342,7 +354,7 @@ public static native String fuItemGetParamString(int item,String name);
 
 **备注：**
 
-该接口可以和主线程异步执行。
+该接口可以和渲染线程异步执行。
 
 ---
 
@@ -364,7 +376,7 @@ public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags,
 
 `tex_in ` 图像数据纹理ID
 
-`flags ` flags，可以指定数据img数据格式，返回纹理ID的道具镜像等
+`flags ` flags，可以指定数据img数据格式，返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
 
 `w ` 图像数据的宽
 
@@ -382,11 +394,13 @@ public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags,
 
 该绘制接口需要OpenGL环境，环境异常会导致崩溃。
 
+美颜处理后的图像数据默认不会写回 img，参数 flags 设置为 `FU_ADM_FLAG_ENABLE_READBACK` 就会以相同宽高写回 img。如果需要自定义输出数据，请调用带有 readback 参数的 `fuDualInputToTexture` 接口。
+
 该输入模式可以减少一次 CPU-GPU 间数据传输，在 Android 平台上可以显著优化性能，因此**推荐**尽可能使用该接口。
 
 ---
 
-##### fuDualInputToTexture  视频处理双输入接口，byte[]数据回写
+##### fuDualInputToTexture  视频处理双输入接口，自定义 byte[] 数据回写
 
 ```java
 public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags, int w, int h, int frame_id, int[] items, int readback_w, int readback_h, byte[] readback_img);
@@ -402,7 +416,7 @@ public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags,
 
 `tex_in ` 图像数据纹理ID
 
-`flags ` flags，可以指定数据img数据格式，返回纹理ID的道具镜像等
+`flags ` flags，可以指定数据img数据格式，返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
 
 `w ` 图像数据的宽
 
@@ -426,6 +440,8 @@ public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags,
 
 该绘制接口需要OpenGL环境，环境异常会导致崩溃。
 
+美颜处理后的图像数据默认不会写回 img，参数 flags 设置为 `FU_ADM_FLAG_ENABLE_READBACK` 就会以相同宽高写回 img。
+
 ---
 
 ##### fuRenderToNV21Image   视频处理单输入接口
@@ -438,8 +454,6 @@ public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame
 
 将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据。该接口会执行所有道具要求、且证书许可的功能模块，包括人脸检测与跟踪、美颜、贴纸或avatar绘制等。
 
-本接口默认带有数据回写功能，会以相同宽高回写到对应的img数组中。
-
 **参数说明：**
 
 `img ` 图像数据byte[]，被处理过的的图像数据会回写到该byte[]中
@@ -452,7 +466,7 @@ public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame
 
 `items ` 包含多个道具句柄的int数组
 
-`flags ` flags，可以指定返回纹理ID的道具镜像等
+`flags ` flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
 
 **返回值：**
 
@@ -462,9 +476,11 @@ public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame
 
 该绘制接口需要OpenGL环境，环境异常会导致崩溃。
 
+美颜处理后的图像数据默认会以相同宽高写回 img。如果需要自定义输出数据，请调用带有 readback 参数的 `fuRenderToNV21Image` 接口。
+
 ---
 
-##### fuRenderToNV21Image   视频处理单输入接口，byte[]数据回写
+##### fuRenderToNV21Image   视频处理单输入接口，自定义 byte[] 数据回写
 
 ```java
 public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame_id, int[] items, int flags, int readback_w, int readback_h, byte[] readback_img);
@@ -473,8 +489,6 @@ public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame
 **接口说明：**
 
 将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据。该接口会执行所有道具要求、且证书许可的功能模块，包括人脸检测与跟踪、美颜、贴纸或avatar绘制等。
-
-本接口默认带有数据回写功能，会以相同宽高回写到对应的img数组中。
 
 **参数说明：**
 
@@ -488,7 +502,7 @@ public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame
 
 `items ` 包含多个道具句柄的int数组
 
-`flags ` flags，可以指定返回纹理ID的道具镜像等
+`flags ` flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
 
 `readback_w ` 需要回写的图像数据的宽
 
@@ -504,6 +518,8 @@ public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame
 
 该绘制接口需要OpenGL环境，环境异常会导致崩溃。
 
+美颜处理后的图像数据会以相同宽高回写到对应的 img 中。
+
 ---
 
 ##### fuRenderToI420Image   视频处理单输入接口，I420数据格式
@@ -515,8 +531,6 @@ public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame
 **接口说明：**
 
 将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据。该接口会执行所有道具要求、且证书许可的功能模块，包括人脸检测与跟踪、美颜、贴纸或avatar绘制等。
-
-本接口默认带有数据回写功能，会以相同宽高回写到对应的img数组中。
 
 **参数说明：**
 
@@ -530,7 +544,7 @@ public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame
 
 `items ` 包含多个道具句柄的int数组
 
-`flags ` flags，可以指定返回纹理ID的道具镜像等
+`flags ` flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
 
 **返回值：**
 
@@ -539,6 +553,50 @@ public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame
 **备注：**
 
 该绘制接口需要OpenGL环境，环境异常会导致崩溃。
+
+美颜处理后的图像数据默认会以相同宽高写回 img。如果需要自定义输出数据，请调用带有 readback 参数的 `fuRenderToI420Image` 接口。
+
+---
+
+##### fuRenderToI420Image   视频处理单输入接口，I420数据格式，自定义 byte[] 数据回写
+
+```java
+public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame_id, int[] items, int flags, int readback_w, int readback_h, byte[] readback_img);
+```
+
+**接口说明：**
+
+将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据。该接口会执行所有道具要求、且证书许可的功能模块，包括人脸检测与跟踪、美颜、贴纸或avatar绘制等。
+
+**参数说明：**
+
+`img ` I420的图像数据byte[]，被处理过的的图像数据会回写到该byte[]中
+
+`w ` 图像数据的宽
+
+`h ` 图像数据的高
+
+`frame_id ` 当前处理的视频帧序数
+
+`items ` 包含多个道具句柄的int数组
+
+`flags ` flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
+
+`readback_w ` 需要回写的图像数据的宽
+
+`readback_h ` 需要回写的图像数据的高
+
+`readback_img ` 需要回写的图像数据byte[]
+
+**返回值：**
+
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+
+**备注：**
+
+该绘制接口需要OpenGL环境，环境异常会导致崩溃。
+
+美颜处理后的图像数据会以相同宽高回写到对应的 img 中。
 
 ---
 
@@ -552,7 +610,41 @@ public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame
 
 将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据。该接口会执行所有道具要求、且证书许可的功能模块，包括人脸检测与跟踪、美颜、贴纸或avatar绘制等。
 
-本接口默认带有数据回写功能，会以相同宽高回写到对应的img数组中。
+**参数说明：**
+
+`img ` Rgba的图像数据byte[]，被处理过的的图像数据会回写到该byte[]中
+
+`w ` 图像数据的宽
+
+`h ` 图像数据的高
+
+`frame_id ` 当前处理的视频帧序数
+
+`items ` 包含多个道具句柄的int数组
+
+`flags ` flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
+
+**返回值：**
+
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+
+**备注：**
+
+该绘制接口需要OpenGL环境，环境异常会导致崩溃。
+
+美颜处理后的图像数据会以相同宽高回写到对应的 img 中。如果需要自定义输出数据，请调用带有 readback 参数的 `fuRenderToRgbaImage` 接口。
+
+---
+
+##### fuRenderToRgbaImage   视频处理单输入接口，Rgba数据格式，自定义 byte[] 数据回写
+
+```java
+public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame_id, int[] items, int flags, int readback_w, int readback_h, byte[] readback_img);
+```
+
+**接口说明：**
+
+将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据。该接口会执行所有道具要求、且证书许可的功能模块，包括人脸检测与跟踪、美颜、贴纸或avatar绘制等。
 
 **参数说明：**
 
@@ -566,7 +658,13 @@ public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame
 
 `items ` 包含多个道具句柄的int数组
 
-`flags ` flags，可以指定返回纹理ID的道具镜像等
+`flags ` flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
+
+`readback_w ` 需要回写的图像数据的宽
+
+`readback_h ` 需要回写的图像数据的高
+
+`readback_img ` 需要回写的图像数据byte[]
 
 **返回值：**
 
@@ -576,7 +674,9 @@ public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame
 
 该绘制接口需要OpenGL环境，环境异常会导致崩溃。
 
----
+美颜处理后的图像数据会以相同宽高回写到对应的 img 中。
+
+----
 
 ##### fuRenderToYUVImage    视频处理单输入接口，YUV数据格式
 
@@ -638,7 +738,7 @@ public static native int fuBeautifyImage(int tex_in, int flags, int w, int h, in
 
 `tex_in ` 图像数据纹理ID
 
-`flags `  flags，可以指定返回纹理ID的道具镜像等
+`flags `  flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
 
 `w ` 图像宽度
 
@@ -680,7 +780,7 @@ public static native int fuAvatarToTexture(float[] pupilPos, float[] expression,
 
 `rmode ` 人脸朝向，0-3分别对应手机四种朝向，长度1
 
-`flags `  flags，可以指定返回纹理ID的道具镜像等
+`flags `  flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
 
 `w ` 图像宽度
 
@@ -705,7 +805,7 @@ public static native int fuAvatarToTexture(float[] pupilPos, float[] expression,
 ##### fuTrackFace   人脸信息跟踪接口
 
 ```java
-public static native void fuTrackFace(byte[] img, int flags, int w, int h);
+public static native void fuTrackFace(byte[] img, int format, int w, int h);
 ```
 
 **接口说明：**
@@ -716,7 +816,7 @@ public static native void fuTrackFace(byte[] img, int flags, int w, int h);
 
 `img ` 图像数据byte[]
 
-`flags ` 输入图像格式：`FU_FORMAT_RGBA_BUFFER` 、 `FU_FORMAT_NV21_BUFFER` 、 `FU_FORMAT_NV12_BUFFER` 、 `FU_FORMAT_I420_BUFFER`
+`format` 输入图像格式：`FU_FORMAT_RGBA_BUFFER` 、 `FU_FORMAT_NV21_BUFFER` 、 `FU_FORMAT_NV12_BUFFER` 、 `FU_FORMAT_I420_BUFFER`
 
 `w ` 图像数据的宽度
 
@@ -728,14 +828,14 @@ public static native void fuTrackFace(byte[] img, int flags, int w, int h);
 
 **备注：**
 
-该接口不需要绘制环境，可以在渲染线程之外调用。
+该接口不需要 OpenGL 环境，可以在渲染线程之外调用。
 
 ----
 
 ##### fuTrackFaceWithTongue  在跟踪人脸表情的同时，跟踪舌头blendshape系数
 
 ```java
-public static native void fuTrackFaceWithTongue(byte[] img, int flags, int w, int h);
+public static native void fuTrackFaceWithTongue(byte[] img, int format, int w, int h);
 ```
 
 **接口说明：**
@@ -746,7 +846,7 @@ public static native void fuTrackFaceWithTongue(byte[] img, int flags, int w, in
 
 `img ` 图像数据byte[]
 
-`flags ` 输入图像格式：`FU_FORMAT_RGBA_BUFFER` 、 `FU_FORMAT_NV21_BUFFER` 、 `FU_FORMAT_NV12_BUFFER` 、 `FU_FORMAT_I420_BUFFER`
+`format` 输入图像格式：`FU_FORMAT_RGBA_BUFFER` 、 `FU_FORMAT_NV21_BUFFER` 、 `FU_FORMAT_NV12_BUFFER` 、 `FU_FORMAT_I420_BUFFER`
 
 `w ` 图像数据的宽度
 
@@ -758,7 +858,9 @@ public static native void fuTrackFaceWithTongue(byte[] img, int flags, int w, in
 
 **备注：**
 
-需要加载 tongue.bundle,才能开启舌头跟踪。
+需要调用 `fuLoadTongueModel` 加载 tongue.bundle，才能开启舌头跟踪。
+
+不需要 OpenGL 环境，可以在渲染线程之外调用。
 
 ---
 
@@ -1219,6 +1321,47 @@ __备注:__
 
 ----
 
+##### fuSetCropState 开启和关闭裁剪功能
+
+**接口说明：**
+
+开启和关闭裁剪功能，参数设为0关闭，设为1开启。
+
+```java
+public static native int fuSetCropState(int state);
+```
+
+__参数:__  
+
+*state*：是否开启和关闭裁剪功能，参数设为0关闭，设为1开启。
+
+__返回值:__  
+
+返回状态0为关闭，1开启。
+
+------
+
+##### fuSetCropFreePixel 自由裁剪接口
+
+**接口说明：**
+
+自由裁剪接口：x0,y0为裁剪后的起始坐标（裁剪前为（0,0）），x1,y1为裁剪后的终止坐标（裁剪前为（imageWidth,imageHeight））。
+
+```java
+public static native int fuSetCropFreePixel(int x0, int y0, int x1, int y1);
+```
+
+__参数:__  
+
+*(x0,y0)*：x0, y0 为裁剪后的起始坐标（裁剪前为（0,0））
+*(x1,y1)*：x1, y1 为裁剪后的终止坐标（裁剪前为（imageWidth,imageHeight））
+
+__返回值:__  
+
+返回状态0为失败，1成功。
+
+----
+
 #### 2.6 功能接口 - 效果
 
 ##### fuSetExpressionCalibration  开启表情校准功能
@@ -1623,9 +1766,12 @@ __参数:__
 | FU_ADM_FLAG_NV21_TEXTURE         | 传入的纹理为 NV21 数据格式                   |
 | FU_ADM_FLAG_I420_TEXTURE         | 传入的纹理为 I420 数据格式                   |
 | FU_ADM_FLAG_I420_BUFFER          | 传入的内存图像数据为 I420 数据格式           |
-| FU_ADM_FALG_RGBA_BUFFER          | 传入的内存图像数据为 RGBA 数据格式           |
+| FU_ADM_FLAG_RGBA_BUFFER          | 传入的内存图像数据为 RGBA 数据格式           |
+| FU_ADM_FLAG_FLIP_X               | 输出画面左右镜像                             |
+| FU_ADM_FLAG_FLIP_Y               | 输出画面上下镜像                             |
 
 __输入输出支持:__
+
 仅输入
 
 ------
@@ -1784,12 +1930,16 @@ __备注:__
 
 ### 4. 常见问题 
 
-#### 4.1 关于初始化
+#### 4.1 初始化
 
-初始化需要在渲染线程，执行一次就好了。
+初始化接口 `fuSetup`  和加载 AI 数据模型接口 `fuLoadAIModelFromPackage`不需要 GL 环境，可以放在 IO 线程调用，但必须保证初始化在其他函数之前调用，只需要初始化一次就好。
 
-#### 4.2 关于道具加载
+#### 4.2 道具加载
 
 建议异步加载道具，单独开一个 IO 线程，与渲染线程分离，这样保证画面不会出现卡顿。
 
-**如有使用问题，请联系技术支持。**
+#### 4.3 渲染
+
+所有渲染接口的调用必须在具有 GL 环境的线程中，除非特别说明。
+
+**如有其他使用问题，请联系技术支持。**

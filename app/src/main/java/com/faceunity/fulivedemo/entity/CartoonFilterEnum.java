@@ -7,29 +7,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 动漫滤镜枚举类
+ *
  * @author Richie on 2018.11.14
  */
 public enum CartoonFilterEnum {
-    /**
-     * 风格滤镜
-     */
-    NO_FILTER(R.drawable.ic_delete_all, "无效果", CartoonFilter.NO_FILTER),
-    COMIC_FILTER(R.drawable.icon_animefilter, "漫画滤镜", CartoonFilter.COMIC_FILTER),
-    PORTRAIT_EFFECT(R.drawable.icon_portrait_dynamiceffect, "人像动效", CartoonFilter.PORTRAIT_EFFECT),
-    SKETCH_FILTER(R.drawable.icon_sketchfilter, "素描滤镜", CartoonFilter.SKETCH_FILTER),
-    OIL_PAINT_FILTER(R.drawable.icon_oilpainting, "油画", CartoonFilter.OIL_PAINTING),
-    SAND_PAINT_FILTER(R.drawable.icon_sandlpainting, "沙画", CartoonFilter.SAND_PAINTING),
-    PEN_PAINT_FILTER(R.drawable.icon_penpainting, "钢笔画", CartoonFilter.PEN_PAINTING),
-    PENCIL_PAINT_FILTER(R.drawable.icon_pencilpainting, "铅笔画", CartoonFilter.PENCIL_PAINTING),
-    GRAFFITI_FILTER(R.drawable.icon_graffiti, "涂鸦", CartoonFilter.GRAFFITI);
 
-    private int imageResId;
-    private String name;
+    NO_FILTER(R.drawable.ic_delete_all, CartoonFilter.NO_FILTER),
+    COMIC_FILTER(R.drawable.icon_animefilter, CartoonFilter.COMIC_FILTER),
+    PORTRAIT_EFFECT(R.drawable.icon_portrait_dynamiceffect, CartoonFilter.PORTRAIT_EFFECT),
+    SKETCH_FILTER(R.drawable.icon_sketchfilter, CartoonFilter.SKETCH_FILTER),
+    OIL_PAINT_FILTER(R.drawable.icon_oilpainting, CartoonFilter.OIL_PAINTING),
+    SAND_PAINT_FILTER(R.drawable.icon_sandlpainting, CartoonFilter.SAND_PAINTING),
+    PEN_PAINT_FILTER(R.drawable.icon_penpainting, CartoonFilter.PEN_PAINTING),
+    PENCIL_PAINT_FILTER(R.drawable.icon_pencilpainting, CartoonFilter.PENCIL_PAINTING),
+    GRAFFITI_FILTER(R.drawable.icon_graffiti, CartoonFilter.GRAFFITI);
+
+    private int iconId;
     private int style;
 
-    CartoonFilterEnum(int imageResId, String name, int style) {
-        this.imageResId = imageResId;
-        this.name = name;
+    CartoonFilterEnum(int iconId, int style) {
+        this.iconId = iconId;
         this.style = style;
     }
 
@@ -37,8 +35,12 @@ public enum CartoonFilterEnum {
         CartoonFilterEnum[] values = values();
         List<CartoonFilter> cartoonFilters = new ArrayList<>(values.length);
         for (CartoonFilterEnum value : values) {
-            cartoonFilters.add(new CartoonFilter(value.imageResId, value.name, value.style));
+            cartoonFilters.add(value.create());
         }
         return cartoonFilters;
+    }
+
+    public CartoonFilter create() {
+        return new CartoonFilter(iconId, style);
     }
 }

@@ -30,7 +30,8 @@ public class MediaAudioEncoder extends MediaEncoder {
 
     @Override
     protected void prepare() throws IOException {
-        if (DEBUG) Log.v(TAG, "prepare:");
+        if (DEBUG)
+            Log.v(TAG, "prepare:");
         mTrackIndex = -1;
         mMuxerStarted = mIsEOS = false;
         // prepare MediaCodec for AAC encoding of audio data from inernal mic.
@@ -39,7 +40,8 @@ public class MediaAudioEncoder extends MediaEncoder {
             Log.e(TAG, "Unable to find an appropriate codec for " + MIME_TYPE);
             return;
         }
-        if (DEBUG) Log.i(TAG, "selected codec: " + audioCodecInfo.getName());
+        if (DEBUG)
+            Log.i(TAG, "selected codec: " + audioCodecInfo.getName());
 
         final MediaFormat audioFormat = MediaFormat.createAudioFormat(MIME_TYPE, SAMPLE_RATE, 1);
         audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
@@ -48,11 +50,13 @@ public class MediaAudioEncoder extends MediaEncoder {
         audioFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 1);
 //		audioFormat.setLong(MediaFormat.KEY_MAX_INPUT_SIZE, inputFile.length());
 //      audioFormat.setLong(MediaFormat.KEY_DURATION, (long)durationInMs );
-        if (DEBUG) Log.i(TAG, "format: " + audioFormat);
+        if (DEBUG)
+            Log.i(TAG, "format: " + audioFormat);
         mMediaCodec = MediaCodec.createEncoderByType(MIME_TYPE);
         mMediaCodec.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
         mMediaCodec.start();
-        if (DEBUG) Log.i(TAG, "prepare finishing");
+        if (DEBUG)
+            Log.i(TAG, "prepare finishing");
         if (mListener != null) {
             try {
                 mListener.onPrepared(this);
@@ -113,12 +117,14 @@ public class MediaAudioEncoder extends MediaEncoder {
                     } catch (final Exception e) {
                         audioRecord = null;
                     }
-                    if (audioRecord != null) break;
+                    if (audioRecord != null)
+                        break;
                 }
                 if (audioRecord != null) {
                     try {
                         if (mIsCapturing) {
-                            if (DEBUG) Log.v(TAG, "AudioThread:start audio recording");
+                            if (DEBUG)
+                                Log.v(TAG, "AudioThread:start audio recording");
                             final ByteBuffer buf = ByteBuffer.allocateDirect(SAMPLES_PER_FRAME);
                             int readBytes;
                             audioRecord.startRecording();
@@ -152,7 +158,8 @@ public class MediaAudioEncoder extends MediaEncoder {
             } catch (final Exception e) {
                 Log.e(TAG, "AudioThread#run", e);
             }
-            if (DEBUG) Log.v(TAG, "AudioThread:finished");
+            if (DEBUG)
+                Log.v(TAG, "AudioThread:finished");
         }
     }
 
@@ -163,7 +170,8 @@ public class MediaAudioEncoder extends MediaEncoder {
      * @return
      */
     private static final MediaCodecInfo selectAudioCodec(final String mimeType) {
-        if (DEBUG) Log.v(TAG, "selectAudioCodec:");
+        if (DEBUG)
+            Log.v(TAG, "selectAudioCodec:");
 
         MediaCodecInfo result = null;
         // get the list of available codecs
@@ -176,7 +184,8 @@ public class MediaAudioEncoder extends MediaEncoder {
             }
             final String[] types = codecInfo.getSupportedTypes();
             for (int j = 0; j < types.length; j++) {
-                if (DEBUG) Log.i(TAG, "supportedType:" + codecInfo.getName() + ",MIME=" + types[j]);
+                if (DEBUG)
+                    Log.i(TAG, "supportedType:" + codecInfo.getName() + ",MIME=" + types[j]);
                 if (types[j].equalsIgnoreCase(mimeType)) {
                     if (result == null) {
                         result = codecInfo;

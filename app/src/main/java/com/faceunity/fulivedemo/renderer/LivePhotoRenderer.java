@@ -14,7 +14,7 @@ import android.view.MotionEvent;
 
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.utils.FPSUtil;
-import com.faceunity.gles.MakeupProgramLandmarks;
+import com.faceunity.gles.AdjustProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
@@ -76,7 +76,7 @@ public class LivePhotoRenderer implements GLSurfaceView.Renderer {
     private float[] mvpAreaMidFinalMatrix = new float[16];
     private float[] mvpAreaMidMatrix = new float[16];
     private ProgramTexture2d mFullFrameRectTexture2D;
-    private MakeupProgramLandmarks mProgramLandmarks;
+    private AdjustProgramLandmarks mProgramLandmarks;
     // landmark 坐标系的点位
     private float[] mPointsOfLand;
     private float[] mBordersOfGL = new float[8];
@@ -141,7 +141,7 @@ public class LivePhotoRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.i(TAG, "onSurfaceCreated");
         mFullFrameRectTexture2D = new ProgramTexture2d();
-        mProgramLandmarks = new MakeupProgramLandmarks();
+        mProgramLandmarks = new AdjustProgramLandmarks();
         mProgramLandmarks.setPointFillSize(mContext.getResources().getDimensionPixelSize(R.dimen.x12));
         mProgramLandmarks.setPointBorderSize(mContext.getResources().getDimensionPixelSize(R.dimen.x18));
         loadImgData(mPhotoPath);

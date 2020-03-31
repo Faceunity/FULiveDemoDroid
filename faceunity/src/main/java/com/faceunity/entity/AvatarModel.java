@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
+ * Avatar 捏脸模型
+ *
  * @author Richie on 2019.03.20
  */
 public class AvatarModel implements Parcelable {

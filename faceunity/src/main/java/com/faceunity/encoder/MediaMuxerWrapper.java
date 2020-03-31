@@ -98,13 +98,15 @@ public class MediaMuxerWrapper {
      */
     /*package*/
     synchronized boolean start() {
-        if (DEBUG) Log.e(TAG, "start:");
+        if (DEBUG)
+            Log.e(TAG, "start:");
         mStatredCount++;
         if ((mEncoderCount > 0) && (mStatredCount == mEncoderCount)) {
             mMediaMuxer.start();
             mIsStarted = true;
             notifyAll();
-            if (DEBUG) Log.e(TAG, "MediaMuxer started:");
+            if (DEBUG)
+                Log.e(TAG, "MediaMuxer started:");
         }
         return mIsStarted;
     }
@@ -114,13 +116,15 @@ public class MediaMuxerWrapper {
      */
     /*package*/
     synchronized void stop() {
-        if (DEBUG) Log.e(TAG, "stop:mStatredCount=" + mStatredCount);
+        if (DEBUG)
+            Log.e(TAG, "stop:mStatredCount=" + mStatredCount);
         mStatredCount--;
         if ((mEncoderCount > 0) && (mStatredCount <= 0)) {
             mMediaMuxer.stop();
             mMediaMuxer.release();
             mIsStarted = false;
-            if (DEBUG) Log.e(TAG, "MediaMuxer stopped:");
+            if (DEBUG)
+                Log.e(TAG, "MediaMuxer stopped:");
         }
     }
 

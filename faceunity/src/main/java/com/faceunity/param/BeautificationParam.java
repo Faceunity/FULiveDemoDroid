@@ -102,31 +102,7 @@ public class BeautificationParam {
      * 变形渐变调整参数，0 渐变关闭，大于 0 渐变开启，值为渐变需要的帧数
      */
     public static final String CHANGE_FRAMES = "change_frames";
-
     /**
-     * 女神
-     */
-    public static final int FACE_SHAPE_GODDESS = 0;
-    /**
-     * 网红
-     */
-    public static final int FACE_SHAPE_NET_RED = 1;
-    /**
-     * 自然
-     */
-    public static final int FACE_SHAPE_NATURE = 2;
-    /**
-     * 默认
-     */
-    public static final int FACE_SHAPE_DEFAULT = 3;
-    /**
-     * 精细变形
-     */
-    public static final int FACE_SHAPE_CUSTOM = 4;
-
-    /**
-     * 微美型参数
-     * <p>
      * 去黑眼圈强度，0.0 到 1.0 变强
      */
     public static final String REMOVE_POUCH_STRENGTH = "remove_pouch_strength";

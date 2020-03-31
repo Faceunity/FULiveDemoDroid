@@ -36,7 +36,7 @@ import javax.microedition.khronos.opengles.GL10;
  * GLSurfaceView.Renderer GLSurfaceView相应的创建销毁与绘制回调
  * <p>
  * Created by tujh on 2018/3/2.
- *
+ * <p>
  * !!! 目前该类被废弃，请使用 BaseCameraRenderer 及其子类
  */
 @Deprecated
@@ -324,7 +324,7 @@ public class CameraRenderer implements Camera.PreviewCallback, GLSurfaceView.Ren
                     throw new RuntimeException("No cameras");
                 }
 
-                mCameraOrientation = CameraUtils.getCameraOrientation(cameraId);
+                mCameraOrientation = info.orientation;
                 CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
 
                 Camera.Parameters parameters = mCamera.getParameters();

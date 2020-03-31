@@ -31,7 +31,7 @@ public class SeekBarCompat {
      */
     public static void setOutlineProvider(View view, final MarkerDrawable markerDrawable) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-             SeekBarCompatDontCrash.setOutlineProvider(view, markerDrawable);
+            SeekBarCompatDontCrash.setOutlineProvider(view, markerDrawable);
         }
     }
 
@@ -44,7 +44,7 @@ public class SeekBarCompat {
      */
     public static Drawable getRipple(ColorStateList colorStateList) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return  SeekBarCompatDontCrash.getRipple(colorStateList);
+            return SeekBarCompatDontCrash.getRipple(colorStateList);
         } else {
             return new AlmostRippleDrawable(colorStateList);
         }
@@ -52,6 +52,7 @@ public class SeekBarCompat {
 
     /**
      * Sets the color of the seekbar ripple
+     *
      * @param drawable
      * @param colorStateList The ColorStateList the track ripple will be changed to
      */
@@ -93,7 +94,7 @@ public class SeekBarCompat {
     @SuppressWarnings("deprecation")
     public static void setBackground(View view, Drawable background) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-             SeekBarCompatDontCrash.setBackground(view, background);
+            SeekBarCompatDontCrash.setBackground(view, background);
         } else {
             view.setBackgroundDrawable(background);
         }
@@ -108,20 +109,20 @@ public class SeekBarCompat {
      */
     public static void setTextDirection(TextView textView, int textDirection) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-             SeekBarCompatDontCrash.setTextDirection(textView, textDirection);
+            SeekBarCompatDontCrash.setTextDirection(textView, textDirection);
         }
     }
 
     public static boolean isInScrollingContainer(ViewParent p) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            return  SeekBarCompatDontCrash.isInScrollingContainer(p);
+            return SeekBarCompatDontCrash.isInScrollingContainer(p);
         }
         return false;
     }
 
     public static boolean isHardwareAccelerated(View view) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            return  SeekBarCompatDontCrash.isHardwareAccelerated(view);
+            return SeekBarCompatDontCrash.isHardwareAccelerated(view);
         }
         return false;
     }

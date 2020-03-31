@@ -1,5 +1,6 @@
 package com.faceunity.fulivedemo.activity;
 
+import android.content.Intent;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -14,6 +15,7 @@ import com.faceunity.fulivedemo.ui.control.AnimControlView;
  * @author Richie on 2018.11.13
  */
 public class FUAnimojiActivity extends FUEffectActivity {
+    public static final String TAG = "FUAnimojiActivity";
 
     @Override
     protected void onCreate() {
@@ -48,5 +50,12 @@ public class FUAnimojiActivity extends FUEffectActivity {
                 .inputImageOrientation(mFrontCameraOrientation)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
+    }
+
+    @Override
+    protected void onSelectPhotoVideoClick() {
+        Intent intent = new Intent(FUAnimojiActivity.this, SelectDataActivity.class);
+        intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, FUAnimojiActivity.TAG);
+        startActivity(intent);
     }
 }

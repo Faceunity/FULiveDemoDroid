@@ -1,28 +1,22 @@
 package com.faceunity.entity;
 
 /**
- * 组合妆
+ * 美妆组合妆容
  *
  * @author Richie on 2019.11.11
  */
 public class MakeupEntity {
-    /* 日常妆 */
-    public static final int TYPE_DAILY = 0;
-    /* 主题妆 */
-    public static final int TYPE_THEME = 1;
-
-    private int type;
     private String bundlePath;
-    private int handle;
+    private int itemHandle;
+    private boolean isNeedFlipPoints;
 
-    public MakeupEntity() {
-        this.type = -1;
-        this.bundlePath = "";
+    public MakeupEntity(String bundlePath) {
+        this.bundlePath = bundlePath;
     }
 
-    public MakeupEntity(int type, String bundlePath) {
-        this.type = type;
+    public MakeupEntity(String bundlePath, boolean isNeedFlipPoints) {
         this.bundlePath = bundlePath;
+        this.isNeedFlipPoints = isNeedFlipPoints;
     }
 
     public String getBundlePath() {
@@ -33,28 +27,28 @@ public class MakeupEntity {
         this.bundlePath = bundlePath;
     }
 
-    public int getType() {
-        return type;
+    public int getItemHandle() {
+        return itemHandle;
     }
 
-    public void setType(int type) {
-        this.type = type;
+    public void setItemHandle(int itemHandle) {
+        this.itemHandle = itemHandle;
     }
 
-    public int getHandle() {
-        return handle;
+    public boolean isNeedFlipPoints() {
+        return isNeedFlipPoints;
     }
 
-    public void setHandle(int handle) {
-        this.handle = handle;
+    public void setNeedFlipPoints(boolean needFlipPoints) {
+        isNeedFlipPoints = needFlipPoints;
     }
 
     @Override
     public String toString() {
         return "MakeupEntity{" +
-                "type=" + type +
-                ", bundlePath='" + bundlePath + '\'' +
-                ", handle=" + handle +
+                "bundlePath='" + bundlePath + '\'' +
+                ", itemHandle=" + itemHandle +
+                ", isNeedFlipPoints=" + isNeedFlipPoints +
                 '}';
     }
 }

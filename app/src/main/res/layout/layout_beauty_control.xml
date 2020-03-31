@@ -124,26 +124,6 @@
                         app:drawable_open_normal="@drawable/beauty_skin_control_red_open_normal"
                         app:text_normal="@string/beauty_box_red_level" />
 
-<!--                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox-->
-<!--                        android:id="@+id/beauty_box_pouch"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        app:drawable_close_checked="@drawable/demo_icon_dark_circles_sel"-->
-<!--                        app:drawable_close_normal="@drawable/demo_icon_dark_circles_nor"-->
-<!--                        app:drawable_open_checked="@drawable/demo_icon_dark_circles_sel_open"-->
-<!--                        app:drawable_open_normal="@drawable/demo_icon_dark_circles_nor_open"-->
-<!--                        app:text_normal="@string/beauty_micro_pouch" />-->
-
-<!--                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox-->
-<!--                        android:id="@+id/beauty_box_nasolabial"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        app:drawable_close_checked="@drawable/demo_icon_wrinkle_sel"-->
-<!--                        app:drawable_close_normal="@drawable/demo_icon_wrinkle_nor"-->
-<!--                        app:drawable_open_checked="@drawable/demo_icon_wrinkle_sel_open"-->
-<!--                        app:drawable_open_normal="@drawable/demo_icon_wrinkle_nor_open"-->
-<!--                        app:text_normal="@string/beauty_micro_nasolabial" />-->
-
                     <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
                         android:id="@+id/beauty_box_eye_bright"
                         android:layout_width="wrap_content"
@@ -163,6 +143,26 @@
                         app:drawable_open_checked="@drawable/beauty_skin_control_teeth_open_checked"
                         app:drawable_open_normal="@drawable/beauty_skin_control_teeth_open_normal"
                         app:text_normal="@string/beauty_box_tooth_whiten" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_pouch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_dark_circles_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_dark_circles_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_dark_circles_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_dark_circles_nor_open"
+                        app:text_normal="@string/beauty_micro_pouch" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_nasolabial"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_wrinkle_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_wrinkle_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_wrinkle_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_wrinkle_nor_open"
+                        app:text_normal="@string/beauty_micro_nasolabial" />
 
                 </com.faceunity.fulivedemo.ui.beautybox.BeautyBoxGroup>
             </HorizontalScrollView>

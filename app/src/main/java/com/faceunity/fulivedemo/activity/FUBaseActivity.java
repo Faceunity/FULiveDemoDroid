@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -48,6 +49,7 @@ import com.faceunity.fulivedemo.ui.RecordBtn;
 import com.faceunity.fulivedemo.ui.VerticalSeekBar;
 import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
+import com.faceunity.fulivedemo.utils.ScreenUtils;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.gles.core.GlUtil;
@@ -130,14 +132,28 @@ public abstract class FUBaseActivity extends AppCompatActivity
             return false;
         }
         if (event.getPointerCount() == 1 && event.getAction() == MotionEvent.ACTION_DOWN) {
-            mCameraRenderer.handleFocus(event.getRawX(), event.getRawY(), getResources().getDimensionPixelSize(R.dimen.x150));
-            mCameraFocus.showCameraFocus(event.getRawX(), event.getRawY());
             mLlLight.setVisibility(View.VISIBLE);
-            onLightFocusVisibilityChanged(true);
             mVerticalSeekBar.setProgress((int) (100 * mCameraRenderer.getExposureCompensation()));
 
+            float rawX = event.getRawX();
+            float rawY = event.getRawY();
+            int focusRectSize = getResources().getDimensionPixelSize(R.dimen.x150);
+
+            // skip light progress bar area
+            DisplayMetrics screenInfo = ScreenUtils.getScreenInfo(this);
+            int screenWidth = screenInfo.widthPixels;
+            int marginTop = getResources().getDimensionPixelSize(R.dimen.x280);
+            int padding = getResources().getDimensionPixelSize(R.dimen.x44);
+            int progressBarHeight = getResources().getDimensionPixelSize(R.dimen.x460);
+            if (rawX > screenWidth - focusRectSize && rawY > marginTop - padding
+                    && rawY < marginTop + progressBarHeight + padding) {
+                return false;
+            }
+
+            mCameraRenderer.handleFocus(rawX, rawY, focusRectSize);
+            mCameraFocus.showCameraFocus(rawX, rawY);
             mMainHandler.removeCallbacks(mCameraFocusDismiss);
-            mMainHandler.postDelayed(mCameraFocusDismiss, 1300);
+            mMainHandler.postDelayed(mCameraFocusDismiss, CameraUtils.FOCUS_TIME);
             return true;
         }
         return false;
@@ -231,7 +247,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
     public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
         mFURenderer.setBeautificationOn(true);
-        mFURenderer.setFaceBeautyLandmarksType(getLandmarksType());
     }
 
     @Override
@@ -279,7 +294,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
         @Override
         public void onReadBitmapListener(Bitmap bitmap) {
             // Call on async thread
-            final String filePath = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, MiscUtil.getCurrentPhotoName());
+            final String filePath = MiscUtil.saveBitmap(bitmap, Constant.PHOTO_FILE_PATH, MiscUtil.getCurrentPhotoName());
             if (filePath != null) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -412,12 +427,25 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
             @Override
             public void startRecord() {
-                startRecording();
+                mIsRecordStopped = false;
+                mGLSurfaceView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        startRecording();
+                    }
+                });
             }
 
             @Override
             public void stopRecord() {
-                stopRecording();
+                mIsRecordStopped = true;
+                mGLSurfaceView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        stopRecording();
+                    }
+                });
+                mTakePicBtn.setSecond(0);
             }
         });
         mClOperationView = (ConstraintLayout) findViewById(R.id.cl_custom_view);
@@ -432,7 +460,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 mCameraRenderer.setExposureCompensation((float) progress / 100);
                 mMainHandler.removeCallbacks(mCameraFocusDismiss);
-                mMainHandler.postDelayed(mCameraFocusDismiss, 1300);
+                mMainHandler.postDelayed(mCameraFocusDismiss, CameraUtils.FOCUS_TIME);
             }
 
             @Override
@@ -453,42 +481,28 @@ public abstract class FUBaseActivity extends AppCompatActivity
         }
 
         int trackedFaceCount = mFURenderer.getTrackedFaceCount();
-        int landmarksType = getLandmarksType();
         if (trackedFaceCount > 0) {
-            if (FURenderer.FACE_LANDMARKS_DDE == landmarksType) {
-                if (mTrackedFaceCount != trackedFaceCount) {
+            if (mTrackedFaceCount != trackedFaceCount) {
+                if (FURenderer.FACE_LANDMARKS_239 == getLandmarksType()) {
+                    mLandmarksDataArray = new float[trackedFaceCount][239 * 2];
+                } else {
                     mLandmarksDataArray = new float[trackedFaceCount][75 * 2];
-                    mTrackedFaceCount = trackedFaceCount;
                 }
-                for (int i = 0; i < trackedFaceCount; i++) {
-                    mFURenderer.getLandmarksData(i, FURenderer.LANDMARKS, mLandmarksDataArray[i]);
-                }
-                mCameraRenderer.setLandmarksDataArray(mLandmarksDataArray);
-            } else {
-                if (mTrackedFaceCount != trackedFaceCount) {
-                    mTrackedFaceCount = trackedFaceCount;
-                    if (FURenderer.FACE_LANDMARKS_75 == landmarksType) {
-                        mLandmarksDataNew = new float[trackedFaceCount * 75 * 2];
-                    } else if (FURenderer.FACE_LANDMARKS_239 == landmarksType) {
-                        mLandmarksDataNew = new float[trackedFaceCount * 239 * 2];
-                    }
-                }
-                mFURenderer.getLandmarksData(0, FURenderer.LANDMARKS_NEW, mLandmarksDataNew);
-                mCameraRenderer.setLandmarksDataNew(mLandmarksDataNew);
+                mTrackedFaceCount = trackedFaceCount;
             }
+            for (int i = 0; i < trackedFaceCount; i++) {
+                mFURenderer.getLandmarksData(i, mLandmarksDataArray[i]);
+            }
+            mCameraRenderer.setLandmarksDataArray(mLandmarksDataArray);
         } else {
-            if (FURenderer.FACE_LANDMARKS_DDE == landmarksType) {
+            if (mTrackedFaceCount != trackedFaceCount) {
                 if (mLandmarksDataArray != null) {
                     for (float[] data : mLandmarksDataArray) {
                         Arrays.fill(data, 0F);
                     }
                     mCameraRenderer.setLandmarksDataArray(mLandmarksDataArray);
                 }
-            } else {
-                if (mLandmarksDataNew != null) {
-                    Arrays.fill(mLandmarksDataNew, 0F);
-                    mCameraRenderer.setLandmarksDataNew(mLandmarksDataNew);
-                }
+                mTrackedFaceCount = trackedFaceCount;
             }
         }
     }
@@ -501,7 +515,10 @@ public abstract class FUBaseActivity extends AppCompatActivity
      * @param timeStamp
      */
     protected void sendRecordingData(int texId, float[] mvpMatrix, float[] texMatrix, final long timeStamp) {
-        if (mVideoEncoder != null) {
+        synchronized (mRecordLock) {
+            if (mVideoEncoder == null) {
+                return;
+            }
             mVideoEncoder.frameAvailableSoon(texId, texMatrix, mvpMatrix);
             if (mStartTime == 0) {
                 mStartTime = timeStamp;
@@ -509,7 +526,9 @@ public abstract class FUBaseActivity extends AppCompatActivity
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mTakePicBtn.setSecond(timeStamp - mStartTime);
+                    if (!mIsRecordStopped) {
+                        mTakePicBtn.setSecond(timeStamp - mStartTime);
+                    }
                 }
             });
         }
@@ -517,13 +536,16 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
     private File mVideoOutFile;
     private MediaMuxerWrapper mMuxer;
-    private volatile MediaVideoEncoder mVideoEncoder;
-    private CountDownLatch mCountDownLatch;
+    private MediaVideoEncoder mVideoEncoder;
+    private final Object mRecordLock = new Object();
+    private CountDownLatch mRecordBarrier;
+    private volatile boolean mIsRecordStopped;
 
     /**
      * 录制封装回调
      */
     private final MediaEncoder.MediaEncoderListener mMediaEncoderListener = new MediaEncoder.MediaEncoderListener() {
+        private long mStartRecordTime;
 
         @Override
         public void onPrepared(final MediaEncoder encoder) {
@@ -532,9 +554,14 @@ public abstract class FUBaseActivity extends AppCompatActivity
                 mGLSurfaceView.queueEvent(new Runnable() {
                     @Override
                     public void run() {
+                        if (mIsRecordStopped) {
+                            return;
+                        }
                         MediaVideoEncoder videoEncoder = (MediaVideoEncoder) encoder;
                         videoEncoder.setEglContext(EGL14.eglGetCurrentContext());
-                        mVideoEncoder = videoEncoder;
+                        synchronized (mRecordLock) {
+                            mVideoEncoder = videoEncoder;
+                        }
                     }
                 });
                 runOnUiThread(new Runnable() {
@@ -544,25 +571,42 @@ public abstract class FUBaseActivity extends AppCompatActivity
                     }
                 });
             }
+            mStartRecordTime = System.currentTimeMillis();
         }
 
         @Override
         public void onStopped(final MediaEncoder encoder) {
-            mCountDownLatch.countDown();
+            mRecordBarrier.countDown();
             // Call when MediaVideoEncoder's callback and MediaAudioEncoder's callback both are called.
-            if (mCountDownLatch.getCount() == 0) {
+            if (mRecordBarrier.getCount() == 0) {
                 Log.d(TAG, "onStopped: tid:" + Thread.currentThread().getId());
+                // video time long than 1s
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTakePicBtn.setSecond(0);
+                    }
+                });
+                if (System.currentTimeMillis() - mStartRecordTime <= 1000) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ToastUtil.showToast(FUBaseActivity.this, R.string.save_video_too_short);
+                        }
+                    });
+                    return;
+                }
+                mStartRecordTime = 0;
                 // onStopped is called on codec thread, it may be interrupted, so we execute following code async.
                 ThreadHelper.getInstance().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            final File dcimFile = new File(Constant.cameraFilePath, mVideoOutFile.getName());
+                            final File dcimFile = new File(Constant.VIDEO_FILE_PATH, mVideoOutFile.getName());
                             FileUtils.copyFile(mVideoOutFile, dcimFile);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mTakePicBtn.setSecond(mStartTime = 0);
                                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(dcimFile)));
                                     ToastUtil.showToast(FUBaseActivity.this, R.string.save_video_success);
                                 }
@@ -580,8 +624,10 @@ public abstract class FUBaseActivity extends AppCompatActivity
      * 开始录制
      */
     private void startRecording() {
+        Log.d(TAG, "startRecording: ");
         try {
-            mCountDownLatch = new CountDownLatch(2);
+            mStartTime = 0;
+            mRecordBarrier = new CountDownLatch(2);
             String videoFileName = Constant.APP_NAME + "_" + MiscUtil.getCurrentDate() + ".mp4";
             mVideoOutFile = new File(FileUtils.getExternalCacheDir(this), videoFileName);
             mMuxer = new MediaMuxerWrapper(mVideoOutFile.getAbsolutePath());
@@ -603,10 +649,12 @@ public abstract class FUBaseActivity extends AppCompatActivity
      * 停止录制
      */
     private void stopRecording() {
+        Log.d(TAG, "stopRecording: ");
         if (mMuxer != null) {
-            mVideoEncoder = null;
+            synchronized (mRecordLock) {
+                mVideoEncoder = null;
+            }
             mMuxer.stopRecording();
-            Log.d(TAG, "stopRecording: ");
             mMuxer = null;
         }
     }
@@ -676,7 +724,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     }
 
     protected int getLandmarksType() {
-        return FURenderer.FACE_LANDMARKS_DDE;
+        return FURenderer.FACE_LANDMARKS_75;
     }
 
 }

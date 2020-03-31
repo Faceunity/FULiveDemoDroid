@@ -8,12 +8,14 @@ import android.media.MediaPlayer;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
 import com.faceunity.fulivedemo.utils.FPSUtil;
 import com.faceunity.gles.ProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
+import com.faceunity.gles.ProgramTextureOES;
 import com.faceunity.gles.core.GlUtil;
 
 import java.util.concurrent.CountDownLatch;
@@ -32,7 +34,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private GLSurfaceView mGlSurfaceView;
     private OnRendererStatusListener mOnVideoRendererStatusListener;
     private String mVideoPath;
-    private boolean isNeedPlay = false;
+    private boolean mIsNeedPlay;
     private MediaPlayer mMediaPlayer;
     private SurfaceTexture mVideoSurfaceTexture;
     private int mVideoTextureId;
@@ -41,13 +43,15 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private int mViewWidth;
     private int mViewHeight;
     private int mVideoRotation = 0;
-    private float[] mTexMatrix = new float[16];
+    private float[] mTexMatrix = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     private float[] mMvpMatrix;
     private float[] mLandmarksData;
     private ProgramLandmarks mProgramLandmarks;
     private ProgramTexture2d mProgramTexture2d;
+    private ProgramTextureOES mProgramTextureOes;
     private MediaPlayer.OnCompletionListener mOnCompletionListener;
     private FPSUtil mFPSUtil;
+    private boolean mIsPreparing;
 
     public VideoRenderer(String videoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         mVideoPath = videoPath;
@@ -81,6 +85,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(TAG, "onSurfaceCreated");
         mProgramTexture2d = new ProgramTexture2d();
+        mProgramTextureOes = new ProgramTextureOES();
         mProgramLandmarks = new ProgramLandmarks();
         mVideoTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         mOnVideoRendererStatusListener.onSurfaceCreated();
@@ -92,16 +97,23 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         mViewHeight = height;
         mViewWidth = width;
         GLES20.glViewport(0, 0, width, height);
-        mOnVideoRendererStatusListener.onSurfaceChanged(width, height);
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        boolean isSystemCameraRecord = true;
         try {
             mediaMetadataRetriever.setDataSource(mVideoPath);
             mVideoWidth = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
             mVideoHeight = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
             mVideoRotation = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
+            String location = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION);
+            String genre = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
+            Log.d(TAG, "onSurfaceChanged: location:" + location + ", genre:" + genre);
+            isSystemCameraRecord = !(TextUtils.isEmpty(location) || TextUtils.isEmpty(genre));
         } catch (Exception e) {
             Log.e(TAG, "MediaMetadataRetriever extractMetadata: ", e);
+        } finally {
+            mediaMetadataRetriever.release();
         }
+        mOnVideoRendererStatusListener.onSurfaceChanged(width, height, mVideoWidth, mVideoHeight, mVideoRotation, isSystemCameraRecord);
         Log.d(TAG, "onSurfaceChanged() width:" + width + ", height:" + height + ", videoWidth:"
                 + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation);
         mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
@@ -110,7 +122,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mProgramTexture2d == null) {
+        if (mIsPreparing || mProgramTexture2d == null || mProgramTextureOes == null || mVideoSurfaceTexture == null) {
             return;
         }
 
@@ -125,7 +137,11 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
         int fuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth,
                 mVideoHeight, mTexMatrix, mVideoSurfaceTexture.getTimestamp());
-        mProgramTexture2d.drawFrame(fuTextureId, mTexMatrix, mMvpMatrix);
+        if (fuTextureId > 0) {
+            mProgramTexture2d.drawFrame(fuTextureId, mTexMatrix, mMvpMatrix);
+        } else {
+            mProgramTextureOes.drawFrame(mVideoTextureId, mTexMatrix, mMvpMatrix);
+        }
         if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS && mLandmarksData != null) {
             mProgramLandmarks.refresh(mLandmarksData, mVideoWidth, mVideoHeight, mVideoRotation,
                     Camera.CameraInfo.CAMERA_FACING_BACK, mMvpMatrix);
@@ -152,6 +168,10 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             mProgramTexture2d.release();
             mProgramTexture2d = null;
         }
+        if (mProgramTextureOes != null) {
+            mProgramTextureOes.release();
+            mProgramTextureOes = null;
+        }
         if (mProgramLandmarks != null) {
             mProgramLandmarks.release();
             mProgramLandmarks = null;
@@ -161,14 +181,16 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     }
 
     private void createMedia() {
+        mIsPreparing = true;
         releaseMedia();
         try {
             mVideoSurfaceTexture = new SurfaceTexture(mVideoTextureId);
             mVideoSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                 @Override
                 public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                    mIsPreparing = false;
                     mGlSurfaceView.requestRender();
-                    if (!isNeedPlay && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+                    if (!mIsNeedPlay && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                         mMediaPlayer.pause();
                     }
                 }
@@ -191,10 +213,11 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
                     Log.d(TAG, "onCompletion");
-                    isNeedPlay = false;
+                    mIsNeedPlay = false;
                     if (mOnCompletionListener != null) {
                         mOnCompletionListener.onCompletion(mp);
                     }
+                    releaseMedia();
                 }
             });
             mMediaPlayer.prepareAsync();
@@ -205,16 +228,17 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     }
 
     public void playMedia() {
+        mIsNeedPlay = true;
         if (mMediaPlayer != null) {
             mMediaPlayer.start();
-            mMediaPlayer.setVolume(1, 1);
-            isNeedPlay = true;
+        } else {
+            createMedia();
         }
     }
 
     private void releaseMedia() {
+        mIsNeedPlay = false;
         if (mMediaPlayer != null) {
-            isNeedPlay = false;
             mMediaPlayer.stop();
             mMediaPlayer.setSurface(null);
             mMediaPlayer.release();
@@ -251,8 +275,12 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
          *
          * @param viewWidth
          * @param viewHeight
+         * @param videoWidth
+         * @param videoHeight
+         * @param videoRotation
+         * @param isSystemCameraRecord
          */
-        void onSurfaceChanged(int viewWidth, int viewHeight);
+        void onSurfaceChanged(int viewWidth, int viewHeight, int videoWidth, int videoHeight, int videoRotation, boolean isSystemCameraRecord);
 
         /**
          * Called when drawing current frame

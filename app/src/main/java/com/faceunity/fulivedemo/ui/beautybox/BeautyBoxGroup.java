@@ -92,7 +92,6 @@ public class BeautyBoxGroup extends LinearLayout {
      * such an operation is equivalent to invoking {@link #clearCheck()}.</p>
      *
      * @param id the unique id of the radio button to select in this group
-     *
      * @see #getCheckedBeautyBoxId()
      * @see #clearCheck()
      */
@@ -132,11 +131,9 @@ public class BeautyBoxGroup extends LinearLayout {
      * Upon empty selection, the returned value is -1.</p>
      *
      * @return the unique id of the selected radio button in this group
-     *
+     * @attr ref android.R.styleable#BeautyBoxGroup_checkedButton
      * @see #check(int)
      * @see #clearCheck()
-     *
-     * @attr ref android.R.styleable#BeautyBoxGroup_checkedButton
      */
     @IdRes
     public int getCheckedBeautyBoxId() {
@@ -233,8 +230,8 @@ public class BeautyBoxGroup extends LinearLayout {
          * height to  {@link ViewGroup.LayoutParams#WRAP_CONTENT}
          * when not specified in the XML file.</p>
          *
-         * @param a the styled attributes set
-         * @param widthAttr the width attribute to fetch
+         * @param a          the styled attributes set
+         * @param widthAttr  the width attribute to fetch
          * @param heightAttr the height attribute to fetch
          */
         @Override
@@ -264,7 +261,7 @@ public class BeautyBoxGroup extends LinearLayout {
          * <p>Called when the checked radio button has changed. When the
          * selection is cleared, checkedId is -1.</p>
          *
-         * @param group the group in which the checked radio button has changed
+         * @param group     the group in which the checked radio button has changed
          * @param checkedId the unique identifier of the newly checked radio button
          */
         public void onCheckedChanged(BeautyBoxGroup group, @IdRes int checkedId);

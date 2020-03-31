@@ -7,7 +7,6 @@ import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.utils.FileUtils;
 
-
 /**
  * Created by tujh on 2018/3/30.
  */
