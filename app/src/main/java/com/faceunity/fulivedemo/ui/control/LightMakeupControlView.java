@@ -14,8 +14,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.faceunity.OnFUControlListener;
-import com.faceunity.entity.LightMakeupCombination;
 import com.faceunity.entity.Filter;
+import com.faceunity.entity.LightMakeupCombination;
 import com.faceunity.entity.LightMakeupItem;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.BeautyParameterModel;
@@ -27,12 +27,11 @@ import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
 import java.util.List;
 
 /**
- * 轻美妆
+ * 轻美妆交互栏
  *
  * @author Richie on 2019.11.25
  */
 public class LightMakeupControlView extends FrameLayout {
-    private static final String TAG = "LightMakeupControlView";
     private LightMakeupAdapter mLightMakeupAdapter;
     private OnFUControlListener mOnFUControlListener;
     private DiscreteSeekBar mDiscreteSeekBar;
@@ -179,7 +178,7 @@ public class LightMakeupControlView extends FrameLayout {
                 }
 
                 Pair<Filter, Float> filterFloatPair = LightMakeupEnum.LIGHT_MAKEUP_FILTERS.get(nameId);
-                mOnFUControlListener.onFilterNameSelected(filterFloatPair.first.filterName());
+                mOnFUControlListener.onFilterNameSelected(filterFloatPair.first.getName());
 
                 mDiscreteSeekBar.setVisibility(View.VISIBLE);
                 mDiscreteSeekBar.setProgress((int) (level * 100));

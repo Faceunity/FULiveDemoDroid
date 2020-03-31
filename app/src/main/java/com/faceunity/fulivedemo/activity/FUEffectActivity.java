@@ -9,6 +9,7 @@ import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.EffectEnum;
+import com.faceunity.fulivedemo.ui.SwitchConfig;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.utils.AudioObserver;
 
@@ -19,10 +20,7 @@ import java.util.ArrayList;
  * Created by tujh on 2018/1/31.
  */
 public class FUEffectActivity extends FUBaseActivity {
-    /**
-     * 导入外部图片视频开关
-     */
-    private static final boolean ENABLE_LOAD_EXTERNAL_FILE = false;
+    public static final String TAG = "FUEffectActivity";
     public static final String SELECT_EFFECT_KEY = "select_effect_key";
     public static final String EFFECT_TYPE = "effect_type";
 
@@ -99,15 +97,14 @@ public class FUEffectActivity extends FUBaseActivity {
 
     @Override
     protected boolean isOpenPhotoVideo() {
-        return mEffectType == Effect.EFFECT_TYPE_NORMAL || ENABLE_LOAD_EXTERNAL_FILE;
+        return mEffectType == Effect.EFFECT_TYPE_NORMAL || SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_EFFECT;
     }
 
     @Override
     protected void onSelectPhotoVideoClick() {
         super.onSelectPhotoVideoClick();
         Intent intent = new Intent(FUEffectActivity.this, SelectDataActivity.class);
-        intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, mEffectType == Effect.EFFECT_TYPE_ANIMOJI
-                ? FUAnimojiActivity.class.getSimpleName() : FUEffectActivity.class.getSimpleName());
+        intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, FUEffectActivity.TAG);
         intent.putExtra(SELECT_EFFECT_KEY, mEffectType);
         startActivity(intent);
     }

@@ -1,9 +1,11 @@
 package com.faceunity.fulivedemo.activity;
 
+import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.ui.SwitchConfig;
 import com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView;
 
 /**
@@ -42,5 +44,18 @@ public class BeautifyBodyActivity extends FUBaseActivity {
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
+    }
+
+    @Override
+    protected boolean isOpenPhotoVideo() {
+        return SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_BODY;
+    }
+
+    @Override
+    protected void onSelectPhotoVideoClick() {
+        super.onSelectPhotoVideoClick();
+        Intent intent = new Intent(BeautifyBodyActivity.this, SelectDataActivity.class);
+        intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, BeautifyBodyActivity.TAG);
+        startActivity(intent);
     }
 }

@@ -7,8 +7,10 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import com.faceunity.fulivedemo.R;
 
@@ -16,8 +18,8 @@ import com.faceunity.fulivedemo.R;
 /**
  * Created by tujh on 2017/6/14.
  */
-
-public class RecordBtn extends View implements View.OnClickListener, View.OnLongClickListener, View.OnTouchListener {
+public class RecordBtn extends View implements View.OnTouchListener {
+    private static final String TAG = "RecordBtn";
 
     /**
      * 画笔对象的引用
@@ -40,7 +42,7 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
     /**
      * 圆环进度的颜色
      */
-    private int ringSecondColor = Color.YELLOW;
+    private int ringSecondColor;
 
     /**
      * 圆环的宽度
@@ -50,12 +52,16 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
     /**
      * 最大进度
      */
-    private long max = 10 * 1000;
+    private long max = SwitchConfig.VIDEO_RECORD_DURATION;
 
     /**
      * 当前进度
      */
     private long mSecond = 0;
+
+    private long mStartTimestamp;
+    private boolean mIsLongClick;
+    private int mLongPressTimeout = ViewConfiguration.getLongPressTimeout();
 
     private OnRecordListener mOnRecordListener;
 
@@ -73,8 +79,6 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
 
         ringSecondColor = context.getResources().getColor(R.color.main_color);
 
-        setOnClickListener(this);
-        setOnLongClickListener(this);
         setOnTouchListener(this);
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -85,6 +89,8 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
         mShadowPadding = getResources().getDimensionPixelSize(R.dimen.x2);
         paint.setShadowLayer(mShadowPadding, 0, 0, Color.parseColor("#802D2D2D"));
         mOvalRectF = new RectF();
+
+        Log.d(TAG, "RecordBtn: mLongPressTimeout " + mLongPressTimeout);
     }
 
     @Override
@@ -94,7 +100,9 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
         /**
          * 画最外层的大圆环
          */
-        if (drawWidth <= 0) drawWidth = getWidth();
+        if (drawWidth <= 0) {
+            drawWidth = getWidth();
+        }
         ringWidth = 15f * drawWidth / 228;
         int centreX = getWidth() / 2; //获取圆心的x坐标
         int centreY = getHeight() - drawWidth / 2;
@@ -160,7 +168,6 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
         postInvalidate();
     }
 
-
     public int getCricleColor() {
         return ringColor;
     }
@@ -197,24 +204,28 @@ public class RecordBtn extends View implements View.OnClickListener, View.OnLong
     }
 
     @Override
-    public void onClick(View v) {
-        if (mOnRecordListener != null) {
-            mOnRecordListener.takePic();
-        }
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        if (mOnRecordListener != null) {
-            mOnRecordListener.startRecord();
-        }
-        return true;
-    }
-
-    @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (mOnRecordListener != null && event.getAction() == MotionEvent.ACTION_UP) {
-            mOnRecordListener.stopRecord();
+        if (mOnRecordListener != null) {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_DOWN) {
+                mStartTimestamp = System.currentTimeMillis();
+                return true;
+            } else if (action == MotionEvent.ACTION_MOVE) {
+                if (!mIsLongClick && System.currentTimeMillis() - mStartTimestamp > mLongPressTimeout) {
+                    mOnRecordListener.startRecord();
+                    mIsLongClick = true;
+                }
+                return true;
+            } else if (action == MotionEvent.ACTION_UP) {
+                if (System.currentTimeMillis() - mStartTimestamp < mLongPressTimeout) {
+                    mOnRecordListener.takePic();
+                } else if (mIsLongClick) {
+                    mOnRecordListener.stopRecord();
+                }
+                mIsLongClick = false;
+                mStartTimestamp = 0;
+                return true;
+            }
         }
         return false;
     }

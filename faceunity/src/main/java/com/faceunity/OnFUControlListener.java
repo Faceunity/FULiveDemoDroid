@@ -2,9 +2,9 @@ package com.faceunity;
 
 
 import com.faceunity.entity.Effect;
+import com.faceunity.entity.LightMakeupItem;
 import com.faceunity.entity.LivePhoto;
 import com.faceunity.entity.MakeupEntity;
-import com.faceunity.entity.LightMakeupItem;
 
 import java.util.List;
 import java.util.Map;
@@ -183,7 +183,7 @@ public interface OnFUControlListener {
      *
      * @param style
      */
-    void onCartoonFilterSelected(int style);
+    void setCartoonFilter(int style);
 
     /**
      * 调节多个轻美妆的妆容

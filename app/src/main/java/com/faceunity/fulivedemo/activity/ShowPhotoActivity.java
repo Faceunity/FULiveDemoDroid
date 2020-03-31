@@ -33,6 +33,7 @@ import com.faceunity.fulivedemo.ui.control.AnimControlView;
 import com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyHairControlView;
+import com.faceunity.fulivedemo.ui.control.LightMakeupControlView;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
@@ -114,13 +115,6 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     @Override
     public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
-        if (mIsBeautyFace) {
-            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_75);
-        } else if (mIsMakeup) {
-            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_239);
-        } else {
-            mFURenderer.setFaceBeautyLandmarksType(FURenderer.FACE_LANDMARKS_DDE);
-        }
         if (mMakeupControlView != null) {
             mMakeupControlView.selectDefault();
         }
@@ -153,15 +147,14 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         //初始化FU相关 authpack 为证书文件
         mIsBeautyFace = FUBeautyActivity.TAG.equals(selectDataType);
         mIsMakeup = FUMakeupActivity.TAG.equals(selectDataType);
+        boolean isLightMakeup = LightMakeupActivity.TAG.equals(selectDataType);
         boolean isBodySlim = BeautifyBodyActivity.TAG.equals(selectDataType);
         boolean isHairSeg = FUHairActivity.TAG.equals(selectDataType);
         mFURenderer = new FURenderer
                 .Builder(this)
                 .maxFaces(4)
-                .inputIsImage(true)
+                .setExternalInputType(FURenderer.EXTERNAL_INPUT_TYPE_IMAGE)
                 .inputImageOrientation(0)
-                .setLoadAiFaceLandmark75(!mIsMakeup)
-                .setLoadAiFaceLandmark239(mIsMakeup)
                 .setLoadAiHumanPose(isBodySlim)
                 .setLoadAiHairSeg(isHairSeg)
                 .setLoadAiBgSeg(selectEffectType == Effect.EFFECT_TYPE_BACKGROUND)
@@ -229,8 +222,12 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
             BeautifyBodyControlView beautifyBodyControlView = findViewById(R.id.fu_beautify_body);
             beautifyBodyControlView.setVisibility(View.VISIBLE);
             beautifyBodyControlView.setOnFUControlListener(mFURenderer);
+        } else if (isLightMakeup) {
+            LightMakeupControlView lightMakeupControlView = findViewById(R.id.fu_light_makeup);
+            lightMakeupControlView.setVisibility(View.VISIBLE);
+            lightMakeupControlView.setOnFUControlListener(mFURenderer);
         } else {
-            RecyclerView effectRecyclerView = (RecyclerView) findViewById(R.id.fu_effect_recycler);
+            RecyclerView effectRecyclerView = findViewById(R.id.fu_effect_recycler);
             effectRecyclerView.setVisibility(View.VISIBLE);
             effectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             EffectRecyclerAdapter effectRecyclerAdapter;
@@ -296,7 +293,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         BitmapUtil.glReadBitmap(textureId, PhotoRenderer.IMG_DATA_MATRIX, PhotoRenderer.ROTATE_90, texWidth, texHeight, new BitmapUtil.OnReadBitmapListener() {
             @Override
             public void onReadBitmapListener(Bitmap bitmap) {
-                final String filePath = MiscUtil.saveBitmap(bitmap, Constant.photoFilePath, MiscUtil.getCurrentPhotoName());
+                final String filePath = MiscUtil.saveBitmap(bitmap, Constant.PHOTO_FILE_PATH, MiscUtil.getCurrentPhotoName());
                 if (filePath != null) {
                     runOnUiThread(new Runnable() {
                         @Override

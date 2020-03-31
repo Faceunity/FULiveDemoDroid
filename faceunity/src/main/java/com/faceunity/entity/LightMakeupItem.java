@@ -1,7 +1,7 @@
 package com.faceunity.entity;
 
 /**
- * 轻美妆 妆容单项
+ * 轻美妆单项妆容
  *
  * @author Richie on 2018.11.12
  */
@@ -10,30 +10,26 @@ public class LightMakeupItem {
     private String path;
     private int type;
     private int iconId;
-    private int strId;
+    private int nameId;
     private float level;
     private float defaultLevel;
 
-    public LightMakeupItem(String name, String path, int type, int strId, int iconId) {
-        this(name, path, type, strId, iconId, 0.4f);
+    public LightMakeupItem(String name, String path, int type, int nameId, int iconId, float level) {
+        this(name, path, type, nameId, iconId, level, level);
     }
 
-    public LightMakeupItem(String name, String path, int type, int strId, int iconId, float level) {
-        this(name, path, type, strId, iconId, level, level);
-    }
-
-    public LightMakeupItem(String name, String path, int type, int strId, int iconId, float level, float defaultLevel) {
+    public LightMakeupItem(String name, String path, int type, int nameId, int iconId, float level, float defaultLevel) {
         this.name = name;
         this.path = path;
         this.type = type;
-        this.strId = strId;
+        this.nameId = nameId;
         this.iconId = iconId;
         this.level = level;
         this.defaultLevel = defaultLevel;
     }
 
     public LightMakeupItem cloneSelf() {
-        return new LightMakeupItem(name, path, type, strId, iconId, level);
+        return new LightMakeupItem(name, path, type, nameId, iconId, level);
     }
 
     public String getName() {
@@ -68,12 +64,12 @@ public class LightMakeupItem {
         this.iconId = iconId;
     }
 
-    public int getStrId() {
-        return strId;
+    public int getNameId() {
+        return nameId;
     }
 
-    public void setStrId(int strId) {
-        this.strId = strId;
+    public void setNameId(int nameId) {
+        this.nameId = nameId;
     }
 
     public float getLevel() {
@@ -99,7 +95,7 @@ public class LightMakeupItem {
                 ", path='" + path + '\'' +
                 ", type=" + type +
                 ", iconId=" + iconId +
-                ", strId=" + strId +
+                ", nameId=" + nameId +
                 ", level=" + level +
                 ", defaultLevel=" + defaultLevel +
                 '}';

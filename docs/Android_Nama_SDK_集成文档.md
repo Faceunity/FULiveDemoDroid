@@ -1,66 +1,45 @@
 # Android Nama SDK 集成指导文档  
 级别：Public
 
-更新日期：2020-01-19
+更新日期：2020-03-19
 
-SDK版本: 6.6.0
+SDK版本: 6.7.0
 
 ------
 ## 最新更新内容：
 
-2020-01-19 v6.6.0：
+**2020-3-19 v6.7.0:**
 
-__版本整体说明：__SDK 6.6.0 主要针对美颜、美妆进行效果优化，性能优化，稳定性优化，同时新增部分特性，使得美颜、美妆效果进入行业顶尖水平。建议对美颜、美妆需求较高的B端用户更新SDK。
+1. 美颜效果优化
 
-__注意!!!：__此版本由于底层替换原因，表情识别跟踪能力稍有降低，特别是Animoji、表情触发道具的整体表情表现力稍有减弱。Animoji的皱眉、鼓嘴、嘟嘴等动作表现效果比之较差，表情触发道具的发怒（皱眉）、鼓嘴、嘟嘴的表情触发道具较难驱动。其余ARMesh、明星换脸、动态人像（活照片）的面部跟踪整体稍有10%的效果减弱。故用到表情驱动的功能重度B端用户，仍建议使用SDK6.4.0版，使用其余功能（美颜叠加贴纸等其余功能）的场景不受影响，表情识别跟踪能力将在下一版进行优化更新。
+   - 新增去黑眼圈、去法令纹功能
+   - 解决瘦脸边缘变形问题（边缘剪裁）
+   - 老美型效果调优
+   - 提供美颜推荐参数（6套）
 
-- 美颜优化：
-  
-  1). 新增美型6款功能，包括开眼角、眼距、眼睛角度、长鼻、缩人中、微笑嘴角。
-  
-  2). 新增17款滤镜，其中包含8款自然系列滤镜、8款质感灰系列滤镜、1款个性滤镜。
-  
-  3). 优化美颜中亮眼、美牙效果。
-  
-  4). 优化美颜中3个脸型，调整优化使得V脸、窄脸、小脸效果更自然。
-  
-  5). 优化美白红润强度，美白、红润功能开放2倍参数，详见美颜文档。
-  
-- 美妆优化：
-  1). 新增13套自然系组合妆，13套组合妆是滤镜+美妆的整体效果，可自定义。
-  
-  2). 新增3款口红质地：润泽、珠光、咬唇。
-  
-  3). 提升美妆点位准确度 ，人脸点位由209点增加至 239点。
-  
-  4). 优化美妆素材叠加方式，使得妆容效果更加服帖自然。
-  
-  5). 优化粉底效果，更加贴合人脸轮廓。
-  
-- 提升人脸点位跟踪灵敏度，快速移动时跟踪良好，使美颜美妆效果跟随更紧密。
+2. 解决表情跟踪问题（解决了6.6版表情系数问题及表情灵活度问题）—— FaceProcessor模块优化
 
-- 提升人脸点位的稳定性，解决了半张脸屏幕、大角度、遮挡等场景的阈值抖动问题，点位抖动问题也明显优化。
+   - 解决舌头灵敏度，达到原有SDK6.4.0效果版本
+   - 解决Animoji、表情识别灵活度问题，达到原有SDK6.4.0效果版本
+   - 解决优化了表情动图的鼻子跟踪效果问题
 
-- 提升人脸跟踪角度，人脸最大左右偏转角提升至70度，低抬头检测偏转角也明显提升。
+3. 美妆效果优化，点位优化（点位不准，后续优化点位准确性）
 
-- 优化美发道具CPU占有率，Android/iOS提升约30%。
+   - 优化口红点位与效果，解决张嘴、正脸、低抬头、左右转头、抿嘴动作的口红溢色
+   - 优化美瞳点位效果，是美瞳效果稳定
+   - 腮红效果优化，解决了仰头角度下腮红强拉扯问题
 
-- 新增MSAA抗锯齿接口，fuSetMultiSamples，解决虚拟形象（animoji与捏脸功能）边缘锯齿问题，详见接口文档。
+4. NAMA整体性能优化
 
-- 架构升级，支持底层AI算法能力和业务逻辑拆分，优化性能，使得系统更加容易扩展和更新迭代：
-  
-  1). 新增加接口 fuLoadAIModelFromPackage 用于加载AI能力模型。
-  
-  2). 新增加接口 fuReleaseAIModel 用于释放AI能力模型。
-  
-  3). 新增加接口 fuIsAIModelLoaded 判断AI能力是否已经加载。
+   - 算法部分：优化FaceProcessor模块性能
 
-__注1__：从SDK 6.6.0 开始，为了更新以及迭代更加方便，由原先一个nama.so拆分成两个库nama.so以及fuai.so，其中nama.so为轻量级渲染引擎，fuai.so为算法引擎。升级6.6.0时，需添加fuai库。
+5. Nama库大小裁剪优化
 
-__注2__:  更新SDK 6.6.0 时，在fuSetup之后，需要马上调用 fuLoadAIModelFromPackage 加载 ai_faceprocessor.bundle !!!
+6. 交互端曝光聚焦效果优化——对标抖音效果
 
-__注3__:  SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法能力和业务场景，使得SDK更能够按需复用算法模块，节省内存开销，算法能力模块后期更容易维护升级，使用方式详见新增加的一组接口定义 fuLoadAIModelFromPackage / fuReleaseAIModel / fuIsAIModelLoaded。
+7. 新增判断是否完成初始化接口
 
+8. 添加fuRenderToTexture接口在api说明文档
 
 **各功能模块的相关文档：**
 
@@ -69,7 +48,7 @@ __注3__:  SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法�
 - [美妆道具功能文档](./美妆道具功能文档.md)
 - [海报换脸功能文档](./海报换脸功能文档.md)
 - [表情动图功能文档](./表情动图功能文档.md)
-- [质感美颜功能文档](./质感美颜功能文档.md)
+- [轻美妆功能文档](./轻美妆功能文档.md)
 - [美发道具功能文档](./美发道具功能文档.md)
 - [美体道具功能文档](./美体道具功能文档.md)
 
@@ -163,8 +142,6 @@ __注3__:  SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法�
           -fxaa.bundle                     // 3D 绘制抗锯齿数据包
           -hair_gradient.bundle            // 美发渐变色道具
           -hair_normal.bundle              // 美发正常色道具
-          -tongue.bundle                   // 舌头道具
-          -v3.bundle                       // 人脸识别核心数据包
         +java                              // Java 源码
         +jniLibs                           // Nama so 库
   +docs		    	                       // 开发文档目录
@@ -181,22 +158,22 @@ __注3__:  SDK 6.6.0 进行较大的架构调整 , 架构上拆分底层算法�
 全功能版本（支持 TensorFlow 和物理特效）：
 
 ```groovy
-implementation 'com.faceunity:nama:6.6.0'
+implementation 'com.faceunity:nama:6.7.0'
 ```
 
 lite 版（不含物理特效的版本）：
 
 ```groovy
-implementation 'com.faceunity:nama:6.6.0-lite'
+implementation 'com.faceunity:nama:6.7.0-lite'
 ```
 
-**注：**Gradle 集成的 aar 中仅包含库文件（libnama.so 与 nama.jar）以及初始化必须的数据模型（v3.bundle）等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
+**注：** Gradle 集成的 aar 中仅包含库文件（libnama.so 与 nama.jar）以及初始化必须的数据模型等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
 
-#### 3.1.2 Github 下载
+#### 3.1.2 GitHub 下载
 
-全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v6.6.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.6/Faceunity-Android-v6.6.zip)
+- 全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v6.7.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.7/Faceunity-Android-v6.7.zip)
 
-lite 版（不含物理特效的版本）：[Faceunity-Android-v6.6-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.6/Faceunity-Android-v6.6-lite.zip)
+- lite 版（不含物理特效的版本）：[Faceunity-Android-v6.7-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.7/Faceunity-Android-v6.7-lite.zip)
 
 #### 3.1.3 库文件说明
 
@@ -207,7 +184,6 @@ lite 版（不含物理特效的版本）：[Faceunity-Android-v6.6-lite.zip](ht
 2. 数据文件
 
 	- AI_model 下的 bundle 为 AI 能力模型，SDK 初始化后，可以按需加载可能用到的AI能力。
-	- v3.bundle：初始化 SDK 必备的数据模型（**注：**自 6.6 版本后，不再使用 v3.bundle，改为加载 ai_face_processor.bundle）
 	- tongue.bundle：Animoji 舌头驱动的数据模型
 	- fxaa.bundle：3D 道具抗锯齿的道具
 	- face_beautification.bundle：美颜道具
@@ -217,7 +193,7 @@ lite 版（不含物理特效的版本）：[Faceunity-Android-v6.6-lite.zip](ht
 	- hair_normal.bundle：美发正常色道具
 	- effects 文件夹下的 \*.bundle 文件是我司制作的特效贴纸道具，如需制作自定义的特效贴纸，请联系我司获取相关工具和说明。
 
-**注：**这些数据文件都是二进制数据，与扩展名无关。实际使用时，可以将数据包打包在应用内或者通过网络下载，只要在函数接口传入正确的文件字节数组即可。
+**注：** 这些数据文件都是二进制数据，与扩展名无关。实际使用时，可以将数据包打包在应用内或者通过网络下载，只要在函数接口传入正确的文件字节数组即可。
 
 ### 3.2 开发环境
 
@@ -259,18 +235,17 @@ public static native int fuSetup(byte[] v3data, byte[] authdata);
 
 参数说明：
 
-`v3data` v3.bundle 文件路径
+`v3data` 传空字节数组即可
+
+`authdata` 鉴权证书文件
 
 `authdata` 密钥数组，必须配置好密钥，SDK才能正常工作
 
 调用示例：
 
 ```java
-InputStream v3 = context.getAssets().open(BUNDLE_v3);
-byte[] v3Data = new byte[v3.available()];
-v3.read(v3Data);
-v3.close();
-faceunity.fuSetup(v3Data, authpack.A());
+int isSetup = faceunity.fuSetup(new byte[0], authpack.A());
+Log.d(TAG, "fuSetup. isSetup: " + (isSetup == 0 ? "no" : "yes"));
 ```
 注：app 启动后只需要 setup 一次即可，其中 authpack.A() 密钥数组声明在 authpack.java 中。
 
@@ -829,11 +804,11 @@ faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "I
                     faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_EFFECT_HAIR_GRADIENT_INDEX], "Strength", mHairColorStrength);
 ```
 
-### 4.13 质感美颜功能
+### 4.13 轻美妆功能
 
-Nama SDK 从 6.0.0 开始支持质感美颜功能。
+Nama SDK 从 6.0.0 开始支持轻美妆功能。
 
-质感美颜方案是一套更为精致高效的美颜解决方案，包含磨皮、美型、滤镜、美妆4大模块，提供60+套丰富素材库，支持客户任意切换风格与效果变化。
+轻美妆是一套更为精致高效的美颜解决方案，包含磨皮、美型、滤镜、美妆4大模块，提供60+套丰富素材库，支持客户任意切换风格与效果变化。
 
 首先加载 light_makeup.bundle，然后设置腮红、眼影、眼线、口红等参数，使用方法请参考 FULiveDemo 中的示例代码。
 

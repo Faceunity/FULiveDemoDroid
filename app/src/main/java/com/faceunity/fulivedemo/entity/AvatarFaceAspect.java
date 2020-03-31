@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 /**
  * Avatar 捏脸维度
+ *
  * @author Richie on 2019.03.22
  */
 public class AvatarFaceAspect {

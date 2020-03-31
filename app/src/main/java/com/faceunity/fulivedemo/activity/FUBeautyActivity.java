@@ -96,9 +96,4 @@ public class FUBeautyActivity extends FUBaseActivity {
         startActivity(intent);
     }
 
-    @Override
-    protected int getLandmarksType() {
-        return FURenderer.FACE_LANDMARKS_75;
-    }
-
 }

@@ -21,7 +21,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 /**
  * 使用 GLSurfaceView 渲染图像，采用居中裁剪（CenterCrop）的方式显示
- *
+ * <p>
  * Created by tujh on 2018/3/2.
  */
 public class PhotoRenderer implements GLSurfaceView.Renderer {

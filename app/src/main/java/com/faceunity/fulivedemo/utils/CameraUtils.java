@@ -26,22 +26,35 @@ import android.hardware.Camera;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Camera-related utility functions.
  */
 public final class CameraUtils {
     private static final String TAG = CameraUtils.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    public static final int FOCUS_TIME = 2000;
+    public static final boolean DEBUG = false;
 
+    /**
+     * 是否支持 Camera2
+     *
+     * @param context
+     * @return
+     */
     public static boolean hasCamera2(Context context) {
         if (context == null) {
             return false;
@@ -76,6 +89,11 @@ public final class CameraUtils {
         }
     }
 
+    /**
+     * 获取前置相机的方向
+     *
+     * @return
+     */
     public static int getFrontCameraOrientation() {
         Camera.CameraInfo info = new Camera.CameraInfo();
         int cameraId = -1;
@@ -91,20 +109,17 @@ public final class CameraUtils {
             // no front camera, regard it as back camera
             return 90;
         } else {
-            return getCameraOrientation(cameraId);
-        }
-    }
-
-    public static int getCameraOrientation(int cameraId) {
-        Camera.CameraInfo info = new Camera.CameraInfo();
-        try {
-            Camera.getCameraInfo(cameraId, info);
             return info.orientation;
-        } catch (Exception e) {
-            return 270;
         }
     }
 
+    /**
+     * 设置相机显示方向
+     *
+     * @param activity
+     * @param cameraId
+     * @param camera
+     */
     public static void setCameraDisplayOrientation(Activity activity, int cameraId, Camera camera) {
         Camera.CameraInfo info = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, info);
@@ -137,39 +152,61 @@ public final class CameraUtils {
     }
 
     /**
-     * 设置对焦，会影响camera吞吐速率
+     * 设置对焦模式，优先支持自动对焦
+     *
+     * @param parameters
      */
     public static void setFocusModes(Camera.Parameters parameters) {
         List<String> focusModes = parameters.getSupportedFocusModes();
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        } else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        }
+        if (DEBUG) {
+            Log.i(TAG, "setFocusModes: " + parameters.getFocusMode());
         }
     }
 
     /**
-     * 设置fps
+     * 设置相机 FPS，选择尽可能大的范围
+     *
+     * @param parameters
      */
-    public static void chooseFramerate(Camera.Parameters parameters, float frameRate) {
-        int framerate = (int) (frameRate * 1000);
-        List<int[]> rates = parameters.getSupportedPreviewFpsRange();
-        int[] bestFramerate = rates.get(0);
-        for (int i = 0; i < rates.size(); i++) {
-            int[] rate = rates.get(i);
-            if (DEBUG) {
-                Log.e(TAG, "supported preview pfs min " + rate[0] + " max " + rate[1]);
+    public static void chooseFrameRate(Camera.Parameters parameters) {
+        List<int[]> supportedPreviewFpsRanges = parameters.getSupportedPreviewFpsRange();
+        if (DEBUG) {
+            StringBuilder buffer = new StringBuilder();
+            buffer.append('[');
+            for (Iterator<int[]> it = supportedPreviewFpsRanges.iterator(); it.hasNext(); ) {
+                buffer.append(Arrays.toString(it.next()));
+                if (it.hasNext()) {
+                    buffer.append(", ");
+                }
             }
-            int curDelta = Math.abs(rate[1] - framerate);
-            int bestDelta = Math.abs(bestFramerate[1] - framerate);
-            if (curDelta < bestDelta) {
-                bestFramerate = rate;
-            } else if (curDelta == bestDelta) {
-                bestFramerate = bestFramerate[0] < rate[0] ? rate : bestFramerate;
+            buffer.append(']');
+            Log.d(TAG, "chooseFrameRate: Supported FPS ranges " + buffer.toString());
+        }
+        // FPS下限小于 7，弱光时能保证足够曝光时间，提高亮度。
+        // range 范围跨度越大越好，光源足够时FPS较高，预览更流畅，光源不够时FPS较低，亮度更好。
+        int[] bestFrameRate = supportedPreviewFpsRanges.get(0);
+        for (int[] fpsRange : supportedPreviewFpsRanges) {
+            int thisMin = fpsRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX];
+            int thisMax = fpsRange[Camera.Parameters.PREVIEW_FPS_MAX_INDEX];
+            if (thisMin < 7000) {
+                continue;
+            }
+            if (thisMin <= 15000 && thisMax - thisMin > bestFrameRate[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]
+                    - bestFrameRate[Camera.Parameters.PREVIEW_FPS_MIN_INDEX]) {
+                bestFrameRate = fpsRange;
             }
         }
         if (DEBUG) {
-            Log.e(TAG, "closet framerate min " + bestFramerate[0] + " max " + bestFramerate[1]);
+            Log.i(TAG, "setPreviewFpsRange: [" + bestFrameRate[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] + ", " + bestFrameRate[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] + "]");
         }
-        parameters.setPreviewFpsRange(bestFramerate[0], bestFramerate[1]);
+        parameters.setPreviewFpsRange(bestFrameRate[Camera.Parameters.PREVIEW_FPS_MIN_INDEX], bestFrameRate[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
     }
 
     /**
@@ -179,27 +216,31 @@ public final class CameraUtils {
      * <p>
      * https://github.com/commonsguy/cwac-camera/blob/master/camera/src/com/commonsware/cwac/camera/CameraUtils.java
      */
-    public static int[] choosePreviewSize(Camera.Parameters parms, int width, int height) {
-        // We should make sure that the requested MPEG size is less than the preferred
-        // size, and has the same aspect ratio.
-
+    public static int[] choosePreviewSize(Camera.Parameters parameters, int width, int height) {
+        List<Camera.Size> supportedPreviewSizes = parameters.getSupportedPreviewSizes();
         if (DEBUG) {
-            for (Camera.Size size : parms.getSupportedPreviewSizes()) {
-                Log.e(TAG, "supported: " + size.width + "x" + size.height);
+            StringBuilder sb = new StringBuilder("[");
+            for (Camera.Size supportedPreviewSize : supportedPreviewSizes) {
+                sb.append("[").append(supportedPreviewSize.width).append(", ")
+                        .append(supportedPreviewSize.height).append("]").append(", ");
             }
+            sb.append("]");
+            Log.d(TAG, "choosePreviewSize: Supported preview size " + sb.toString());
         }
 
-        for (Camera.Size size : parms.getSupportedPreviewSizes()) {
+        for (Camera.Size size : supportedPreviewSizes) {
             if (size.width == width && size.height == height) {
-                parms.setPreviewSize(width, height);
+                parameters.setPreviewSize(width, height);
                 return new int[]{width, height};
             }
         }
 
-        Log.e(TAG, "Unable to set preview size to " + width + "x" + height);
-        Camera.Size ppsfv = parms.getPreferredPreviewSizeForVideo();
+        if (DEBUG) {
+            Log.e(TAG, "Unable to set preview size to " + width + "x" + height);
+        }
+        Camera.Size ppsfv = parameters.getPreferredPreviewSizeForVideo();
         if (ppsfv != null) {
-            parms.setPreviewSize(ppsfv.width, ppsfv.height);
+            parameters.setPreviewSize(ppsfv.width, ppsfv.height);
             return new int[]{ppsfv.width, ppsfv.height};
         }
         // else use whatever the default size is
@@ -264,7 +305,57 @@ public final class CameraUtils {
         }
     }
 
-    public static void setExposureCompensation(Camera camera, float v) {
+    /**
+     * 设置相机视频防抖动
+     *
+     * @param parameters
+     */
+    public static void setVideoStabilization(Camera.Parameters parameters) {
+        if (parameters.isVideoStabilizationSupported()) {
+            if (!parameters.getVideoStabilization()) {
+                parameters.setVideoStabilization(true);
+                if (DEBUG) {
+                    Log.i(TAG, "Enabling video stabilization...");
+                }
+            }
+        } else {
+            if (DEBUG) {
+                Log.i(TAG, "This device does not support video stabilization");
+            }
+        }
+    }
+
+    /**
+     * 获取曝光补偿
+     *
+     * @param camera
+     * @return
+     */
+    public static float getExposureCompensation(Camera camera) {
+        if (camera == null) {
+            return 0;
+        }
+        try {
+            Camera.Parameters parameters = camera.getParameters();
+            float value = parameters.getExposureCompensation();
+            float min = parameters.getMinExposureCompensation();
+            float max = parameters.getMaxExposureCompensation();
+            return (value - min) / (max - min);
+        } catch (Exception e) {
+            if (DEBUG) {
+                Log.w(TAG, "getExposureCompensation: ", e);
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 设置曝光补偿
+     *
+     * @param camera
+     * @param value
+     */
+    public static void setExposureCompensation(Camera camera, float value) {
         if (camera == null) {
             return;
         }
@@ -272,88 +363,141 @@ public final class CameraUtils {
             Camera.Parameters parameters = camera.getParameters();
             float min = parameters.getMinExposureCompensation();
             float max = parameters.getMaxExposureCompensation();
-            parameters.setExposureCompensation((int) (v * (max - min) + min));
+            int compensation = (int) (value * (max - min) + min);
+            parameters.setExposureCompensation(compensation);
+            if (DEBUG) {
+                Log.d(TAG, "setExposureCompensation: " + compensation);
+            }
             camera.setParameters(parameters);
         } catch (Exception e) {
             if (DEBUG) {
-                Log.e(TAG, "setExposureCompensation: ", e);
+                Log.w(TAG, "setExposureCompensation: ", e);
             }
         }
     }
 
-    public static void handleFocus(Camera camera, float rawX, float rawY, int viewWidth, int viewHeight,
-                                   int cameraWidth, int cameraHeight, int areaSize) {
+    /**
+     * 设置相机参数
+     *
+     * @param camera
+     * @param parameters
+     */
+    public static void setParameters(Camera camera, Camera.Parameters parameters) {
+        if (camera != null && parameters != null) {
+            try {
+                camera.setParameters(parameters);
+            } catch (Exception ex) {
+                if (DEBUG) {
+                    Log.w(TAG, "setParameters: ", ex);
+                }
+            }
+        }
+    }
+
+    /**
+     * 点击屏幕时，设置测光和对焦
+     *
+     * @param camera
+     * @param rawX
+     * @param rawY
+     * @param viewWidth
+     * @param viewHeight
+     * @param cameraWidth
+     * @param cameraHeight
+     * @param areaSize
+     * @param cameraFacing
+     */
+    public static void handleFocusMetering(Camera camera, float rawX, float rawY, int viewWidth, int viewHeight,
+                                           int cameraWidth, int cameraHeight, int areaSize, int cameraFacing) {
         if (camera == null) {
             return;
         }
         try {
-            Camera.Parameters params = camera.getParameters();
-            Rect focusRect = calculateTapArea(rawX / viewWidth * cameraWidth, rawY / viewHeight * cameraHeight, cameraWidth, cameraHeight, areaSize);
-            // 对焦
-            final String currentFocusMode = params.getFocusMode();
-            if (params.getMaxNumFocusAreas() > 0) {
+            Camera.Parameters parameters = camera.getParameters();
+            Rect focusRect = calculateTapArea(rawX / viewWidth * cameraHeight, rawY / viewHeight * cameraWidth,
+                    cameraHeight, cameraWidth, areaSize, cameraFacing);
+            final String focusMode = parameters.getFocusMode();
+            List<Camera.Area> focusAreas = new ArrayList<>();
+            focusAreas.add(new Camera.Area(focusRect, 1000));
+            List<Camera.Area> meteringAreas = new ArrayList<>();
+            meteringAreas.add(new Camera.Area(new Rect(focusRect), 1000));
+            if (parameters.getMaxNumFocusAreas() > 0 &&
+                    (focusMode.equals(Camera.Parameters.FOCUS_MODE_AUTO) ||
+                            focusMode.equals(Camera.Parameters.FOCUS_MODE_MACRO) ||
+                            focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) ||
+                            focusMode.equals(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))) {
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                parameters.setFocusAreas(focusAreas);
+                if (parameters.getMaxNumMeteringAreas() > 0) {
+                    parameters.setMeteringAreas(meteringAreas);
+                    if (DEBUG) {
+                        Log.d(TAG, "handleFocusMetering: setMeteringAreas 1 " + focusRect);
+                    }
+                }
                 camera.cancelAutoFocus();
-                List<Camera.Area> focusAreas = new ArrayList<>();
-                focusAreas.add(new Camera.Area(focusRect, 1000));
-                List<String> supportedFocusModes = params.getSupportedFocusModes();
-                if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-                } else if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_FIXED)) {
-                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_FIXED);
-                } else if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_MACRO)) {
-                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+                setParameters(camera, parameters);
+                camera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, final Camera camera) {
+                        if (DEBUG) {
+                            Log.d(TAG, "onAutoFocus success:" + success);
+                        }
+                        resetFocus(camera, focusMode);
+                    }
+                });
+            } else if (parameters.getMaxNumMeteringAreas() > 0) {
+                if (!parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                    Log.w(TAG, "handleFocusMetering: not support focus");
+//                    return; //cannot autoFocus
                 }
-                params.setFocusAreas(focusAreas);
-            } else {
-                Log.e(TAG, "handleFocus: not support");
-                return;
-            }
-
-            // 测光
-            params.setMeteringAreas(null);
-            if (params.getMaxNumMeteringAreas() > 0) {
-                List<Camera.Area> meteringAreas = new ArrayList<>();
-                meteringAreas.add(new Camera.Area(new Rect(focusRect), 800));
-                params.setMeteringAreas(meteringAreas);
-            } else {
+                parameters.setMeteringAreas(meteringAreas);
                 if (DEBUG) {
-                    Log.e(TAG, "metering areas not supported");
+                    Log.d(TAG, "handleFocusMetering: setMeteringAreas 2 " + focusRect);
                 }
+                camera.cancelAutoFocus();
+                setParameters(camera, parameters);
+                camera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        if (DEBUG) {
+                            Log.d(TAG, "onAutoFocus success:" + success);
+                        }
+                        resetFocus(camera, focusMode);
+                    }
+                });
+            } else {
+                camera.autoFocus(null);
             }
+        } catch (Exception e) {
+            Log.e(TAG, "handleFocusMetering: ", e);
+        }
+    }
 
-            camera.setParameters(params);
-            camera.autoFocus(new Camera.AutoFocusCallback() {
-                @Override
-                public void onAutoFocus(boolean success, Camera camera) {
+    private static void resetFocus(final Camera camera, final String focusMode) {
+        ThreadHelper.getInstance().removeUiAllTasks();
+        ThreadHelper.getInstance().runOnUiPostDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
                     camera.cancelAutoFocus();
-                    Camera.Parameters params = camera.getParameters();
-                    params.setFocusMode(currentFocusMode);
-                    camera.setParameters(params);
+                    Camera.Parameters parameter = camera.getParameters();
+                    parameter.setFocusMode(focusMode);
+                    if (DEBUG) {
+                        Log.d(TAG, "resetFocus focusMode:" + focusMode);
+                    }
+                    parameter.setFocusAreas(null);
+                    parameter.setMeteringAreas(null);
+                    setParameters(camera, parameter);
+                } catch (Exception e) {
+                    if (DEBUG) {
+                        Log.w(TAG, "resetFocus: ", e);
+                    }
                 }
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "handleFocus: ", e);
-        }
-    }
-
-    public static float getExposureCompensation(Camera camera) {
-        if (camera == null) {
-            return 0;
-        }
-        try {
-            float progress = camera.getParameters().getExposureCompensation();
-            float min = camera.getParameters().getMinExposureCompensation();
-            float max = camera.getParameters().getMaxExposureCompensation();
-            return (progress - min) / (max - min);
-        } catch (Exception e) {
-            if (DEBUG) {
-                Log.e(TAG, "getExposureCompensation: ", e);
             }
-        }
-        return 0;
+        }, FOCUS_TIME);
     }
 
-    private static Rect calculateTapArea(float x, float y, int width, int height, int areaSize) {
+    private static Rect calculateTapArea(float x, float y, int width, int height, int areaSize, int cameraFacing) {
         int centerX = (int) (x / width * 2000 - 1000);
         int centerY = (int) (y / height * 2000 - 1000);
 
@@ -363,13 +507,62 @@ public final class CameraUtils {
         int right = clamp(left + areaSize);
         RectF rectF = new RectF(left, top, right, bottom);
         Matrix matrix = new Matrix();
-        matrix.setScale(1, -1);
+        int flipX = cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT ? -1 : 1;
+        matrix.setScale(flipX, -1);
         matrix.mapRect(rectF);
         return new Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
     }
 
     private static int clamp(int x) {
         return x > 1000 ? 1000 : (x < -1000 ? -1000 : x);
+    }
+
+    /**
+     * 查询所有相机参数
+     *
+     * @param camera
+     * @return
+     */
+    public static Map<String, String> getFullCameraParameters(Camera camera) {
+        Map<String, String> result = new HashMap<>(64);
+        try {
+            Class camClass = camera.getClass();
+
+            // Internally, Android goes into native code to retrieve this String
+            // of values
+            Method getNativeParams = camClass.getDeclaredMethod("native_getParameters");
+            getNativeParams.setAccessible(true);
+
+            // Boom. Here's the raw String from the hardware
+            String rawParamsStr = (String) getNativeParams.invoke(camera);
+
+            // But let's do better. Here's what Android uses to parse the
+            // String into a usable Map -- a simple ';' StringSplitter, followed
+            // by splitting on '='
+            //
+            // Taken from Camera.Parameters unflatten() method
+            TextUtils.StringSplitter splitter = new TextUtils.SimpleStringSplitter(';');
+            splitter.setString(rawParamsStr);
+
+            for (String kv : splitter) {
+                int pos = kv.indexOf('=');
+                if (pos == -1) {
+                    continue;
+                }
+                String k = kv.substring(0, pos);
+                String v = kv.substring(pos + 1);
+                result.put(k, v);
+            }
+
+            // And voila, you have a map of ALL supported parameters
+            return result;
+        } catch (Exception ex) {
+            Log.e(TAG, "ex:", ex);
+        }
+
+        // If there was any error, just return an empty Map
+        Log.e(TAG, "Unable to retrieve parameters from Camera.");
+        return result;
     }
 
 }

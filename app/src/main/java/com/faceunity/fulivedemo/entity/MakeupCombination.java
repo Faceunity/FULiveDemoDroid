@@ -7,24 +7,39 @@ import com.faceunity.entity.MakeupEntity;
 import java.util.Map;
 
 /**
- * 新版美妆妆容组合
+ * 美妆妆容组合
  *
  * @author Richie on 2019.06.18
  */
 public class MakeupCombination {
+    public static final int TYPE_NONE = -1;
+    /* 日常妆 */
+    public static final int TYPE_DAILY = 0;
+    /* 主题妆 */
+    public static final int TYPE_THEME = 1;
     private int nameId;
     private int iconId;
+    private int type;
     private MakeupEntity makeupEntity;
     private String jsonPath;
     private Map<String, Object> paramMap;
     // <type, subItem>
     private SparseArray<SubItem> subItems;
 
-    public MakeupCombination(int nameId, int iconId, String jsonPath, MakeupEntity makeupEntity) {
+    public MakeupCombination(int nameId, int iconId, int type, String jsonPath, MakeupEntity makeupEntity) {
         this.nameId = nameId;
         this.iconId = iconId;
+        this.type = type;
         this.jsonPath = jsonPath;
         this.makeupEntity = makeupEntity;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public String getJsonPath() {
@@ -79,6 +94,7 @@ public class MakeupCombination {
     public String toString() {
         return "MakeupCombination{" +
                 "makeupEntity=" + makeupEntity +
+                ", type=" + type +
                 ", jsonPath=" + jsonPath +
                 ", paramMap=" + paramMap +
                 ", subItems=" + subItems +

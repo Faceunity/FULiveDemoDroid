@@ -8,7 +8,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,6 @@ import java.util.List;
  * @author Richie on 2018.11.13
  */
 public class AnimControlView extends FrameLayout implements CheckGroup.OnCheckedChangeListener {
-    private static final String TAG = "AnimControlView";
     private static final int DEFAULT_FILTER_INDEX = 0;
     private static final int DEFAULT_ANIMOJI_INDEX = 0;
     private RecyclerView mRvAnim;
@@ -163,7 +161,7 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
             CartoonFilter cartoonFilter = adapter.getItem(position);
             if (mLastPosition != position) {
                 if (mOnFUControlListener != null) {
-                    mOnFUControlListener.onCartoonFilterSelected(cartoonFilter.getStyle());
+                    mOnFUControlListener.setCartoonFilter(cartoonFilter.getStyle());
                 }
             }
             mLastPosition = position;
@@ -193,7 +191,7 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
 
         @Override
         protected void bindViewHolder(BaseViewHolder viewHolder, CartoonFilter item) {
-            viewHolder.setImageResource(R.id.iv_anim_item, item.getImageResId());
+            viewHolder.setImageResource(R.id.iv_anim_item, item.getIconId());
         }
 
         @Override

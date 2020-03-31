@@ -12,7 +12,7 @@ import com.faceunity.fulivedemo.R;
 
 /**
  * 带有文字和 icon 的单选多状态 View
- *
+ * <p>
  * Created by tujh on 2018/4/17.
  */
 public class BeautyBox extends BaseBeautyBox {

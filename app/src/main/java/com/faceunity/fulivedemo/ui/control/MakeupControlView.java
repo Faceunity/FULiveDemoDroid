@@ -33,8 +33,8 @@ import com.faceunity.entity.Filter;
 import com.faceunity.entity.MakeupEntity;
 import com.faceunity.entity.MakeupItem;
 import com.faceunity.fulivedemo.R;
-import com.faceunity.fulivedemo.entity.MakeupConfig;
 import com.faceunity.fulivedemo.entity.MakeupCombination;
+import com.faceunity.fulivedemo.entity.MakeupConfig;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.colorfulcircle.CircleFilledColor;
@@ -445,7 +445,6 @@ public class MakeupControlView extends FrameLayout {
         } else {
             setColorListVisible(false);
         }
-//        Log.i(TAG, "replaceMakeupItem: key:" + key + ", sel:" + selectedMakeupItem);
     }
 
     public void setColorListVisible(boolean visible) {
@@ -490,7 +489,8 @@ public class MakeupControlView extends FrameLayout {
         SparseArray<MakeupCombination> selectedItems = mMakeupCombinationAdapter.getSelectedItems();
         if (selectedItems.size() > 0) {
             MakeupCombination makeupCombination = selectedItems.valueAt(0);
-            setIsFlipPoints(makeupCombination, true);
+            boolean needFlipPoints = makeupCombination.getMakeupEntity().isNeedFlipPoints();
+            setIsFlipPoints(needFlipPoints, true);
         }
     }
 
@@ -873,12 +873,9 @@ public class MakeupControlView extends FrameLayout {
         mTvCustom.setAlpha(alpha);
     }
 
-    private void setIsFlipPoints(MakeupCombination makeupCombination, boolean isSetImmediately) {
+    private void setIsFlipPoints(boolean isNeedFlipPoints, boolean isSetImmediately) {
         boolean isBackCamera = false;
-        int nameId = makeupCombination.getNameId();
-        // 人鱼和港风，妆容不对称，打开后置相机需要镜像
-        if (nameId == R.string.makeup_combination_gangfeng
-                || nameId == R.string.makeup_combination_renyu) {
+        if (isNeedFlipPoints) {
             isBackCamera = mCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK;
         }
         ((FURenderer) mOnFUControlListener).setIsMakeupFlipPoints(isBackCamera, isSetImmediately);
@@ -892,10 +889,11 @@ public class MakeupControlView extends FrameLayout {
             MakeupCombination makeupCombination = adapter.getItem(position);
             Map<String, Object> paramMap = makeupCombination.getParamMap();
             // 自定义妆容的时候需要使用详细配置，这里采用懒加载的方式。如果不需要自定义，完全可以忽略
-            if (position > 0 && (paramMap == null || paramMap.size() == 0)) {
+            if (paramMap == null || paramMap.size() == 0) {
                 paramMap = MakeupConfig.loadMakeupParamsFromJson(mContext, makeupCombination.getJsonPath());
                 makeupCombination.setParamMap(paramMap);
-                makeupCombination.setSubItems(MakeupConfig.createMakeupSubItems(paramMap));
+                SparseArray<MakeupCombination.SubItem> makeupSubItems = MakeupConfig.createMakeupSubItems(paramMap);
+                makeupCombination.setSubItems(makeupSubItems);
             }
 
             MakeupEntity makeupEntity = makeupCombination.getMakeupEntity();
@@ -909,7 +907,7 @@ public class MakeupControlView extends FrameLayout {
                 clearSelectedItems();
             } else {
                 // 切换
-                boolean isDaily = makeupEntity.getType() == MakeupEntity.TYPE_DAILY;
+                boolean isDaily = makeupCombination.getType() == MakeupCombination.TYPE_DAILY;
                 setCustomEnable(isDaily);
                 int nameId = makeupCombination.getNameId();
                 double intensity = mSelectedCombinationIntensitys.get(nameId, (double) MakeupConfig.DEFAULT_INTENSITY);
@@ -930,12 +928,13 @@ public class MakeupControlView extends FrameLayout {
                     }
                 }
                 mOnFUControlListener.selectMakeup(makeupEntity, paramMapCopy);
-                setIsFlipPoints(makeupCombination, false);
+                boolean needFlipPoints = makeupCombination.getMakeupEntity().isNeedFlipPoints();
+                setIsFlipPoints(needFlipPoints, false);
 
                 // filter
                 Filter filter = MakeupConfig.MAKEUP_COMBINATION_FILTER_MAP.get(nameId);
                 if (filter != null) {
-                    mOnFUControlListener.onFilterNameSelected(filter.filterName());
+                    mOnFUControlListener.onFilterNameSelected(filter.getName());
                     double filterLevel;
                     if (mSelectedFilterIntensitys.containsKey(nameId)) {
                         filterLevel = mSelectedFilterIntensitys.get(nameId);
@@ -979,19 +978,13 @@ public class MakeupControlView extends FrameLayout {
                                 mSubTitleAdapter.setPositionHighlight(selType, pos > 0 && intensity > 0);
                                 List<MakeupItem> makeupItems = MakeupConfig.MAKEUP_ITEM_MAP.get(selType);
                                 MakeupItem makeupItem = makeupItems.get(pos);
-                                SelectedMakeupItem selectedMakeupItem = new SelectedMakeupItem(pos, makeupItem);
-                                mSelectedItems.put(selType, selectedMakeupItem);
+                                mSelectedItems.put(selType, new SelectedMakeupItem(pos, makeupItem));
                                 // 颜色列表
                                 String key = "" + selType + pos; // regard type as title position
-                                int colorPosition = subItem.getColorPosition();
-                                selectedMakeupItem = new SelectedMakeupItem(colorPosition, makeupItem);
+                                mSelectedItemIntensitys.put(key, intensity * overallDensity);
                                 if (selType > 0) {
-                                    mSelectedColors.put(key, selectedMakeupItem);
-                                    mSelectedItemIntensitys.put(key, intensity * overallDensity);
-                                } else {
-                                    mSelectedItems.put(selType, selectedMakeupItem);
-                                    key = "" + selType + colorPosition;
-                                    mSelectedItemIntensitys.put(key, intensity * overallDensity);
+                                    // 非粉底，记录右侧颜色条
+                                    mSelectedColors.put(key, new SelectedMakeupItem(subItem.getColorPosition(), makeupItem));
                                 }
                             }
                         } else {

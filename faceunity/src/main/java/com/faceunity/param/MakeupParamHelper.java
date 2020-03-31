@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * 美妆参数，包含质感美颜和美妆
+ * 美妆参数，包含轻美妆和美妆
  *
  * @author Richie on 2019.05.27
  */
@@ -272,6 +272,10 @@ public class MakeupParamHelper {
         public static final String MAKEUP_HIGHLIGHT_COLOR = "makeup_highlight_color";
         public static final String MAKEUP_SHADOW_COLOR = "makeup_shadow_color";
         public static final String MAKEUP_PUPIL_COLOR = "makeup_pupil_color";
+        /**
+         * 在解绑妆容时，是否要清空妆容，0 表示不清除，1 表示清除
+         */
+        public static final String IS_CLEAR_MAKEUP = "is_clear_makeup";
         /**
          * 美妆开关，1 为开，0 为关
          */

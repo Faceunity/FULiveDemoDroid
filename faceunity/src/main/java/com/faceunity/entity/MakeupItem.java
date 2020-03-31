@@ -6,31 +6,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 新版单项妆容
+ * 美妆单项妆容
  *
  * @author Richie on 2019.06.11
  */
 public class MakeupItem {
-    // 单项妆容，粉底 口红 腮红 眉毛 眼影 眼线 睫毛 高光 阴影 美瞳
-    // 粉底
+    /**
+     * 包括：粉底 口红 腮红 眉毛 眼影 眼线 睫毛 高光 阴影 美瞳
+     */
+    /* 粉底 */
     public static final int FACE_MAKEUP_TYPE_FOUNDATION = 0;
-    // 口红
+    /* 口红 */
     public static final int FACE_MAKEUP_TYPE_LIPSTICK = 1;
-    // 腮红
+    /* 腮红 */
     public static final int FACE_MAKEUP_TYPE_BLUSHER = 2;
-    // 眉毛
+    /* 眉毛 */
     public static final int FACE_MAKEUP_TYPE_EYEBROW = 3;
-    // 眼影
+    /* 眼影 */
     public static final int FACE_MAKEUP_TYPE_EYE_SHADOW = 4;
-    // 眼线
+    /* 眼线 */
     public static final int FACE_MAKEUP_TYPE_EYE_LINER = 5;
-    // 睫毛
+    /* 睫毛 */
     public static final int FACE_MAKEUP_TYPE_EYELASH = 6;
-    // 高光
+    /* 高光 */
     public static final int FACE_MAKEUP_TYPE_HIGHLIGHT = 7;
-    // 阴影
+    /* 阴影 */
     public static final int FACE_MAKEUP_TYPE_SHADOW = 8;
-    // 美瞳
+    /* 美瞳 */
     public static final int FACE_MAKEUP_TYPE_EYE_PUPIL = 9;
 
     private int nameId;

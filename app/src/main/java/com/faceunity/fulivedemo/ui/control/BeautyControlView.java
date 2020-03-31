@@ -140,7 +140,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
                         }
                         break;
                         case R.id.beauty_radio_filter: {
-                            Float valueObj = sFilterLevel.get(STR_FILTER_LEVEL + sFilter.filterName());
+                            Float valueObj = sFilterLevel.get(STR_FILTER_LEVEL + sFilter.getName());
                             if (valueObj == null) {
                                 valueObj = DEFAULT_FILTER_LEVEL;
                             }
@@ -175,8 +175,8 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         onChangeFaceBeautyLevel(R.id.beauty_box_blur_level);
         onChangeFaceBeautyLevel(R.id.beauty_box_color_level);
         onChangeFaceBeautyLevel(R.id.beauty_box_red_level);
-//        onChangeFaceBeautyLevel(R.id.beauty_box_pouch);
-//        onChangeFaceBeautyLevel(R.id.beauty_box_nasolabial);
+        onChangeFaceBeautyLevel(R.id.beauty_box_pouch);
+        onChangeFaceBeautyLevel(R.id.beauty_box_nasolabial);
         onChangeFaceBeautyLevel(R.id.beauty_box_eye_bright);
         onChangeFaceBeautyLevel(R.id.beauty_box_tooth_whiten);
     }
@@ -247,8 +247,8 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
 
     private void updateViewFilterRecycler() {
         mFilterRecyclerAdapter.setFilter(sFilter);
-        mOnFUControlListener.onFilterNameSelected(sFilter.filterName());
-        float filterLevel = getFilterLevel(sFilter.filterName());
+        mOnFUControlListener.onFilterNameSelected(sFilter.getName());
+        float filterLevel = getFilterLevel(sFilter.getName());
         mOnFUControlListener.onFilterLevelSelected(filterLevel);
     }
 
@@ -335,12 +335,12 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
             case R.id.beauty_box_red_level:
                 mOnFUControlListener.onRedLevelSelected(getValue(viewId));
                 break;
-//            case R.id.beauty_box_pouch:
-//                mOnFUControlListener.setRemovePouchStrength(getValue(viewId));
-//                break;
-//            case R.id.beauty_box_nasolabial:
-//                mOnFUControlListener.setRemoveNasolabialFoldsStrength(getValue(viewId));
-//                break;
+            case R.id.beauty_box_pouch:
+                mOnFUControlListener.setRemovePouchStrength(getValue(viewId));
+                break;
+            case R.id.beauty_box_nasolabial:
+                mOnFUControlListener.setRemoveNasolabialFoldsStrength(getValue(viewId));
+                break;
             case R.id.beauty_box_eye_bright:
                 mOnFUControlListener.onEyeBrightSelected(getValue(viewId));
                 break;
@@ -594,7 +594,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
                     notifyDataSetChanged();
                     if (mOnFUControlListener != null) {
                         sFilter = filters.get(mFilterPositionSelect);
-                        mOnFUControlListener.onFilterNameSelected(sFilter.filterName());
+                        mOnFUControlListener.onFilterNameSelected(sFilter.getName());
                         ToastUtil.showNormalToast(mContext, sFilter.getNameId());
                     }
                 }
@@ -608,7 +608,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
 
         public void setFilterLevels(float filterLevels) {
             if (mFilterPositionSelect >= 0) {
-                setFilterLevel(mFilters.get(mFilterPositionSelect).filterName(), filterLevels);
+                setFilterLevel(mFilters.get(mFilterPositionSelect).getName(), filterLevels);
             }
         }
 
@@ -618,7 +618,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
 
         public void setFilterProgress() {
             if (mFilterPositionSelect > 0) {
-                seekToSeekBar(getFilterLevel(mFilters.get(mFilterPositionSelect).filterName()));
+                seekToSeekBar(getFilterLevel(mFilters.get(mFilterPositionSelect).getName()));
             } else {
                 mBeautySeekBar.setVisibility(INVISIBLE);
             }

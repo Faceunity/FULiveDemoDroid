@@ -1,7 +1,8 @@
 package com.faceunity.entity;
 
 /**
- * 滤镜的实体类
+ * 美颜滤镜
+ * <p>
  * Created by tujh on 2018/2/7.
  */
 public class Filter {
@@ -23,7 +24,7 @@ public class Filter {
         this.nameId = nameId;
     }
 
-    public String filterName() {
+    public String getName() {
         return name;
     }
 
@@ -57,6 +58,8 @@ public class Filter {
     public String toString() {
         return "Filter{" +
                 "name='" + name + '\'' +
+                ", iconId=" + iconId +
+                ", nameId=" + nameId +
                 '}';
     }
 

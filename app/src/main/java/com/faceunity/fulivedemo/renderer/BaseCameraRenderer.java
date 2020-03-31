@@ -41,12 +41,12 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     public static final int BACK_CAMERA_ORIENTATION = 90;
     public static final int DEFAULT_PREVIEW_WIDTH = 1280;
     public static final int DEFAULT_PREVIEW_HEIGHT = 720;
-    public static final int FPS = 30;
     public static final int PREVIEW_BUFFER_SIZE = 3;
     private static final float[] TEXTURE_MATRIX = {0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f};
     protected int mViewWidth;
     protected int mViewHeight;
     protected volatile boolean mIsStopPreview;
+    protected volatile boolean mIsSwitchCamera;
     protected int mCameraFacing = FACE_FRONT;
     protected int mCameraWidth = DEFAULT_PREVIEW_WIDTH;
     protected int mCameraHeight = DEFAULT_PREVIEW_HEIGHT;
@@ -141,15 +141,17 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        if (m2DTexId > 0) {
-            mProgramTexture2d.drawFrame(m2DTexId, mTexMatrix, mMvpMatrix);
-        } else if (mCameraTexId > 0) {
-            mProgramTextureOES.drawFrame(mCameraTexId, mTexMatrix, mMvpMatrix);
-        }
+        if (!mIsSwitchCamera) {
+            if (m2DTexId > 0) {
+                mProgramTexture2d.drawFrame(m2DTexId, mTexMatrix, mMvpMatrix);
+            } else if (mCameraTexId > 0) {
+                mProgramTextureOES.drawFrame(mCameraTexId, mTexMatrix, mMvpMatrix);
+            }
 
-        if (ENABLE_DRAW_LANDMARKS && mLandmarksData != null) {
-            mProgramLandmarks.refresh(mLandmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCameraFacing, mMvpMatrix);
-            mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
+            if (ENABLE_DRAW_LANDMARKS && mLandmarksData != null) {
+                mProgramLandmarks.refresh(mLandmarksData, mCameraWidth, mCameraHeight, mCameraOrientation, mCameraFacing, mMvpMatrix);
+                mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
+            }
         }
 
         if (!mIsStopPreview) {
@@ -195,7 +197,6 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     }
 
     public void changeResolution(int cameraWidth, int cameraHeight) {
-
     }
 
     public void switchCamera() {
@@ -206,12 +207,14 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
             @Override
             public void run() {
                 mIsStopPreview = true;
+                mIsSwitchCamera = true;
                 boolean isFront = mCameraFacing == FACE_FRONT;
                 mCameraFacing = isFront ? FACE_BACK : FACE_FRONT;
                 mCameraOrientation = isFront ? mBackCameraOrientation : mFrontCameraOrientation;
                 closeCamera();
                 openCamera(mCameraFacing);
                 startPreview();
+                mIsSwitchCamera = false;
                 mIsStopPreview = false;
                 mOnRendererStatusListener.onCameraChanged(mCameraFacing, mCameraOrientation);
             }
@@ -240,13 +243,10 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
             @Override
             public void run() {
                 m2DTexId = GlUtil.createImageTexture(bitmap);
-                mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, bitmap.getWidth(), bitmap.getHeight());
-                if (mCameraFacing == FACE_FRONT) {
-                    // flipX
-                    float[] tmp = Arrays.copyOf(GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX.length);
-                    Matrix.scaleM(tmp, 0, -1F, 1F, 1F);
-                    Matrix.multiplyMM(mMvpMatrix, 0, tmp, 0, mMvpMatrix, 0);
-                }
+                float[] mvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, bitmap.getWidth(), bitmap.getHeight());
+                float[] scaleMatrix = Arrays.copyOf(GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX.length);
+                Matrix.scaleM(scaleMatrix, 0, -1F, 1F, 1F);
+                Matrix.multiplyMM(mMvpMatrix, 0, scaleMatrix, 0, mvpMatrix, 0);
                 if (mCameraOrientation == BACK_CAMERA_ORIENTATION) {
                     Matrix.rotateM(mMvpMatrix, 0, mCameraFacing == FACE_FRONT ? FRONT_CAMERA_ORIENTATION : BACK_CAMERA_ORIENTATION, 0F, 0F, 1F);
                 } else if (mCameraOrientation == FRONT_CAMERA_ORIENTATION) {
@@ -295,10 +295,6 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
 
     public void setExposureCompensation(float value) {
 
-    }
-
-    public void setLandmarksDataNew(float[] landmarksData) {
-        mLandmarksData = landmarksData;
     }
 
     public void setLandmarksDataArray(float[][] landmarksDataArray) {

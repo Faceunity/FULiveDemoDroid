@@ -1,9 +1,11 @@
 package com.faceunity.fulivedemo.activity;
 
+import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.ui.SwitchConfig;
 import com.faceunity.fulivedemo.ui.control.BeautyHairControlView;
 
 /**
@@ -11,7 +13,7 @@ import com.faceunity.fulivedemo.ui.control.BeautyHairControlView;
  * Created by tujh on 2018/1/31.
  */
 public class FUHairActivity extends FUBaseActivity {
-    public final static String TAG = FUHairActivity.class.getSimpleName();
+    public static final String TAG = "FUHairActivity";
 
     @Override
     protected void onCreate() {
@@ -40,5 +42,18 @@ public class FUHairActivity extends FUBaseActivity {
                 .setOnTrackingStatusChangedListener(this)
                 .setNeedBeautyHair(true)
                 .build();
+    }
+
+    @Override
+    protected boolean isOpenPhotoVideo() {
+        return SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_HAIR;
+    }
+
+    @Override
+    protected void onSelectPhotoVideoClick() {
+        super.onSelectPhotoVideoClick();
+        Intent intent = new Intent(FUHairActivity.this, SelectDataActivity.class);
+        intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, FUHairActivity.TAG);
+        startActivity(intent);
     }
 }

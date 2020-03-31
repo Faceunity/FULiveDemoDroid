@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 多线程工具类
+ *
  * @author Richie
  */
 public final class ThreadHelper {

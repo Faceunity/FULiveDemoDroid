@@ -6,50 +6,57 @@ package com.faceunity.entity;
  * @author Richie on 2018.11.14
  */
 public class CartoonFilter {
-    // 切换风格滤镜
-    /*0. 动漫
-1. 素描
-2. 人像
-3. 油画
-4. 沙画
-5. 钢笔画
-6. 铅笔画
-7. 涂鸦
-    * */
+    /**
+     * 无
+     */
     public static final int NO_FILTER = -1;
+    /**
+     * 0. 动漫
+     */
     public static final int COMIC_FILTER = 0;
+    /**
+     * 1. 素描
+     */
     public static final int SKETCH_FILTER = 1;
+    /**
+     * 2. 人像
+     */
     public static final int PORTRAIT_EFFECT = 2;
+    /**
+     * 3. 油画
+     */
     public static final int OIL_PAINTING = 3;
+    /**
+     * 4. 沙画
+     */
     public static final int SAND_PAINTING = 4;
+    /**
+     * 5. 钢笔画
+     */
     public static final int PEN_PAINTING = 5;
+    /**
+     * 6. 铅笔画
+     */
     public static final int PENCIL_PAINTING = 6;
+    /**
+     * 7. 涂鸦
+     */
     public static final int GRAFFITI = 7;
 
-    private int imageResId;
-    private String name;
+    private int iconId;
     private int style;
 
-    public CartoonFilter(int imageResId, String name, int style) {
-        this.imageResId = imageResId;
-        this.name = name;
+    public CartoonFilter(int iconId, int style) {
+        this.iconId = iconId;
         this.style = style;
     }
 
-    public int getImageResId() {
-        return imageResId;
+    public int getIconId() {
+        return iconId;
     }
 
-    public void setImageResId(int imageResId) {
-        this.imageResId = imageResId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setIconId(int iconId) {
+        this.iconId = iconId;
     }
 
     public int getStyle() {
@@ -63,8 +70,7 @@ public class CartoonFilter {
     @Override
     public String toString() {
         return "CartoonFilter{" +
-                "imageResId=" + imageResId +
-                ", name='" + name + '\'' +
+                "iconId=" + iconId +
                 ", style=" + style +
                 '}';
     }

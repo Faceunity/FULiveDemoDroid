@@ -26,7 +26,6 @@ import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.dialog.BaseDialogFragment;
 import com.faceunity.fulivedemo.ui.dialog.ConfirmDialogFragment;
-import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.utils.FileUtils;
@@ -93,9 +92,9 @@ public class LivePhotoDriveActivity extends FUBaseActivity {
         return new FURenderer
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
+                .setNeedFaceBeauty(false)
                 .inputImageOrientation(mFrontCameraOrientation)
                 .maxFaces(1)
-                .setNeedFaceBeauty(false)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .build();

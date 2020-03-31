@@ -2,8 +2,8 @@ package com.faceunity.fulivedemo.entity;
 
 import android.support.v4.util.Pair;
 
-import com.faceunity.entity.LightMakeupCombination;
 import com.faceunity.entity.Filter;
+import com.faceunity.entity.LightMakeupCombination;
 import com.faceunity.entity.LightMakeupItem;
 import com.faceunity.fulivedemo.R;
 
