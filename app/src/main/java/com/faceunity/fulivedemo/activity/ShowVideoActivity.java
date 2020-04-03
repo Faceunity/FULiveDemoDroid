@@ -7,7 +7,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
@@ -123,13 +122,28 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         mVideoRenderer = new VideoRenderer(mVideoFilePath, mGlSurfaceView, this);
         mGlSurfaceView.setRenderer(mVideoRenderer);
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        mVideoRenderer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+        mVideoRenderer.setOnMediaEventListener(new VideoRenderer.OnMediaEventListener() {
             @Override
-            public void onCompletion(MediaPlayer mp) {
-                stopRecording();
-                mPlayImageView.setVisibility(View.VISIBLE);
-                mPlayImageView.setImageResource(R.drawable.show_video_replay);
-                mSaveImageView.setVisibility(View.VISIBLE);
+            public void onCompletion() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        stopRecording();
+                        mPlayImageView.setVisibility(View.VISIBLE);
+                        mPlayImageView.setImageResource(R.drawable.show_video_replay);
+                        mSaveImageView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+
+            @Override
+            public void onLoadError(String error) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ShowVideoActivity.this, error, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -307,7 +321,7 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
                     mOutVideoFile.delete();
                 }
                 startRecording();
-                mVideoRenderer.playMedia();
+                mVideoRenderer.startMediaPlayer();
                 mSaveImageView.setVisibility(View.GONE);
                 mPlayImageView.setVisibility(View.GONE);
                 break;
@@ -333,16 +347,6 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
                 break;
             default:
         }
-    }
-
-    @Override
-    public void onLoadVideoError(final String error) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(ShowVideoActivity.this, error, Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     protected void sendRecordingData(int texId, final float[] texMatrix) {

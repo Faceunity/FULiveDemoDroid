@@ -232,10 +232,28 @@ public class FURenderer implements OnFUControlListener {
         loadAiModel(context, BUNDLE_AI_MODEL_FACE_PROCESSOR, faceunity.FUAITYPE_FACEPROCESSOR);
         // 提前加载舌头跟踪模型
         loadTongueModel(context, BUNDLE_TONGUE);
-        // SDK 是否初始化完成
-        int fuIsLibraryInit = faceunity.fuIsLibraryInit();
-        sIsInited = fuIsLibraryInit == 1;
+        sIsInited = isLibInit();
         Log.i(TAG, "initFURenderer finish. isLibraryInit: " + (sIsInited ? "yes" : "no"));
+    }
+
+    /**
+     * 释放 SDK 占用的内存。如需再次使用，需要调用 fuSetup
+     */
+    public static void destroyLibData() {
+        if (sIsInited) {
+            faceunity.fuDestroyLibData();
+            sIsInited = isLibInit();
+            Log.d(TAG, "destroyLibData. isLibraryInit: " + (sIsInited ? "yes" : "no"));
+        }
+    }
+
+    /**
+     * SDK 是否初始化。fuSetup 后表示已经初始化，fuDestroyLibData 后表示已经销毁
+     *
+     * @return 1 inited, 0 not init.
+     */
+    public static boolean isLibInit() {
+        return faceunity.fuIsLibraryInit() == 1;
     }
 
     /**
@@ -1202,13 +1220,13 @@ public class FURenderer implements OnFUControlListener {
         if (mIsMakeupFlipPoints == isFlipPoints) {
             return;
         }
+        Log.d(TAG, "setIsMakeupFlipPoints() isFlipPoints = [" + isFlipPoints + "], isSetImmediately = [" + isSetImmediately + "]");
         mIsMakeupFlipPoints = isFlipPoints;
         if (isSetImmediately) {
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
                     if (mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX] > 0) {
-                        Log.d(TAG, "setIsMakeupFlipPoints: " + isFlipPoints);
                         faceunity.fuItemSetParam(mItemsArray[ITEM_ARRAYS_FACE_MAKEUP_INDEX],
                                 MakeupParamHelper.MakeupParam.IS_FLIP_POINTS, isFlipPoints ? 1.0 : 0.0);
                     }
@@ -2638,6 +2656,10 @@ public class FURenderer implements OnFUControlListener {
                                 }
                             }
 
+                            if (mExternalInputType == EXTERNAL_INPUT_TYPE_IMAGE || mExternalInputType == EXTERNAL_INPUT_TYPE_VIDEO) {
+                                mIsMakeupFlipPoints = !mIsMakeupFlipPoints;
+                            }
+                            Log.d(TAG, "makeup: flip points: " + mIsMakeupFlipPoints);
                             faceunity.fuItemSetParam(finalItemMakeup, MakeupParamHelper.MakeupParam.IS_FLIP_POINTS, mIsMakeupFlipPoints ? 1.0 : 0.0);
                             faceunity.fuItemSetParam(finalItemMakeup, MakeupParamHelper.MakeupParam.MAKEUP_LIP_MASK, 1.0);
                             faceunity.fuItemSetParam(finalItemMakeup, MakeupParamHelper.MakeupParam.MAKEUP_INTENSITY, 1.0);
