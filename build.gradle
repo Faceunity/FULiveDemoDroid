@@ -34,6 +34,6 @@ ext {
     targetSdkVersion = 28
     // update info when release new version
     namaSdkVersionCode = 670
-    namaSdkVersionName = "6.7.0-alpha8"
-    namaSdkCommitId = "6.7.0_tf_phy-242f4a93-b9e3359-f4e482c"
+    namaSdkVersionName = "6.7.0-alpha10"
+    namaSdkCommitId = "6.7.0_tf_phy-8e357ade-b9e3359-f4e482c"
 }

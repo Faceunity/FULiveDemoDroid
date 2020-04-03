@@ -1,13 +1,15 @@
 package com.faceunity.fulivedemo.renderer;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
+import android.net.Uri;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
@@ -17,7 +19,16 @@ import com.faceunity.gles.ProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.ProgramTextureOES;
 import com.faceunity.gles.core.GlUtil;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -34,9 +45,9 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private GLSurfaceView mGlSurfaceView;
     private OnRendererStatusListener mOnVideoRendererStatusListener;
     private String mVideoPath;
-    private boolean mIsNeedPlay;
-    private MediaPlayer mMediaPlayer;
-    private SurfaceTexture mVideoSurfaceTexture;
+
+    private SurfaceTexture mSurfaceTexture;
+    private Surface mSurface;
     private int mVideoTextureId;
     private int mVideoWidth = 720;
     private int mVideoHeight = 1280;
@@ -49,32 +60,51 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private ProgramLandmarks mProgramLandmarks;
     private ProgramTexture2d mProgramTexture2d;
     private ProgramTextureOES mProgramTextureOes;
-    private MediaPlayer.OnCompletionListener mOnCompletionListener;
+    private OnMediaEventListener mOnMediaEventListener;
     private FPSUtil mFPSUtil;
-    private boolean mIsPreparing;
+    private SimpleExoPlayer mSimpleExoPlayer;
+    private Context mContext;
+    private Handler mPlayerHandler;
+    private boolean mIsSystemCameraRecord;
 
     public VideoRenderer(String videoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         mVideoPath = videoPath;
         mGlSurfaceView = glSurfaceView;
+        mContext = glSurfaceView.getContext();
         mOnVideoRendererStatusListener = onRendererStatusListener;
         mFPSUtil = new FPSUtil();
     }
 
     public void onResume() {
+        startPlayerThread();
+        mPlayerHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                createExoMediaPlayer();
+            }
+        });
         mGlSurfaceView.onResume();
     }
 
     public void onPause() {
+        mPlayerHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                releaseExoMediaPlayer();
+            }
+        });
+        stopPlayerThread();
         final CountDownLatch count = new CountDownLatch(1);
         mGlSurfaceView.queueEvent(new Runnable() {
             @Override
             public void run() {
                 onSurfaceDestroy();
+                releaseSurface();
                 count.countDown();
             }
         });
         try {
-            count.await(1, TimeUnit.SECONDS);
+            count.await(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // ignored
         }
@@ -83,22 +113,21 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        Log.d(TAG, "onSurfaceCreated");
+        Log.d(TAG, "onSurfaceCreated: ");
         mProgramTexture2d = new ProgramTexture2d();
         mProgramTextureOes = new ProgramTextureOES();
         mProgramLandmarks = new ProgramLandmarks();
         mVideoTextureId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         mOnVideoRendererStatusListener.onSurfaceCreated();
-        createMedia();
-    }
-
-    @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
-        mViewHeight = height;
-        mViewWidth = width;
-        GLES20.glViewport(0, 0, width, height);
+        createSurface();
+        mPlayerHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mSimpleExoPlayer.setVideoSurface(mSurface);
+            }
+        });
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        boolean isSystemCameraRecord = true;
+        mIsSystemCameraRecord = true;
         try {
             mediaMetadataRetriever.setDataSource(mVideoPath);
             mVideoWidth = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
@@ -106,37 +135,48 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             mVideoRotation = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION));
             String location = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION);
             String genre = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
+            // 粗略判断是否系统相机录制
+            mIsSystemCameraRecord = !(TextUtils.isEmpty(location) || TextUtils.isEmpty(genre));
             Log.d(TAG, "onSurfaceChanged: location:" + location + ", genre:" + genre);
-            isSystemCameraRecord = !(TextUtils.isEmpty(location) || TextUtils.isEmpty(genre));
         } catch (Exception e) {
             Log.e(TAG, "MediaMetadataRetriever extractMetadata: ", e);
         } finally {
             mediaMetadataRetriever.release();
         }
-        mOnVideoRendererStatusListener.onSurfaceChanged(width, height, mVideoWidth, mVideoHeight, mVideoRotation, isSystemCameraRecord);
-        Log.d(TAG, "onSurfaceChanged() width:" + width + ", height:" + height + ", videoWidth:"
-                + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation);
-        mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mVideoRotation % 180 == 0 ? mVideoWidth : mVideoHeight, mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth);
+    }
+
+    @Override
+    public void onSurfaceChanged(GL10 gl, int width, int height) {
+        mViewHeight = height;
+        mViewWidth = width;
+        GLES20.glViewport(0, 0, width, height);
+        mOnVideoRendererStatusListener.onSurfaceChanged(width, height, mVideoWidth, mVideoHeight, mVideoRotation, mIsSystemCameraRecord);
+        boolean isLandscape = mVideoRotation % 180 == 0;
+        mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, isLandscape ? mVideoWidth : mVideoHeight,
+                isLandscape ? mVideoHeight : mVideoWidth);
         mFPSUtil.resetLimit();
+        Log.d(TAG, "onSurfaceChanged() width:" + width + ", height:" + height + ", videoWidth:"
+                + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation
+                + ", mIsSystemCameraRecord:" + mIsSystemCameraRecord);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mIsPreparing || mProgramTexture2d == null || mProgramTextureOes == null || mVideoSurfaceTexture == null) {
+        if (mProgramTexture2d == null || mProgramTextureOes == null || mSurfaceTexture == null) {
             return;
         }
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         try {
-            mVideoSurfaceTexture.updateTexImage();
-            mVideoSurfaceTexture.getTransformMatrix(mTexMatrix);
+            mSurfaceTexture.updateTexImage();
+            mSurfaceTexture.getTransformMatrix(mTexMatrix);
         } catch (Exception e) {
             Log.e(TAG, "onDrawFrame: ", e);
             return;
         }
 
         int fuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth,
-                mVideoHeight, mTexMatrix, mVideoSurfaceTexture.getTimestamp());
+                mVideoHeight, mTexMatrix, mSurfaceTexture.getTimestamp());
         if (fuTextureId > 0) {
             mProgramTexture2d.drawFrame(fuTextureId, mTexMatrix, mMvpMatrix);
         } else {
@@ -158,7 +198,6 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     private void onSurfaceDestroy() {
         Log.d(TAG, "onSurfaceDestroy");
-        releaseMedia();
         if (mVideoTextureId != 0) {
             int[] textures = new int[]{mVideoTextureId};
             GLES20.glDeleteTextures(1, textures, 0);
@@ -180,78 +219,68 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         mOnVideoRendererStatusListener.onSurfaceDestroy();
     }
 
-    private void createMedia() {
-        mIsPreparing = true;
-        releaseMedia();
-        try {
-            mVideoSurfaceTexture = new SurfaceTexture(mVideoTextureId);
-            mVideoSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
-                @Override
-                public void onFrameAvailable(SurfaceTexture surfaceTexture) {
-                    mIsPreparing = false;
-                    mGlSurfaceView.requestRender();
-                    if (!mIsNeedPlay && mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                        mMediaPlayer.pause();
-                    }
-                }
-            });
+    private void createExoMediaPlayer() {
+        Log.d(TAG, "createExoMediaPlayer: ");
+        mSimpleExoPlayer = new SimpleExoPlayer.Builder(mContext).build();
+        MediaEventListener mediaEventListener = new MediaEventListener();
+        mSimpleExoPlayer.addListener(mediaEventListener);
+        mSimpleExoPlayer.setPlayWhenReady(false);
+        mSimpleExoPlayer.setVolume(0f);
+        String userAgent = Util.getUserAgent(mContext, mContext.getPackageName());
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext, userAgent);
+        ProgressiveMediaSource.Factory mediaSourceFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
+        Uri uri = Uri.fromFile(new File(mVideoPath));
+        MediaSource mediaSource = mediaSourceFactory.createMediaSource(uri);
+        mSimpleExoPlayer.prepare(mediaSource);
+    }
 
-            mMediaPlayer = new MediaPlayer();
-            mMediaPlayer.setDataSource(mVideoPath);
-            mMediaPlayer.setVolume(0, 0);
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setSurface(new Surface(mVideoSurfaceTexture));
-            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(final MediaPlayer mp) {
-                    Log.d(TAG, "onPrepared");
-                    mMediaPlayer.start();
-                    mGlSurfaceView.requestRender();
-                }
-            });
-            mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    Log.d(TAG, "onCompletion");
-                    mIsNeedPlay = false;
-                    if (mOnCompletionListener != null) {
-                        mOnCompletionListener.onCompletion(mp);
-                    }
-                    releaseMedia();
-                }
-            });
-            mMediaPlayer.prepareAsync();
-        } catch (Exception e) {
-            Log.e(TAG, "createMedia: ", e);
-            mOnVideoRendererStatusListener.onLoadVideoError(e.getMessage());
+    private void releaseExoMediaPlayer() {
+        Log.d(TAG, "releaseExoMediaPlayer: ");
+        if (mSimpleExoPlayer != null) {
+            mSimpleExoPlayer.stop(true);
+            mSimpleExoPlayer.release();
+            mSimpleExoPlayer = null;
         }
     }
 
-    public void playMedia() {
-        mIsNeedPlay = true;
-        if (mMediaPlayer != null) {
-            mMediaPlayer.start();
-        } else {
-            createMedia();
+    private void createSurface() {
+        Log.d(TAG, "createSurface: ");
+        mSurfaceTexture = new SurfaceTexture(mVideoTextureId);
+        mSurfaceTexture.setDefaultBufferSize(mVideoWidth, mVideoHeight);
+        mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
+            @Override
+            public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+                mGlSurfaceView.requestRender();
+            }
+        });
+        mSurface = new Surface(mSurfaceTexture);
+    }
+
+    private void releaseSurface() {
+        Log.d(TAG, "releaseSurface: ");
+        if (mSurfaceTexture != null) {
+            mSurfaceTexture.release();
+            mSurfaceTexture = null;
+        }
+        if (mSurface != null) {
+            mSurface.release();
+            mSurface = null;
         }
     }
 
-    private void releaseMedia() {
-        mIsNeedPlay = false;
-        if (mMediaPlayer != null) {
-            mMediaPlayer.stop();
-            mMediaPlayer.setSurface(null);
-            mMediaPlayer.release();
-            mMediaPlayer = null;
-        }
-        if (mVideoSurfaceTexture != null) {
-            mVideoSurfaceTexture.release();
-            mVideoSurfaceTexture = null;
-        }
+    public void startMediaPlayer() {
+        Log.d(TAG, "startMediaPlayer: ");
+        mPlayerHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mSimpleExoPlayer.seekTo(0);
+                mSimpleExoPlayer.setPlayWhenReady(true);
+            }
+        });
     }
 
-    public void setOnCompletionListener(MediaPlayer.OnCompletionListener onCompletionListener) {
-        mOnCompletionListener = onCompletionListener;
+    public void setOnMediaEventListener(OnMediaEventListener onMediaEventListener) {
+        mOnMediaEventListener = onMediaEventListener;
     }
 
     public int getVideoWidth() {
@@ -262,6 +291,62 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         return mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth;
     }
 
+    private void startPlayerThread() {
+        HandlerThread playerThread = new HandlerThread("exo_player");
+        playerThread.start();
+        mPlayerHandler = new Handler(playerThread.getLooper());
+    }
+
+    private void stopPlayerThread() {
+        mPlayerHandler.getLooper().quitSafely();
+        mPlayerHandler = null;
+    }
+
+    private class MediaEventListener implements Player.EventListener {
+
+        @Override
+        public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            switch (playbackState) {
+//                case Player.STATE_IDLE:
+//                    break;
+//                case Player.STATE_BUFFERING:
+//                    break;
+                case Player.STATE_READY:
+                    if (playWhenReady) {
+                        Log.d(TAG, "onPlayerStateChanged: prepared " + Thread.currentThread().getName());
+                        mGlSurfaceView.requestRender();
+                    }
+                    break;
+                case Player.STATE_ENDED:
+                    Log.d(TAG, "onPlayerStateChanged: completion " + Thread.currentThread().getName());
+                    if (mOnMediaEventListener != null) {
+                        mOnMediaEventListener.onCompletion();
+                    }
+                    break;
+                default:
+            }
+        }
+
+        @Override
+        public void onPlayerError(ExoPlaybackException error) {
+            Log.w(TAG, "onPlayerError: ", error);
+            String message;
+            switch (error.type) {
+                case ExoPlaybackException.TYPE_SOURCE:
+                    message = "数据源异常";
+                    break;
+                case ExoPlaybackException.TYPE_RENDERER:
+                    message = "解码异常";
+                    break;
+                case ExoPlaybackException.TYPE_UNEXPECTED:
+                default:
+                    message = "其他异常";
+            }
+            if (mOnMediaEventListener != null) {
+                mOnMediaEventListener.onLoadError(message);
+            }
+        }
+    }
 
     public interface OnRendererStatusListener {
 
@@ -298,12 +383,20 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
          * Called when surface is destroyed
          */
         void onSurfaceDestroy();
+    }
+
+    public interface OnMediaEventListener {
+        /**
+         * Called when the end of a media source is reached during playback.
+         */
+        void onCompletion();
 
         /**
          * Called when error happened
          *
          * @param error
          */
-        void onLoadVideoError(String error);
+        void onLoadError(String error);
     }
+
 }
