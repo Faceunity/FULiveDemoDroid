@@ -7,9 +7,10 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
+
+import androidx.annotation.NonNull;
 
 public class AlmostRippleDrawable extends StateDrawable implements Animatable {
     private static final long FRAME_DURATION = 1000 / 60;

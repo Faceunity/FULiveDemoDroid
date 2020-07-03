@@ -9,8 +9,9 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.utils.CameraUtils;

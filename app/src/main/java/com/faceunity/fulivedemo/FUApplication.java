@@ -3,7 +3,8 @@ package com.faceunity.fulivedemo;
 import android.app.Application;
 import android.content.Context;
 
-import com.faceunity.fulivedemo.database.DatabaseOpenHelper;
+import com.faceunity.FURenderer;
+import com.faceunity.fulivedemo.utils.LogUtils;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.utils.FileUtils;
 
@@ -21,14 +22,17 @@ public class FUApplication extends Application {
     public void onCreate() {
         super.onCreate();
         sContext = this;
-        DatabaseOpenHelper.register(this);
+        FURenderer.initFURenderer(FUApplication.this);
         ThreadHelper.getInstance().execute(new Runnable() {
             @Override
             public void run() {
                 // 异步拷贝 assets 资源
-                FileUtils.copyAssetsLivePhotoTemplate(sContext);
                 FileUtils.copyAssetsChangeFaceTemplate(sContext);
             }
         });
+
+        LogUtils.config(this);
+        LogUtils.i("************* device info *************\n"
+                + LogUtils.retrieveDeviceInfo(this));
     }
 }

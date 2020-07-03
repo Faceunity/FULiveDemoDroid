@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fu_effect_recycler"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#99050f14"
+        android:padding="@dimen/x14"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <com.kyleduo.switchbutton.SwitchButton
+        android:id="@+id/btn_switch_pta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/x32"
+        android:layout_marginBottom="@dimen/x32"
+        android:checked="true"
+        android:textColor="@color/switch_button_text"
+        android:textSize="@dimen/x24"
+        app:kswBackDrawable="@drawable/bg_switch_button_white"
+        app:kswTextExtra="@dimen/x48"
+        app:kswTextOff="@string/pta_human_half_body"
+        app:kswTextOn="@string/pta_human_full_body"
+        app:kswTextThumbInset="@dimen/x20"
+        app:kswThumbDrawable="@drawable/demo_icon_circle_dot"
+        app:kswThumbHeight="@dimen/x88"
+        app:kswThumbWidth="@dimen/x88"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/fu_effect_recycler"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:kswThumbMarginBottom="-11dp"
+        tools:kswThumbMarginLeft="-7dp"
+        tools:kswThumbMarginRight="-7dp"
+        tools:kswThumbMarginTop="-4dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

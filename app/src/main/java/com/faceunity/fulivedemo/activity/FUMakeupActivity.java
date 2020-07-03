@@ -1,8 +1,9 @@
 package com.faceunity.fulivedemo.activity;
 
 import android.content.Intent;
-import android.support.constraint.ConstraintLayout;
 import android.view.View;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;

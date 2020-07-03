@@ -24,8 +24,7 @@
         app:dsb_trackColor="@color/colorWhite"
         app:dsb_value="0" />
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/cl_recover_body"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="@dimen/x148"
         android:layout_height="wrap_content"
         android:layout_gravity="left|bottom">
@@ -53,7 +52,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
         android:layout_width="@dimen/x1"
@@ -129,7 +128,28 @@
                 app:drawable_open_normal="@drawable/demo_icon_hip_nor_open"
                 app:text_normal="@string/beautify_hip_slim" />
 
+            <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                android:id="@+id/beauty_box_head_slim"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:drawable_close_checked="@drawable/demo_icon_little_head_sel"
+                app:drawable_close_normal="@drawable/demo_icon_little_head_nor"
+                app:drawable_open_checked="@drawable/demo_icon_little_head_sel_open"
+                app:drawable_open_normal="@drawable/demo_icon_little_head_nor_open"
+                app:text_normal="@string/beautify_head_slim" />
+
+            <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                android:id="@+id/beauty_box_leg_thin_slim"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:drawable_close_checked="@drawable/demo_icon_thin_leg_sel"
+                app:drawable_close_normal="@drawable/demo_icon_thin_leg_nor"
+                app:drawable_open_checked="@drawable/demo_icon_thin_leg_sel_open"
+                app:drawable_open_normal="@drawable/demo_icon_thin_leg_nor_open"
+                app:text_normal="@string/beautify_leg_thin_slim" />
+
         </com.faceunity.fulivedemo.ui.beautybox.BeautyBoxGroup>
+
     </HorizontalScrollView>
 
 </FrameLayout>

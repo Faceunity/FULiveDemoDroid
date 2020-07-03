@@ -10,9 +10,10 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
+
+import androidx.annotation.NonNull;
 
 /**
  * Implementation of {@link StateDrawable} to draw a morphing marker symbol.

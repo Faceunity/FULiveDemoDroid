@@ -12,8 +12,10 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.util.Log;
+import android.view.MotionEvent;
 
-import com.faceunity.fulivedemo.utils.FPSUtil;
+import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.utils.LimitFpsUtil;
 import com.faceunity.gles.ProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.ProgramTextureOES;
@@ -33,7 +35,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     /**
      * 显示 landmarks 点位开关
      */
-    public static final boolean ENABLE_DRAW_LANDMARKS = false;
+    public static boolean ENABLE_DRAW_LANDMARKS = false;
     private static final String TAG = "BaseCameraRenderer";
     public static final int FACE_BACK = Camera.CameraInfo.CAMERA_FACING_BACK;
     public static final int FACE_FRONT = Camera.CameraInfo.CAMERA_FACING_FRONT;
@@ -56,7 +58,8 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     protected int mCameraOrientation = FRONT_CAMERA_ORIENTATION;
     protected float[] mMvpMatrix;
     protected float[] mTexMatrix = Arrays.copyOf(TEXTURE_MATRIX, TEXTURE_MATRIX.length);
-    protected byte[] mCameraNV21Byte;
+    protected byte[] mCameraNv21Byte;
+    protected byte[] mNv21ByteCopy;
     protected SurfaceTexture mSurfaceTexture;
     protected GLSurfaceView mGlSurfaceView;
     protected Activity mActivity;
@@ -68,15 +71,35 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     private ProgramLandmarks mProgramLandmarks;
     private float[] mLandmarksData;
     protected int m2DTexId;
-    private FPSUtil mFPSUtil = new FPSUtil();
+    private int mBitmap2dTexId;
     protected OnRendererStatusListener mOnRendererStatusListener;
-    protected final Object mLock = new Object();
+    /* added */
+    private boolean mRenderRotatedImage;
+    private boolean mDrawSmallViewport;
+    private int mSmallViewportWidth;
+    private int mSmallViewportHeight;
+    private int mSmallViewportX;
+    private int mSmallViewportY;
+    private int mSmallViewportHorizontalPadding;
+    private int mSmallViewportTopPadding;
+    private int mSmallViewportBottomPadding;
+    private int mTouchX;
+    private int mTouchY;
 
     protected BaseCameraRenderer(Activity activity, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         mGlSurfaceView = glSurfaceView;
         mActivity = activity;
         mOnRendererStatusListener = onRendererStatusListener;
         initCameraInfo();
+        mSmallViewportWidth = activity.getResources().getDimensionPixelSize(R.dimen.x180);
+        mSmallViewportHeight = activity.getResources().getDimensionPixelSize(R.dimen.x320);
+        mSmallViewportHorizontalPadding = activity.getResources().getDimensionPixelSize(R.dimen.x32);
+        mSmallViewportTopPadding = activity.getResources().getDimensionPixelSize(R.dimen.x176);
+        mSmallViewportBottomPadding = activity.getResources().getDimensionPixelSize(R.dimen.x200);
+    }
+
+    public void setCameraFacing(int cameraFacing) {
+        mCameraFacing = cameraFacing;
     }
 
     @Override
@@ -92,6 +115,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
                 startPreview();
             }
         });
+        LimitFpsUtil.setTargetFps(LimitFpsUtil.DEFAULT_FPS);
         mOnRendererStatusListener.onSurfaceCreated();
     }
 
@@ -106,7 +130,8 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
                 + ", cameraHeight:" + mCameraHeight + ", cameraTexId:" + mCameraTexId);
         mViewWidth = width;
         mViewHeight = height;
-        mFPSUtil.resetLimit();
+        mSmallViewportX = width - mSmallViewportWidth - mSmallViewportHorizontalPadding;
+        mSmallViewportY = mSmallViewportBottomPadding;
         mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -133,19 +158,28 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         }
 
         if (!mIsStopPreview) {
-            synchronized (mLock) {
-                if (mCameraNV21Byte != null) {
-                    m2DTexId = mOnRendererStatusListener.onDrawFrame(mCameraNV21Byte, mCameraTexId,
-                            mCameraWidth, mCameraHeight, mMvpMatrix, mTexMatrix, mSurfaceTexture.getTimestamp());
+            if (mCameraNv21Byte != null) {
+                if (mNv21ByteCopy == null) {
+                    mNv21ByteCopy = new byte[mCameraNv21Byte.length];
                 }
+                System.arraycopy(mCameraNv21Byte, 0, mNv21ByteCopy, 0, mCameraNv21Byte.length);
+            }
+            if (mNv21ByteCopy != null) {
+                m2DTexId = mOnRendererStatusListener.onDrawFrame(mNv21ByteCopy, mCameraTexId,
+                        mCameraWidth, mCameraHeight, mMvpMatrix, mTexMatrix, mSurfaceTexture.getTimestamp());
             }
         }
 
         if (!mIsSwitchCamera) {
             if (m2DTexId > 0) {
-                mProgramTexture2d.drawFrame(m2DTexId, mTexMatrix, mMvpMatrix);
+                mProgramTexture2d.drawFrame(m2DTexId, mRenderRotatedImage ? GlUtil.IDENTITY_MATRIX : mTexMatrix, mMvpMatrix);
             } else if (mCameraTexId > 0) {
                 mProgramTextureOES.drawFrame(mCameraTexId, mTexMatrix, mMvpMatrix);
+            }
+            if (mDrawSmallViewport) {
+                GLES20.glViewport(mSmallViewportX, mSmallViewportY, mSmallViewportWidth, mSmallViewportHeight);
+                mProgramTextureOES.drawFrame(mCameraTexId, mTexMatrix, GlUtil.IDENTITY_MATRIX);
+                GLES20.glViewport(0, 0, mViewWidth, mViewHeight);
             }
 
             if (ENABLE_DRAW_LANDMARKS && mLandmarksData != null) {
@@ -154,10 +188,10 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
             }
         }
 
+        LimitFpsUtil.limitFrameRate();
         if (!mIsStopPreview) {
             mGlSurfaceView.requestRender();
         }
-        mFPSUtil.limit();
     }
 
     public void onResume() {
@@ -196,6 +230,48 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         stopBackgroundThread();
     }
 
+    public void setRenderRotatedImage(boolean renderRotatedImage) {
+        mRenderRotatedImage = renderRotatedImage;
+        mDrawSmallViewport = renderRotatedImage;
+    }
+
+    public void onTouchEvent(int x, int y, int action) {
+        if (!mDrawSmallViewport) {
+            return;
+        }
+        if (action == MotionEvent.ACTION_MOVE) {
+            if (x < mSmallViewportHorizontalPadding || x > mViewWidth - mSmallViewportHorizontalPadding
+                    || y < mSmallViewportTopPadding || y > mViewHeight - mSmallViewportBottomPadding) {
+                return;
+            }
+            int touchX = mTouchX;
+            int touchY = mTouchY;
+            mTouchX = x;
+            mTouchY = y;
+            int distanceX = x - touchX;
+            int distanceY = y - touchY;
+            int viewportX = mSmallViewportX;
+            int viewportY = mSmallViewportY;
+            viewportX += distanceX;
+            viewportY -= distanceY;
+            if (viewportX < mSmallViewportHorizontalPadding || viewportX + mSmallViewportWidth > mViewWidth - mSmallViewportHorizontalPadding
+                    || mViewHeight - viewportY - mSmallViewportHeight < mSmallViewportTopPadding
+                    || viewportY < mSmallViewportBottomPadding) {
+                return;
+            }
+            mSmallViewportX = viewportX;
+            mSmallViewportY = viewportY;
+        } else if (action == MotionEvent.ACTION_DOWN) {
+            mTouchX = x;
+            mTouchY = y;
+        } else if (action == MotionEvent.ACTION_UP) {
+            boolean alignLeft = mSmallViewportX < mViewWidth / 2;
+            mSmallViewportX = alignLeft ? mSmallViewportHorizontalPadding : mViewWidth - mSmallViewportHorizontalPadding - mSmallViewportWidth;
+            mTouchX = 0;
+            mTouchY = 0;
+        }
+    }
+
     public void changeResolution(int cameraWidth, int cameraHeight) {
     }
 
@@ -222,12 +298,14 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     }
 
     public void hideImageTexture() {
+        Log.d(TAG, "hideImageTexture() called");
         mShotBitmap = null;
         mIsStopPreview = false;
         mGlSurfaceView.queueEvent(new Runnable() {
             @Override
             public void run() {
                 mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+                deleteBitmapTexId();
             }
         });
         mGlSurfaceView.requestRender();
@@ -237,12 +315,15 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         if (bitmap == null) {
             return;
         }
+        Log.d(TAG, "showImageTexture() called with: bitmap = [" + bitmap + "]");
         mIsStopPreview = true;
         mShotBitmap = bitmap;
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                m2DTexId = GlUtil.createImageTexture(bitmap);
+                deleteBitmapTexId();
+                mBitmap2dTexId = GlUtil.createImageTexture(bitmap);
+                m2DTexId = mBitmap2dTexId;
                 float[] mvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, bitmap.getWidth(), bitmap.getHeight());
                 float[] scaleMatrix = Arrays.copyOf(GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX.length);
                 Matrix.scaleM(scaleMatrix, 0, -1F, 1F, 1F);
@@ -257,6 +338,13 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         };
         mGlSurfaceView.queueEvent(runnable);
         mGlSurfaceView.requestRender();
+    }
+
+    private void deleteBitmapTexId() {
+        if (mBitmap2dTexId > 0) {
+            GlUtil.deleteTextureId(new int[]{mBitmap2dTexId});
+            mBitmap2dTexId = 0;
+        }
     }
 
     public int getCameraWidth() {
@@ -316,10 +404,12 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     }
 
     protected void closeCamera() {
-        mCameraNV21Byte = null;
+        mCameraNv21Byte = null;
+        mNv21ByteCopy = null;
     }
 
     private void destroyGlSurface() {
+        deleteBitmapTexId();
         if (mCameraTexId != 0) {
             GLES20.glDeleteTextures(1, new int[]{mCameraTexId}, 0);
             mCameraTexId = 0;

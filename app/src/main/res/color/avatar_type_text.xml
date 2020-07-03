@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/avatar_blue_btn" android:state_selected="true" />
-    <item android:color="@color/btn_live_photo_text" />
-</selector>

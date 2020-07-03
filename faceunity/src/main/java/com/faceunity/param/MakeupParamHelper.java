@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.faceunity.entity.LightMakeupCombination;
+import com.faceunity.entity.LightMakeupItem;
 import com.faceunity.utils.BitmapUtil;
 
 import org.json.JSONArray;
@@ -43,7 +43,6 @@ public class MakeupParamHelper {
             bitmap = BitmapFactory.decodeStream(is);
         } catch (IOException e) {
             // open assets failed, then try sdcard
-            Log.w(TAG, "createTextureImage: ", e);
             bitmap = BitmapFactory.decodeFile(resourcePath);
         } finally {
             if (is != null) {
@@ -71,19 +70,19 @@ public class MakeupParamHelper {
      */
     public static String getMakeupTextureKeyByType(int type) {
         switch (type) {
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_LIPSTICK:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_LIPSTICK:
                 return "tex_lip";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_LINER:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYE_LINER:
                 return "tex_eyeLiner";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_BLUSHER:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_BLUSHER:
                 return "tex_blusher";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_PUPIL:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYE_PUPIL:
                 return "tex_pupil";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYEBROW:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYEBROW:
                 return "tex_brow";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_SHADOW:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYE_SHADOW:
                 return "tex_eye";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYELASH:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYELASH:
                 return "tex_eyeLash";
             default:
                 return "";
@@ -98,19 +97,19 @@ public class MakeupParamHelper {
      */
     public static String getMakeupIntensityKeyByType(int type) {
         switch (type) {
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_LIPSTICK:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_LIPSTICK:
                 return "makeup_intensity_lip";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_LINER:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYE_LINER:
                 return "makeup_intensity_eyeLiner";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_BLUSHER:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_BLUSHER:
                 return "makeup_intensity_blusher";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_PUPIL:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYE_PUPIL:
                 return "makeup_intensity_pupil";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYEBROW:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYEBROW:
                 return "makeup_intensity_eyeBrow";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYE_SHADOW:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYE_SHADOW:
                 return "makeup_intensity_eye";
-            case LightMakeupCombination.FACE_MAKEUP_TYPE_EYELASH:
+            case LightMakeupItem.FACE_MAKEUP_TYPE_EYELASH:
                 return "makeup_intensity_eyelash";
             default:
                 return "";
@@ -129,9 +128,7 @@ public class MakeupParamHelper {
             return null;
         }
 
-        InputStream is = null;
-        try {
-            is = context.getAssets().open(colorAssetPath);
+        try (InputStream is = context.getAssets().open(colorAssetPath)) {
             byte[] bytes = new byte[is.available()];
             is.read(bytes);
             JSONObject jsonObject = new JSONObject(new String(bytes));
@@ -143,14 +140,6 @@ public class MakeupParamHelper {
             return colors;
         } catch (IOException | JSONException e) {
             Log.e(TAG, "readMakeupLipColors: ", e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    // ignored
-                }
-            }
         }
         return null;
     }

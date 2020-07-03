@@ -13,6 +13,7 @@ import com.faceunity.entity.MakeupEntity;
 import com.faceunity.entity.MakeupItem;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.utils.DecimalUtils;
+import com.faceunity.param.BeautificationParam;
 import com.faceunity.param.MakeupParamHelper;
 import com.faceunity.utils.FileUtils;
 
@@ -66,19 +67,19 @@ public class MakeupConfig {
             return;
         }
 
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_jianling, Filter.create(Filter.Key.ZHIGANHUI_1));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_nuandong, Filter.create(Filter.Key.ZHIGANHUI_2));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_hongfeng, Filter.create(Filter.Key.ZHIGANHUI_3));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_shaonv, Filter.create(Filter.Key.ZHIGANHUI_4));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_ziyun, Filter.create(Filter.Key.ZHIGANHUI_1));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_yanshimao, Filter.create(Filter.Key.ZHIGANHUI_5));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_renyu, Filter.create(Filter.Key.ZHIGANHUI_1));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_chuqiu, Filter.create(Filter.Key.ZHIGANHUI_6));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_qianzhihe, Filter.create(Filter.Key.ZHIGANHUI_2));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_chaomo, Filter.create(Filter.Key.ZHIGANHUI_7));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_chuju, Filter.create(Filter.Key.ZHIGANHUI_8));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_gangfeng, Filter.create(Filter.Key.ZIRAN_8));
-        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_rose, Filter.create(Filter.Key.ZHIGANHUI_2));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_jianling, Filter.create(BeautificationParam.ZHIGANHUI_1));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_nuandong, Filter.create(BeautificationParam.ZHIGANHUI_2));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_hongfeng, Filter.create(BeautificationParam.ZHIGANHUI_3));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_shaonv, Filter.create(BeautificationParam.ZHIGANHUI_4));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_ziyun, Filter.create(BeautificationParam.ZHIGANHUI_1));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_yanshimao, Filter.create(BeautificationParam.ZHIGANHUI_5));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_renyu, Filter.create(BeautificationParam.ZHIGANHUI_1));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_chuqiu, Filter.create(BeautificationParam.ZHIGANHUI_6));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_qianzhihe, Filter.create(BeautificationParam.ZHIGANHUI_2));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_chaomo, Filter.create(BeautificationParam.ZHIGANHUI_7));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_chuju, Filter.create(BeautificationParam.ZHIGANHUI_8));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_gangfeng, Filter.create(BeautificationParam.ZIRAN_8));
+        MAKEUP_COMBINATION_FILTER_MAP.put(R.string.makeup_combination_rose, Filter.create(BeautificationParam.ZHIGANHUI_2));
     }
 
     /**

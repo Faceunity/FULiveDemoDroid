@@ -127,8 +127,8 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
                 }
                 // must call after stopPreview
                 mCamera.setPreviewCallbackWithBuffer(this);
-                for (int i = 0; i < mPreviewCallbackBufferArray.length; i++) {
-                    mCamera.addCallbackBuffer(mPreviewCallbackBufferArray[i]);
+                for (byte[] bytes : mPreviewCallbackBufferArray) {
+                    mCamera.addCallbackBuffer(bytes);
                 }
                 if (mSurfaceTexture == null) {
                     mSurfaceTexture = new SurfaceTexture(mCameraTexId);
@@ -165,11 +165,9 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         // called on CameraRenderer thread
-        synchronized (mLock) {
-            mCameraNV21Byte = data;
-        }
+        mCameraNv21Byte = data;
+        mCamera.addCallbackBuffer(data);
         if (!mIsStopPreview) {
-            mCamera.addCallbackBuffer(data);
             mGlSurfaceView.requestRender();
         }
     }

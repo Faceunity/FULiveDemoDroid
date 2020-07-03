@@ -7,11 +7,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Path;
 import android.hardware.Camera;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -22,6 +17,12 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -42,6 +43,7 @@ import com.faceunity.fulivedemo.ui.colorfulcircle.ColorfulCircleView;
 import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.param.BeautificationParam;
 import com.faceunity.param.MakeupParamHelper;
 import com.wuyr.pathlayoutmanager.PathLayoutManager;
 
@@ -902,7 +904,7 @@ public class MakeupControlView extends FrameLayout {
                 setCustomEnable(true);
                 mMakeupCombinationSeekBar.setVisibility(View.INVISIBLE);
                 mOnFUControlListener.selectMakeup(makeupEntity, paramMap);
-                mOnFUControlListener.onFilterNameSelected(Filter.Key.ZIRAN_2);
+                mOnFUControlListener.onFilterNameSelected(BeautificationParam.ZIRAN_2);
                 mOnFUControlListener.onFilterLevelSelected(0.4F);
                 clearSelectedItems();
             } else {
@@ -913,11 +915,8 @@ public class MakeupControlView extends FrameLayout {
                 double intensity = mSelectedCombinationIntensitys.get(nameId, (double) MakeupConfig.DEFAULT_INTENSITY);
                 mMakeupCombinationSeekBar.setVisibility(View.VISIBLE);
                 mMakeupCombinationSeekBar.setProgress((int) (intensity * 100));
-                // 仅组合妆需要自定义
                 Map<String, Object> paramMapCopy = new HashMap<>(32);
-                if (isDaily) {
-                    paramMapCopy.putAll(paramMap);
-                }
+                paramMapCopy.putAll(paramMap);
                 Set<Map.Entry<String, Object>> entries = paramMap.entrySet();
                 for (Map.Entry<String, Object> entry : entries) {
                     String key = entry.getKey();
@@ -944,7 +943,7 @@ public class MakeupControlView extends FrameLayout {
                     }
                     mOnFUControlListener.onFilterLevelSelected((float) filterLevel);
                 } else {
-                    mOnFUControlListener.onFilterNameSelected(Filter.Key.ZIRAN_2);
+                    mOnFUControlListener.onFilterNameSelected(BeautificationParam.ZIRAN_2);
                     mOnFUControlListener.onFilterLevelSelected(0.4F);
                 }
             }

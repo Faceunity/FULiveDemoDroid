@@ -1,15 +1,16 @@
 package com.faceunity.fulivedemo.ui.control;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.faceunity.FURenderer;
 import com.faceunity.OnFUControlListener;
@@ -81,12 +82,10 @@ public class BeautyHairControlView extends FrameLayout {
 
                 if (mHairAdapter.mPositionSelect <= mHairGradientCount) {
                     int hairIndex = mHairAdapter.mPositionSelect - 1;
-                    mOnFUControlListener.onHairLevelSelected(FURenderer.HAIR_GRADIENT, hairIndex,
-                            hairIndex < 0 ? 0 : (BeautyParameterModel.sHairLevel[mHairAdapter.mPositionSelect - 1] = 1.0f * value / 100));
+                    mOnFUControlListener.onHairStrengthSelected(hairIndex, hairIndex < 0 ? 0 : (BeautyParameterModel.sHairLevel[mHairAdapter.mPositionSelect - 1] = 1.0f * value / 100));
                 } else {
                     int hairIndex = mHairAdapter.mPositionSelect - mHairGradientCount - 1;
-                    mOnFUControlListener.onHairLevelSelected(FURenderer.HAIR_NORMAL, hairIndex,
-                            BeautyParameterModel.sHairLevel[mHairAdapter.mPositionSelect - 1] = 1.0f * value / 100);
+                    mOnFUControlListener.onHairStrengthSelected(hairIndex, BeautyParameterModel.sHairLevel[mHairAdapter.mPositionSelect - 1] = 1.0f * value / 100);
                 }
             }
         });
@@ -116,7 +115,7 @@ public class BeautyHairControlView extends FrameLayout {
 
         @Override
         public void onBindViewHolder(@NonNull HairAdapter.HomeRecyclerHolder holder, int position) {
-            holder.effectImg.setImageResource(mEffects.get(position).resId());
+            holder.effectImg.setImageResource(mEffects.get(position).getIconId());
             final int pos = position;
             holder.effectImg.setOnClickListener(new OnMultiClickListener() {
                 @Override
@@ -140,8 +139,6 @@ public class BeautyHairControlView extends FrameLayout {
                         hairIndex = mPositionSelect - 1;
                         hairLevel = BeautyParameterModel.sHairLevel[mPositionSelect - 1];
                     }
-//                    Log.d(TAG, "onClick: hairIndex:" + hairIndex + ", hairLevel:" + hairLevel +
-//                            ", pos:" + mPositionSelect + ". lastPos:" + mPositionSelect);
                     if (mPositionSelect == 0) {
                         if (lastPos <= mHairGradientCount) {
                             mOnFUControlListener.onHairSelected(FURenderer.HAIR_GRADIENT, hairIndex, 0.0f);

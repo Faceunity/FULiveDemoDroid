@@ -1,13 +1,14 @@
 package com.faceunity.fulivedemo.ui.dialog;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 import com.faceunity.fulivedemo.FUApplication;
 import com.faceunity.fulivedemo.R;

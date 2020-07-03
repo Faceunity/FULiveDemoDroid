@@ -1,9 +1,15 @@
 package com.faceunity.fulivedemo.activity;
 
 import android.content.Intent;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.widget.CompoundButton;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
@@ -12,6 +18,8 @@ import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.SwitchConfig;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.utils.AudioObserver;
+import com.faceunity.fulivedemo.utils.ScreenUtils;
+import com.kyleduo.switchbutton.SwitchButton;
 
 import java.util.ArrayList;
 
@@ -19,30 +27,89 @@ import java.util.ArrayList;
  * 道具界面
  * Created by tujh on 2018/1/31.
  */
-public class FUEffectActivity extends FUBaseActivity {
+public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBundleLoadCompleteListener {
     public static final String TAG = "FUEffectActivity";
     public static final String SELECT_EFFECT_KEY = "select_effect_key";
     public static final String EFFECT_TYPE = "effect_type";
 
-    private EffectRecyclerAdapter mEffectRecyclerAdapter;
+    protected EffectRecyclerAdapter mEffectRecyclerAdapter;
     protected int mEffectType;
 
     @Override
     protected void onCreate() {
-        mBottomViewStub.setLayoutResource(R.layout.layout_fu_effect);
-        mBottomViewStub.inflate();
+        if (mEffectType == Effect.EFFECT_TYPE_ACTION_RECOGNITION) {
+            findViewById(R.id.cl_custom_view).setVisibility(View.GONE);
+            mGLSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+                private int mLongPressTimeout = ViewConfiguration.getLongPressTimeout();
+                private long mStartTimestamp;
+                private int mX = getResources().getDimensionPixelSize(R.dimen.x138);
+                private int mY = getResources().getDimensionPixelSize(R.dimen.x150);
 
-        RecyclerView recyclerView = findViewById(R.id.fu_effect_recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer));
-        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-        mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
-            @Override
-            public void onDescriptionChangeListener(int description) {
-                showDescription(description, 1500);
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getX() > mX || event.getY() > mY) {
+                        return false;
+                    }
+                    int action = event.getAction();
+                    if (action == MotionEvent.ACTION_DOWN) {
+                        mStartTimestamp = System.currentTimeMillis();
+                    } else if (action == MotionEvent.ACTION_UP) {
+                        if (System.currentTimeMillis() - mStartTimestamp < mLongPressTimeout) {
+                            onBackPressed();
+                        }
+                        mStartTimestamp = 0;
+                    }
+                    return true;
+                }
+            });
+        } else if (mEffectType == Effect.EFFECT_TYPE_PTA) {
+            mBottomViewStub.setLayoutResource(R.layout.layout_fu_pta);
+            View view = mBottomViewStub.inflate();
+            RecyclerView recyclerView = view.findViewById(R.id.fu_effect_recycler);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            recyclerView.setHasFixedSize(true);
+            ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+            mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer);
+            mEffectRecyclerAdapter.setPositionSelect(0);
+            recyclerView.setAdapter(mEffectRecyclerAdapter);
+            mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
+                @Override
+                public void onDescriptionChangeListener(int description) {
+                    showDescription(description, 1500);
+                }
+            });
+            SwitchButton switchButton = view.findViewById(R.id.btn_switch_pta);
+            int pixel6 = getResources().getDimensionPixelSize(R.dimen.x4);
+            switchButton.setThumbMargin(-pixel6 * 2, -pixel6, -pixel6 * 2, -pixel6 * 4);
+            switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    mFURenderer.setHumanTrackScene(isChecked ? FURenderer.HUMAN_TRACK_SCENE_FULL : FURenderer.HUMAN_TRACK_SCENE_HALF);
+                }
+            });
+        } else {
+            mBottomViewStub.setLayoutResource(R.layout.layout_fu_effect);
+            RecyclerView recyclerView = (RecyclerView) mBottomViewStub.inflate();
+            recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            recyclerView.setHasFixedSize(true);
+            ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+            mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer);
+            recyclerView.setAdapter(mEffectRecyclerAdapter);
+            mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
+                @Override
+                public void onDescriptionChangeListener(int description) {
+                    showDescription(description, 1500);
+                }
+            });
+            if (mEffectType != Effect.EFFECT_TYPE_PTA) {
+                mEffectRecyclerAdapter.setOnEffectSelectedListener(new EffectRecyclerAdapter.OnEffectSelectedListener() {
+                    @Override
+                    public void onEffectSelected(Effect effect) {
+                        mFURenderer.onEffectSelected(effect);
+                    }
+                });
             }
-        });
+        }
     }
 
     @Override
@@ -54,15 +121,19 @@ public class FUEffectActivity extends FUBaseActivity {
         }
 
         ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(mEffectType);
+        boolean isActionRecognition = mEffectType == Effect.EFFECT_TYPE_ACTION_RECOGNITION;
+        boolean isPortraitSegment = mEffectType == Effect.EFFECT_TYPE_PORTRAIT_SEGMENT;
         return new FURenderer
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .defaultEffect(effects.size() > 1 ? effects.get(1) : null)
                 .inputImageOrientation(mFrontCameraOrientation)
-                .setLoadAiBgSeg(mEffectType == Effect.EFFECT_TYPE_BACKGROUND)
-                .setLoadAiGesture(mEffectType == Effect.EFFECT_TYPE_GESTURE)
+                .setLoadAiHumanProcessor(isActionRecognition || isPortraitSegment)
+                .maxHumans(1)
+                .setNeedFaceBeauty(!(isActionRecognition))
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
+                .setOnBundleLoadCompleteListener(this)
                 .build();
     }
 
@@ -89,7 +160,7 @@ public class FUEffectActivity extends FUBaseActivity {
             @Override
             public void run() {
                 if (mEffectRecyclerAdapter != null) {
-                    showDescription(mEffectRecyclerAdapter.getSelectEffect().description(), 1500);
+                    showDescription(mEffectRecyclerAdapter.getSelectEffect().getDescId(), 1500);
                 }
             }
         });
@@ -97,7 +168,7 @@ public class FUEffectActivity extends FUBaseActivity {
 
     @Override
     protected boolean isOpenPhotoVideo() {
-        return mEffectType == Effect.EFFECT_TYPE_NORMAL || SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_EFFECT;
+        return mEffectType == Effect.EFFECT_TYPE_STICKER || SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_EFFECT;
     }
 
     @Override
@@ -108,4 +179,20 @@ public class FUEffectActivity extends FUBaseActivity {
         intent.putExtra(SELECT_EFFECT_KEY, mEffectType);
         startActivity(intent);
     }
+
+    @Override
+    protected boolean showAutoFocus() {
+        return mEffectType != Effect.EFFECT_TYPE_ACTION_RECOGNITION && mEffectType != Effect.EFFECT_TYPE_PTA;
+    }
+
+    @Override
+    public void onBundleLoadComplete(int what) {
+        if (what == FURenderer.ITEM_ARRAYS_EFFECT_INDEX && mEffectType == Effect.EFFECT_TYPE_ACTION_RECOGNITION) {
+            DisplayMetrics screenInfo = ScreenUtils.getScreenInfo(this);
+            if ((float) screenInfo.heightPixels / screenInfo.widthPixels > (float) 16 / 9) {
+                mFURenderer.setEdgeDistance(0.1F);
+            }
+        }
+    }
+
 }

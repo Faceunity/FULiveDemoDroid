@@ -6,8 +6,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.StateListDrawable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+
+import androidx.appcompat.widget.AppCompatRadioButton;
 
 import com.faceunity.fulivedemo.R;
 
@@ -15,7 +18,7 @@ import com.faceunity.fulivedemo.R;
  * Created by tujh on 2018/3/2.
  */
 
-public class XfermodeRadioButton extends android.support.v7.widget.AppCompatRadioButton {
+public class XfermodeRadioButton extends AppCompatRadioButton {
 
     private String textXfermode;
     private int textSizeXfermode;
@@ -46,6 +49,8 @@ public class XfermodeRadioButton extends android.support.v7.widget.AppCompatRadi
         mMyRadioButtonPaint.setColor(textColorXfermodeNormal);
         mMyRadioButtonPaint.setTextSize(textSizeXfermode);
         mMyRadioButtonPaint.setAntiAlias(true);
+
+        setButtonDrawable(new StateListDrawable());
     }
 
     @Override

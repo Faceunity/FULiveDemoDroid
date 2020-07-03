@@ -12,15 +12,16 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
@@ -49,7 +50,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     public final static String TAG = ShowPhotoActivity.class.getSimpleName();
 
     private PhotoRenderer mPhotoRenderer;
-    private TextView mIsTrackingText;
+    private TextView mTvTrackStatus;
     private TextView mEffectDescription;
     private ImageView mSaveImageView;
     private BeautyControlView mBeautyControlView;
@@ -64,16 +65,6 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     private MakeupControlView mMakeupControlView;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-
-    @Override
-    public void onTrackingStatusChanged(final int status) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mIsTrackingText.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
-            }
-        });
-    }
 
     @Override
     protected void onResume() {
@@ -121,6 +112,27 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     }
 
     @Override
+    public void onTrackStatusChanged(int type, int status) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTvTrackStatus.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
+                if (status <= 0) {
+                    int strId = 0;
+                    if (type == FURenderer.TRACK_TYPE_FACE) {
+                        strId = R.string.fu_base_is_tracking_text;
+                    } else if (type == FURenderer.TRACK_TYPE_HUMAN) {
+                        strId = R.string.toast_not_detect_body;
+                    }
+                    if (strId > 0) {
+                        mTvTrackStatus.setText(strId);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -150,17 +162,18 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         boolean isLightMakeup = LightMakeupActivity.TAG.equals(selectDataType);
         boolean isBodySlim = BeautifyBodyActivity.TAG.equals(selectDataType);
         boolean isHairSeg = FUHairActivity.TAG.equals(selectDataType);
+        boolean isPortraitSegment = selectEffectType == Effect.EFFECT_TYPE_PORTRAIT_SEGMENT;
+        boolean loadAiHumanProcessor = isBodySlim || isPortraitSegment;
         mFURenderer = new FURenderer
                 .Builder(this)
-                .maxFaces(4)
+                .maxFaces(loadAiHumanProcessor ? 1 : 4)
+                .maxHumans(1)
                 .setExternalInputType(FURenderer.EXTERNAL_INPUT_TYPE_IMAGE)
                 .inputImageOrientation(0)
-                .setLoadAiHumanPose(isBodySlim)
-                .setLoadAiHairSeg(isHairSeg)
-                .setLoadAiBgSeg(selectEffectType == Effect.EFFECT_TYPE_BACKGROUND)
-                .setLoadAiGesture(selectEffectType == Effect.EFFECT_TYPE_GESTURE)
-                .setUseBeautifyBody(isBodySlim)
+                .setLoadAiHumanProcessor(loadAiHumanProcessor)
                 .setNeedBeautyHair(isHairSeg)
+                .setNeedBodySlim(isBodySlim)
+                .setNeedFaceBeauty(!isBodySlim)
                 .setCameraFacing(Camera.CameraInfo.CAMERA_FACING_BACK)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
@@ -170,7 +183,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         } else {
             mLandmarksData = new float[75 * 2];
         }
-        mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
+        mTvTrackStatus = (TextView) findViewById(R.id.fu_base_is_tracking_text);
         mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
         mSaveImageView = (ImageView) findViewById(R.id.show_save_btn);
         if (mIsBeautyFace) {
@@ -240,6 +253,12 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                 @Override
                 public void onDescriptionChangeListener(int description) {
                     showDescription(description, 1500);
+                }
+            });
+            effectRecyclerAdapter.setOnEffectSelectedListener(new EffectRecyclerAdapter.OnEffectSelectedListener() {
+                @Override
+                public void onEffectSelected(Effect effect) {
+                    mFURenderer.onEffectSelected(effect);
                 }
             });
         }

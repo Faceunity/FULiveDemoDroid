@@ -3,11 +3,12 @@ package com.faceunity.fulivedemo.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.DisplayCutout;
 import android.view.Window;
 import android.view.WindowInsets;
+
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Method;
 

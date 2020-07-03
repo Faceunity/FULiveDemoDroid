@@ -10,10 +10,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -21,6 +17,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
 
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.ui.seekbar.internal.PopupIndicator;

@@ -1,7 +1,7 @@
 package com.faceunity.fulivedemo.entity;
 
-import com.faceunity.entity.CartoonFilter;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.param.CartoonFilterParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +13,16 @@ import java.util.List;
  */
 public enum CartoonFilterEnum {
 
-    NO_FILTER(R.drawable.ic_delete_all, CartoonFilter.NO_FILTER),
-    COMIC_FILTER(R.drawable.icon_animefilter, CartoonFilter.COMIC_FILTER),
-    PORTRAIT_EFFECT(R.drawable.icon_portrait_dynamiceffect, CartoonFilter.PORTRAIT_EFFECT),
-    SKETCH_FILTER(R.drawable.icon_sketchfilter, CartoonFilter.SKETCH_FILTER),
-    OIL_PAINT_FILTER(R.drawable.icon_oilpainting, CartoonFilter.OIL_PAINTING),
-    SAND_PAINT_FILTER(R.drawable.icon_sandlpainting, CartoonFilter.SAND_PAINTING),
-    PEN_PAINT_FILTER(R.drawable.icon_penpainting, CartoonFilter.PEN_PAINTING),
-    PENCIL_PAINT_FILTER(R.drawable.icon_pencilpainting, CartoonFilter.PENCIL_PAINTING),
-    GRAFFITI_FILTER(R.drawable.icon_graffiti, CartoonFilter.GRAFFITI);
+    NO_FILTER(R.drawable.ic_delete_all, CartoonFilterParam.NO_FILTER),
+
+    COMIC_FILTER(R.drawable.icon_animefilter, CartoonFilterParam.COMIC_FILTER),
+    PORTRAIT_EFFECT(R.drawable.icon_portrait_dynamiceffect, CartoonFilterParam.PORTRAIT_EFFECT),
+    SKETCH_FILTER(R.drawable.icon_sketchfilter, CartoonFilterParam.SKETCH_FILTER),
+    OIL_PAINT_FILTER(R.drawable.icon_oilpainting, CartoonFilterParam.OIL_PAINTING),
+    SAND_PAINT_FILTER(R.drawable.icon_sandlpainting, CartoonFilterParam.SAND_PAINTING),
+    PEN_PAINT_FILTER(R.drawable.icon_penpainting, CartoonFilterParam.PEN_PAINTING),
+    PENCIL_PAINT_FILTER(R.drawable.icon_pencilpainting, CartoonFilterParam.PENCIL_PAINTING),
+    GRAFFITI_FILTER(R.drawable.icon_graffiti, CartoonFilterParam.GRAFFITI);
 
     private int iconId;
     private int style;

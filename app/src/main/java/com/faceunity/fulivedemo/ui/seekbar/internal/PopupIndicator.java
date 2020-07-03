@@ -5,7 +5,6 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.IBinder;
-import android.support.v4.view.GravityCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -13,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+
+import androidx.core.view.GravityCompat;
 
 import com.faceunity.fulivedemo.ui.seekbar.internal.compat.SeekBarCompat;
 import com.faceunity.fulivedemo.ui.seekbar.internal.drawable.MarkerDrawable;

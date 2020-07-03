@@ -1,9 +1,10 @@
 package com.faceunity.fulivedemo.ui.beautybox;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+
+import androidx.annotation.Nullable;
 
 import com.faceunity.fulivedemo.R;
 

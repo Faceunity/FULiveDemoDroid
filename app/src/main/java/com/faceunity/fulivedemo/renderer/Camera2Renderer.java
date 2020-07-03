@@ -21,12 +21,13 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.faceunity.fulivedemo.utils.CameraUtils;
 import com.faceunity.gles.core.GlUtil;
@@ -345,9 +346,7 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
                 mYuvDataBuffer = mYuvDataBufferArray[mYuvDataBufferPosition];
                 mYuvDataBufferPosition = ++mYuvDataBufferPosition % mYuvDataBufferArray.length;
                 YUV420ToNV21(image);
-                synchronized (mLock) {
-                    mCameraNV21Byte = mYuvDataBuffer;
-                }
+                mCameraNv21Byte = mYuvDataBuffer;
                 mGlSurfaceView.requestRender();
             }
         } catch (Exception e) {

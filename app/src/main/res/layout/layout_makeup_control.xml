@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_makeup_color_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:visibility="invisible">
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_makeup_color"
             android:layout_width="@dimen/x80"
             android:layout_height="@dimen/x540"
@@ -28,9 +28,9 @@
             app:layout_constraintRight_toRightOf="@id/rv_makeup_color"
             app:layout_constraintTop_toTopOf="@id/rv_makeup_color" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_makeup_item"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -70,7 +70,6 @@
             app:layout_constraintLeft_toLeftOf="parent" />
 
         <View
-            android:id="@+id/makeup_mid_line"
             android:layout_width="@dimen/x1"
             android:layout_height="@dimen/x80"
             android:layout_marginLeft="@dimen/x20"
@@ -79,7 +78,7 @@
             app:layout_constraintLeft_toRightOf="@id/iv_makeup_back"
             app:layout_constraintTop_toTopOf="@id/iv_makeup_back" />
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/makeup_mid_recycler"
             android:layout_width="match_parent"
             android:layout_height="@dimen/x116"
@@ -99,15 +98,15 @@
             android:background="#33E5E5E5"
             app:layout_constraintBottom_toTopOf="@id/rv_makeup_item" />
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_makeup_item"
             android:layout_width="match_parent"
             android:layout_height="@dimen/x98"
             android:scrollbars="none"
             app:layout_constraintBottom_toBottomOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_face_makeup"
         android:layout_width="match_parent"
         android:layout_height="@dimen/x290"
@@ -147,14 +146,14 @@
             app:layout_constraintLeft_toRightOf="@id/iv_custom_makeup"
             app:layout_constraintTop_toTopOf="@id/iv_custom_makeup" />
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_face_makeup"
             android:layout_width="match_parent"
             android:layout_height="@dimen/x166"
             android:layout_marginLeft="@dimen/x172"
             app:layout_constraintTop_toTopOf="@id/iv_custom_makeup" />
 
-        <android.support.constraint.ConstraintLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/x102"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -180,6 +179,8 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-        </android.support.constraint.ConstraintLayout>
-    </android.support.constraint.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </FrameLayout>

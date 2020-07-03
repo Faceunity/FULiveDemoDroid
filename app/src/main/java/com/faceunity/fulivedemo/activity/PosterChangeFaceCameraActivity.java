@@ -7,13 +7,14 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.constraint.ConstraintLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
@@ -103,8 +104,8 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
     }
 
     @Override
-    public void onSurfaceChanged(int viewWidth, int viewHeight) {
-        super.onSurfaceChanged(viewWidth, viewHeight);
+    public void onSurfaceCreated() {
+        super.onSurfaceCreated();
         mCameraRenderer.showImageTexture(mShotBitmap);
     }
 
@@ -221,6 +222,7 @@ public class PosterChangeFaceCameraActivity extends FUBaseActivity {
             } else if (id == R.id.iv_poster_take_back) {
                 setTakeViewVisible(true);
                 mCameraRenderer.hideImageTexture();
+                mShotBitmap = null;
             }
         }
     }

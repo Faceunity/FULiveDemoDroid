@@ -54,6 +54,8 @@
     <color name="dsb_ripple_color_pressed">#77939393</color>
     <color name="dsb_ripple_color_focused">#99999999</color>
     <color name="bg_switch_button">#BBBBBB</color>
+    <color name="main_classification_gradient_start">#FFF661FF</color>
+    <color name="main_classification_gradient_end">#FF7755FC</color>
 
 
 </resources>

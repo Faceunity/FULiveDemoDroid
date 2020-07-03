@@ -2,21 +2,21 @@ package com.faceunity.fulivedemo;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
-import com.faceunity.fulivedemo.activity.AvatarDriveActivity;
 import com.faceunity.fulivedemo.activity.BeautifyBodyActivity;
 import com.faceunity.fulivedemo.activity.FUAnimojiActivity;
 import com.faceunity.fulivedemo.activity.FUBeautyActivity;
@@ -24,249 +24,283 @@ import com.faceunity.fulivedemo.activity.FUEffectActivity;
 import com.faceunity.fulivedemo.activity.FUHairActivity;
 import com.faceunity.fulivedemo.activity.FUMakeupActivity;
 import com.faceunity.fulivedemo.activity.LightMakeupActivity;
-import com.faceunity.fulivedemo.activity.LivePhotoDriveActivity;
 import com.faceunity.fulivedemo.activity.PosterChangeListActivity;
+import com.faceunity.fulivedemo.activity.PtaActivity;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
+import com.faceunity.fulivedemo.utils.PermissionUtil;
 import com.faceunity.fulivedemo.utils.ScreenUtils;
 import com.faceunity.fulivedemo.utils.ToastUtil;
-import com.faceunity.utils.MiscUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * 主页面，区分了SDK各个功能，并且获取权限码验证证书是否能够使用该功能
+ * @author Richie on 2020.06.02
  */
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = MainActivity.class.getSimpleName();
-
-    private static final int[] home_function_type = {
-            Effect.EFFECT_TYPE_NONE,
-            Effect.EFFECT_TYPE_BEAUTY_BODY,
-            Effect.EFFECT_TYPE_NONE,
-            Effect.EFFECT_TYPE_NORMAL,
-            Effect.EFFECT_TYPE_ANIMOJI,
-            Effect.EFFECT_TYPE_NONE,
-            Effect.EFFECT_TYPE_NONE,
-            Effect.EFFECT_TYPE_AR,
-            Effect.EFFECT_TYPE_POSTER_FACE,
-            Effect.EFFECT_TYPE_EXPRESSION,
-            Effect.EFFECT_TYPE_MUSIC_FILTER,
-            Effect.EFFECT_TYPE_BACKGROUND,
-            Effect.EFFECT_TYPE_GESTURE,
-            Effect.EFFECT_TYPE_FACE_WARP,
-            Effect.EFFECT_TYPE_PORTRAIT_DRIVE,
-            Effect.EFFECT_TYPE_NONE,
-            Effect.EFFECT_TYPE_LIVE_PHOTO
-    };
-
-    // 文档：http://confluence.faceunity.com/pages/viewpage.action?pageId=10453059
-    private static final String[] home_function_permissions_code = {
-            "9-0",                    //美颜
-            "0-32",                   // 美体
-            "524288-0",               //美妆
-            "6-0",                    //道具贴纸
-            "16-0",                   //Animoji
-            "0-8",                    //轻美妆
-            "1048576-0",              //美发
-            "96-0",                   //AR面具
-            "8388608-0",              //海报换脸
-            "2048-0",                 //表情识别
-            "131072-0",               //音乐滤镜
-            "256-0",                  //背景分割
-            "512-0",                  //手势识别
-            "65536-0",                //哈哈镜
-            "32768-0",                //人像驱动
-            "0-16",                   //Avatar捏脸
-            "16777216-0"              //表情动图
-    };
-
-    private static final int[] home_function_name = {
-            R.string.home_function_name_beauty,
-            R.string.home_function_name_beauty_body,
-            R.string.home_function_name_makeup,
-            R.string.home_function_name_normal,
-            R.string.home_function_name_animoji,
-            R.string.home_function_name_light_makeup,
-            R.string.home_function_name_hair,
-            R.string.home_function_name_ar,
-            R.string.home_function_name_poster_face,
-            R.string.home_function_name_expression,
-            R.string.home_function_name_music_filter,
-            R.string.home_function_name_background,
-            R.string.home_function_name_gesture,
-            R.string.home_function_name_face_warp,
-            R.string.home_function_name_portrait_drive,
-            R.string.home_function_name_avatar,
-            R.string.home_function_name_live_photo
-    };
-
-    private static final int[] home_function_res = {
-            R.drawable.main_beauty,
-            R.drawable.demo_icon_body,
-            R.drawable.main_makeup,
-            R.drawable.main_effect,
-            R.drawable.main_animoji,
-            R.drawable.demo_icon_texture_beauty,
-            R.drawable.main_hair,
-            R.drawable.main_ar_mask,
-            R.drawable.main_poster_face,
-            R.drawable.main_expression,
-            R.drawable.main_music_fiter,
-            R.drawable.main_background,
-            R.drawable.main_gesture,
-            R.drawable.main_face_warp,
-            R.drawable.main_portrait_drive,
-            R.drawable.main_avatar,
-            R.drawable.main_live_photo
-    };
-
-    private List<Integer> hasFaceUnityPermissionsList = new ArrayList<>();
-    private final boolean[] hasFaceUnityPermissions = new boolean[home_function_name.length];
-
-    private RecyclerView mRecyclerView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        if (!isTaskRoot()) {
-            finish();
-            return;
-        }
         ScreenUtils.fullScreen(this);
-        MiscUtil.checkPermission(this);
+        setContentView(R.layout.activity_main);
+        PermissionUtil.checkPermission(this);
 
-        FURenderer.initFURenderer(this);
-
-        int moduleCode0 = FURenderer.getModuleCode(0);
-        int moduleCode1 = FURenderer.getModuleCode(1);
-        Log.e(TAG, "ModuleCode " + moduleCode0 + " " + moduleCode1);
-        for (int i = 0, count = 0; i < home_function_name.length; i++) {
-            String[] codeStr = home_function_permissions_code[i].split("-");
-            int code0 = Integer.valueOf(codeStr[0]);
-            int code1 = Integer.valueOf(codeStr[1]);
-            hasFaceUnityPermissions[i] = (moduleCode0 == 0 && moduleCode1 == 0) || ((code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0);
-            if (hasFaceUnityPermissions[i]) {
-                hasFaceUnityPermissionsList.add(count++, i);
-            } else {
-                hasFaceUnityPermissionsList.add(i);
-            }
-        }
-
-        mRecyclerView = findViewById(R.id.home_recycler);
-        GridLayoutManager manager = new GridLayoutManager(this, 3);
-        manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+        RecyclerView recyclerView = findViewById(R.id.rv_main_list);
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        recyclerView.setHasFixedSize(true);
+        List<ModuleEntity> moduleEntities = initModuleEntity();
+        filterByModuleCode(moduleEntities);
+        final MainModuleAdapter mainModuleAdapter = new MainModuleAdapter(new ArrayList<>(moduleEntities));
+        final GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        layoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                int type = mRecyclerView.getAdapter().getItemViewType(position);
-                if (type == 0) {
-                    return 3;
+                int itemViewType = mainModuleAdapter.getItemViewType(position);
+                if (itemViewType == ModuleEntity.UI_TYPE_BANNER
+                        || itemViewType == ModuleEntity.UI_TYPE_CLASSIFICATION) {
+                    return layoutManager.getSpanCount();
                 }
                 return 1;
             }
         });
-        mRecyclerView.setLayoutManager(manager);
-        HomeRecyclerAdapter homeRecyclerAdapter = new HomeRecyclerAdapter();
-        mRecyclerView.setAdapter(homeRecyclerAdapter);
-        ((SimpleItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(mainModuleAdapter);
     }
 
-    class HomeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    /**
+     * 各个功能模块
+     *
+     * @return
+     */
+    private static List<ModuleEntity> initModuleEntity() {
+        List<ModuleEntity> moduleEntities = new ArrayList<>();
+        moduleEntities.add(new ModuleEntity(ModuleEntity.UI_TYPE_BANNER));
+        moduleEntities.add(new ModuleEntity(R.string.main_classification_face, ModuleEntity.UI_TYPE_CLASSIFICATION));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_beauty, R.string.home_function_name_beauty, "9-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_makeup, R.string.home_function_name_makeup, "524288-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_effect, R.string.home_function_name_sticker, "6-0", Effect.EFFECT_TYPE_STICKER, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_animoji, R.string.home_function_name_animoji, "16-0", Effect.EFFECT_TYPE_ANIMOJI, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_hair, R.string.home_function_name_hair, "1048576-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_texture_beauty, R.string.home_function_name_light_makeup, "0-8", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_ar_mask, R.string.home_function_name_ar, "96-0", Effect.EFFECT_TYPE_AR_MASK, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_photo_sticker, R.string.home_function_name_big_head, "96-0", Effect.EFFECT_TYPE_BIG_HEAD, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_poster_face, R.string.home_function_name_poster_face, "8388608-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_expression, R.string.home_function_name_expression, "2048-0", Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_music_fiter, R.string.home_function_name_music_filter, "131072-0", Effect.EFFECT_TYPE_MUSIC_FILTER, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_face_warp, R.string.home_function_name_face_warp, "65536-0", Effect.EFFECT_TYPE_FACE_WARP, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.string.main_classification_human, ModuleEntity.UI_TYPE_CLASSIFICATION));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_body, R.string.home_function_name_beauty_body, "0-32", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_whole_body, R.string.home_function_name_human_avatar, "0-128", Effect.EFFECT_TYPE_PTA, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_action, R.string.home_function_name_action_recognition, "0-32768", Effect.EFFECT_TYPE_ACTION_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_background, R.string.home_function_name_portrait_segment, "256-0", Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_gesture, R.string.home_function_name_gesture, "512-0", Effect.EFFECT_TYPE_GESTURE_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
+        return Collections.unmodifiableList(moduleEntities);
+    }
 
+    private static void filterByModuleCode(List<ModuleEntity> moduleEntities) {
+        int moduleCode0 = FURenderer.getModuleCode(0);
+        int moduleCode1 = FURenderer.getModuleCode(1);
+        for (ModuleEntity moduleEntity : moduleEntities) {
+            if (moduleEntity.authCode != null) {
+                String[] codeStr = moduleEntity.authCode.split("-");
+                if (codeStr.length == 2) {
+                    int code0 = Integer.parseInt(codeStr[0]);
+                    int code1 = Integer.parseInt(codeStr[1]);
+                    moduleEntity.enable = (moduleCode0 == 0 && moduleCode1 == 0) || ((code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0);
+                }
+            }
+        }
+    }
+
+    private class MainModuleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private List<ModuleEntity> mModuleEntities;
+
+        MainModuleAdapter(List<ModuleEntity> moduleEntities) {
+            mModuleEntities = moduleEntities;
+        }
+
+        @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if (viewType > 0) {
-                return new HomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler, parent, false));
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+            if (viewType == ModuleEntity.UI_TYPE_MODULE) {
+                View view = layoutInflater.inflate(R.layout.layout_main_recycler_module, parent, false);
+                ModuleViewHolder moduleViewHolder = new ModuleViewHolder(view);
+                view.setOnClickListener(new ViewClickListener(moduleViewHolder));
+                return moduleViewHolder;
+            } else if (viewType == ModuleEntity.UI_TYPE_CLASSIFICATION) {
+                View view = layoutInflater.inflate(R.layout.recycler_main_classification, parent, false);
+                return new ClassificationViewHolder(view);
             } else {
-                return new TopHomeRecyclerHolder(LayoutInflater.from(MainActivity.this).inflate(R.layout.layout_main_recycler_top, parent, false));
+                View view = layoutInflater.inflate(R.layout.layout_main_recycler_banner, parent, false);
+                return new BannerViewHolder(view);
             }
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int p) {
-            if (viewHolder instanceof HomeRecyclerHolder) {
-                HomeRecyclerHolder holder = (HomeRecyclerHolder) viewHolder;
-                final int pos = p - 1;
-                final int position = hasFaceUnityPermissionsList.get(pos);
-
-                holder.homeFunctionImg.setImageResource(home_function_res[position]);
-                holder.homeFunctionName.setText(home_function_name[position]);
-                holder.homeFunctionName.setBackgroundResource(hasFaceUnityPermissions[position] ? R.drawable.main_recycler_item_text_background : R.drawable.main_recycler_item_text_background_unable);
-
-                holder.itemView.setOnClickListener(new OnMultiClickListener() {
-                    private long mLastClickTime;
-
-                    @Override
-                    public void onMultiClick(View v) {
-                        if (!hasFaceUnityPermissions[position]) {
-                            ToastUtil.showToast(MainActivity.this, R.string.sorry_no_permission);
-                            return;
-                        }
-
-                        // 防止同时快速点击，因为启动相机非常慢
-                        if (System.currentTimeMillis() - mLastClickTime < 300) {
-                            return;
-                        }
-
-                        mLastClickTime = System.currentTimeMillis();
-
-                        Intent intent;
-                        if (home_function_res[position] == R.drawable.main_beauty) {
-                            intent = new Intent(MainActivity.this, FUBeautyActivity.class);
-                        } else if (home_function_res[position] == R.drawable.demo_icon_texture_beauty) {
-                            intent = new Intent(MainActivity.this, LightMakeupActivity.class);
-                        } else if (home_function_res[position] == R.drawable.main_makeup) {
-                            intent = new Intent(MainActivity.this, FUMakeupActivity.class);
-                        } else if (home_function_res[position] == R.drawable.main_hair) {
-                            intent = new Intent(MainActivity.this, FUHairActivity.class);
-                        } else if (home_function_res[position] == R.drawable.main_poster_face) {
-                            intent = new Intent(MainActivity.this, PosterChangeListActivity.class);
-                        } else if (home_function_res[position] == R.drawable.main_animoji) {
-                            intent = new Intent(MainActivity.this, FUAnimojiActivity.class);
-                        } else if (home_function_res[position] == R.drawable.main_live_photo) {
-                            intent = new Intent(MainActivity.this, LivePhotoDriveActivity.class);
-                        } else if (home_function_res[position] == R.drawable.main_avatar) {
-                            intent = new Intent(MainActivity.this, AvatarDriveActivity.class);
-                        } else if (home_function_res[position] == R.drawable.demo_icon_body) {
-                            intent = new Intent(MainActivity.this, BeautifyBodyActivity.class);
-                        } else {
-                            intent = new Intent(MainActivity.this, FUEffectActivity.class);
-                            intent.putExtra(FUEffectActivity.EFFECT_TYPE, home_function_type[position]);
-                        }
-                        startActivity(intent);
-                    }
-                });
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+            int itemViewType = getItemViewType(position);
+            ModuleEntity moduleEntity = mModuleEntities.get(position);
+            if (itemViewType == ModuleEntity.UI_TYPE_MODULE) {
+                ModuleViewHolder viewHolder = (ModuleViewHolder) holder;
+                viewHolder.ivModuleIcon.setImageResource(moduleEntity.iconId);
+                viewHolder.tvModuleName.setText(moduleEntity.nameId);
+                viewHolder.tvModuleName.setEnabled(moduleEntity.enable);
+            } else if (itemViewType == ModuleEntity.UI_TYPE_CLASSIFICATION) {
+                ClassificationViewHolder viewHolder = (ClassificationViewHolder) holder;
+                viewHolder.tvClassificationName.setText(moduleEntity.nameId);
             }
         }
 
         @Override
         public int getItemCount() {
-            return hasFaceUnityPermissionsList.size() + 1;
+            return mModuleEntities.size();
         }
 
         @Override
         public int getItemViewType(int position) {
-            return position;
+            return mModuleEntities.get(position).uiType;
         }
 
-        class HomeRecyclerHolder extends RecyclerView.ViewHolder {
+        private class ViewClickListener extends OnMultiClickListener {
+            private ModuleViewHolder mModuleViewHolder;
 
-            ImageView homeFunctionImg;
-            TextView homeFunctionName;
+            ViewClickListener(ModuleViewHolder moduleViewHolder) {
+                mModuleViewHolder = moduleViewHolder;
+            }
 
-            public HomeRecyclerHolder(View itemView) {
-                super(itemView);
-                homeFunctionImg = (ImageView) itemView.findViewById(R.id.home_recycler_img);
-                homeFunctionName = (TextView) itemView.findViewById(R.id.home_recycler_text);
+            @Override
+            protected void onMultiClick(View v) {
+                int position = mModuleViewHolder.getAdapterPosition();
+                ModuleEntity moduleEntity = mModuleEntities.get(position);
+                if (!moduleEntity.enable) {
+                    ToastUtil.showNormalToast(MainActivity.this, R.string.sorry_no_permission);
+                    return;
+                }
+                Intent intent = null;
+                switch (moduleEntity.nameId) {
+                    case R.string.home_function_name_beauty: {
+                        intent = new Intent(MainActivity.this, FUBeautyActivity.class);
+                    }
+                    break;
+                    case R.string.home_function_name_makeup: {
+                        intent = new Intent(MainActivity.this, FUMakeupActivity.class);
+                    }
+                    break;
+                    case R.string.home_function_name_light_makeup: {
+                        intent = new Intent(MainActivity.this, LightMakeupActivity.class);
+                    }
+                    break;
+                    case R.string.home_function_name_hair: {
+                        intent = new Intent(MainActivity.this, FUHairActivity.class);
+                    }
+                    break;
+                    case R.string.home_function_name_poster_face: {
+                        intent = new Intent(MainActivity.this, PosterChangeListActivity.class);
+                    }
+                    break;
+                    case R.string.home_function_name_animoji: {
+                        intent = new Intent(MainActivity.this, FUAnimojiActivity.class);
+                    }
+                    break;
+                    case R.string.home_function_name_beauty_body: {
+                        intent = new Intent(MainActivity.this, BeautifyBodyActivity.class);
+                    }
+                    break;
+                    case R.string.home_function_name_human_avatar: {
+                        intent = new Intent(MainActivity.this, PtaActivity.class);
+                        intent.putExtra(FUEffectActivity.EFFECT_TYPE, moduleEntity.effectType);
+                    }
+                    break;
+                    case R.string.home_function_name_sticker:
+                    case R.string.home_function_name_ar:
+                    case R.string.home_function_name_expression:
+                    case R.string.home_function_name_music_filter:
+                    case R.string.home_function_name_face_warp:
+                    case R.string.home_function_name_portrait_segment:
+                    case R.string.home_function_name_action_recognition:
+                    case R.string.home_function_name_big_head:
+                    case R.string.home_function_name_gesture: {
+                        intent = new Intent(MainActivity.this, FUEffectActivity.class);
+                        intent.putExtra(FUEffectActivity.EFFECT_TYPE, moduleEntity.effectType);
+                    }
+                    break;
+                    default:
+                }
+                if (intent != null) {
+                    MainActivity.this.startActivity(intent);
+                }
             }
         }
 
-        class TopHomeRecyclerHolder extends RecyclerView.ViewHolder {
+        class ClassificationViewHolder extends RecyclerView.ViewHolder {
+            TextView tvClassificationName;
 
-            public TopHomeRecyclerHolder(View itemView) {
+            ClassificationViewHolder(View itemView) {
+                super(itemView);
+                tvClassificationName = itemView.findViewById(R.id.tv_classification_name);
+            }
+        }
+
+        class ModuleViewHolder extends RecyclerView.ViewHolder {
+            ImageView ivModuleIcon;
+            TextView tvModuleName;
+
+            ModuleViewHolder(View itemView) {
+                super(itemView);
+                ivModuleIcon = itemView.findViewById(R.id.home_recycler_img);
+                tvModuleName = itemView.findViewById(R.id.home_recycler_text);
+            }
+        }
+
+        class BannerViewHolder extends RecyclerView.ViewHolder {
+            BannerViewHolder(View itemView) {
                 super(itemView);
             }
+        }
+    }
+
+    private static class ModuleEntity {
+        private static final int UI_TYPE_BANNER = 147;
+        private static final int UI_TYPE_MODULE = 201;
+        private static final int UI_TYPE_CLASSIFICATION = 430;
+
+        private int iconId;
+        private int nameId;
+        private String authCode;
+        private int effectType;
+        private int uiType;
+        private boolean enable;
+
+        ModuleEntity(int uiType) {
+            this.uiType = uiType;
+        }
+
+        ModuleEntity(int nameId, int uiType) {
+            this.nameId = nameId;
+            this.uiType = uiType;
+        }
+
+        ModuleEntity(int iconId, int nameId, String authCode, int effectType, int uiType) {
+            this.iconId = iconId;
+            this.nameId = nameId;
+            this.authCode = authCode;
+            this.effectType = effectType;
+            this.uiType = uiType;
+        }
+
+        @Override
+        public String toString() {
+            return "ModuleEntity{" +
+                    "iconId=" + iconId +
+                    ", nameId=" + nameId +
+                    ", authCode='" + authCode + '\'' +
+                    ", effectType=" + effectType +
+                    ", uiType=" + uiType +
+                    ", enable=" + enable +
+                    '}';
         }
     }
 

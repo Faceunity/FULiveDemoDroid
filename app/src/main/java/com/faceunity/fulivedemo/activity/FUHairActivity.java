@@ -1,7 +1,8 @@
 package com.faceunity.fulivedemo.activity;
 
 import android.content.Intent;
-import android.support.constraint.ConstraintLayout;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
@@ -37,7 +38,6 @@ public class FUHairActivity extends FUBaseActivity {
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .inputImageOrientation(mFrontCameraOrientation)
-                .setLoadAiHairSeg(true)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .setNeedBeautyHair(true)

@@ -2,11 +2,12 @@ package com.faceunity.fulivedemo.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.support.v7.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
+
+import androidx.appcompat.widget.AppCompatSeekBar;
 
 /**
  * Created by tujh on 2018/8/15.

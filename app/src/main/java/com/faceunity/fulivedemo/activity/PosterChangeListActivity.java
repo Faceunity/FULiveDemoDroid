@@ -1,14 +1,14 @@
 package com.faceunity.fulivedemo.activity;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -17,8 +17,8 @@ import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.PosterChangeFaceTemplate;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
-import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
+import com.faceunity.fulivedemo.utils.ScreenUtils;
 
 import java.util.List;
 
@@ -32,9 +32,7 @@ public class PosterChangeListActivity extends AppCompatActivity implements BaseR
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (NotchInScreenUtil.hasNotch(this)) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+        ScreenUtils.fullScreen(this);
         setContentView(R.layout.activity_poster_list);
         findViewById(R.id.iv_poster_list_back).setOnClickListener(new OnMultiClickListener() {
             @Override

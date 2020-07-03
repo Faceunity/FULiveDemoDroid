@@ -14,7 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
-import com.faceunity.fulivedemo.utils.FPSUtil;
+import com.faceunity.fulivedemo.utils.LimitFpsUtil;
 import com.faceunity.gles.ProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.ProgramTextureOES;
@@ -61,7 +61,6 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private ProgramTexture2d mProgramTexture2d;
     private ProgramTextureOES mProgramTextureOes;
     private OnMediaEventListener mOnMediaEventListener;
-    private FPSUtil mFPSUtil;
     private SimpleExoPlayer mSimpleExoPlayer;
     private Context mContext;
     private Handler mPlayerHandler;
@@ -72,7 +71,6 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         mGlSurfaceView = glSurfaceView;
         mContext = glSurfaceView.getContext();
         mOnVideoRendererStatusListener = onRendererStatusListener;
-        mFPSUtil = new FPSUtil();
     }
 
     public void onResume() {
@@ -91,9 +89,9 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             @Override
             public void run() {
                 releaseExoMediaPlayer();
+                stopPlayerThread();
             }
         });
-        stopPlayerThread();
         final CountDownLatch count = new CountDownLatch(1);
         mGlSurfaceView.queueEvent(new Runnable() {
             @Override
@@ -143,6 +141,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         } finally {
             mediaMetadataRetriever.release();
         }
+        LimitFpsUtil.setTargetFps(LimitFpsUtil.DEFAULT_FPS);
     }
 
     @Override
@@ -154,7 +153,6 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         boolean isLandscape = mVideoRotation % 180 == 0;
         mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, isLandscape ? mVideoWidth : mVideoHeight,
                 isLandscape ? mVideoHeight : mVideoWidth);
-        mFPSUtil.resetLimit();
         Log.d(TAG, "onSurfaceChanged() width:" + width + ", height:" + height + ", videoWidth:"
                 + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation
                 + ", mIsSystemCameraRecord:" + mIsSystemCameraRecord);
@@ -188,7 +186,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
         }
 
-        mFPSUtil.limit();
+        LimitFpsUtil.limitFrameRate();
         mGlSurfaceView.requestRender();
     }
 
@@ -225,7 +223,6 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         MediaEventListener mediaEventListener = new MediaEventListener();
         mSimpleExoPlayer.addListener(mediaEventListener);
         mSimpleExoPlayer.setPlayWhenReady(false);
-        mSimpleExoPlayer.setVolume(0f);
         String userAgent = Util.getUserAgent(mContext, mContext.getPackageName());
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(mContext, userAgent);
         ProgressiveMediaSource.Factory mediaSourceFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
@@ -246,7 +243,6 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private void createSurface() {
         Log.d(TAG, "createSurface: ");
         mSurfaceTexture = new SurfaceTexture(mVideoTextureId);
-        mSurfaceTexture.setDefaultBufferSize(mVideoWidth, mVideoHeight);
         mSurfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
             @Override
             public void onFrameAvailable(SurfaceTexture surfaceTexture) {

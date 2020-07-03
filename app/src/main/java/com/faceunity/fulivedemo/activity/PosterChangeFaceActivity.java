@@ -7,18 +7,18 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -33,8 +33,8 @@ import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;
 import com.faceunity.fulivedemo.ui.dialog.NoTrackFaceDialogFragment;
 import com.faceunity.fulivedemo.utils.CameraUtils;
-import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
+import com.faceunity.fulivedemo.utils.ScreenUtils;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
@@ -65,8 +65,8 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     private volatile boolean mIsNeedSavePhoto;
     private volatile boolean mIsSavingPhoto;
     private boolean mIsTrackedTemplate;
+    private int mRetryCount;
     private boolean mIsTrackedPhoto;
-    private boolean mIsInputPhoto;
     private volatile boolean mIsFirstDraw = true;
     private volatile boolean mIsNeedReInput = true;
     private int mTexId;
@@ -112,9 +112,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (NotchInScreenUtil.hasNotch(this)) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+        ScreenUtils.fullScreen(this);
         setContentView(R.layout.activity_fuposter_face);
 
         String photoPath = getIntent().getStringExtra(PHOTO_PATH);
@@ -169,6 +167,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                 .Builder(this)
                 .setNeedFaceBeauty(false)
                 .maxFaces(4)
+                .setExternalInputType(FURenderer.EXTERNAL_INPUT_TYPE_IMAGE)
                 .setNeedPosterFace(true)
                 .inputImageOrientation(frontCameraOrientation)
                 .build();
@@ -200,6 +199,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
             mFaceMaskView.dismissPopWindow();
             mClContainerView.removeView(mFaceMaskView);
         }
+        showLoadingView(false);
     }
 
     @Override
@@ -230,12 +230,11 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
                             mPosterPhotoRenderer.getTemplateHeight(), mPosterPhotoRenderer.getTemplateRGBABytes(), mTemplateLandmarks);
                 }
 
-                if (!mIsInputPhoto && mIsTrackedPhoto) {
+                if (mIsTrackedPhoto) {
                     showLoadingView(true);
                     if (mPhotoLandmarks != null) {
                         mFURenderer.onPosterInputPhoto(photoWidth, photoHeight, mPosterPhotoRenderer.getPhotoRGBABytes(), mPhotoLandmarks);
                         mPosterPhotoRenderer.setDrawPhoto(false);
-                        mIsInputPhoto = true;
                     }
                 }
 
@@ -246,8 +245,13 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
 
             if (!mIsNotSelectedMultiFace && !mIsFirstDraw) {
                 byte[] templateBytes = mPosterPhotoRenderer.getTemplateBytes();
-                texId = mFURenderer.onDrawFrame(templateBytes, mPosterPhotoRenderer.getTemplateWidth(),
-                        mPosterPhotoRenderer.getTemplateHeight());
+                boolean retry = true;
+                while (mIsTrackedTemplate && retry && ++mRetryCount <= 10) {
+                    texId = mFURenderer.onDrawFrame(templateBytes, mPosterPhotoRenderer.getTemplateWidth(),
+                            mPosterPhotoRenderer.getTemplateHeight());
+                    retry = mFURenderer.getTrackedFaceCount() <= 0;
+                    Log.d(TAG, "onDrawFrame: retry " + retry + ", count:" + mRetryCount);
+                }
                 if (texId == 0) {
                     mIsNeedReInput = true;
                     mState = STATE_FAILED;
@@ -292,6 +296,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
         mIsTrackedPhoto = false;
         mIsFirstDraw = true;
         mIsSavedPhoto = false;
+        mRetryCount = 0;
     }
 
     @Override
@@ -300,7 +305,6 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
         int faceCount = mFURenderer.trackFace(img, width, height, 0);
         if (faceCount > 0) {
             mTemplateLandmarks = getCopyOfLandmark(0);
-            Log.d(TAG, "onTemplateLoaded: landmarks " + Arrays.toString(mTemplateLandmarks));
             mIsTrackedTemplate = true;
             mIsTrackedPhoto = true;
             mIsNeedReInput = true;
@@ -343,6 +347,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
             return;
         }
         final int trackFace = mFURenderer.trackFace(img, width, height, 0);
+        Log.i(TAG, "onPhotoLoaded: track face " + trackFace);
         if (trackFace > 0) {
             if (trackFace > 1) {
                 // 多人脸
@@ -451,6 +456,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
         mLastPosition = position;
         mIsTrackedTemplate = false;
         mIsSavedPhoto = false;
+        mRetryCount = 0;
         showLoadingView(true);
         mState = STATE_CHANGING;
         PosterChangeFaceTemplate posterTemplate = adapter.getItem(position);
