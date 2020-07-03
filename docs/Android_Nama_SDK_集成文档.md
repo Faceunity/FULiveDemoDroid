@@ -1,33 +1,48 @@
 # Android Nama SDK 集成指导文档  
 级别：Public
 
-更新日期：2020-03-19
+更新日期：2020-06-30
 
-SDK版本: 6.7.0
+SDK版本: 7.0.0
 
 ------
 ## 最新更新内容：
 
-**2020-3-19 v6.7.0:**
+**2020-06-30 v7.0.0:**
 
-1. 美颜效果
-	- 新增去黑眼圈、去法令纹功能
-	- 优化磨皮效果，新增只磨皮人脸区域接口功能
-	- 优化原有美型效果
-	
-2. 优化表情跟踪效果，解决了6.6.0版表情系数表情灵活度问题——FaceProcessor模块优化
-	- 解决Animoji表情灵活度问题，基本与原有SDK v6.4.0效果相近 
-	- 解决优化了表情动图的鼻子跟踪效果问题
-	
-3. 优化美妆效果，人脸点位优化，提高准确性
-   - 优化口红点位与效果，解决张嘴、正脸、低抬头、左右转头、抿嘴动作的口红溢色
-   - 优化美瞳点位效果，美瞳效果稳定
-   - 美妆素材效果优化，增加卧蚕提升了眼影层次感，优化腮红拉扯问题
-4. 新增接口支持图像裁剪，解决瘦脸边缘变形问题（边缘变形剪裁）
+1. 上线FULiveDemo算法版，新增7大人体及mask类算法功能
 
-5. 新增接口判断初始化完成状态
+   - 开放人体关键点(全身/半身)接口，可获取实时画面中的人体2D关键点的位置信息
+   - 开放人体骨骼(全身/半身) 接口，可获取实时身体驱动时的3D骨骼信息，并支持手势识别
+   - 开放人像分割接口，可获取实时画面中的人像分割mask信息
 
-6. 移动端Demo优化曝光聚焦效果，效果达到市面上最优效果
+   - 开放头发分割接口，可获取实时画面中的头发分割mask信息
+
+   - 开放头部分割接口，可获取实时画面中的头部分割mask信息
+
+   - 开放手势识别接口，可获取实时画面中的手势类别信息，包括14种手势
+
+   - 开放动作识别接口，可获取实时画面中的动作类别信息，包括15种动作
+
+2. 原FULiveDemo更名为“FULiveDemo特效版”，新增多款人体及mask类特效功能，交互更有趣，特效更丰富
+
+   - 新增搞笑大头特效，提供大头、大头哈哈镜、微笑大头等6款搞笑大头特效
+   - 优化美体功能效果：新增2款美体维度，包括小头、瘦腿；优化美体效果，稳定性提升，画面变形影响降低
+   - 新增全身avatar功能，支持虚拟形象的全身/半身驱动，并支持手势的精准识别
+
+   - 新增动作识别小游戏，可以获得跳舞机的有趣体验
+
+   - 原背景分割模块更名为“人像分割”，优化了人像分割的效果，并新增了可以跟随人体的人像分割贴纸3款
+
+3. 优化美颜功能性能，尤其是低端机型，单帧耗时降幅在20%-30%
+
+4. 优化美颜功能效果，对于口罩遮挡时，亮眼跟随效果更贴合，白牙亮片问题大幅优化
+
+5. 优化美妆功能效果，人脸点位优化并扩增为241点，重点提高美瞳、高光、眉毛的准确性和稳定性。
+
+6. 新增最大人脸检测距离接口，支持客户自定义设置最大人脸检测距离
+
+7. 新增日志查询接口，技术对接更便捷
 
 **各功能模块的相关文档：**
 
@@ -39,12 +54,7 @@ SDK版本: 6.7.0
 - [轻美妆功能文档](./轻美妆功能文档.md)
 - [美发道具功能文档](./美发道具功能文档.md)
 - [美体道具功能文档](./美体道具功能文档.md)
-
-**工程案例更新：**
-
-- 美颜道具部分接口已改变，请注意同步代码
-- 舌头跟踪相关请查看本文档及代码注释
-- anim_model.bundle以及ardata_ex.bundle已弃用，请删除相关数据文件及代码
+- [controller功能文档](./controller功能文档.md)
 
 ------
 
@@ -63,7 +73,7 @@ SDK版本: 6.7.0
 
 ## 2. SDK文件结构
 
-本小节，描述Demo文件结构，各个目录，以及重要文件的功能。
+本小节，描述 Demo 文件结构，各个目录，以及重要文件的功能。
 
 ```
 +FULiveDemoDroid
@@ -71,40 +81,38 @@ SDK版本: 6.7.0
     +src
       +main
         +assets                            
-          +avatar                          // Avatar 捏脸
-            -avatarHairX.bundle            // Avatar 头发道具
-            -avatar_background.bundle      // Avatar 背景道具
-            -avatar_head.bundle            // Avatar 头部道具
-            -avatar_color.json             // 颜色配置
-          +cartoon_filter                  // 卡通滤镜
-            -fuzzytoonfilter.bundle        // 卡通滤镜道具
           +change_face                     // 海报换脸
             +template_xx                   // 模板资源
             -change_face.bundle            // 海报换脸道具
           +effect                          // 各种道具
             +animoji                       // Animoji
             +ar                            // AR 面具
-            +background                    // 背景分割
+            +big_head                      // 搞笑大头
             +expression                    // 表情识别
             +facewarp                      // 哈哈镜
             +gesture                       // 手势识别
+            +hair_seg                      // 美发道具
             +musicfilter                   // 音乐滤镜
             +normal                        // 道具贴纸
             +portrait_drive                // 人像驱动
-          +image                           // 图片
+            +segment                       // 人像分割
+            -actiongame_android.bundle     // 动作识别
           +light_makeup                    // 轻美妆
             +blusher...                    // 腮红等资源
             -light_makeup.bundle           // 轻美妆道具
-          +live_photo                      // 表情动图
-            +resource_xx                   // 五官资源
-            +template_xx                   // 模板资源
-            -photolive.bundle              // 表情动图道具
           +makeup                          // 美妆
             +combination_bundle            // 组合妆 bundle 资源
             +config_json                   // 组合妆 json 资源
             +item_bundle                   // 美妆子妆 bundle 资源
             -color_setup.json              // 颜色配置
+          +pta                             // 全身 Avatar
+            +boy                           // 男孩效果道具
+            +gesture                       // 手势算法模型
+            +girl                          // 女孩效果道具
+            -controller_config.bundle      // controller 配置文件
+            -default_bg.bundle             // 白色背景
         +java                              // Java 源码
+        +jniLibs                           // 高通 DSP 库
         +res                               // App 资源文件
 
   +faceunity                               // faceunity 模块
@@ -113,25 +121,21 @@ SDK版本: 6.7.0
     +src
       +main
         +assets
-          +AI_model                        // AI 能力模型
-            -ai_bgseg.bundle               // 背景分割AI能力模型
-            -ai_bgseg_green.bundle         // 绿幕背景分割AI能力模型
-            -ai_face_processor.bundle      // 人脸面具及人脸面罩AI能力模型，需要默认加载
-            -ai_hairseg.bundle             // 头发分割AI能力模型
+          +graphic                         // 图形效果道具
+            -body_slim.bundle              // 美体道具
+            -controller.bundle             // 全身 Avatar 道具
+            -face_beautification.bundle    // 美颜道具
+            -face_makeup.bundle            // 美妆道具
+            -fuzzytoonfilter.bundle        // 动漫滤镜道具
+            -fxaa.bundle                   // 3D 绘制抗锯齿
+            -tongue.bundle                 // 舌头跟踪数据包
+          +model                           // 算法能力模型
+            -ai_face_processor.bundle      // 人脸识别AI能力模型，需要默认加载
+            -ai_face_processor_lite.bundle // 人脸识别AI能力模型，轻量版
             -ai_gesture.bundle             // 手势识别AI能力模型
-            -ai_facelandmarks75.bundle     // 脸部特征点75点AI能力模型
- 			-ai_facelandmarks209.bundle    // 脸部特征点209点AI能力模型
-			-ai_facelandmarks239.bundle    // 脸部特征点239点AI能力模型
-			-ai_humanpose.bundle           // 人体2D点位AI能力模型
-			-tongue.bundle                 // 舌头跟踪数据包
-          -body_slim.bundle                // 美体道具
-          -face_beautification.bundle      // 美颜道具
-          -face_makeup.bundle              // 美妆道具
-          -fxaa.bundle                     // 3D 绘制抗锯齿数据包
-          -hair_gradient.bundle            // 美发渐变色道具
-          -hair_normal.bundle              // 美发正常色道具
+			-ai_human_processor.bundle     // 人体点位AI能力模型
         +java                              // Java 源码
-        +jniLibs                           // Nama so 库
+        +jniLibs                           // CNama fuai 库
   +docs		    	                       // 开发文档目录
   +README.md	 	                       // 工程说明文档
 ```
@@ -146,40 +150,35 @@ SDK版本: 6.7.0
 全功能版本（支持 TensorFlow 和物理特效）：
 
 ```groovy
-implementation 'com.faceunity:nama:6.7.0'
+implementation 'com.faceunity:nama:7.0.0'
 ```
 
 lite 版（不含物理特效的版本）：
 
 ```groovy
-implementation 'com.faceunity:nama:6.7.0-lite'
+implementation 'com.faceunity:nama:7.0.0-lite'
 ```
 
-**注：** Gradle 集成的 aar 中仅包含库文件（libnama.so 与 nama.jar）以及初始化必须的数据模型等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
+**注：** Gradle 集成的 aar 中仅包含库文件（libCNamaSDK.so、libfuai.so 与 nama.jar）以及初始化必须的数据模型等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
 
 #### 3.1.2 GitHub 下载
 
-- 全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v6.7.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.7/Faceunity-Android-v6.7.zip)
+- 全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v7.0.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.0/Faceunity-Android-v7.0.zip)
 
-- lite 版（不含物理特效的版本）：[Faceunity-Android-v6.7-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v6.7/Faceunity-Android-v6.7-lite.zip)
+- lite 版（不含物理特效的版本）：[Faceunity-Android-v7.0-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.0/Faceunity-Android-v7.0-lite.zip)
 
 #### 3.1.3 库文件说明
 
 1. 库文件
-   - jniLibs 文件夹下 libnama.so 和 libfuai.so 人脸跟踪及道具绘制核心静态库。
+   - jniLibs 文件夹下 libCNamaSDK.so 和 libfuai.so 人脸跟踪及道具绘制核心静态库。
    -  libs 文件夹下 nama.jar 是提供使用的 JNI 接口类集合。
 
 2. 数据文件
 
-	- AI_model 下的 bundle 为 AI 能力模型，SDK 初始化后，可以按需加载可能用到的AI能力。
-	- tongue.bundle：Animoji 舌头驱动的数据模型
-	- fxaa.bundle：3D 道具抗锯齿的道具
-	- face_beautification.bundle：美颜道具
-	- face_makeup.bundle：美妆道具
-	- body_slim.bundle：美体道具
-	- hair_gradient.bundle：美发渐变色道具
-	- hair_normal.bundle：美发正常色道具
-	- effects 文件夹下的 \*.bundle 文件是我司制作的特效贴纸道具，如需制作自定义的特效贴纸，请联系我司获取相关工具和说明。
+  - graphics 下的 bundle 为图形效果道具，需要时可以创建道具使用。
+
+  - model 下的 bundle 为算法能力模型，SDK 初始化后，可以按需加载可能用到的 AI 能力。
+  - effects 文件夹下的 \*.bundle 文件是我司制作的特效贴纸道具，如需制作自定义的特效贴纸，请联系我司获取相关工具和说明。
 
 **注：** 这些数据文件都是二进制数据，与扩展名无关。实际使用时，可以将数据包打包在应用内或者通过网络下载，只要在函数接口传入正确的文件字节数组即可。
 
@@ -187,11 +186,11 @@ implementation 'com.faceunity:nama:6.7.0-lite'
 
 #### 3.2.1 支持平台
 ```
-Android API 18 及以上
+Android API 19 及以上
 ```
 #### 3.2.2 开发环境
 ```
-Android Studio 3.0 及以上，Open GLES 2.0 及以上
+Android Studio 3.4 及以上，Open GLES 2.0 及以上
 ```
 
 ### 3.3 准备工作 

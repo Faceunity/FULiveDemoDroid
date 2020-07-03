@@ -12,55 +12,57 @@ public enum EffectEnum {
     /**
      * 关闭道具
      */
-    EffectNone("none", R.drawable.ic_delete_all, "none", 1, Effect.EFFECT_TYPE_NONE, 0),
+    EffectNone("none", R.drawable.ic_delete_all, "", 1, Effect.EFFECT_TYPE_NONE, 0),
     /**
      * 道具贴纸
      */
-    Effect_sdlu("sdlu", R.drawable.sdlu, "effect/normal/sdlu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_daisypig("daisypig", R.drawable.daisypig, "effect/normal/daisypig.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_fashi("fashi", R.drawable.fashi, "effect/normal/fashi.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_chri1("chri1", R.drawable.chri1, "effect/normal/chri1.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_xueqiu_lm_fu("xueqiu_lm_fu", R.drawable.xueqiu_lm_fu, "effect/normal/xueqiu_lm_fu.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_wobushi("wobushi", R.drawable.wobushi, "effect/normal/wobushi.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
-    Effect_gaoshiqing("gaoshiqing", R.drawable.gaoshiqing, "effect/normal/gaoshiqing.bundle", 4, Effect.EFFECT_TYPE_NORMAL, 0),
+    Effect_sdlu("sdlu", R.drawable.sdlu, "effect/normal/sdlu.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_daisypig("daisypig", R.drawable.daisypig, "effect/normal/daisypig.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_fashi("fashi", R.drawable.fashi, "effect/normal/fashi.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_xueqiu_lm_fu("xueqiu_lm_fu", R.drawable.xueqiu_lm_fu, "effect/normal/xueqiu_lm_fu.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_wobushi("wobushi", R.drawable.wobushi, "effect/normal/wobushi.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_gaoshiqing("gaoshiqing", R.drawable.gaoshiqing, "effect/normal/gaoshiqing.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
     /**
      * AR面具
      */
-    Effect_bluebird("bluebird", R.drawable.bluebird, "effect/ar/bluebird.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
-    Effect_lanhudie("lanhudie", R.drawable.lanhudie, "effect/ar/lanhudie.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
-    Effect_fenhudie("fenhudie", R.drawable.fenhudie, "effect/ar/fenhudie.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
-    Effect_tiger_huang("tiger_huang", R.drawable.tiger_huang, "effect/ar/tiger_huang.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
-    Effect_tiger_bai("tiger_bai", R.drawable.tiger_bai, "effect/ar/tiger_bai.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
-    Effect_baozi("baozi", R.drawable.baozi, "effect/ar/baozi.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
-    Effect_tiger("tiger", R.drawable.tiger, "effect/ar/tiger.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
-    Effect_xiongmao("xiongmao", R.drawable.xiongmao, "effect/ar/xiongmao.bundle", 4, Effect.EFFECT_TYPE_AR, 0),
+    Effect_bluebird("bluebird", R.drawable.bluebird, "effect/ar/bluebird.bundle", 4, Effect.EFFECT_TYPE_AR_MASK, 0),
+    Effect_lanhudie("lanhudie", R.drawable.lanhudie, "effect/ar/lanhudie.bundle", 4, Effect.EFFECT_TYPE_AR_MASK, 0),
+    Effect_fenhudie("fenhudie", R.drawable.fenhudie, "effect/ar/fenhudie.bundle", 4, Effect.EFFECT_TYPE_AR_MASK, 0),
+    Effect_tiger_huang("tiger_huang", R.drawable.tiger_huang, "effect/ar/tiger_huang.bundle", 4, Effect.EFFECT_TYPE_AR_MASK, 0),
+    Effect_tiger_bai("tiger_bai", R.drawable.tiger_bai, "effect/ar/tiger_bai.bundle", 4, Effect.EFFECT_TYPE_AR_MASK, 0),
+    Effect_baozi("baozi", R.drawable.baozi, "effect/ar/baozi.bundle", 4, Effect.EFFECT_TYPE_AR_MASK, 0),
+    Effect_tiger("tiger", R.drawable.tiger, "effect/ar/tiger.bundle", 4, Effect.EFFECT_TYPE_AR_MASK, 0),
+    Effect_xiongmao("xiongmao", R.drawable.xiongmao, "effect/ar/xiongmao.bundle", 4, Effect.EFFECT_TYPE_AR_MASK, 0),
     /**
      * 表情识别
      */
-    Effect_future_warrior("future_warrior", R.drawable.future_warrior, "effect/expression/future_warrior.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.future_warrior),
-    Effect_jet_mask("jet_mask", R.drawable.jet_mask, "effect/expression/jet_mask.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.jet_mask),
-    Effect_sdx2("sdx2", R.drawable.sdx2, "effect/expression/sdx2.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.sdx2),
-    Effect_luhantongkuan_ztt_fu("luhantongkuan_ztt_fu", R.drawable.luhantongkuan_ztt_fu, "effect/expression/luhantongkuan_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.luhantongkuan_ztt_fu),
-    Effect_qingqing_ztt_fu("qingqing_ztt_fu", R.drawable.qingqing_ztt_fu, "effect/expression/qingqing_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.qingqing_ztt_fu),
-    Effect_xiaobianzi_zh_fu("xiaobianzi_zh_fu", R.drawable.xiaobianzi_zh_fu, "effect/expression/xiaobianzi_zh_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.xiaobianzi_zh_fu),
-    Effect_xiaoxueshen_ztt_fu("xiaoxueshen_ztt_fu", R.drawable.xiaoxueshen_ztt_fu, "effect/expression/xiaoxueshen_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION, R.string.xiaoxueshen_ztt_fu),
+    Effect_future_warrior("future_warrior", R.drawable.future_warrior, "effect/expression/future_warrior.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, R.string.future_warrior),
+    Effect_jet_mask("jet_mask", R.drawable.jet_mask, "effect/expression/jet_mask.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, R.string.jet_mask),
+    Effect_sdx2("sdx2", R.drawable.sdx2, "effect/expression/sdx2.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, R.string.sdx2),
+    Effect_luhantongkuan_ztt_fu("luhantongkuan_ztt_fu", R.drawable.luhantongkuan_ztt_fu, "effect/expression/luhantongkuan_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, R.string.luhantongkuan_ztt_fu),
+    Effect_qingqing_ztt_fu("qingqing_ztt_fu", R.drawable.qingqing_ztt_fu, "effect/expression/qingqing_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, R.string.qingqing_ztt_fu),
+    Effect_xiaobianzi_zh_fu("xiaobianzi_zh_fu", R.drawable.xiaobianzi_zh_fu, "effect/expression/xiaobianzi_zh_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, R.string.xiaobianzi_zh_fu),
+    Effect_xiaoxueshen_ztt_fu("xiaoxueshen_ztt_fu", R.drawable.xiaoxueshen_ztt_fu, "effect/expression/xiaoxueshen_ztt_fu.bundle", 4, Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, R.string.xiaoxueshen_ztt_fu),
     /**
-     * 背景分割
+     * 人像分割
      */
-    Effect_hez_ztt_fu("hez_ztt_fu", R.drawable.hez_ztt_fu, "effect/background/hez_ztt_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, R.string.hez_ztt_fu),
-    Effect_gufeng_zh_fu("gufeng_zh_fu", R.drawable.gufeng_zh_fu, "effect/background/gufeng_zh_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
-    Effect_xiandai_ztt_fu("xiandai_ztt_fu", R.drawable.xiandai_ztt_fu, "effect/background/xiandai_ztt_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
-    Effect_sea_lm_fu("sea_lm_fu", R.drawable.sea_lm_fu, "effect/background/sea_lm_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
-    Effect_ice_lm_fu("ice_lm_fu", R.drawable.ice_lm_fu, "effect/background/ice_lm_fu.bundle", 1, Effect.EFFECT_TYPE_BACKGROUND, 0),
+    Effect_boy_friend1("boy_friend1", R.drawable.demo_icon_boyfriend_01, "effect/segment/boyfriend1.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, 0),
+    Effect_boy_friend3("boy_friend3", R.drawable.demo_icon_boyfriend_02, "effect/segment/boyfriend3.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, 0),
+    Effect_boy_friend2("boy_friend2", R.drawable.demo_icon_boyfriend_03, "effect/segment/boyfriend2.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, 0),
+    Effect_hez_ztt_fu("hez_ztt_fu", R.drawable.hez_ztt_fu, "effect/segment/hez_ztt_fu.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, R.string.hez_ztt_fu),
+    Effect_gufeng_zh_fu("gufeng_zh_fu", R.drawable.gufeng_zh_fu, "effect/segment/gufeng_zh_fu.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, 0),
+    Effect_xiandai_ztt_fu("xiandai_ztt_fu", R.drawable.xiandai_ztt_fu, "effect/segment/xiandai_ztt_fu.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, 0),
+    Effect_sea_lm_fu("sea_lm_fu", R.drawable.sea_lm_fu, "effect/segment/sea_lm_fu.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, 0),
+    Effect_ice_lm_fu("ice_lm_fu", R.drawable.ice_lm_fu, "effect/segment/ice_lm_fu.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, 0),
     /**
      * 手势识别
      */
-    Effect_ctrl_rain("ctrl_rain", R.drawable.ctrl_rain, "effect/gesture/ctrl_rain.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.push_hand),
-    Effect_ctrl_snow("ctrl_snow", R.drawable.ctrl_snow, "effect/gesture/ctrl_snow.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.push_hand),
-    Effect_ctrl_flower("ctrl_flower", R.drawable.ctrl_flower, "effect/gesture/ctrl_flower.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.push_hand),
-    Effect_fu_lm_koreaheart("fu_lm_koreaheart", R.drawable.fu_lm_koreaheart, "effect/gesture/ssd_thread_korheart.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.fu_lm_koreaheart),
-    Effect_ssd_thread_six("ssd_thread_six", R.drawable.ssd_thread_six, "effect/gesture/ssd_thread_six.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_six),
-    Effect_ssd_thread_cute("ssd_thread_cute", R.drawable.ssd_thread_cute, "effect/gesture/ssd_thread_cute.bundle", 4, Effect.EFFECT_TYPE_GESTURE, R.string.ssd_thread_cute),
+    Effect_ctrl_rain("ctrl_rain", R.drawable.ctrl_rain, "effect/gesture/ctrl_rain.bundle", 4, Effect.EFFECT_TYPE_GESTURE_RECOGNITION, R.string.push_hand),
+    Effect_ctrl_snow("ctrl_snow", R.drawable.ctrl_snow, "effect/gesture/ctrl_snow.bundle", 4, Effect.EFFECT_TYPE_GESTURE_RECOGNITION, R.string.push_hand),
+    Effect_ctrl_flower("ctrl_flower", R.drawable.ctrl_flower, "effect/gesture/ctrl_flower.bundle", 4, Effect.EFFECT_TYPE_GESTURE_RECOGNITION, R.string.push_hand),
+    Effect_fu_lm_koreaheart("fu_lm_koreaheart", R.drawable.fu_lm_koreaheart, "effect/gesture/ssd_thread_korheart.bundle", 4, Effect.EFFECT_TYPE_GESTURE_RECOGNITION, R.string.fu_lm_koreaheart),
+    Effect_ssd_thread_six("ssd_thread_six", R.drawable.ssd_thread_six, "effect/gesture/ssd_thread_six.bundle", 4, Effect.EFFECT_TYPE_GESTURE_RECOGNITION, R.string.ssd_thread_six),
+    Effect_ssd_thread_cute("ssd_thread_cute", R.drawable.ssd_thread_cute, "effect/gesture/ssd_thread_cute.bundle", 4, Effect.EFFECT_TYPE_GESTURE_RECOGNITION, R.string.ssd_thread_cute),
     /**
      * Animoji
      */
@@ -92,6 +94,15 @@ public enum EffectEnum {
     Effect_douyin_old("douyin_01", R.drawable.douyin_old, "effect/musicfilter/douyin_01.bundle", 4, Effect.EFFECT_TYPE_MUSIC_FILTER, 0),
     Effect_douyin("douyin_02", R.drawable.douyin, "effect/musicfilter/douyin_02.bundle", 4, Effect.EFFECT_TYPE_MUSIC_FILTER, 0),
     /**
+     * 搞笑大头
+     */
+    EFFECT_BIG_HEAD_FACEWARP_1("big_head_face_warp_1", R.drawable.demo_icon_big_head, "effect/big_head/big_head.bundle", 1, Effect.EFFECT_TYPE_BIG_HEAD, 0),
+    EFFECT_BIG_HEAD_FACEWARP_2("big_head_face_warp_2", R.drawable.demo_icon_husky_face, "effect/big_head/big_head_facewarp2.bundle", 1, Effect.EFFECT_TYPE_BIG_HEAD, 0),
+    EFFECT_BIG_HEAD_FACEWARP_3("big_head_face_warp_3", R.drawable.demo_icon_sausage_mouth, "effect/big_head/big_head_facewarp4.bundle", 1, Effect.EFFECT_TYPE_BIG_HEAD, 0),
+    EFFECT_BIG_HEAD_FACEWARP_4("big_head_face_warp_4", R.drawable.demo_icon_blush, "effect/big_head/big_head_facewarp5.bundle", 1, Effect.EFFECT_TYPE_BIG_HEAD, 0),
+    EFFECT_BIG_HEAD_FACEWARP_5("big_head_face_warp_5", R.drawable.demo_icon_dark_circles, "effect/big_head/big_head_facewarp6.bundle", 1, Effect.EFFECT_TYPE_BIG_HEAD, 0),
+    EFFECT_BIG_HEAD_FACEWARP_6("big_head_face_warp_6", R.drawable.demo_icon_smiling_head, "effect/big_head/big_head_smile.bundle", 1, Effect.EFFECT_TYPE_BIG_HEAD, R.string.xiaobianzi_zh_fu),
+    /**
      * 渐变美发
      */
     Hair_Gradient_01("Gradient_Hair_01", R.drawable.icon_gradualchangehair_01, "", 4, Effect.EFFECT_TYPE_HAIR_GRADIENT, 0),
@@ -111,59 +122,43 @@ public enum EffectEnum {
     Hair_07("Hair_07", R.drawable.icon_beautymakeup_hairsalon_07, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
     Hair_08("Hair_08", R.drawable.icon_beautymakeup_hairsalon_08, "", 4, Effect.EFFECT_TYPE_HAIR_NORMAL, 0),
     /**
-     * Avatar 捏脸头部
+     * 动作识别
      */
-    AVATAR_HEAD("avatar_head", 0, "avatar/avatar_head.bundle", 1, Effect.EFFECT_TYPE_AVATAR, 0);
+    ACTION_GAME("action_recognition_game", 0, "effect/actiongame_android.bundle", 1, Effect.EFFECT_TYPE_ACTION_RECOGNITION, 0),
+    /**
+     * PTA
+     */
+    PTA_GIRL("pta_girl", R.drawable.demo_icon_avatar_female, "girl/", 1, Effect.EFFECT_TYPE_PTA, 0),
+    PTA_BOY("pta_boy", R.drawable.demo_icon_avatar_male, "boy/", 1, Effect.EFFECT_TYPE_PTA, 0);
 
     private String bundleName;
-    private int resId;
-    private String path;
+    private int iconId;
+    private String bundlePath;
     private int maxFace;
-    private int effectType;
-    private int description;
+    private int type;
+    private int descId;
 
-    EffectEnum(String name, int resId, String path, int maxFace, int effectType, int description) {
+    EffectEnum(String name, int iconId, String bundlePath, int maxFace, int type, int descId) {
         this.bundleName = name;
-        this.resId = resId;
-        this.path = path;
+        this.iconId = iconId;
+        this.bundlePath = bundlePath;
         this.maxFace = maxFace;
-        this.effectType = effectType;
-        this.description = description;
-    }
-
-    public String bundleName() {
-        return bundleName;
-    }
-
-    public int resId() {
-        return resId;
-    }
-
-    public String path() {
-        return path;
-    }
-
-    public int maxFace() {
-        return maxFace;
-    }
-
-    public int effectType() {
-        return effectType;
-    }
-
-    public int description() {
-        return description;
+        this.type = type;
+        this.descId = descId;
     }
 
     public Effect effect() {
-        return new Effect(bundleName, resId, path, maxFace, effectType, description);
+        return new Effect(bundleName, iconId, bundlePath, maxFace, type, descId);
     }
 
     public static ArrayList<Effect> getEffectsByEffectType(int effectType) {
-        ArrayList<Effect> effects = new ArrayList<>(16);
-        effects.add(EffectNone.effect());
-        for (EffectEnum e : EffectEnum.values()) {
-            if (e.effectType == effectType) {
+        EffectEnum[] values = EffectEnum.values();
+        ArrayList<Effect> effects = new ArrayList<>(values.length + 1);
+        if (effectType != Effect.EFFECT_TYPE_PTA) {
+            effects.add(EffectNone.effect());
+        }
+        for (EffectEnum e : values) {
+            if (e.type == effectType) {
                 effects.add(e.effect());
             }
         }

@@ -22,3 +22,4 @@
 
 #################### FaceUnity #######################
 -keep class com.faceunity.wrapper.faceunity {*;}
+-keep class com.faceunity.wrapper.faceunity$RotatedImage {*;}

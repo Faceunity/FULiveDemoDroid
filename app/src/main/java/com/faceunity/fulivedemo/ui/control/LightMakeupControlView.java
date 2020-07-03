@@ -1,24 +1,25 @@
 package com.faceunity.fulivedemo.ui.control;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+
 import com.faceunity.OnFUControlListener;
 import com.faceunity.entity.Filter;
-import com.faceunity.entity.LightMakeupCombination;
 import com.faceunity.entity.LightMakeupItem;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.BeautyParameterModel;
+import com.faceunity.fulivedemo.entity.LightMakeupCombination;
 import com.faceunity.fulivedemo.entity.LightMakeupEnum;
 import com.faceunity.fulivedemo.ui.adapter.BaseRecyclerAdapter;
 import com.faceunity.fulivedemo.ui.adapter.SpaceItemDecoration;

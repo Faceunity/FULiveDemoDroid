@@ -1,7 +1,6 @@
 package com.faceunity.fulivedemo.ui.control;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -10,6 +9,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.fragment.app.FragmentActivity;
 
 import com.faceunity.OnFUControlListener;
 import com.faceunity.fulivedemo.R;
@@ -33,6 +34,8 @@ public class BeautifyBodyControlView extends FrameLayout {
     private BeautyBox mBbThinWaist;
     private BeautyBox mBbHipSlim;
     private BeautyBox mBbShoulder;
+    private BeautyBox mBbHead;
+    private BeautyBox mBbLegThin;
     private DiscreteSeekBar mSeekBar;
     private ImageView mIvRecover;
     private TextView mTvRecover;
@@ -81,6 +84,8 @@ public class BeautifyBodyControlView extends FrameLayout {
         mBbLegSlim = mBeautyBoxGroup.findViewById(R.id.beauty_box_long_leg);
         mBbThinWaist = mBeautyBoxGroup.findViewById(R.id.beauty_box_thin_waist);
         mBbHipSlim = mBeautyBoxGroup.findViewById(R.id.beauty_box_hip_slim);
+        mBbHead = mBeautyBoxGroup.findViewById(R.id.beauty_box_head_slim);
+        mBbLegThin = mBeautyBoxGroup.findViewById(R.id.beauty_box_leg_thin_slim);
 
         mIvRecover = findViewById(R.id.iv_recover_body);
         mTvRecover = findViewById(R.id.tv_recover_body);
@@ -98,18 +103,24 @@ public class BeautifyBodyControlView extends FrameLayout {
         mThreshHold.put(R.id.beauty_box_thin_waist, 0.0f);
         mThreshHold.put(R.id.beauty_box_beauty_shoulder, 0.5f);
         mThreshHold.put(R.id.beauty_box_hip_slim, 0.0f);
+        mThreshHold.put(R.id.beauty_box_head_slim, 0.0f);
+        mThreshHold.put(R.id.beauty_box_leg_thin_slim, 0.0f);
 
         mIntensitys.put(R.id.beauty_box_body_slim, 0.0f);
         mIntensitys.put(R.id.beauty_box_long_leg, 0.0f);
         mIntensitys.put(R.id.beauty_box_thin_waist, 0.0f);
         mIntensitys.put(R.id.beauty_box_beauty_shoulder, 0.5f);
         mIntensitys.put(R.id.beauty_box_hip_slim, 0.0f);
+        mIntensitys.put(R.id.beauty_box_head_slim, 0.0f);
+        mIntensitys.put(R.id.beauty_box_leg_thin_slim, 0.0f);
 
         mDefault.put(R.id.beauty_box_body_slim, 0.0f);
         mDefault.put(R.id.beauty_box_long_leg, 0.0f);
         mDefault.put(R.id.beauty_box_thin_waist, 0.0f);
         mDefault.put(R.id.beauty_box_beauty_shoulder, 0.5f);
         mDefault.put(R.id.beauty_box_hip_slim, 0.0f);
+        mDefault.put(R.id.beauty_box_head_slim, 0.0f);
+        mDefault.put(R.id.beauty_box_leg_thin_slim, 0.0f);
     }
 
     private void updateBeautyBoxState() {
@@ -180,6 +191,12 @@ public class BeautifyBodyControlView extends FrameLayout {
             case R.id.beauty_box_hip_slim:
                 mOnFUControlListener.setHipSlimIntensity(intensity);
                 break;
+            case R.id.beauty_box_head_slim:
+                mOnFUControlListener.setHeadSlimIntensity(intensity);
+                break;
+            case R.id.beauty_box_leg_thin_slim:
+                mOnFUControlListener.setLegThinSlimIntensity(intensity);
+                break;
             default:
         }
     }
@@ -214,6 +231,12 @@ public class BeautifyBodyControlView extends FrameLayout {
                     break;
                 case R.id.beauty_box_hip_slim:
                     mBbHipSlim.setOpen(isBeautyBodyOpen(R.id.beauty_box_hip_slim));
+                    break;
+                case R.id.beauty_box_head_slim:
+                    mBbHead.setOpen(isBeautyBodyOpen(R.id.beauty_box_head_slim));
+                    break;
+                case R.id.beauty_box_leg_thin_slim:
+                    mBbLegThin.setOpen(isBeautyBodyOpen(R.id.beauty_box_leg_thin_slim));
                     break;
                 default:
             }

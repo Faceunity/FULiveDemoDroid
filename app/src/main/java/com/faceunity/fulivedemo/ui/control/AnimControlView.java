@@ -2,11 +2,6 @@ package com.faceunity.fulivedemo.ui.control;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +9,16 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+
 import com.faceunity.OnFUControlListener;
-import com.faceunity.entity.CartoonFilter;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
+import com.faceunity.fulivedemo.entity.CartoonFilter;
 import com.faceunity.fulivedemo.entity.CartoonFilterEnum;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.ui.CheckGroup;
@@ -154,36 +155,28 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
     }
 
     private class OnFilterItemClickListener implements BaseRecyclerAdapter.OnItemClickListener<CartoonFilter> {
-        private int mLastPosition = DEFAULT_FILTER_INDEX;
 
         @Override
         public void onItemClick(BaseRecyclerAdapter<CartoonFilter> adapter, View view, int position) {
             CartoonFilter cartoonFilter = adapter.getItem(position);
-            if (mLastPosition != position) {
-                if (mOnFUControlListener != null) {
-                    mOnFUControlListener.setCartoonFilter(cartoonFilter.getStyle());
-                }
+            if (mOnFUControlListener != null && cartoonFilter != null) {
+                mOnFUControlListener.setCartoonFilter(cartoonFilter.getStyle());
             }
-            mLastPosition = position;
         }
     }
 
     private class OnAnimojiItemClickListener implements BaseRecyclerAdapter.OnItemClickListener<Effect> {
-        private int mLastPosition = DEFAULT_ANIMOJI_INDEX;
 
         @Override
         public void onItemClick(BaseRecyclerAdapter<Effect> adapter, View view, int position) {
             Effect effect = adapter.getItem(position);
-            if (mLastPosition != position) {
-                if (mOnFUControlListener != null) {
-                    mOnFUControlListener.onEffectSelected(effect);
-                }
+            if (mOnFUControlListener != null) {
+                mOnFUControlListener.onEffectSelected(effect);
             }
-            mLastPosition = position;
         }
     }
 
-    private class FilterAdapter extends BaseRecyclerAdapter<CartoonFilter> {
+    private static class FilterAdapter extends BaseRecyclerAdapter<CartoonFilter> {
 
         public FilterAdapter(@NonNull List<CartoonFilter> data) {
             super(data, R.layout.layout_animoji_recycler);
@@ -200,7 +193,7 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
         }
     }
 
-    private class AnimojiAdapter extends BaseRecyclerAdapter<Effect> {
+    private static class AnimojiAdapter extends BaseRecyclerAdapter<Effect> {
 
         public AnimojiAdapter(@NonNull List<Effect> data) {
             super(data, R.layout.layout_animoji_recycler);
@@ -208,7 +201,7 @@ public class AnimControlView extends FrameLayout implements CheckGroup.OnChecked
 
         @Override
         protected void bindViewHolder(BaseViewHolder viewHolder, Effect item) {
-            viewHolder.setImageResource(R.id.iv_anim_item, item.resId());
+            viewHolder.setImageResource(R.id.iv_anim_item, item.getIconId());
         }
 
         @Override

@@ -7,7 +7,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
 
-import com.faceunity.fulivedemo.utils.FPSUtil;
+import com.faceunity.fulivedemo.utils.LimitFpsUtil;
 import com.faceunity.gles.ProgramLandmarks;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
@@ -42,13 +42,11 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     private float[] mLandmarksData;
     private ProgramTexture2d mProgramTexture2d;
     private ProgramLandmarks mProgramLandmarks;
-    private FPSUtil mFPSUtil;
 
     public PhotoRenderer(String photoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         mPhotoPath = photoPath;
         mGlSurfaceView = glSurfaceView;
         mOnRendererStatusListener = onRendererStatusListener;
-        mFPSUtil = new FPSUtil();
     }
 
     public void onCreate() {
@@ -78,6 +76,7 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         mProgramTexture2d = new ProgramTexture2d();
         mProgramLandmarks = new ProgramLandmarks();
         loadPhoto(mPhotoPath);
+        LimitFpsUtil.setTargetFps(LimitFpsUtil.DEFAULT_FPS);
         mOnRendererStatusListener.onSurfaceCreated();
     }
 
@@ -90,7 +89,6 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         GLES20.glViewport(0, 0, width, height);
         mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mPhotoWidth, mPhotoHeight);
         Matrix.rotateM(mMvpMatrix, 0, 90, 0, 0, 1);
-        mFPSUtil.resetLimit();
 
         mOnRendererStatusListener.onSurfaceChanged(width, height);
     }
@@ -111,7 +109,7 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
             mProgramLandmarks.drawFrame(0, 0, mViewWidth, mViewHeight);
         }
 
-        mFPSUtil.limit();
+        LimitFpsUtil.limitFrameRate();
         mGlSurfaceView.requestRender();
     }
 

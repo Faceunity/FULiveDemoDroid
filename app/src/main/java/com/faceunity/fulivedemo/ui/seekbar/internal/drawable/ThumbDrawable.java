@@ -6,7 +6,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Animatable;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import com.faceunity.fulivedemo.ui.seekbar.internal.Marker;
 

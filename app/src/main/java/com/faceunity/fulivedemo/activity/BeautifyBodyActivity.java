@@ -1,7 +1,8 @@
 package com.faceunity.fulivedemo.activity;
 
 import android.content.Intent;
-import android.support.constraint.ConstraintLayout;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.faceunity.FURenderer;
 import com.faceunity.fulivedemo.R;
@@ -29,7 +30,7 @@ public class BeautifyBodyActivity extends FUBaseActivity {
         int size = getResources().getDimensionPixelSize(R.dimen.x122);
         mTakePicBtn.setLayoutParams(params);
         mTakePicBtn.setDrawWidth(size);
-        mIsTrackingText.setText(R.string.toast_not_detect_body);
+        mTvTrackStatus.setText(R.string.toast_not_detect_body);
     }
 
     @Override
@@ -37,9 +38,10 @@ public class BeautifyBodyActivity extends FUBaseActivity {
         return new FURenderer
                 .Builder(this)
                 .maxFaces(1)
+                .maxHumans(1)
                 .inputImageOrientation(mFrontCameraOrientation)
-                .setUseBeautifyBody(true)
-                .setLoadAiHumanPose(true)
+                .setLoadAiHumanProcessor(true)
+                .setNeedBodySlim(true)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)

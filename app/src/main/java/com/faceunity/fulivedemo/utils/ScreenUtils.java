@@ -6,9 +6,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.v4.view.ViewCompat;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Gravity;
@@ -17,6 +14,10 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.view.ViewCompat;
 
 /**
  * Created by tujh on 2018/7/18.

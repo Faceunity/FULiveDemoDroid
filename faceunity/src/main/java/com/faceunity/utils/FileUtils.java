@@ -12,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -33,10 +32,6 @@ public class FileUtils {
      * 海报换脸模板文件的文件夹
      */
     public static final String TEMPLATE_PREFIX = "template_";
-    /**
-     * 表情动图模板文件的文件夹
-     */
-    private static final String LIVE_PHOTO_PREFIX = "live_photo";
     private static final String TAG = "FileUtils";
 
     private FileUtils() {
@@ -48,22 +43,15 @@ public class FileUtils {
         }
         Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
         int quality = 100;
-        OutputStream stream = null;
-        try {
-            stream = new FileOutputStream(file);
+        try (FileOutputStream stream = new FileOutputStream(file)) {
             bitmap.compress(format, quality, stream);
             stream.flush();
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
         }
         return file.getAbsolutePath();
     }
 
     public static File getSavePathFile(Context context) {
-        File file = new File(getExternalFileDir(context), TMP_PHOTO_NAME);
-        return file;
+        return new File(getExternalFileDir(context), TMP_PHOTO_NAME);
     }
 
     public static String getSavePath(Context context) {
@@ -81,24 +69,13 @@ public class FileUtils {
         if (dest.exists()) {
             dest.delete();
         }
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-        try {
-            bis = new BufferedInputStream(is);
-            bos = new BufferedOutputStream(new FileOutputStream(dest));
+        try (BufferedInputStream bis = new BufferedInputStream(is); BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest))) {
             byte[] bytes = new byte[1024 * 10];
             int length;
             while ((length = bis.read(bytes)) != -1) {
                 bos.write(bytes, 0, length);
             }
             bos.flush();
-        } finally {
-            if (bos != null) {
-                bos.close();
-            }
-            if (bis != null) {
-                bis.close();
-            }
         }
     }
 
@@ -158,21 +135,6 @@ public class FileUtils {
     }
 
     /**
-     * 表情动图的文件夹
-     *
-     * @param context
-     * @return
-     */
-    public static File getLivePhotoDir(Context context) {
-        File fileDir = getExternalFileDir(context);
-        File photoDir = new File(fileDir, LIVE_PHOTO_PREFIX);
-        if (!photoDir.exists()) {
-            photoDir.mkdirs();
-        }
-        return photoDir;
-    }
-
-    /**
      * 生成唯一标示
      *
      * @return
@@ -188,57 +150,20 @@ public class FileUtils {
      * @return
      */
     public static String getMd5ByFile(File file) throws Exception {
-        FileInputStream in = null;
-        try {
-            in = new FileInputStream(file);
+        try (FileInputStream in = new FileInputStream(file)) {
             MappedByteBuffer byteBuffer = in.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             md5.update(byteBuffer);
             BigInteger bi = new BigInteger(1, md5.digest());
             return bi.toString(16);
-        } finally {
-            if (in != null) {
-                in.close();
-            }
         }
     }
 
     public static String readStringFromAssetsFile(Context context, String path) throws IOException {
-        InputStream is = null;
-        try {
-            is = context.getAssets().open(path);
+        try (InputStream is = context.getAssets().open(path)) {
             byte[] bytes = new byte[is.available()];
             is.read(bytes);
             return new String(bytes);
-        } finally {
-            if (is != null) {
-                is.close();
-            }
-        }
-    }
-
-    public static void copyAssetsLivePhotoTemplate(Context context) {
-        try {
-            AssetManager assets = context.getAssets();
-            String photoTemplate = "live_photo";
-            String[] paths = assets.list(photoTemplate);
-            if (paths != null) {
-                for (String path : paths) {
-                    if (path.startsWith("template_")) {
-                        String photoDir = photoTemplate + File.separator + path;
-                        String[] photos = assets.list(photoDir);
-                        File dir = new File(FileUtils.getLivePhotoDir(context), path);
-                        if (photos != null) {
-                            for (String photo : photos) {
-                                String p = photoDir + File.separator + photo;
-                                FileUtils.copyAssetsFile(context, dir, p);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "copyAssetsLivePhotoTemplate: ", e);
         }
     }
 
@@ -286,16 +211,10 @@ public class FileUtils {
     }
 
     public static String readStringFromFile(File file) throws IOException {
-        BufferedInputStream bis = null;
-        try {
-            bis = new BufferedInputStream(new FileInputStream(file));
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
             byte[] bytes = new byte[bis.available()];
             bis.read(bytes);
             return new String(bytes);
-        } finally {
-            if (bis != null) {
-                bis.close();
-            }
         }
     }
 
@@ -327,24 +246,13 @@ public class FileUtils {
             Log.e(TAG, "copyExternalFileToLocal: ", e);
         }
         File dest = new File(destDir, md5ByFile + type);
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
-        try {
-            bis = new BufferedInputStream(new FileInputStream(srcFile));
-            bos = new BufferedOutputStream(new FileOutputStream(dest));
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(srcFile)); BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest))) {
             byte[] bytes = new byte[1024 * 10];
             int length;
             while ((length = bis.read(bytes)) != -1) {
                 bos.write(bytes, 0, length);
             }
             bos.flush();
-        } finally {
-            if (bos != null) {
-                bos.close();
-            }
-            if (bis != null) {
-                bis.close();
-            }
         }
         return dest;
     }

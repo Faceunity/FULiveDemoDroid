@@ -1,27 +1,50 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2020-03-19
-SDK版本: 6.7.0
+更新日期：2020-06-30
+SDK版本: 7.0.0
 
 ------
 ### 最新更新内容：
 
-**2020-3-19 v6.7.0:**
+**2020-06-30 v7.0.0:**
 
-1. 优化6.6.0版本表情系数的灵活度，Animoji表情跟踪更加灵活。  
-2. 新增接口 fuIsLibraryInit，检测SDK是否已初始化。  
-3. AI能力模型中人脸相关能力合并为一体。将FUAITYPE::FUAITYPE_FACELANDMARKS75,FUAITYPE_FACELANDMARKS209,FUAITYPE_FACELANDMARKS239,FUAITYPE_FACEPROCESSOR统一合并到FUAITYPE_FACEPROCESSOR。美颜美妆道具中"landmarks_type"参数关闭，由系统自动切换。  
-4. 优化美颜模块：  
-   - 新增去黑眼圈、去法令纹功能。  
-   - 优化美颜美型效果。  
-   - 美颜磨皮效果优化，新增支持仅磨人脸区域功能。  
-5. 新增接口支持图像裁剪，可用于瘦脸边缘变形裁剪。详见fuSetCropState，fuSetCropFreePixel接口。
-6. 优化美妆效果，人脸点位优化，提高准确性。 
-   - 优化口红点位与效果，解决张嘴、正脸、低抬头、左右转头、抿嘴动作的口红溢色。
-   - 优化美瞳点位效果，美瞳效果更准确。
-   - 腮红效果优化，解决了仰头角度下腮红强拉扯问题。
-7. Nama库大小裁剪优化。
+1. 新增人体算法能力接口，包括人体检测、2D人体关键点（全身、半身）、人体3D骨骼（全身、半身）、手势识别、人像mask、头发mask、头部mask、动作识别等能力。
+2. 新增接口，详见接口说明
+
+  - fuGetLogLevel,获取当前日志级别。
+  - fuSetLogLevel,设置当前日志级别。
+  - fuOpenFileLog,打开文件日志，默认使用console日志。
+  - fuFaceProcessorSetMinFaceRatio，设置人脸检测距离的接口。
+  - fuSetTrackFaceAIType，设置fuTrackFace算法运行类型接口。
+  - fuSetCropState，设置裁剪状态。
+  - fuSetCropFreePixel，设置自由裁剪参数。
+  - fuSetFaceProcessorFov，设置FaceProcessor人脸算法模块跟踪fov。
+  - fuGetFaceProcessorFov，获取FaceProcessor人脸算法模块跟踪fov。
+  - fuHumanProcessorReset，重置HumanProcessor人体算法模块状态。
+  - fuHumanProcessorSetMaxHumans，设置HumanProcessor人体算法模块跟踪人体数。
+  - fuHumanProcessorGetNumResults，获取HumanProcessor人体算法模块跟踪人体数。
+  - fuHumanProcessorGetResultTrackId，获取HumanProcessor人体算法模块跟踪Id。
+  - fuHumanProcessorGetResultRect，获取HumanProcessor人体算法模块跟踪人体框。
+  - fuHumanProcessorGetResultJoint2ds，获取HumanProcessor人体算法模块跟踪人体2D关键点。
+  - fuHumanProcessorGetResultJoint3ds，获取HumanProcessor人体算法模块跟踪人体3D骨骼信息。
+  - fuHumanProcessorGetResultHumanMask，获取HumanProcessor人体算法模块全身mask。
+  - fuHumanProcessorGetResultActionType，获取HumanProcessor人体算法模块跟踪人体动作类型。
+  - fuHumanProcessorGetResultActionScore，获取HumanProcessor人体算法模块跟踪人体动作置信度。
+  - fuFaceProcessorGetResultHairMask，获取HumanProcessor人体算法模块头发mask。
+  - fuFaceProcessorGetResultHeadMask，获取HumanProcessor人体算法模块头部mask。
+  - fuHandDetectorGetResultNumHands，获取HandGesture手势算法模块跟踪手势数量。
+  - fuHandDetectorGetResultHandRect，获取HandGesture手势算法模块跟踪手势框。
+  - fuHandDetectorGetResultGestureType，获取HandGesture手势算法模块跟踪手势类别。
+  - fuHandDetectorGetResultHandScore，获取HandGesture手势算法模块跟踪手势置信度。
+
+3. 废弃接口
+
+  - fuSetStrictTracking
+  - fuSetASYNCTrackFace
+  - fuSetFaceTrackParam  
+  - fuSetDeviceOrientation  
+  - fuSetDefaultOrientation
 
 ------
 
@@ -83,7 +106,7 @@ App 启动后只需要 setup 一次即可，其中 authpack.A() 鉴权数据声�
 初始化系统环境，加载系统数据，并进行离线鉴权。必须在调用SDK其他接口前执行，否则会引发崩溃。
 
 ```java
-public static native int fuSetupLocal(byte[] v3data, byte[] ardata, byte[] authdata);
+public static native byte[] fuSetupLocal(byte[] v3data, byte[] authdata, byte[] offlinedata);
 ```
 
 **接口说明：**
@@ -94,13 +117,13 @@ public static native int fuSetupLocal(byte[] v3data, byte[] ardata, byte[] authd
 
 `v3data` v3.bundle 字节数组。**注意：**SDK 6.6.0 后 v3 不再使用，该参数传 `new byte[0]` 即可。
 
-`ardata` 已废弃，传 null 即可
-
 `authdata` 鉴权数据字节数组
+
+`offlinedata` 离线鉴权数据字节数组，第一次调用传 null，之后调用传该函数返回值。
 
 **返回值：**
 
-返回非0值代表成功，返回0代表失败。如初始化失败，可以通过 `fuGetSystemError` 获取错误代码。
+云端返回的鉴权数据，需要保存到本地，用于离线鉴权，使用时作为 `offlinedata` 参数。
 
 **备注：**
 
@@ -108,7 +131,9 @@ App 启动后只需要 setup 一次即可，其中 authpack.A() 鉴权数据声�
 
 根据应用需求，鉴权数据也可以运行时提供（如网络下载），不过要注意证书泄露风险，防止证书被滥用。
 
-第一次需要联网鉴权，鉴权成功后，保存新的证书，后面不要联网。
+第一次使用需要联网鉴权，鉴权成功后返回离线证书，请妥善保存离线证书数据。之后使用不需要联网。
+
+如果初始化失败，可以通过 `fuGetSystemError` 获取错误代码。
 
 ----
 
@@ -125,6 +150,79 @@ public static native int fuIsLibraryInit();
 __返回值:__  
 
 返回状态0为未初始化，1为已初始化。
+
+-----
+
+##### fuCreateTexForItem 为特定道具创建纹理
+
+**接口说明：**为特定的道具创建纹理，并将纹理 id 设置给道具参数，供道具使用。
+
+```java
+public static native int fuCreateTexForItem(int item, String name, byte[] value, int width, int height);
+```
+
+__参数:__  
+`item`：道具 handle
+`name `：道具参数名
+`value`：图片 RGBA buffer
+`width`：图片宽度
+`height`：图片高度
+__返回值:__  
+
+返回状态 0 为失败，1 为成功。
+
+------
+
+##### fuDeleteTexForItem 释放创建的纹理
+
+**接口说明：**释放由 fuCreateTexForItem 创建纹理。
+
+```java
+public static native int fuDeleteTexForItem(int item, String name);
+```
+
+__参数:__  
+`item`：道具 handle
+`name`：道具参数名
+__返回值:__  
+
+返回状态 0 为失败，1 为成功。
+
+------
+
+##### fuSetDefaultRotationMode 设置默认的人脸朝向
+
+**接口说明：**设置默认的人脸朝向。
+
+```java
+public static native void fuSetDefaultRotationMode(int rotationMode);
+```
+
+__参数:__  
+
+`rotationMode`：要设置的人脸朝向，取值范围为 0-3，分别对应人脸相对于图像数据旋转0度、90度、180度、270度。 
+
+__备注:__  
+
+Android 平台的原生相机数据为横屏，需要进行该设置加速首次识别。根据经验，Android 前置摄像头一般设置参数 1，后置摄像头一般设置参数 3，部分手机存在例外。取值与设备方向和相机方向有关，自动计算的代码可以参考 FULiveDemo 中 FURenderer 类相关方法。
+
+旧接口 `fuSetDefaultOrientation` 已废弃，请使用 `fuSetDefaultRotationMode` 设置。
+
+--------
+
+##### fuSetInputCameraMatrix 设置输入纹理的转正方式
+
+**接口说明：**为 `fuRenderBundles` 函数，设置输入纹理的转正方式，转为人像竖屏模式。  
+
+```java
+public static native void fuSetInputCameraMatrix(int flip_x, int flip_y, int rotate_mode);
+```
+
+__参数:__  
+
+`flip_x`：水平翻转输入。 
+`flip_y`：垂直翻转输入。 
+`rotate_mode`：旋转输入，0为0度，1为90度，2为180度，3为270度。 
 
 ----
 
@@ -144,39 +242,51 @@ __参数说明:__
 
 `type`：描述bundle对应的AI能力类型，如下：
 
-```java
-    public static final int FUAITYPE_DDE = 1;
-    public static final int FUAITYPE_BACKGROUNDSEGMENTATION = 2;
-    public static final int FUAITYPE_HAIRSEGMENTATION = 4;
-    public static final int FUAITYPE_HANDGESTURE = 8;
-    public static final int FUAITYPE_TONGUETRACKING = 16;
-    public static final int FUAITYPE_FACELANDMARKS75 = 32; // 废弃
-    public static final int FUAITYPE_FACELANDMARKS209 = 64; // 废弃
-    public static final int FUAITYPE_FACELANDMARKS239 = 128; // 废弃
-    public static final int FUAITYPE_HUMANPOSE2D = 256;
-    public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
-    public static final int FUAITYPE_FACEPROCESSOR = 1024;
+```c
+typedef enum FUAITYPE{
+	FUAITYPE_BACKGROUNDSEGMENTATION=1<<1,//背景分割
+	FUAITYPE_HAIRSEGMENTATION=1<<2,		//头发分割，7.0.0可使用FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION
+	FUAITYPE_HANDGESTURE=1<<3,			//手势识别
+	FUAITYPE_TONGUETRACKING=1<<4,		//暂未使用
+	FUAITYPE_FACELANDMARKS75=1<<5,		//废弃
+	FUAITYPE_FACELANDMARKS209=1<<6,		//废弃
+	FUAITYPE_FACELANDMARKS239=1<<7,		//废弃
+	FUAITYPE_HUMANPOSE2D=1<<8,			//2D身体点位，7.0.0可使用FUAITYPE_HUMAN_PROCESSOR_2D_DANCE
+	FUAITYPE_BACKGROUNDSEGMENTATION_GREEN=1<<9,//绿幕分割
+	FUAITYPE_FACEPROCESSOR=1<<10，				//人脸算法模块，默认带低质量高性能表情跟踪
+	FUAITYPE_FACEPROCESSOR_FACECAPTURE = 1 << 11,	//高质量表情跟踪
+  	FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 12,	//头发分割
+  	FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 13,	//头部分割
+  	FUAITYPE_HUMAN_PROCESSOR = 1 << 14,			//人体算法模块
+  	FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 15,	//人体检测
+  	FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 16,//2D半身点位
+  	FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 17,//2D全身点位
+  	FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 18,//3D半身点位
+  	FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 19,//3D全身点位
+  	FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 20 //人体分割
+}FUAITYPE;
 ```
 
 __返回值:__
 
 `int` 返回1代表成功，返回0代表失败。
 
-可以通过fuReleaseAIModel释放模型，以及通过fuIsAIModelLoaded查询是否AI能力模型是否已经加载。
+可以通过 fuReleaseAIModel 释放模型，以及通过 fuIsAIModelLoaded 查询是否AI能力模型是否已经加载。
 
 __备注:__  
 
-AI能力会随SDK一起发布，存放在assets/AI_Model目录中。
+AI 能力会随 SDK 一起发布，存放在 assets/model目录中。
 
-- ai_bgseg.bundle 为背景分割AI能力模型。
-- ai_hairseg.bundle 为头发分割AI能力模型。
-- ai_gesture.bundle 为手势识别AI能力模型。
-- ai_facelandmarks75.bundle 为脸部特征点75点AI能力模型。（废弃）
-- ai_facelandmarks209.bundle 为脸部特征点209点AI能力模型。（废弃）
-- ai_facelandmarks239.bundle 为脸部特征点239点AI能力模型。（废弃）
-- ai_humanpose.bundle 为人体2D点位AI能力模型。
-- ai_bgseg_green.bundle 为绿幕背景分割AI能力模型。
-- ai_face_processor 为人脸面具以及人脸面罩AI能力模型，需要默认加载。
+- ai_bgseg.bundle 为背景分割AI能力模型，对应FUAITYPE_BACKGROUNDSEGMENTATION。
+- ai_hairseg.bundle 为头发分割AI能力模型，对应FUAITYPE_HAIRSEGMENTATION。
+- ai_gesture.bundle 为手势识别AI能力模型，对应FUAITYPE_HANDGESTURE。
+- ai_facelandmarks75.bundle 为脸部特征点75点AI能力模型。	//废弃
+- ai_facelandmarks209.bundle 为脸部特征点209点AI能力模型。	//废弃
+- ai_facelandmarks239.bundle 为脸部特征点239点AI能力模型。	//废弃
+- ai_humanpose.bundle 为人体2D点位AI能力模型，对应FUAITYPE_HUMANPOSE2D。
+- ai_bgseg_green.bundle 为绿幕背景分割AI能力模型，对应FUAITYPE_BACKGROUNDSEGMENTATION_GREEN。
+- ai_face_processor.bundle 为人脸特征点、表情跟踪以及人脸面罩AI能力模型，需要默认加载，对应FUAITYPE_FACEPROCESSOR。
+- ai_human_processor.bundle 为人体算法能力模型，包括人体检测、2D人体关键点（全身、半身）、人体3D骨骼（全身、半身）、手势识别、人像mask、头发mask、头部mask、动作识别等能力，对应FUAITYPE_HUMAN_PROCESSOR。
 
 ##### fuReleaseAIModel 释放 AI 模型接口
 
@@ -190,21 +300,7 @@ public static native int fuReleaseAIModel(int type);
 
 __参数说明:__
 
-`type`：描述bundle对应的AI能力类型，如下：
-
-```java
-    public static final int FUAITYPE_DDE = 1;
-    public static final int FUAITYPE_BACKGROUNDSEGMENTATION = 2;
-    public static final int FUAITYPE_HAIRSEGMENTATION = 4;
-    public static final int FUAITYPE_HANDGESTURE = 8;
-    public static final int FUAITYPE_TONGUETRACKING = 16;
-    public static final int FUAITYPE_FACELANDMARKS75 = 32 // 废弃
-    public static final int FUAITYPE_FACELANDMARKS209 = 64; // 废弃
-    public static final int FUAITYPE_FACELANDMARKS239 = 128; // 废弃
-    public static final int FUAITYPE_HUMANPOSE2D = 256;
-    public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
-    public static final int FUAITYPE_FACEPROCESSOR = 1024;
-```
+`type`：描述bundle对应的AI能力类型，详见上面 `fuLoadAIModelFromPackage ` 参数说明。
 
 __返回值:__
 
@@ -228,21 +324,7 @@ public static native int fuIsAIModelLoaded(int type);
 
 __参数说明:__
 
-`type`：描述bundle对应的AI能力类型，如下：
-
-```java
-    public static final int FUAITYPE_DDE = 1;
-    public static final int FUAITYPE_BACKGROUNDSEGMENTATION = 2;
-    public static final int FUAITYPE_HAIRSEGMENTATION = 4;
-    public static final int FUAITYPE_HANDGESTURE = 8;
-    public static final int FUAITYPE_TONGUETRACKING = 16;
-    public static final int FUAITYPE_FACELANDMARKS75 = 32; // 废弃
-    public static final int FUAITYPE_FACELANDMARKS209 = 64; // 废弃
-    public static final int FUAITYPE_FACELANDMARKS239 = 128; // 废弃
-    public static final int FUAITYPE_HUMANPOSE2D = 256;
-    public static final int FUAITYPE_BACKGROUNDSEGMENTATION_GREEN = 512;
-    public static final int FUAITYPE_FACEPROCESSOR = 1024;
-```
+`type`：描述bundle对应的AI能力类型，详见上面 `fuLoadAIModelFromPackage ` 参数说明。
 
 __返回值:__
 
@@ -251,6 +333,76 @@ __返回值:__
 __备注:__  
 
 AI能力模型内存占用不高，建议长驻内存。
+
+--------
+
+##### fuGetLogLevel 获取当前日志级别
+
+**接口说明：**
+
+获取当前日志级别。
+
+```java
+public static native int fuGetLogLevel();
+```
+
+__返回值:__
+
+FULOGLEVEL，定义如下：
+
+```C
+typedef enum FULOGLEVEL {
+  FU_LOG_LEVEL_TRACE = 0, //调试日志，每帧多次
+  FU_LOG_LEVEL_DEBUG = 1, //调试日志，每帧一次或多次信息
+  FU_LOG_LEVEL_INFO = 2,  //正常信息日志，程序运行过程中出现一次的信息，系统信息等
+  FU_LOG_LEVEL_WARN = 3,  //警告级日志
+  FU_LOG_LEVEL_ERROR = 4, //错误级日志
+  FU_LOG_LEVEL_CRITICAL = 5, //错误且影响程序正常运行日志
+  FU_LOG_LEVEL_OFF = 6 //关闭日志输出
+} FULOGLEVEL;
+```
+
+------
+
+##### fuSetLogLevel 设置当前日志级别
+
+**接口说明：**
+
+设置当前日志级别，默认INFO级别。设置FU_LOG_LEVEL_OFF时关闭全部日志，设置日志时大于等于当前级别的日志才能正常输出。
+
+```java
+public static native int fuSetLogLevel(int level);
+```
+
+__参数:__
+
+`level`：设置当前日志级别，详见 FULOGLEVEL 定义。
+
+__返回值:__
+
+1 表示成功，0 表示失败。
+
+------
+
+##### fuOpenFileLog 打开文件日志
+
+**接口说明：**
+
+打开文件日志，默认 nullptr 使用 console 日志。
+
+```java
+public static native int fuOpenFileLog(String file_pullname, int max_file_size, int max_files);
+```
+
+__参数:__
+
+`file_pullname`：日志文件名，全路径，由外部决定日志文件位置，如果为 nullptr 表示使用默认的 console 日志。
+`max_file_size`：日志文件最大文件大小，超过将重置。
+`max_files`：轮换日志文件数量，多个日志文件中进行轮转。
+
+__返回值:__
+
+1 表示成功，0 表示失败。
 
 -----
 
@@ -388,7 +540,7 @@ public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags,
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -434,7 +586,7 @@ public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags,
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -443,6 +595,42 @@ public static native int fuDualInputToTexture(byte[] img, int tex_in, int flags,
 美颜处理后的图像数据默认不会写回 img，参数 flags 设置为 `FU_ADM_FLAG_ENABLE_READBACK` 就会以相同宽高写回 img。
 
 ---
+
+##### fuRenderToTexture 视频处理单输入接口
+
+```java
+public static native int fuRenderToTexture(int tex_in, int w, int h, int frame_id, int[] items, int flags);
+```
+
+**接口说明：**
+
+将输入的图像数据，送入SDK流水线进行处理。该接口会执行所有道具要求、且证书许可的功能模块，包括人脸检测与跟踪、美颜、贴纸或avatar绘制等。
+
+**参数说明：**
+
+`tex_in ` 图像纹理 ID
+
+`w ` 图像数据的宽
+
+`h ` 图像数据的高
+
+`frame_id ` 当前处理的视频帧序数
+
+`items ` 包含多个道具句柄的int数组
+
+`flags ` flags，可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明
+
+**返回值：**
+
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
+
+**备注：**
+
+该绘制接口需要OpenGL环境，环境异常会导致崩溃。
+
+如果需要自定义输出数据，请调用带有 readback 参数的 `fuRenderToTexture` 接口。
+
+-------
 
 ##### fuRenderToNV21Image   视频处理单输入接口
 
@@ -470,7 +658,7 @@ public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -512,7 +700,7 @@ public static native int fuRenderToNV21Image(byte[] img, int w, int h, int frame
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID
+`int ` 被处理过的的图像数据纹理ID。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -548,7 +736,7 @@ public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -590,7 +778,7 @@ public static native int fuRenderToI420Image(byte[] img, int w, int h, int frame
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -626,7 +814,7 @@ public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -668,7 +856,7 @@ public static native int fuRenderToRgbaImage(byte[] img, int w, int h, int frame
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -716,7 +904,7 @@ public static native int fuRenderToYUVImage(byte[] y_buffer, byte[] u_buffer, by
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -750,7 +938,7 @@ public static native int fuBeautifyImage(int tex_in, int flags, int w, int h, in
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -794,7 +982,7 @@ public static native int fuAvatarToTexture(float[] pupilPos, float[] expression,
 
 **返回值：**
 
-`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。
+`int ` 被处理过的的图像数据纹理ID。返回值小于等于0为异常，具体信息通过`fuGetSystemError`获取。纹理返回的数据为 2D。
 
 **备注：**
 
@@ -967,93 +1155,6 @@ __备注:__
 
 ----
 
-##### fuSetFaceTrackParam 设置人脸表情跟踪参数
-```java
-public static native int fuSetFaceTrackParam(String name, float value);
-```
-**接口说明：**
-
-设置人脸表情跟踪相关参数，__建议使用默认参数__。
-
-__参数说明：__  
-
-`name`: 参数名
-
-`value`: 参数值
-
-- 设置 `name = "mouth_expression_more_flexible"` ，`value = [0,1]`，默认 `value = 0` ，从0到1，数值越大，嘴部表情越灵活。  
-
-__返回值:__  
-
-设置后状态，1 设置成功，0 设置失败。
-
--------
-
-##### fuSetFaceDetParam 设置人脸检测器相关参数
-
-```java
-public static native int fuSetFaceDetParam(String name, float value);
-```
-
-**接口说明：**
-
-设置人脸检测器相关参数，__建议使用默认参数__。
-
-**参数说明：**
-
-`name`: 参数名
-
-`value`: 参数值
-
-- 设置 `name == "use_new_cnn_detection"` ，且 `pvalue == 1` 则使用默认的CNN-Based人脸检测算法，否则 `pvalue == 0`则使用传统人脸检测算法。默认开启该模式。
-- 设置 `name == "other_face_detection_frame_step"` ，如果当前状态已经检测到一张人脸后，可以通过设置该参数，每隔`step`帧再进行其他人脸检测，有助于提高性能，设置过大会导致延迟感明显，默认值10。。
-
-如果`name == "use_new_cnn_detection"` ，且 `pvalue == 1` 已经开启：
-
-- `name == "use_cross_frame_speedup"`，`pvalue==1`表示，开启交叉帧执行推理，每帧执行半个网络，下帧执行下半个网格，可提高性能。默认 `pvalue==0`关闭。
-- `name == "enable_large_pose_detection"`，`pvalue==1`表示，开启正脸大角度(45度)检测优化。`pvalue==0`表示关闭。默认 `pvalue==1`开启。
-- `name == "small_face_frame_step"`，`pvalue`表示每隔多少帧加强小脸检测。极小脸检测非常耗费性能，不适合每帧都做。默认`pvalue==5`。
-- 检测小脸时，小脸也可以定义为范围。范围下限`name == "min_facesize_small"`，默认`pvalue==18`，表示最小脸为屏幕宽度的18%。范围上限`name == "min_facesize_big"`，默认`pvalue==27`，表示最小脸为屏幕宽度的27%。该参数必须在`fuSetup`前设置。
-
-否则，当`name == "use_new_cnn_detection"` ，且 `pvalue == 0`时：
-
-- `name == "scaling_factor"`，设置图像金字塔的缩放比，默认为1.2f。
-- `name == "step_size"`，滑动窗口的滑动间隔，默认 2.f。
-- `name == "size_min"`，最小人脸大小，多少像素。 默认 50.f 像素，参考640x480分辨率。
-- `name == "size_max"`，最大人脸大小，多少像素。 默认最大，参考640x480分辨率。
-- `name == "min_neighbors"`，内部参数, 默认 3.f
-- `name == "min_required_variance"`， 内部参数, 默认 15.f
-
-__返回值:__  
-
-设置后状态，1 设置成功，0 设置失败。 
-
-__备注:__  
-
-`name == "min_facesize_small"`，`name == "min_facesize_small"`参数必须在`fuSetup`前设置。
-
------
-
-##### fuSetAsyncTrackFace 设置人脸跟踪异步
-
-```java
-public static native int fuSetAsyncTrackFace(int enable);
-```
-
-**接口说明：**
-
-设置人脸跟踪异步接口。默认处于关闭状态。
-
-**参数说明：**
-
-`enable`: 1 开启异步跟踪，0 关闭异步跟踪。
-
-__备注:__  
-
-默认处于关闭状态。开启后，人脸跟踪会和渲染绘制异步并行，cpu占用略有上升，但整体速度提升，帧率提升。
-
-----
-
 ##### fuIsTracking  判断是否检测到人脸
 
 ```java
@@ -1086,7 +1187,7 @@ __参数说明:__
 
 `samples`：默认为 0，处于关闭状态。samples 要小于等于设备 GL_MAX_SAMPLES，通常可以设置 4。
 
-__返回值: __ 
+__返回值:__
 
 设置后系统的采样数，设置成功返回 samples。 
 
@@ -1164,25 +1265,27 @@ __备注:__
 
 *注：*旋转四元数转换为欧拉角可以参考 [该网页](https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles)。
 
----
+-----
 
-##### fuSetDefaultOrientation  设置默认的人脸朝向
+##### fuGetFaceIdentifier 获取正在跟踪人脸的标识符
+
+**接口说明：**获取正在跟踪人脸的标识符，用于在 SDK 外部对多人情况下的不同人脸进行区别。
 
 ```java
-public static native int fuSetDefaultOrientation(int rmode);
+public static native int fuGetFaceIdentifier(int face_id);
 ```
 
-**接口说明：**
+__参数:__  
 
-设置默认的人脸朝向。正确设置默认的人脸朝向可以显著提升人脸首次识别的速度。
+`face_id`：人脸编号，表示识别到的第 x 张人脸，从 0 开始。
 
-**参数说明：**
+__返回值:__  
 
-`rmode` 要设置的人脸朝向，取值范围为 0-3，分别对应人脸相对于图像数据旋转0度、90度、180度、270度。
+所要求的人脸标识符。
 
-**备注：**
+__备注:__  
 
-一般来说，Android 前置摄像头一般设置参数 1，后置摄像头一般设置参数 3。部分手机存在例外。
+跟踪失败会改变标识符，包括快速的重跟踪。
 
 ----
 
@@ -1411,22 +1514,6 @@ __返回值:__
 
 返回值 1 代表加载成功，并启用表情优化功能。返回值 0 代表失败。
 
-----
-
-##### fuSetStrictTracking  启用更加严格的跟踪质量检测
-
-```java
-public static native void fuSetStrictTracking(int mode);
-```
-
-**接口说明：**
-
-启用更加严格的跟踪质量检测。
-
-**参数说明：**
-
-`mode`：0 为禁用，1 为启用，默认为禁用状态。
-
 -----
 
 ##### fuSetFocalLengthScale 修改系统焦距
@@ -1449,7 +1536,322 @@ __备注:__
 
 -----
 
-#### 2.7 P2A 相关接口
+#### 2.7 功能接口 - 算法
+
+##### fuFaceProcessorSetMinFaceRatio  函数
+
+设置人脸检测距离的接口
+
+```java
+public static native void fuFaceProcessorSetMinFaceRatio(float ratio);
+```
+
+__参数:__  
+
+`ratio`：数值范围0.0至1.0，最小人脸的大小和输入图形宽高短边的比值。默认值 0.2。
+
+------
+
+##### fuSetTrackFaceAIType  函数
+
+设置 fuTrackFace 算法运行类型接口
+
+```java
+public static native void fuSetTrackFaceAIType(int ai_type);
+```
+
+__参数:__  
+
+`ai_type`：aitype，详见 FUAITYPE 定义。
+
+------
+
+##### fuSetFaceProcessorFov  函数
+
+设置 FaceProcessor 人脸算法模块跟踪 fov
+
+```java
+public static native int fuSetFaceProcessorFov(float fov);
+```
+
+__参数:__  
+
+`fov`：fov，要设置的FaceProcessor人脸算法模块跟踪 fov。
+
+__返回值:__  1 表示成功，0 表示失败。
+
+__备注:__  
+默认值：FUAITYPE_FACEPROCESSOR_FACECAPTURE 模式下 8.6 度(角度值)，FUAITYPE_FACEPROCESSOR 模式下 25 度(角度值)，参数推荐范围 [5°，60°]，距离默认参数过远可能导致效果下降。
+
+------
+
+##### fuHumanProcessorReset  函数
+
+重置 HumanProcessor 人体算法模块状态。
+
+```java
+public static native void fuHumanProcessorReset();
+```
+
+------
+
+##### fuHumanProcessorSetMaxHumans  函数
+
+设置HumanProcessor人体算法模块跟踪人体数。默认值是 1，最大值无上限；性能随人数增加线性下降。
+
+```C
+public static native void fuHumanProcessorSetMaxHumans(int max_humans);
+```
+
+__参数:__  
+
+`max_humans`：设置能够跟踪的最大人体数。
+
+------
+
+##### fuHumanProcessorGetNumResults  函数
+
+获取 HumanProcessor 人体算法模块跟踪人体数。
+
+```java
+public static native int fuHumanProcessorGetNumResults();
+```
+
+__返回值:__  当前跟踪到人体数。
+
+------
+
+##### fuHumanProcessorGetResultTrackId  函数
+
+获取 HumanProcessor 人体算法模块跟踪 Id。
+
+```C
+public static native int fuHumanProcessorGetResultTrackId(int index);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。
+__返回值:__  当前跟踪到人体 id。
+
+------
+
+##### fuHumanProcessorGetResultRect  函数
+
+获取 HumanProcessor 人体算法模块跟踪人体框。
+
+```java
+public static native int fuHumanProcessorGetResultRect(int index, float[] rect);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。
+`rect`：当前跟踪到人体的人体框，4个 float 大小。
+
+__返回值:__  1 表示成功，0 表示失败。
+
+------
+
+##### fuHumanProcessorGetResultJoint2ds  函数
+
+获取 HumanProcessor 人体算法模块跟踪人体2D 关键点。
+
+```java
+public static native int fuHumanProcessorGetResultJoint2ds(int index, float[] joint2ds);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。
+`joint2ds`：当前跟踪到人体的人体2D 关键点，长度 50。
+
+__返回值:__ 1 表示成功，0 表示失败。
+
+------
+
+##### fuHumanProcessorGetResultJoint3ds  函数
+
+获取 HumanProcessor 人体算法模块跟踪人体3D 骨骼信息。
+
+```java
+public static native int fuHumanProcessorGetResultJoint3ds(int index, float[] joint3ds);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。  
+`joint3ds`：当前跟踪到人体的人体3D骨骼信息，长度固定。
+
+__返回值:__  1 表示成功，0 表示失败。
+
+------
+
+##### fuHumanProcessorGetResultHumanMask  函数
+
+获取 HumanProcessor 人体算法模块全身 mask。
+
+```java
+public static native int fuHumanProcessorGetResultHumanMask(int index,float[] mask);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。  
+`mask`：当前HumanProcessor人体算法模块全身mask，长度由 mask_width * mask_height 决定 。
+
+__返回值:__  1 表示成功，0 表示失败。
+
+------
+
+##### fuFaceProcessorGetResultHairMask  函数
+
+获取 HumanProcessor 人体算法模块头发 mask。
+
+```java
+public static native int fuFaceProcessorGetResultHairMask(int index,float[] mask);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。  
+`mask`：当前HumanProcessor人体算法模块头发mask，长度由 mask_width * mask_height 决定。
+
+__返回值:__  1 表示成功，0 表示失败。
+
+------
+
+##### fuFaceProcessorGetResultHeadMask  函数
+
+获取 HumanProcessor 人体算法模块头部mask。
+
+```java
+public static native int fuFaceProcessorGetResultHeadMask(int index,float[] mask);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。  
+`mask_width`： 当前 HumanProcessor 人体算法模块头部 mask，长度由 mask_width * mask_height 决定。
+
+__返回值:__  1 表示成功，0 表示失败。
+
+------
+
+##### fuHumanProcessorGetResultActionType  函数
+
+获取 HumanProcessor 人体算法模块跟踪人体动作类型。
+
+```C
+public static native int fuHumanProcessorGetResultActionType(int index);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。  
+__返回值:__  人体算法模块跟踪人体动作类型。
+
+------
+
+##### fuHumanProcessorGetResultActionScore  函数
+
+获取 HumanProcessor 人体算法模块跟踪人体动作置信度
+
+```java
+public static native float fuHumanProcessorGetResultActionScore(int index);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。  
+__返回值:__  人体算法模块跟踪人体动作置信度。
+
+------
+
+##### fuHandDetectorGetResultNumHands  函数
+
+获取 HandGesture 手势算法模块跟踪手势数量。需加载 ai_gesture.bundle
+
+```C
+public static native int fuHandDetectorGetResultNumHands();
+```
+
+__返回值:__ 算法模块跟踪手势数量。
+
+------
+
+##### fuHandDetectorGetResultHandRect  函数
+
+获取HandGesture手势算法模块跟踪手势框。
+
+```java
+public static native int fuHandDetectorGetResultHandRect(int index, float[] rect);
+```
+
+__参数:__  
+`index`：第 index 个手势，从 0 开始，不超过 fuHandDetectorGetResultNumHands 结果。  
+
+`rect`：手势算法模块跟踪手势框，长度为 4。
+
+__返回值:__  1 表示成功，0 表示失败。
+
+------
+
+##### fuHandDetectorGetResultGestureType  函数
+
+获取 HandGesture 手势算法模块跟踪手势类别。
+
+```java
+public static native int fuHandDetectorGetResultGestureType(int index);
+```
+
+__参数:__  
+`index`：第 index 个手势，从 0 开始，不超过 fuHandDetectorGetResultNumHands 结果。  
+
+__返回值:__ 手势算法模块跟踪手势类别 。
+
+```C
+typedef enum FUAIGESTURETYPE {
+  FUAIGESTURE_NO_HAND = -1,
+  FUAIGESTURE_UNKNOWN = 0,
+  FUAIGESTURE_THUMB = 1,
+  FUAIGESTURE_KORHEART = 2,
+  FUAIGESTURE_SIX = 3,
+  FUAIGESTURE_FIST = 4,
+  FUAIGESTURE_PALM = 5,
+  FUAIGESTURE_ONE = 6,
+  FUAIGESTURE_TWO = 7,
+  FUAIGESTURE_OK = 8,
+  FUAIGESTURE_ROCK = 9,
+  FUAIGESTURE_CROSS = 10,
+  FUAIGESTURE_HOLD = 11,
+  FUAIGESTURE_GREET = 12,
+  FUAIGESTURE_PHOTO = 13,
+  FUAIGESTURE_HEART = 14,
+  FUAIGESTURE_MERGE = 15,
+  FUAIGESTURE_EIGHT = 16,
+  FUAIGESTURE_HALFFIST = 17,
+  FUAIGESTURE_GUN = 18,
+} FUAIGESTURETYPE;
+```
+
+------
+
+##### fuHandDetectorGetResultHandScore  函数
+
+获取 HandGesture 手势算法模块跟踪手势置信度。
+
+```C
+public static native float fuHandDetectorGetResultHandScore(int index);
+```
+
+__参数:__  
+`index`：第 index 个手势，从 0 开始，不超过 fuHandDetectorGetResultNumHands 结果。  
+__返回值:__ 手势算法模块跟踪手势置信度。
+
+------
+
+#### 2.8 P2A 相关接口
 
 ##### fuAvatarBindItems 将普通道具绑定到avatar道具的接口
 
@@ -1540,7 +1942,7 @@ public static native int fuUnbindAllItems(int item_src);
 
 `int ` 从目标道具上解除绑定的普通道具个数
 
-#### 2.8 废弃接口
+#### 2.9 废弃接口
 
 ##### fuLoadExtendedARData 
 
@@ -1554,7 +1956,138 @@ public static native int fuLoadExtendedARData(byte[] ardata);
 public static native void fuSetQualityTradeoff(float quality);
 ```
 
----
+------
+
+##### fuSetStrictTracking  启用更加严格的跟踪质量检测
+
+__注意__: 7.0.0版本该接口已废弃。
+
+```java
+public static native void fuSetStrictTracking(int mode);
+```
+
+**接口说明：**
+
+启用更加严格的跟踪质量检测。
+
+**参数说明：**
+
+`mode`：0 为禁用，1 为启用，默认为禁用状态。
+
+--------
+
+##### fuSetFaceDetParam 设置人脸检测器相关参数
+
+```java
+public static native int fuSetFaceDetParam(String name, float value);
+```
+
+**接口说明：**
+
+设置人脸检测器相关参数，__建议使用默认参数__。
+
+**参数说明：**
+
+`name`: 参数名
+
+`value`: 参数值
+
+- 设置 `name == "use_new_cnn_detection"` ，且 `pvalue == 1` 则使用默认的CNN-Based人脸检测算法，否则 `pvalue == 0`则使用传统人脸检测算法。默认开启该模式。
+- 设置 `name == "other_face_detection_frame_step"` ，如果当前状态已经检测到一张人脸后，可以通过设置该参数，每隔`step`帧再进行其他人脸检测，有助于提高性能，设置过大会导致延迟感明显，默认值10。。
+
+如果`name == "use_new_cnn_detection"` ，且 `pvalue == 1` 已经开启：
+
+- `name == "use_cross_frame_speedup"`，`pvalue==1`表示，开启交叉帧执行推理，每帧执行半个网络，下帧执行下半个网格，可提高性能。默认 `pvalue==0`关闭。
+- `name == "enable_large_pose_detection"`，`pvalue==1`表示，开启正脸大角度(45度)检测优化。`pvalue==0`表示关闭。默认 `pvalue==1`开启。
+- `name == "small_face_frame_step"`，`pvalue`表示每隔多少帧加强小脸检测。极小脸检测非常耗费性能，不适合每帧都做。默认`pvalue==5`。
+- 检测小脸时，小脸也可以定义为范围。范围下限`name == "min_facesize_small"`，默认`pvalue==18`，表示最小脸为屏幕宽度的18%。范围上限`name == "min_facesize_big"`，默认`pvalue==27`，表示最小脸为屏幕宽度的27%。该参数必须在`fuSetup`前设置。
+
+否则，当`name == "use_new_cnn_detection"` ，且 `pvalue == 0`时：
+
+- `name == "scaling_factor"`，设置图像金字塔的缩放比，默认为1.2f。
+- `name == "step_size"`，滑动窗口的滑动间隔，默认 2.f。
+- `name == "size_min"`，最小人脸大小，多少像素。 默认 50.f 像素，参考640x480分辨率。
+- `name == "size_max"`，最大人脸大小，多少像素。 默认最大，参考640x480分辨率。
+- `name == "min_neighbors"`，内部参数, 默认 3.f
+- `name == "min_required_variance"`， 内部参数, 默认 15.f
+
+__返回值:__  
+
+设置后状态，1 设置成功，0 设置失败。 
+
+__备注:__  
+
+`name == "min_facesize_small"`，`name == "min_facesize_small"`参数必须在`fuSetup`前设置。
+
+------
+
+##### fuSetAsyncTrackFace 设置人脸跟踪异步
+
+__注意__: 7.0.0版本该接口已废弃。
+
+```java
+public static native int fuSetAsyncTrackFace(int enable);
+```
+
+**接口说明：**
+
+设置人脸跟踪异步接口。默认处于关闭状态。
+
+**参数说明：**
+
+`enable`: 1 开启异步跟踪，0 关闭异步跟踪。
+
+__备注:__  
+
+默认处于关闭状态。开启后，人脸跟踪会和渲染绘制异步并行，cpu占用略有上升，但整体速度提升，帧率提升。
+
+-------
+
+##### fuSetFaceTrackParam 设置人脸表情跟踪参数
+
+__注意__: 7.0.0版本该接口已废弃。
+
+```java
+public static native int fuSetFaceTrackParam(String name, float value);
+```
+
+**接口说明：**
+
+设置人脸表情跟踪相关参数，__建议使用默认参数__。
+
+__参数说明：__  
+
+`name`: 参数名
+
+`value`: 参数值
+
+- 设置 `name = "mouth_expression_more_flexible"` ，`value = [0,1]`，默认 `value = 0` ，从0到1，数值越大，嘴部表情越灵活。  
+
+__返回值:__  
+
+设置后状态，1 设置成功，0 设置失败。
+
+-------
+
+##### fuSetDefaultOrientation 设置默认的人脸朝向
+
+**接口说明：**
+
+设置默认的人脸朝向。正确设置默认的人脸朝向可以显著提升人脸首次识别的速度。  
+
+```java
+public static native void fuSetDefaultOrientation(int rmode);  
+```
+
+__参数:__  
+
+`rmode`：要设置的人脸朝向，取值范围为 0-3，分别对应人脸相对于图像数据旋转0度、90度、180度、270度。 
+
+__备注:__  
+
+Android 平台的原生相机数据为横屏，需要进行该设置加速首次识别。根据经验，Android 前置摄像头一般设置参数 1，后置摄像头一般设置参数 3。部分手机存在例外，自动计算的代码可以参考 FULiveDemo。
+
+--------
 
 ### 3. 输入输出格式列表
 
@@ -1759,17 +2292,21 @@ __参数:__
 
 *flags*：扩展功能标识符，所有支持的标识符及其功能如下。多个标识符通过“或”运算符连接。
 
-| 扩展功能标识符                   | 含义                                         |
-| -------------------------------- | -------------------------------------------- |
-| FU_ADM_FLAG_EXTERNAL_OES_TEXTURE | 传入的纹理为OpenGL external OES 纹理         |
-| FU_ADM_FLAG_ENABLE_READBACK      | 开启后将处理结果写回覆盖到传入的内存图像数据 |
-| FU_ADM_FLAG_NV21_TEXTURE         | 传入的纹理为 NV21 数据格式                   |
-| FU_ADM_FLAG_I420_TEXTURE         | 传入的纹理为 I420 数据格式                   |
-| FU_ADM_FLAG_I420_BUFFER          | 传入的内存图像数据为 I420 数据格式           |
-| FU_ADM_FLAG_RGBA_BUFFER          | 传入的内存图像数据为 RGBA 数据格式           |
-| FU_ADM_FLAG_FLIP_X               | 输出画面左右镜像                             |
-| FU_ADM_FLAG_FLIP_Y               | 输出画面上下镜像                             |
-
+| 扩展功能标识符                                     | 含义                                         |
+| -------------------------------------------------- | -------------------------------------------- |
+| FU_ADM_FLAG_EXTERNAL_OES_TEXTURE                   | 传入的纹理为OpenGL external OES 纹理         |
+| FU_ADM_FLAG_ENABLE_READBACK                        | 开启后将处理结果写回覆盖到传入的内存图像数据 |
+| FU_ADM_FLAG_NV21_TEXTURE                           | 传入的纹理为 NV21 数据格式                   |
+| FU_ADM_FLAG_I420_TEXTURE                           | 传入的纹理为 I420 数据格式                   |
+| FU_ADM_FLAG_I420_BUFFER                            | 传入的内存图像数据为 I420 数据格式           |
+| FU_ADM_FLAG_RGBA_BUFFER                            | 传入的内存图像数据为 RGBA 数据格式           |
+| FU_ADM_FLAG_FLIP_X                                 | 输出画面左右镜像                             |
+| FU_ADM_FLAG_FLIP_Y                                 | 输出画面上下镜像                             |
+| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_OPPOSITE_X | 输出画面纹理和 readback 左右镜像             |
+| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_OPPOSITE_Y | 输出画面纹理和 readback 上下镜像             |
+| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_ROTATE_90  | 输出画面纹理和 readback 旋转 90度            |
+| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_ROTATE_180 | 输出画面纹理和 readback 旋转 180度           |
+| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_ROTATE_270 | 输出画面纹理和 readback 旋转 270度           |
 __输入输出支持:__
 
 仅输入

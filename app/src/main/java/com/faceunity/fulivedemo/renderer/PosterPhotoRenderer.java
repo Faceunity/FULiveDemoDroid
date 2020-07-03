@@ -7,7 +7,7 @@ import android.opengl.Matrix;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.faceunity.fulivedemo.utils.FPSUtil;
+import com.faceunity.fulivedemo.utils.LimitFpsUtil;
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
@@ -49,7 +49,6 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
     private float[] mMvpPhotoMatrix;
     private float[] mMvpTemplateMatrix = Arrays.copyOf(GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX.length);
     private ProgramTexture2d mFullFrameRectTexture2D;
-    private FPSUtil mFPSUtil;
     private int mViewPortX;
     private int mViewPortY;
     private float mViewPortScale = 1F;
@@ -60,7 +59,6 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         mPhotoPath = photoPath;
         mGLSurfaceView = glSurfaceview;
         mOnPhotoRendererStatusListener = onPhotoRendererStatusListener;
-        mFPSUtil = new FPSUtil();
     }
 
     public void onCreate() {
@@ -97,6 +95,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
             mFirstDrawPhoto = true;
             loadPhotoData(mPhotoPath, true);
         }
+        LimitFpsUtil.setTargetFps(LimitFpsUtil.DEFAULT_FPS);
     }
 
     @Override
@@ -122,7 +121,6 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         }
 
         mOnPhotoRendererStatusListener.onSurfaceChanged(width, height);
-        mFPSUtil.resetLimit();
     }
 
     @Override
@@ -137,7 +135,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         } else {
             matrix = mMvpTemplateMatrix;
         }
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mImgTextureId, mPhotoWidth, mPhotoHeight);
         mFullFrameRectTexture2D.drawFrame(fuTextureId, IMG_DATA_MATRIX, matrix);
         // 解决前几帧黑屏问题
@@ -153,7 +151,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        mFPSUtil.limit();
+        LimitFpsUtil.limitFrameRate();
         mGLSurfaceView.requestRender();
     }
 
@@ -244,11 +242,11 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
 
     public float[] convertFaceRect(float[] faceRect) {
         float[] newFaceRect = new float[4];
-        // 以右下角为顶点计算
-        newFaceRect[2] = (mPhotoWidth - faceRect[0]) * mViewPortScale + mViewPortX;
-        newFaceRect[3] = mViewHeight - faceRect[1] * mViewPortScale - mViewPortY;
-        newFaceRect[0] = (mPhotoWidth - faceRect[2]) * mViewPortScale + mViewPortX;
-        newFaceRect[1] = mViewHeight - faceRect[3] * mViewPortScale - mViewPortY;
+        // 以输入图像的左上角为顶点
+        newFaceRect[2] = faceRect[0] * mViewPortScale + mViewPortX;
+        newFaceRect[3] = faceRect[1] * mViewPortScale + mViewPortY;
+        newFaceRect[0] = faceRect[2] * mViewPortScale + mViewPortX;
+        newFaceRect[1] = faceRect[3] * mViewPortScale + mViewPortY;
         return newFaceRect;
     }
 

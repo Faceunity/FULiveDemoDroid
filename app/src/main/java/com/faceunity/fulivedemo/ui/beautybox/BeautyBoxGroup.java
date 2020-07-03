@@ -2,11 +2,12 @@ package com.faceunity.fulivedemo.ui.beautybox;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.IdRes;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+
+import androidx.annotation.IdRes;
 
 /**
  * Created by tujh on 2018/4/17.

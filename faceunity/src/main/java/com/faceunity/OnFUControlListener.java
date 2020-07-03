@@ -3,18 +3,17 @@ package com.faceunity;
 
 import com.faceunity.entity.Effect;
 import com.faceunity.entity.LightMakeupItem;
-import com.faceunity.entity.LivePhoto;
 import com.faceunity.entity.MakeupEntity;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * FURenderer与界面之间的交互接口
+ * FURenderer 与界面之间的交互接口
  */
 public interface OnFUControlListener {
     /**
-     * 美颜道具全局开关
+     * 美颜效果全局开关
      *
      * @param isOn
      */
@@ -28,50 +27,49 @@ public interface OnFUControlListener {
     void onMusicFilterTime(long time);
 
     /**
-     * 道具贴纸选择
+     * 选择道具贴纸
      *
-     * @param effectItemName 道具贴纸文件名
+     * @param effect
      */
-    void onEffectSelected(Effect effectItemName);
+    void onEffectSelected(Effect effect);
 
     /**
-     * 滤镜强度
+     * 美颜滤镜名称
      *
-     * @param progress 滤镜强度
+     * @param name
      */
-    void onFilterLevelSelected(float progress);
+    void onFilterNameSelected(String name);
 
     /**
-     * 滤镜选择
+     * 美颜滤镜强度
      *
-     * @param filterName 滤镜名称
+     * @param level
      */
-    void onFilterNameSelected(String filterName);
+    void onFilterLevelSelected(float level);
 
     /**
      * 美发颜色
      *
      * @param type
-     * @param hairColorIndex 美发颜色
-     * @param hairColorLevel 美发颜色强度
+     * @param index
+     * @param strength
      */
-    void onHairSelected(int type, int hairColorIndex, float hairColorLevel);
+    void onHairSelected(int type, int index, float strength);
 
     /**
-     * 调整美发强度
+     * 美发强度
      *
-     * @param type
-     * @param hairColorIndex
-     * @param hairColorLevel
+     * @param index
+     * @param strength
      */
-    void onHairLevelSelected(int type, int hairColorIndex, float hairColorLevel);
+    void onHairStrengthSelected(int index, float strength);
 
     /**
      * 磨皮类型
      *
-     * @param blurType 0 清晰磨皮，1 重度磨皮，2 精细磨皮
+     * @param type 0 清晰磨皮，1 重度磨皮，2 精细磨皮
      */
-    void onBlurTypeSelected(float blurType);
+    void onBlurTypeSelected(float type);
 
     /**
      * 磨皮程度
@@ -81,78 +79,91 @@ public interface OnFUControlListener {
     void onBlurLevelSelected(float level);
 
     /**
-     * 美白选择
+     * 美白
      *
-     * @param level 美白
+     * @param level
      */
     void onColorLevelSelected(float level);
 
     /**
      * 红润
+     *
+     * @param level
      */
     void onRedLevelSelected(float level);
 
     /**
      * 亮眼
+     *
+     * @param level
      */
     void onEyeBrightSelected(float level);
 
     /**
      * 美牙
+     *
+     * @param level
      */
     void onToothWhitenSelected(float level);
 
     /**
-     * 大眼选择
+     * 大眼
      *
-     * @param level 大眼
+     * @param level
      */
     void onEyeEnlargeSelected(float level);
 
     /**
-     * 瘦脸选择
+     * 瘦脸
      *
-     * @param level 瘦脸
+     * @param level
      */
     void onCheekThinningSelected(float level);
 
     /**
      * 下巴
+     *
+     * @param level
      */
     void onIntensityChinSelected(float level);
 
     /**
      * 额头
+     *
+     * @param level
      */
     void onIntensityForeheadSelected(float level);
 
     /**
      * 瘦鼻
+     *
+     * @param level
      */
     void onIntensityNoseSelected(float level);
 
-
     /**
      * 嘴形
+     *
+     * @param level
      */
     void onIntensityMouthSelected(float level);
 
     /**
-     * 窄脸选择
+     * 窄脸
      *
      * @param level
      */
     void onCheekNarrowSelected(float level);
 
     /**
-     * 小脸选择
+     * 小脸
      *
      * @param level
      */
     void onCheekSmallSelected(float level);
 
     /**
-     * V脸选择
+     * V脸
      *
      * @param level
      */
@@ -198,13 +209,6 @@ public interface OnFUControlListener {
      * @param makeupItem
      */
     void onLightMakeupItemLevelChanged(LightMakeupItem makeupItem);
-
-    /**
-     * 设置表情动图的点位和图像数据，用来驱动图像
-     *
-     * @param livePhoto
-     */
-    void setLivePhoto(LivePhoto livePhoto);
 
     /**
      * 设置美妆组合妆容
@@ -271,6 +275,20 @@ public interface OnFUControlListener {
      * @param intensity
      */
     void setHipSlimIntensity(float intensity);
+
+    /**
+     * 设置小头程度
+     *
+     * @param intensity
+     */
+    void setHeadSlimIntensity(float intensity);
+
+    /**
+     * 设置瘦腿程度
+     *
+     * @param intensity
+     */
+    void setLegThinSlimIntensity(float intensity);
 
     /**
      * 设置去黑眼圈强度

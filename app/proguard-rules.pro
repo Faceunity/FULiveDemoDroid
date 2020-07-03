@@ -117,6 +117,7 @@
 
 #################### FaceUnity #######################
 -keep class com.faceunity.wrapper.faceunity {*;}
+-keep class com.faceunity.wrapper.faceunity$RotatedImage {*;}
 
 #################### 本 demo 用到的第三方库 ######################
 

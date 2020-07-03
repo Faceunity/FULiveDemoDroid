@@ -11,11 +11,6 @@ import android.net.Uri;
 import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -23,11 +18,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+
 import com.faceunity.FURenderer;
-import com.faceunity.encoder.MediaAudioFileEncoder;
-import com.faceunity.encoder.MediaEncoder;
-import com.faceunity.encoder.MediaMuxerWrapper;
-import com.faceunity.encoder.MediaVideoEncoder;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.EffectEnum;
@@ -44,6 +41,10 @@ import com.faceunity.fulivedemo.utils.AudioObserver;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.fulivedemo.utils.encoder.MediaAudioFileEncoder;
+import com.faceunity.fulivedemo.utils.encoder.MediaEncoder;
+import com.faceunity.fulivedemo.utils.encoder.MediaMuxerWrapper;
+import com.faceunity.fulivedemo.utils.encoder.MediaVideoEncoder;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.FileUtils;
@@ -66,7 +67,7 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     private TextView mEffectDescription;
     private ImageView mPlayImageView;
     private ImageView mSaveImageView;
-    private TextView mIsTrackingText;
+    private TextView mTvTrackStatus;
     private BeautyControlView mBeautyControlView;
     private FURenderer mFURenderer;
     private String mVideoFilePath;
@@ -137,7 +138,7 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
             }
 
             @Override
-            public void onLoadError(String error) {
+            public void onLoadError(final String error) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -153,18 +154,19 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         boolean isLightMakeup = LightMakeupActivity.TAG.equals(selectDataType);
         boolean isBodySlim = BeautifyBodyActivity.TAG.equals(selectDataType);
         boolean isHairSeg = FUHairActivity.TAG.equals(selectDataType);
+        boolean isPortraitSegment = selectEffectType == Effect.EFFECT_TYPE_PORTRAIT_SEGMENT;
+        boolean loadAiHumanProcessor = isBodySlim || isPortraitSegment;
         mFURenderer = new FURenderer
                 .Builder(this)
-                .maxFaces(4)
+                .maxFaces(loadAiHumanProcessor ? 1 : 4)
+                .maxHumans(1)
                 .setExternalInputType(FURenderer.EXTERNAL_INPUT_TYPE_VIDEO)
                 .inputImageOrientation(0)
-                .setLoadAiHumanPose(isBodySlim)
-                .setLoadAiHairSeg(isHairSeg)
-                .setLoadAiBgSeg(selectEffectType == Effect.EFFECT_TYPE_BACKGROUND)
-                .setLoadAiGesture(selectEffectType == Effect.EFFECT_TYPE_GESTURE)
+                .setLoadAiHumanProcessor(loadAiHumanProcessor)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
-                .setUseBeautifyBody(isBodySlim)
                 .setNeedBeautyHair(isHairSeg)
+                .setNeedBodySlim(isBodySlim)
+                .setNeedFaceBeauty(!isBodySlim)
                 .setCameraFacing(Camera.CameraInfo.CAMERA_FACING_BACK)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
@@ -175,7 +177,7 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
             mLandmarksData = new float[75 * 2];
         }
         mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
-        mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
+        mTvTrackStatus = (TextView) findViewById(R.id.fu_base_is_tracking_text);
         mPlayImageView = (ImageView) findViewById(R.id.show_play_btn);
         mSaveImageView = (ImageView) findViewById(R.id.show_save_btn);
         if (mIsBeautyFace) {
@@ -245,6 +247,12 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
                 @Override
                 public void onDescriptionChangeListener(int description) {
                     showDescription(description, 1500);
+                }
+            });
+            effectRecyclerAdapter.setOnEffectSelectedListener(new EffectRecyclerAdapter.OnEffectSelectedListener() {
+                @Override
+                public void onEffectSelected(Effect effect) {
+                    mFURenderer.onEffectSelected(effect);
                 }
             });
         }
@@ -421,12 +429,24 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     }
 
     @Override
-    public void onTrackingStatusChanged(int status) {
+    public void onTrackStatusChanged(int type, int status) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mIsTrackingText.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
+                mTvTrackStatus.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
+                if (status <= 0) {
+                    int strId = 0;
+                    if (type == FURenderer.TRACK_TYPE_FACE) {
+                        strId = R.string.fu_base_is_tracking_text;
+                    } else if (type == FURenderer.TRACK_TYPE_HUMAN) {
+                        strId = R.string.toast_not_detect_body;
+                    }
+                    if (strId > 0) {
+                        mTvTrackStatus.setText(strId);
+                    }
+                }
             }
         });
     }
+
 }

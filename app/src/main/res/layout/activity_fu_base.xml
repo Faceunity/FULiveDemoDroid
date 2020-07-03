@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cl_root"
     android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_custom_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -89,7 +89,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <android.support.v7.widget.AppCompatCheckBox
+        <com.faceunity.fulivedemo.ui.CheckBoxCompat
             android:id="@+id/fu_base_debug"
             android:layout_width="@dimen/x60"
             android:layout_height="@dimen/x56"
@@ -165,7 +165,6 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/photograph_light_sun"
                 android:layout_width="@dimen/x40"
                 android:layout_height="@dimen/x38"
                 android:scaleType="centerInside"
@@ -185,6 +184,17 @@
                 android:scaleType="centerInside"
                 android:src="@drawable/photograph_light_moon" />
         </LinearLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:visibility="gone"
+            android:id="@+id/sw_landmarks"
+            android:layout_width="@dimen/x88"
+            android:layout_height="@dimen/x88"
+            android:layout_marginLeft="@dimen/x16"
+            android:textSize="@dimen/text_size_28"
+            android:textColor="@color/colorWhite"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fu_base_back" />
 
         <com.faceunity.fulivedemo.ui.RecordBtn
             android:id="@+id/fu_base_take_pic"
@@ -211,7 +221,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
         android:id="@+id/fl_fragment"
@@ -219,4 +229,4 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

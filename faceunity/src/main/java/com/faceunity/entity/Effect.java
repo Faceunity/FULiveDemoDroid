@@ -1,95 +1,97 @@
 package com.faceunity.entity;
 
-import android.text.TextUtils;
+import java.util.Objects;
 
 /**
- * 本demo中道具的实体类
+ * 道具贴纸实体类
  * Created by tujh on 2018/2/7.
  */
-
 public class Effect {
+    /**
+     * 类型
+     */
     public static final int EFFECT_TYPE_NONE = 0;
-    public static final int EFFECT_TYPE_NORMAL = 1;
-    public static final int EFFECT_TYPE_AR = 2;
-    public static final int EFFECT_TYPE_EXPRESSION = 4;
-    public static final int EFFECT_TYPE_BACKGROUND = 5;
-    public static final int EFFECT_TYPE_GESTURE = 6;
-    public static final int EFFECT_TYPE_PORTRAIT_LIGHT = 7;
-    public static final int EFFECT_TYPE_ANIMOJI = 8;
-    public static final int EFFECT_TYPE_PORTRAIT_DRIVE = 9;
-    public static final int EFFECT_TYPE_FACE_WARP = 10;
-    public static final int EFFECT_TYPE_MUSIC_FILTER = 11;
-    public static final int EFFECT_TYPE_HAIR_NORMAL = 12;
-    public static final int EFFECT_TYPE_POSTER_FACE = 13;
-    public static final int EFFECT_TYPE_HAIR_GRADIENT = 14;
-    public static final int EFFECT_TYPE_LIVE_PHOTO = 15;
-    public static final int EFFECT_TYPE_AVATAR = 16;
-    public static final int EFFECT_TYPE_BEAUTY_BODY = 17;
+    public static final int EFFECT_TYPE_STICKER = 1;
+    public static final int EFFECT_TYPE_AR_MASK = 2;
+    public static final int EFFECT_TYPE_ACTION_RECOGNITION = 3;
+    public static final int EFFECT_TYPE_EXPRESSION_RECOGNITION = 4;
+    public static final int EFFECT_TYPE_PORTRAIT_SEGMENT = 5;
+    public static final int EFFECT_TYPE_GESTURE_RECOGNITION = 6;
+    public static final int EFFECT_TYPE_ANIMOJI = 7;
+    public static final int EFFECT_TYPE_PORTRAIT_DRIVE = 8;
+    public static final int EFFECT_TYPE_FACE_WARP = 9;
+    public static final int EFFECT_TYPE_MUSIC_FILTER = 10;
+    public static final int EFFECT_TYPE_HAIR_NORMAL = 11;
+    public static final int EFFECT_TYPE_HAIR_GRADIENT = 12;
+    public static final int EFFECT_TYPE_PTA = 13;
+    public static final int EFFECT_TYPE_BIG_HEAD = 14;
 
     private String bundleName;
-    private int resId;
-    private String path;
+    private int iconId;
+    private String bundlePath;
     private int maxFace;
-    private int effectType;
-    private int description;
+    private int type;
+    private int descId;
 
-    public Effect(String bundleName, int resId, String path, int maxFace, int effectType, int description) {
+    public Effect(String bundleName, int iconId, String bundlePath, int maxFace, int type, int descId) {
         this.bundleName = bundleName;
-        this.resId = resId;
-        this.path = path;
+        this.iconId = iconId;
+        this.bundlePath = bundlePath;
         this.maxFace = maxFace;
-        this.effectType = effectType;
-        this.description = description;
+        this.type = type;
+        this.descId = descId;
     }
 
-    public String bundleName() {
+    public String getBundleName() {
         return bundleName;
     }
 
-    public int resId() {
-        return resId;
+    public int getIconId() {
+        return iconId;
     }
 
-    public String path() {
-        return path;
+    public String getBundlePath() {
+        return bundlePath;
     }
 
-    public int maxFace() {
+    public int getMaxFace() {
         return maxFace;
     }
 
-    public int effectType() {
-        return effectType;
+    public int getType() {
+        return type;
     }
 
-    public int description() {
-        return description;
+    public int getDescId() {
+        return descId;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         Effect effect = (Effect) o;
-        return !TextUtils.isEmpty(path) && path.equals(effect.path());
+        return Objects.equals(bundlePath, effect.bundlePath);
     }
 
     @Override
     public int hashCode() {
-        return !TextUtils.isEmpty(path) ? path.hashCode() : 0;
+        return bundlePath != null ? bundlePath.hashCode() : 0;
     }
 
     @Override
     public String toString() {
         return "Effect{" +
                 "bundleName='" + bundleName + '\'' +
-                ", resId=" + resId +
-                ", path='" + path + '\'' +
+                ", iconId=" + iconId +
+                ", filePath='" + bundlePath + '\'' +
                 ", maxFace=" + maxFace +
-                ", effectType=" + effectType +
-                ", description=" + description +
+                ", type=" + type +
+                ", descId=" + descId +
                 '}';
     }
 }

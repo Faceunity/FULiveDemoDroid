@@ -10,13 +10,14 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.PopupWindow;
+
+import androidx.annotation.Nullable;
 
 import com.faceunity.fulivedemo.R;
 

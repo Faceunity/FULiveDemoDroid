@@ -12,12 +12,10 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,28 +33,37 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import com.faceunity.FURenderer;
-import com.faceunity.encoder.MediaAudioEncoder;
-import com.faceunity.encoder.MediaEncoder;
-import com.faceunity.encoder.MediaMuxerWrapper;
-import com.faceunity.encoder.MediaVideoEncoder;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.renderer.BaseCameraRenderer;
 import com.faceunity.fulivedemo.renderer.Camera1Renderer;
 import com.faceunity.fulivedemo.renderer.OnRendererStatusListener;
 import com.faceunity.fulivedemo.ui.CameraFocus;
 import com.faceunity.fulivedemo.ui.RecordBtn;
+import com.faceunity.fulivedemo.ui.SwitchConfig;
 import com.faceunity.fulivedemo.ui.VerticalSeekBar;
 import com.faceunity.fulivedemo.utils.CameraUtils;
-import com.faceunity.fulivedemo.utils.NotchInScreenUtil;
+import com.faceunity.fulivedemo.utils.PermissionUtil;
 import com.faceunity.fulivedemo.utils.ScreenUtils;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.fulivedemo.utils.encoder.MediaAudioEncoder;
+import com.faceunity.fulivedemo.utils.encoder.MediaEncoder;
+import com.faceunity.fulivedemo.utils.encoder.MediaMuxerWrapper;
+import com.faceunity.fulivedemo.utils.encoder.MediaVideoEncoder;
 import com.faceunity.gles.core.GlUtil;
 import com.faceunity.utils.BitmapUtil;
 import com.faceunity.utils.Constant;
 import com.faceunity.utils.FileUtils;
 import com.faceunity.utils.MiscUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +87,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     protected BaseCameraRenderer mCameraRenderer;
     protected volatile boolean mIsDualInput = true;
     private TextView mDebugText;
-    protected TextView mIsTrackingText;
+    protected TextView mTvTrackStatus;
     private TextView mEffectDescription;
     protected RecordBtn mTakePicBtn;
     protected ViewStub mBottomViewStub;
@@ -105,10 +112,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
     };
 
     protected FURenderer mFURenderer;
-    protected byte[] mFuNV21Byte;
     protected int mFrontCameraOrientation;
     private float[][] mLandmarksDataArray;
-    private float[] mLandmarksDataNew;
     private int mTrackedFaceCount;
     protected Handler mMainHandler = new Handler(Looper.getMainLooper());
     protected volatile boolean mIsTakingPic = false;
@@ -232,11 +237,22 @@ public abstract class FUBaseActivity extends AppCompatActivity
     }
 
     @Override
-    public void onTrackingStatusChanged(final int status) {
+    public void onTrackStatusChanged(int type, int status) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mIsTrackingText.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
+                mTvTrackStatus.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
+                if (status <= 0) {
+                    int strId = 0;
+                    if (type == FURenderer.TRACK_TYPE_FACE) {
+                        strId = R.string.fu_base_is_tracking_text;
+                    } else if (type == FURenderer.TRACK_TYPE_HUMAN) {
+                        strId = R.string.toast_not_detect_body;
+                    }
+                    if (strId > 0) {
+                        mTvTrackStatus.setText(strId);
+                    }
+                }
             }
         });
     }
@@ -254,17 +270,13 @@ public abstract class FUBaseActivity extends AppCompatActivity
     }
 
     @Override
-    public int onDrawFrame(byte[] cameraNV21Byte, int cameraTextureId, int cameraWidth, int cameraHeight,
+    public int onDrawFrame(byte[] cameraNv21Byte, int cameraTextureId, int cameraWidth, int cameraHeight,
                            float[] mvpMatrix, float[] texMatrix, long timeStamp) {
         int fuTexId = 0;
         if (mIsDualInput) {
-            fuTexId = mFURenderer.onDrawFrame(cameraNV21Byte, cameraTextureId, cameraWidth, cameraHeight);
-        } else if (cameraNV21Byte != null) {
-            if (mFuNV21Byte == null || mFuNV21Byte.length != cameraNV21Byte.length) {
-                mFuNV21Byte = new byte[cameraNV21Byte.length];
-            }
-            System.arraycopy(cameraNV21Byte, 0, mFuNV21Byte, 0, cameraNV21Byte.length);
-            fuTexId = mFURenderer.onDrawFrame(mFuNV21Byte, cameraWidth, cameraHeight);
+            fuTexId = mFURenderer.onDrawFrame(cameraNv21Byte, cameraTextureId, cameraWidth, cameraHeight);
+        } else {
+            fuTexId = mFURenderer.onDrawFrame(cameraNv21Byte, cameraWidth, cameraHeight);
         }
         showLandmarks();
         sendRecordingData(fuTexId, mvpMatrix, texMatrix, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
@@ -348,12 +360,11 @@ public abstract class FUBaseActivity extends AppCompatActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (NotchInScreenUtil.hasNotch(this)) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+        ScreenUtils.fullScreen(this);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_fu_base);
-        MiscUtil.checkPermission(this);
+        PermissionUtil.checkPermission(this);
+        loadInternalConfigJson();
         mGLSurfaceView = (GLSurfaceView) findViewById(R.id.fu_base_gl_surface);
         mGLSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGLVersion(this));
 //        boolean hasCamera2 = CameraUtils.hasCamera2(this);
@@ -384,7 +395,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
                         break;
                     default:
                 }
-                mFURenderer.changeInputType();
             }
         });
 
@@ -396,6 +406,18 @@ public abstract class FUBaseActivity extends AppCompatActivity
                 mDebugText.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             }
         });
+
+        if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS) {
+            SwitchCompat sw = findViewById(R.id.sw_landmarks);
+            sw.setVisibility(View.VISIBLE);
+            sw.setChecked(BaseCameraRenderer.ENABLE_DRAW_LANDMARKS);
+            sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    BaseCameraRenderer.ENABLE_DRAW_LANDMARKS = isChecked;
+                }
+            });
+        }
 
         mIvShowMore = findViewById(R.id.fu_base_more);
         if (isOpenResolutionChange()) {
@@ -416,7 +438,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
             }
         });
 
-        mIsTrackingText = (TextView) findViewById(R.id.fu_base_is_tracking_text);
+        mTvTrackStatus = (TextView) findViewById(R.id.fu_base_is_tracking_text);
         mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
         mTakePicBtn = (RecordBtn) findViewById(R.id.fu_base_take_pic);
         mTakePicBtn.setOnRecordListener(new RecordBtn.OnRecordListener() {
@@ -428,7 +450,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
             @Override
             public void startRecord() {
                 mIsRecordStopped = false;
-                mGLSurfaceView.queueEvent(new Runnable() {
+                AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
                         startRecording();
@@ -439,7 +461,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
             @Override
             public void stopRecord() {
                 mIsRecordStopped = true;
-                mGLSurfaceView.queueEvent(new Runnable() {
+                AsyncTask.execute(new Runnable() {
                     @Override
                     public void run() {
                         stopRecording();
@@ -725,6 +747,35 @@ public abstract class FUBaseActivity extends AppCompatActivity
 
     protected int getLandmarksType() {
         return FURenderer.FACE_LANDMARKS_75;
+    }
+
+    // only for complete requirement quickly
+    private void loadInternalConfigJson() {
+        File file = new File(Constant.EXTERNAL_FILE_PATH, "switch_config.json");
+        if (!file.exists()) {
+            return;
+        }
+        try {
+            String jsonStr = FileUtils.readStringFromFile(file);
+            JSONObject jsonObject = new JSONObject(jsonStr);
+            int drawLandmarks = jsonObject.optInt("draw_landmarks", 0);
+            BaseCameraRenderer.ENABLE_DRAW_LANDMARKS = drawLandmarks == 1;
+            int stickerImportFile = jsonObject.optInt("sticker_import_file", 0);
+            SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_EFFECT = stickerImportFile == 1;
+            int makeupImportFile = jsonObject.optInt("makeup_import_file", 0);
+            SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_MAKEUP = makeupImportFile == 1;
+            int hairImportFile = jsonObject.optInt("hair_import_file", 0);
+            SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_HAIR = hairImportFile == 1;
+            int bodyImportFile = jsonObject.optInt("body_import_file", 0);
+            SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_BODY = bodyImportFile == 1;
+            int lightMakeupImportFile = jsonObject.optInt("light_makeup_import_file", 0);
+            SwitchConfig.ENABLE_LOAD_EXTERNAL_FILE_TO_LIGHT_MAKEUP = lightMakeupImportFile == 1;
+            int videoRecordDuration = jsonObject.optInt("video_record_duration", 10_000);
+            SwitchConfig.VIDEO_RECORD_DURATION = videoRecordDuration;
+
+        } catch (IOException | JSONException e) {
+            Log.e(TAG, "loadInternalConfigJson: ", e);
+        }
     }
 
 }

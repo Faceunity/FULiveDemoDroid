@@ -5,11 +5,12 @@ import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.faceunity.OnFUControlListener;
 import com.faceunity.entity.Effect;
@@ -34,12 +35,17 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
     private int mPositionSelect = 1;
     private OnFUControlListener mOnFUControlListener;
     private OnDescriptionChangeListener mOnDescriptionChangeListener;
+    private OnEffectSelectedListener mOnEffectSelectedListener;
 
     public EffectRecyclerAdapter(Context context, int effectType, OnFUControlListener onFUControlListener) {
         mContext = context;
         mEffectType = effectType;
         mEffects = EffectEnum.getEffectsByEffectType(mEffectType);
         mOnFUControlListener = onFUControlListener;
+    }
+
+    public void setPositionSelect(int positionSelect) {
+        mPositionSelect = positionSelect;
     }
 
     @Override
@@ -50,20 +56,22 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
 
     @Override
     public void onBindViewHolder(HomeRecyclerHolder holder, final int position) {
-
-        holder.effectImg.setImageResource(mEffects.get(position).resId());
+        holder.effectImg.setImageResource(mEffects.get(position).getIconId());
         holder.effectImg.setOnClickListener(new OnMultiClickListener() {
             @Override
             protected void onMultiClick(View v) {
                 if (mPositionSelect == position) {
                     return;
                 }
-                Effect click = mEffects.get(mPositionSelect = position);
-                mOnFUControlListener.onEffectSelected(click);
-                playMusic(click);
+                Effect effect = mEffects.get(mPositionSelect = position);
+                if (mOnEffectSelectedListener != null) {
+                    mOnEffectSelectedListener.onEffectSelected(effect);
+                }
+                playMusic(effect);
                 notifyDataSetChanged();
-                if (mOnDescriptionChangeListener != null)
-                    mOnDescriptionChangeListener.onDescriptionChangeListener(click.description());
+                if (mOnDescriptionChangeListener != null) {
+                    mOnDescriptionChangeListener.onDescriptionChangeListener(effect.getDescId());
+                }
             }
         });
         if (mPositionSelect == position) {
@@ -78,11 +86,10 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
         return mEffects.size();
     }
 
-    class HomeRecyclerHolder extends RecyclerView.ViewHolder {
-
+    static class HomeRecyclerHolder extends RecyclerView.ViewHolder {
         CircleImageView effectImg;
 
-        public HomeRecyclerHolder(View itemView) {
+        HomeRecyclerHolder(View itemView) {
             super(itemView);
             effectImg = (CircleImageView) itemView.findViewById(R.id.effect_recycler_img);
         }
@@ -106,8 +113,9 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
     private Runnable mMusicRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mediaPlayer != null && mediaPlayer.isPlaying())
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 mOnFUControlListener.onMusicFilterTime(mediaPlayer.getCurrentPosition());
+            }
             mMusicHandler.postDelayed(mMusicRunnable, MUSIC_TIME);
         }
     };
@@ -127,7 +135,7 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
         }
         stopMusic();
 
-        if (effect.effectType() != Effect.EFFECT_TYPE_MUSIC_FILTER) {
+        if (effect.getType() != Effect.EFFECT_TYPE_MUSIC_FILTER) {
             return;
         }
         mediaPlayer = new MediaPlayer();
@@ -137,7 +145,7 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
          * mp3
          */
         try {
-            AssetFileDescriptor descriptor = mContext.getAssets().openFd("effect/musicfilter/" + effect.bundleName() + ".mp3");
+            AssetFileDescriptor descriptor = mContext.getAssets().openFd("effect/musicfilter/" + effect.getBundleName() + ".mp3");
             mediaPlayer.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
             descriptor.close();
 
@@ -175,5 +183,13 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
 
     public interface OnDescriptionChangeListener {
         void onDescriptionChangeListener(int description);
+    }
+
+    public void setOnEffectSelectedListener(OnEffectSelectedListener onEffectSelectedListener) {
+        mOnEffectSelectedListener = onEffectSelectedListener;
+    }
+
+    public interface OnEffectSelectedListener {
+        void onEffectSelected(Effect effect);
     }
 }

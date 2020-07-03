@@ -10,6 +10,12 @@ public class MakeupEntity {
     private int itemHandle;
     private boolean isNeedFlipPoints;
 
+    public MakeupEntity(MakeupEntity makeupEntity) {
+        this.bundlePath = makeupEntity.bundlePath;
+        this.itemHandle = makeupEntity.itemHandle;
+        this.isNeedFlipPoints = makeupEntity.isNeedFlipPoints;
+    }
+
     public MakeupEntity(String bundlePath) {
         this.bundlePath = bundlePath;
     }
@@ -41,6 +47,27 @@ public class MakeupEntity {
 
     public void setNeedFlipPoints(boolean needFlipPoints) {
         isNeedFlipPoints = needFlipPoints;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        MakeupEntity that = (MakeupEntity) o;
+
+        if (isNeedFlipPoints != that.isNeedFlipPoints)
+            return false;
+        return bundlePath != null ? bundlePath.equals(that.bundlePath) : that.bundlePath == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = bundlePath != null ? bundlePath.hashCode() : 0;
+        result = 31 * result + (isNeedFlipPoints ? 1 : 0);
+        return result;
     }
 
     @Override

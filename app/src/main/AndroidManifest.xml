@@ -18,9 +18,9 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="${appName}"
+        android:maxAspectRatio="2.4"
         android:resizeableActivity="false"
         android:supportsRtl="false"
-        android:maxAspectRatio="2.4"
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
@@ -76,27 +76,15 @@
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
-            android:name=".activity.AvatarDriveActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/FullScreenTheme" />
-        <activity
-            android:name=".activity.AvatarDeleteActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/FullScreenTheme" />
-        <activity
-            android:name=".activity.LivePhotoDriveActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/FullScreenTheme" />
-        <activity
-            android:name=".activity.LivePhotoMakeActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/FullScreenTheme" />
-        <activity
             android:name=".activity.BeautifyBodyActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
             android:name=".activity.LightMakeupActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme" />
+        <activity
+            android:name=".activity.PtaActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
     </application>

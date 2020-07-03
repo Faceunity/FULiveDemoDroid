@@ -1,8 +1,9 @@
 package com.faceunity.fulivedemo.entity;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import com.faceunity.utils.FileUtils;
 
