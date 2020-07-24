@@ -78,24 +78,24 @@ public class MainActivity extends AppCompatActivity {
         List<ModuleEntity> moduleEntities = new ArrayList<>();
         moduleEntities.add(new ModuleEntity(ModuleEntity.UI_TYPE_BANNER));
         moduleEntities.add(new ModuleEntity(R.string.main_classification_face, ModuleEntity.UI_TYPE_CLASSIFICATION));
-        moduleEntities.add(new ModuleEntity(R.drawable.main_beauty, R.string.home_function_name_beauty, "9-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_beauty, R.string.home_function_name_beauty, "1-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_makeup, R.string.home_function_name_makeup, "524288-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.main_effect, R.string.home_function_name_sticker, "6-0", Effect.EFFECT_TYPE_STICKER, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_effect, R.string.home_function_name_sticker, "110-0", Effect.EFFECT_TYPE_STICKER, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_animoji, R.string.home_function_name_animoji, "16-0", Effect.EFFECT_TYPE_ANIMOJI, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_hair, R.string.home_function_name_hair, "1048576-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_texture_beauty, R.string.home_function_name_light_makeup, "0-8", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_ar_mask, R.string.home_function_name_ar, "96-0", Effect.EFFECT_TYPE_AR_MASK, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_photo_sticker, R.string.home_function_name_big_head, "96-0", Effect.EFFECT_TYPE_BIG_HEAD, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_photo_sticker, R.string.home_function_name_big_head, "0-32768", Effect.EFFECT_TYPE_BIG_HEAD, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_poster_face, R.string.home_function_name_poster_face, "8388608-0", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.main_expression, R.string.home_function_name_expression, "2048-0", Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_expression, R.string.home_function_name_expression, "2058-0", Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_music_fiter, R.string.home_function_name_music_filter, "131072-0", Effect.EFFECT_TYPE_MUSIC_FILTER, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_face_warp, R.string.home_function_name_face_warp, "65536-0", Effect.EFFECT_TYPE_FACE_WARP, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.string.main_classification_human, ModuleEntity.UI_TYPE_CLASSIFICATION));
         moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_body, R.string.home_function_name_beauty_body, "0-32", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_whole_body, R.string.home_function_name_human_avatar, "0-128", Effect.EFFECT_TYPE_PTA, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_action, R.string.home_function_name_action_recognition, "0-32768", Effect.EFFECT_TYPE_ACTION_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.main_background, R.string.home_function_name_portrait_segment, "256-0", Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.main_gesture, R.string.home_function_name_gesture, "512-0", Effect.EFFECT_TYPE_GESTURE_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_whole_body, R.string.home_function_name_human_avatar, "0-448", Effect.EFFECT_TYPE_PTA, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_action, R.string.home_function_name_action_recognition, "2-65536", Effect.EFFECT_TYPE_ACTION_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_background, R.string.home_function_name_portrait_segment, "258-0", Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_gesture, R.string.home_function_name_gesture, "514-0", Effect.EFFECT_TYPE_GESTURE_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
         return Collections.unmodifiableList(moduleEntities);
     }
 

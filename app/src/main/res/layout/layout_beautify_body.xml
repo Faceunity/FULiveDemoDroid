@@ -15,6 +15,7 @@
         app:dsb_indicatorElevation="0dp"
         app:dsb_indicatorPopupEnabled="true"
         app:dsb_max="100"
+        app:dsb_trackHeight="@dimen/x4"
         app:dsb_min="0"
         app:dsb_progressColor="@color/main_color"
         app:dsb_rippleColor="@color/main_color"
@@ -61,7 +62,7 @@
         android:layout_marginLeft="@dimen/x148"
         android:layout_marginTop="@dimen/x24"
         android:layout_marginBottom="@dimen/x94"
-        android:background="@color/divider_line_color_75" />
+        android:background="@color/divider_line_color" />
 
     <HorizontalScrollView
         android:layout_width="wrap_content"

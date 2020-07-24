@@ -29,6 +29,7 @@
             app:dsb_thumbSize="@dimen/x32"
             app:dsb_trackBaseHeight="@dimen/x16"
             app:dsb_trackColor="@color/colorWhite"
+            app:dsb_trackHeight="@dimen/x4"
             app:dsb_value="0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -78,7 +79,7 @@
                 android:layout_gravity="left|top"
                 android:layout_marginLeft="@dimen/x133"
                 android:layout_marginTop="@dimen/x24"
-                android:background="@color/divider_line_color_75" />
+                android:background="@color/divider_line_color" />
 
             <HorizontalScrollView
                 android:layout_width="wrap_content"
@@ -211,7 +212,7 @@
                 android:layout_gravity="left|top"
                 android:layout_marginLeft="@dimen/x133"
                 android:layout_marginTop="@dimen/x24"
-                android:background="@color/divider_line_color_75" />
+                android:background="@color/divider_line_color" />
 
             <HorizontalScrollView
                 android:layout_width="wrap_content"

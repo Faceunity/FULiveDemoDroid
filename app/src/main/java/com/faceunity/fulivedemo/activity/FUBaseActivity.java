@@ -82,7 +82,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
         FURenderer.OnTrackingStatusChangedListener {
     public final static String TAG = FUBaseActivity.class.getSimpleName();
 
-    protected ImageView mTopBackground;
     protected GLSurfaceView mGLSurfaceView;
     protected BaseCameraRenderer mCameraRenderer;
     protected volatile boolean mIsDualInput = true;
@@ -279,8 +278,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
             fuTexId = mFURenderer.onDrawFrame(cameraNv21Byte, cameraWidth, cameraHeight);
         }
         showLandmarks();
-        sendRecordingData(fuTexId, mvpMatrix, texMatrix, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
-        takePicture(fuTexId, mvpMatrix, texMatrix, mCameraRenderer.getViewWidth(), mCameraRenderer.getViewHeight());
+        sendRecordingData(fuTexId, GlUtil.IDENTITY_MATRIX, texMatrix, timeStamp / Constant.NANO_IN_ONE_MILLI_SECOND);
+        takePicture(fuTexId, GlUtil.IDENTITY_MATRIX, texMatrix, cameraHeight, cameraWidth);
         return fuTexId;
     }
 
@@ -295,7 +294,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVerticalSeekBar.setProgress((int) (100 * mCameraRenderer.getExposureCompensation()));
+                int progress = (int) (100 * mCameraRenderer.getExposureCompensation());
+                mVerticalSeekBar.setProgress(progress);
             }
         });
     }
@@ -307,6 +307,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
         public void onReadBitmapListener(Bitmap bitmap) {
             // Call on async thread
             final String filePath = MiscUtil.saveBitmap(bitmap, Constant.PHOTO_FILE_PATH, MiscUtil.getCurrentPhotoName());
+            Log.d(TAG, "onReadBitmapListener: " + filePath);
             if (filePath != null) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -378,7 +379,6 @@ public abstract class FUBaseActivity extends AppCompatActivity
         mFURenderer = initFURenderer();
         mGLSurfaceView.setRenderer(mCameraRenderer);
         mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        mTopBackground = (ImageView) findViewById(R.id.fu_base_top_background);
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -655,8 +655,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
             mMuxer = new MediaMuxerWrapper(mVideoOutFile.getAbsolutePath());
 
             // for video capturing
-            int videoWidth = BaseCameraRenderer.DEFAULT_PREVIEW_HEIGHT;
-            int videoHeight = mCameraRenderer.getHeight4Video() / 2 * 2; // 取偶数
+            int videoWidth = mCameraRenderer.getCameraHeight();
+            int videoHeight = mCameraRenderer.getCameraWidth();
             new MediaVideoEncoder(mMuxer, mMediaEncoderListener, videoWidth, videoHeight);
             new MediaAudioEncoder(mMuxer, mMediaEncoderListener);
 

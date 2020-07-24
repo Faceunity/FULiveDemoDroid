@@ -43,7 +43,7 @@ public class BodySlimParam {
      */
     public static final String ORIENTATION = "Orientation";
     /**
-     * 参数 0.0 或者 1.0,  0.0 为关闭点位绘制，1.0 为打开，默认打开
+     * 参数 0.0 或者 1.0,  0.0 为关闭点位绘制，1.0 为打开，默认关闭
      */
     public static final String DEBUG = "Debug";
 }

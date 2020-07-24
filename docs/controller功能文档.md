@@ -820,3 +820,8 @@ fuItemGetParams(1, "version");
 //返回道具类型的字符串
 fuItemGetParams(1, "{\"name\":\"get_bundle_type\", \"bundle_id\":3}"); 
 ```
+##### 设置低质量灯光
+```C
+//设置是否开启低质量灯光的渲染，value = 1.0代表开启，value=0.0代表不开启
+fuItemSetParamd(1, "low_quality_lighting", 1.0);
+```

@@ -721,6 +721,7 @@ public class FURenderer implements OnFUControlListener {
 
         mFrameId = 0;
         mIsNeedUpdateFaceBeauty = true;
+        resetTrackStatus();
         releaseAllAiModel();
         destroyControllerRelated();
         for (int item : mItemsArray) {
@@ -729,10 +730,9 @@ public class FURenderer implements OnFUControlListener {
             }
         }
         Arrays.fill(mItemsArray, 0);
-        faceunity.fuOnCameraChange();
         faceunity.fuDestroyAllItems();
-        faceunity.fuOnDeviceLost();
         faceunity.fuDone();
+        faceunity.fuOnDeviceLost();
         if (mIsCreateEGLContext) {
             faceunity.fuReleaseEGLContext();
         }
@@ -1130,7 +1130,7 @@ public class FURenderer implements OnFUControlListener {
 
         // 获取 SDK 错误信息，并调用回调接口
         int error = faceunity.fuGetSystemError();
-        if (error != 1) {
+        if (error != 0) {
             String errorMessage = faceunity.fuGetSystemErrorString(error);
             Log.e(TAG, "system error code: " + error + ", error message: " + errorMessage);
             if (mOnSystemErrorListener != null) {
@@ -1142,7 +1142,7 @@ public class FURenderer implements OnFUControlListener {
         if (mIsNeedUpdateFaceBeauty && mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX] > 0) {
             int itemFaceBeauty = mItemsArray[ITEM_ARRAYS_FACE_BEAUTY_INDEX];
 
-//            Log.d(TAG, "prepareDrawFrame: face beauty params: isBeautyOn:" + sIsBeautyOn + ", filterName:"
+//            Log.v(TAG, "prepareDrawFrame: face beauty params: isBeautyOn:" + sIsBeautyOn + ", filterName:"
 //                    + sFilterName + ", filterLevel:" + mFilterLevel + ", blurType:" + mBlurType
 //                    + ", blurLevel:" + mBlurLevel + ", colorLevel:" + mColorLevel + ", redLevel:" + mRedLevel
 //                    + ", eyeBright:" + mEyeBright + ", toothWhiten:" + mToothWhiten + ", faceShapeLevel:"
@@ -1202,9 +1202,14 @@ public class FURenderer implements OnFUControlListener {
             @Override
             public void run() {
                 mFrameId = 0;
-                faceunity.fuOnCameraChange();
+                resetTrackStatus();
             }
         });
+    }
+
+    private void resetTrackStatus() {
+        faceunity.fuOnCameraChange();
+        faceunity.fuHumanProcessorReset();
     }
 
     /**
@@ -1221,7 +1226,7 @@ public class FURenderer implements OnFUControlListener {
                 mFrameId = 0;
                 mCameraFacing = cameraFacing;
                 mInputOrientation = inputOrientation;
-                faceunity.fuOnCameraChange();
+                resetTrackStatus();
                 mRotationMode = calculateRotationMode();
                 if (mItemsArray.length <= PTA_ITEM_COUNT) {
                     faceunity.fuSetDefaultRotationMode(0);
@@ -1254,7 +1259,7 @@ public class FURenderer implements OnFUControlListener {
                             || mDefaultEffect.getType() == Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION
                             || mDefaultEffect.getType() == Effect.EFFECT_TYPE_GESTURE_RECOGNITION
                             || mDefaultEffect.getType() == Effect.EFFECT_TYPE_PORTRAIT_DRIVE)) {
-                        faceunity.fuOnCameraChange();
+                        resetTrackStatus();
                     }
                     int rotationMode = calculateRotationMode();
                     faceunity.fuSetDefaultRotationMode(rotationMode);
@@ -2154,7 +2159,7 @@ public class FURenderer implements OnFUControlListener {
     public static class Builder {
         private boolean createEGLContext = false;
         private Effect defaultEffect;
-        private int maxFaces = 1;
+        private int maxFaces = 4;
         private int maxHumans = 1;
         private Context context;
         private int inputTextureType = 0;

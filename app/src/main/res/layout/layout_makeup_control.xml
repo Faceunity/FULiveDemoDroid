@@ -39,6 +39,7 @@
 
         <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
             android:id="@+id/makeup_seek_bar"
+            app:dsb_trackHeight="@dimen/x4"
             android:layout_width="@dimen/x528"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/x196"
@@ -162,6 +163,7 @@
             <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
                 android:id="@+id/seek_bar_makeup"
                 android:layout_width="@dimen/x528"
+                app:dsb_trackHeight="@dimen/x4"
                 android:layout_height="wrap_content"
                 app:dsb_indicatorColor="@color/main_color"
                 app:dsb_indicatorElevation="0dp"

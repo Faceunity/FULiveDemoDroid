@@ -9,6 +9,7 @@
         android:id="@+id/seek_bar_light_makeup"
         android:layout_width="@dimen/x528"
         android:layout_height="wrap_content"
+        app:dsb_trackHeight="@dimen/x4"
         android:layout_marginBottom="@dimen/x196"
         app:dsb_indicatorColor="@color/main_color"
         app:dsb_indicatorElevation="0dp"
