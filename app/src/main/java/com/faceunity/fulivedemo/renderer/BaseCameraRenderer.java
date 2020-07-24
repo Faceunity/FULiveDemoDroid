@@ -363,16 +363,6 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         return mViewHeight;
     }
 
-    public int getHeight4Video() {
-        int h = mViewHeight * DEFAULT_PREVIEW_HEIGHT / mViewWidth;
-        return h;
-    }
-
-    public int getWidth4Video() {
-        int w = mViewWidth * DEFAULT_PREVIEW_WIDTH / mViewHeight;
-        return w;
-    }
-
     public void handleFocus(float rawX, float rawY, int areaSize) {
 
     }

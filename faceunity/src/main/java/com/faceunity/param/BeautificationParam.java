@@ -11,6 +11,10 @@ public class BeautificationParam {
      */
     public static final String IS_BEAUTY_ON = "is_beauty_on";
     /**
+     * 美颜道具是否使用人脸点位能力，关闭后美型不可用。0 为关，1 为开，默认 1
+     */
+    public static final String USE_LANDMARK = "use_landmark";
+    /**
      * 滤镜名称，默认 origin
      */
     public static final String FILTER_NAME = "filter_name";
@@ -31,19 +35,24 @@ public class BeautificationParam {
      */
     public static final String BLUR_LEVEL = "blur_level";
     /**
-     * 磨皮类型，0 清晰磨皮，1 朦胧磨皮，2 精细磨皮。当 heavy_blur 为 0 时生效
+     * 磨皮类型，0 清晰磨皮  1 朦胧磨皮  2精细磨皮。
+     * 此参数优先级比 heavy_blur 低，在使用时要将 heavy_blur 设为 0
      */
     public static final String BLUR_TYPE = "blur_type";
+    /**
+     * 1 为开启基于人脸的磨皮 mask，0 为不使用 mask 正常磨皮。只在 blur_type 为 2 时生效。默认为 0
+     */
+    public static final String BLUR_USE_MASK = "blur_use_mask";
     /**
      * 肤色检测开关，0 关，1 开，默认 0
      */
     public static final String SKIN_DETECT = "skin_detect";
     /**
-     * 肤色检测开启后，非肤色区域的融合程度，范围 [0-1]，默认 0.45
+     * 肤色检测之后非肤色区域的融合程度，取值范围 0.0-1.0，默认 0.0
      */
     public static final String NONSKIN_BLUR_SCALE = "nonskin_blur_scale";
     /**
-     * 磨皮类型，0 清晰磨皮，1 重度磨皮，默认 1
+     * 朦胧磨皮开关，0 为清晰磨皮，1 为朦胧磨皮
      */
     public static final String HEAVY_BLUR = "heavy_blur";
     /**
@@ -87,15 +96,15 @@ public class BeautificationParam {
      */
     public static final String INTENSITY_NOSE = "intensity_nose";
     /**
-     * 嘴巴调整程度，范围 [0-1]，默认 0.5
+     * 嘴巴调整程度，范围 [0-1]，0-0.5是变小，0.5-1是变大，默认 0.5
      */
     public static final String INTENSITY_MOUTH = "intensity_mouth";
     /**
-     * 额头调整程度，范围 [0-1]，默认 0.5
+     * 额头调整程度，范围 [0-1]，0-0.5 是变小，0.5-1 是变大，默认 0.5
      */
     public static final String INTENSITY_FOREHEAD = "intensity_forehead";
     /**
-     * 下巴调整程度，范围 [0-1]，默认 0.5
+     * 下巴调整程度，范围 [0-1]，0-0.5是变小，0.5-1是变大，默认 0.5
      */
     public static final String INTENSITY_CHIN = "intensity_chin";
     /**
@@ -103,35 +112,35 @@ public class BeautificationParam {
      */
     public static final String CHANGE_FRAMES = "change_frames";
     /**
-     * 去黑眼圈强度，0.0 到 1.0 变强
+     * 去黑眼圈强度，范围 [0-1]，0.0 到 1.0 变强，默认 0
      */
     public static final String REMOVE_POUCH_STRENGTH = "remove_pouch_strength";
     /**
-     * 去法令纹强度，0.0 到 1.0 变强
+     * 去法令纹强度，范围 [0-1]，0.0 到 1.0 变强，默认 0
      */
     public static final String REMOVE_NASOLABIAL_FOLDS_STRENGTH = "remove_nasolabial_folds_strength";
     /**
-     * 微笑嘴角强度，0.0 到 1.0 变强
+     * 微笑嘴角强度，范围 [0-1]，0.0 到 1.0 变强
      */
     public static final String INTENSITY_SMILE = "intensity_smile";
     /**
-     * 开眼角强度，0.0 到 1.0 变强
+     * 开眼角强度，范围 [0-1]，0.0 到 1.0 变强
      */
     public static final String INTENSITY_CANTHUS = "intensity_canthus";
     /**
-     * 调节人中，0.5 到 1.0 是逐渐缩短，0.5 到 0.0 是逐渐增长
+     * 调节人中，范围 [0-1]，0.5-1.0 变长，0.5-0.0 变短
      */
     public static final String INTENSITY_PHILTRUM = "intensity_philtrum";
     /**
-     * 鼻子长度，0.5 到 1.0 是逐渐缩短，0.5 到 0.0 是逐渐增长
+     * 鼻子长度，范围 [0-1]，0.5-0.0 变短，0.5-1.0 变长
      */
     public static final String INTENSITY_LONG_NOSE = "intensity_long_nose";
     /**
-     * 眼睛间距，0.5 到 1.0 是逐渐缩短，0.5 到 0.0 是逐渐增长
+     * 眼睛间距，范围 [0-1]，0.5-0.0 变长，0.5-1.0 变短
      */
     public static final String INTENSITY_EYE_SPACE = "intensity_eye_space";
     /**
-     * 眼睛角度，0.5 到 1.0 眼角向下旋转，0.5 到 0.0 眼角向上旋转
+     * 眼睛角度，范围 [0-1]，0.5-0.0 逆时针旋转，0.5-1.0 顺时针旋转
      */
     public static final String INTENSITY_EYE_ROTATE = "intensity_eye_rotate";
 

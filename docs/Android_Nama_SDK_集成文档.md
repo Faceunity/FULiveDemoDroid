@@ -150,13 +150,13 @@ SDK版本: 7.0.0
 全功能版本（支持 TensorFlow 和物理特效）：
 
 ```groovy
-implementation 'com.faceunity:nama:7.0.0'
+implementation 'com.faceunity:nama:7.0.1'
 ```
 
 lite 版（不含物理特效的版本）：
 
 ```groovy
-implementation 'com.faceunity:nama:7.0.0-lite'
+implementation 'com.faceunity:nama:7.0.1-lite'
 ```
 
 **注：** Gradle 集成的 aar 中仅包含库文件（libCNamaSDK.so、libfuai.so 与 nama.jar）以及初始化必须的数据模型等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
@@ -801,9 +801,13 @@ Nama SDK 从 6.0.0 开始支持轻美妆功能。
 
 ### 4.14 美体功能
 
-Nama SDK 从 6.4.0 开始支持美体瘦身功能，包括瘦身、长腿、美臀、细腰、肩部调整，一键美体。
+Nama SDK 从 6.4.0 开始支持美体瘦身功能，包括瘦身、长腿、美臀、细腰、肩部调整，一键美体，仅支持单人。
 
-首先加载 BodySlim.bundle，然后设置瘦身、长腿、美臀、细腰等参数，参数说明请查阅 [美体道具功能文档](./美体道具功能文档.md)，同时也可以参考我们 Demo 中的实际使用方法。
+首先加载 BodySlim.bundle，然后设置瘦身、长腿、美臀、细腰等参数，参数说明请查阅 [美体道具功能文档](./美体道具功能文档.md)，同时也可以参考我们 Demo 中的示例代码。
+
+### 4.15 全身 Avatar 功能
+
+Nama SDK 从 7.0.0 开始支持全身 Avatar 功能。支持虚拟形象的全身/半身驱动，并支持手势的精准识别。使用方法请参考 [controller功能文档](./controller功能文档.md)，以及 Demo 中的示例代码。
 
 ------
 
@@ -813,6 +817,7 @@ Nama SDK 从 6.4.0 开始支持美体瘦身功能，包括瘦身、长腿、美�
 
 ```
 -keep class com.faceunity.wrapper.faceunity {*;}
+-keep class com.faceunity.wrapper.faceunity$RotatedImage {*;}
 ```
 
 **如有使用问题，请联系技术支持。**

@@ -19,13 +19,14 @@ import java.util.Map;
  */
 public class Camera1Renderer extends BaseCameraRenderer implements Camera.PreviewCallback {
     private static final String TAG = "Camera1Renderer";
+    private static final float EXPOSURE_COMPENSATION = 0.5F;
     private final Object mCameraLock = new Object();
     private byte[][] mPreviewCallbackBufferArray;
     private Camera mCamera;
     private int mFrontCameraId;
     private int mBackCameraId;
     // 曝光补偿，进度 0.5 表示实际值为 0 就是无补偿
-    private float mExposureCompensation = 0.5F;
+    private float mExposureCompensation = EXPOSURE_COMPENSATION;
 
     public Camera1Renderer(Activity activity, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         super(activity, glSurfaceView, onRendererStatusListener);
@@ -67,6 +68,7 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
                     throw new RuntimeException("No camera");
                 }
 
+                mExposureCompensation = EXPOSURE_COMPENSATION;
                 CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
                 Log.i(TAG, "openCamera. facing: " + (isFront ? "front" : "back") + ", orientation:"
                         + mCameraOrientation + ", previewWidth:" + mCameraWidth + ", previewHeight:"

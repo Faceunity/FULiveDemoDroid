@@ -19,6 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/x40"
             app:dsb_indicatorColor="@color/main_color"
+            app:dsb_trackHeight="@dimen/x4"
             app:dsb_indicatorElevation="0dp"
             app:dsb_indicatorPopupEnabled="true"
             app:dsb_max="100"

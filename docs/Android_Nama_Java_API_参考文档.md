@@ -1,11 +1,22 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2020-06-30
-SDK版本: 7.0.0
+更新日期：2020-07-24
+SDK版本: 7.0.1
 
 ------
 ### 最新更新内容：
+
+**2020-7-24 v7.0.1:**
+
+1. 新增接口fuHumanProcessorSetBonemap
+2. 新增接口fuHumanProcessorGetResultTransformArray
+3. 新增接口fuHumanProcessorGetResultModelMatrix
+4. 修复fuGetSestemError问题。
+5. 修复fuSetMaxFaces，在释放AI模型后，设置失效问题。
+6. 修复Android非高通机型，OES输入问题。
+7. 修复美妆远距离嘴部黑框问题。
+8. 修复美体美颜共存不支持问题。
 
 **2020-06-30 v7.0.0:**
 
@@ -27,7 +38,11 @@ SDK版本: 7.0.0
   - fuHumanProcessorGetResultTrackId，获取HumanProcessor人体算法模块跟踪Id。
   - fuHumanProcessorGetResultRect，获取HumanProcessor人体算法模块跟踪人体框。
   - fuHumanProcessorGetResultJoint2ds，获取HumanProcessor人体算法模块跟踪人体2D关键点。
-  - fuHumanProcessorGetResultJoint3ds，获取HumanProcessor人体算法模块跟踪人体3D骨骼信息。
+  - fuHumanProcessorGetResultJoint3ds，获取HumanProcessor人体算法模块跟踪人体3D关键点。
+  - fuHumanProcessorSetBonemap，设置HumanProcessor人体算法模块，3D骨骼拓扑结构信息。
+  - fuHumanProcessorGetResultTransformArray， 获取HumanProcessor人体算法模块跟踪人体3D骨骼信息。
+  - fuHumanProcessorGetResultModelMatrix， 获取HumanProcessor人体算法模块跟踪人体3D骨骼，根节点模型变化矩阵。
+
   - fuHumanProcessorGetResultHumanMask，获取HumanProcessor人体算法模块全身mask。
   - fuHumanProcessorGetResultActionType，获取HumanProcessor人体算法模块跟踪人体动作类型。
   - fuHumanProcessorGetResultActionScore，获取HumanProcessor人体算法模块跟踪人体动作置信度。
@@ -212,7 +227,7 @@ Android 平台的原生相机数据为横屏，需要进行该设置加速首次
 
 ##### fuSetInputCameraMatrix 设置输入纹理的转正方式
 
-**接口说明：**为 `fuRenderBundles` 函数，设置输入纹理的转正方式，转为人像竖屏模式。  
+**接口说明：**为 `fuRenderBundles`、`fuRenderBundlesWithCamera`、`fuRenderBundlesSplitView` 函数，设置输入纹理的转正方式，转为人像竖屏模式。  
 
 ```java
 public static native void fuSetInputCameraMatrix(int flip_x, int flip_y, int rotate_mode);
@@ -222,7 +237,32 @@ __参数:__
 
 `flip_x`：水平翻转输入。 
 `flip_y`：垂直翻转输入。 
-`rotate_mode`：旋转输入，0为0度，1为90度，2为180度，3为270度。 
+`rotate_mode`：旋转输入，0为0度，1为90度，2为180度，3为270度。
+
+-------
+
+##### fuRotateImage 函数
+
+旋转或者翻转图像。  
+
+```java
+public static native int fuRotateImage(RotatedImage outImage, byte[] inputImage, int imageFormat, int inputWidth, int inputHeight, int rotateMode, int flipX, int flipY);
+```
+
+__参数:__  
+
+`outImage`：输出图像
+`inputImage`：输入图像
+`imageformat`：输入图像的格式。
+`inputWidth`：输入图像的宽。 
+`inputHeight`：输入图像的高。
+``rotateMode`：旋转输入，0为0度，1为90度，2为180度，3为270度。 
+`flipX`：水平翻转输入。 
+`flip_Y`：垂直翻转输入。 
+
+**返回值：**
+
+`int` 返回 1 代表成功，返回 0 代表失败。
 
 ----
 
@@ -244,7 +284,7 @@ __参数说明:__
 
 ```c
 typedef enum FUAITYPE{
-	FUAITYPE_BACKGROUNDSEGMENTATION=1<<1,//背景分割
+	FUAITYPE_BACKGROUNDSEGMENTATION=1<<1,//背景分割,7.0.0可使用FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION
 	FUAITYPE_HAIRSEGMENTATION=1<<2,		//头发分割，7.0.0可使用FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION
 	FUAITYPE_HANDGESTURE=1<<3,			//手势识别
 	FUAITYPE_TONGUETRACKING=1<<4,		//暂未使用
@@ -946,6 +986,114 @@ public static native int fuBeautifyImage(int tex_in, int flags, int w, int h, in
 
 该绘制接口需要OpenGL环境，环境异常会导致崩溃。
 
+--------
+
+##### fuRenderBundles 函数
+
+将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据。该接口会执行Controller、FXAA、CartoonFilter等道具要求、且证书许可的功能模块，包括人脸检测与跟踪、身体追踪、Avatar绘制、FXAA抗锯齿、卡通滤镜后处理等。
+
+```java
+public static native int fuRenderBundles(AvatarInfo avatar_info, int flags, int w, int h, int frame_id, int[] items);
+```
+
+__参数:__  
+
+`avatar_info` Avatar 模型信息，传入默认构造的实例。
+
+`flags ` 可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明。
+
+`w ` 输入的图像宽度
+
+`h ` 输入的图像高度
+
+`frame_id`：当前处理的帧序列号，用于控制道具中的动画逻辑。
+
+`items ` 包含多个道具句柄的 int 数组，其中每个标识符应为调用 ```fuCreateItemFromPackage``` 函数的返回值，并且道具内容没有被销毁。
+
+__返回值:__  
+
+处理之后的输出图像的纹理ID。
+
+__备注:__  
+
+即使在非纹理模式下，函数仍会返回输出图像的纹理ID。虽然输出的图像可能是多种可选格式，但是绘制工作总是通过GPU完成，因此输出图像的纹理ID始终存在。输出的OpenGL纹理为SDK运行时在当前OpenGL context中创建的纹理，其ID应与输入ID不同。输出后使用该纹理时需要确保OpenGL context保持一致。  
+
+该绘制接口需要OpenGL环境，环境异常会导致崩溃。
+
+-------
+
+##### fuRenderBundlesWithCamera 函数
+
+将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据，同时绘制相机原始画面。该接口会执行Controller、FXAA、CartoonFilter等道具要求、且证书许可的功能模块，包括人脸检测与跟踪、身体追踪、Avatar绘制、FXAA抗锯齿、卡通滤镜后处理等。
+
+```java
+public static native int fuRenderBundlesWithCamera(byte[] img, int tex_in, int flags, int w, int h, int frame_id, int[] items);
+```
+
+__参数:__  
+
+`img ` 图像数据 byte[]，支持的格式为：NV21（默认）、I420、RGBA
+
+`tex_in ` 输入图像纹理 ID
+
+`flags ` 可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明。
+
+`w ` 输入的图像宽度
+
+`h ` 输入的图像高度
+
+`frame_id`：当前处理的帧序列号，用于控制道具中的动画逻辑。
+
+`items ` 包含多个道具句柄的 int 数组，其中每个标识符应为调用 ```fuCreateItemFromPackage``` 函数的返回值，并且道具内容没有被销毁。
+
+__返回值:__  
+
+处理之后的输出图像的纹理ID。
+
+__备注:__  
+
+即使在非纹理模式下，函数仍会返回输出图像的纹理ID。虽然输出的图像可能是多种可选格式，但是绘制工作总是通过GPU完成，因此输出图像的纹理ID始终存在。输出的OpenGL纹理为SDK运行时在当前OpenGL context中创建的纹理，其ID应与输入ID不同。输出后使用该纹理时需要确保OpenGL context保持一致。  
+
+该绘制接口需要OpenGL环境，环境异常会导致崩溃。
+
+------
+
+##### fuRenderBundlesSplitView 函数
+
+将输入的图像数据，送入SDK流水线进行处理，并输出处理之后的图像数据。该接口会执行Controller、FXAA、CartoonFilter等道具要求、且证书许可的功能模块，包括人脸检测与跟踪、身体追踪、Avatar绘制、FXAA抗锯齿、卡通滤镜后处理等。
+
+相比 ```fuRenderBundlesEx``` 该接口使用分屏绘制，输入图像和虚拟Avatar将绘制在两个视口。
+
+```java
+public static native int fuRenderBundlesSplitView(AvatarInfo avatar_info, int flags, int w, int h, int frame_id, int[] items, SplitViewInfo split_view_info);
+```
+
+__参数:__  
+
+`avatar_info` Avatar 模型信息，传入默认构造的实例。
+
+`flags ` 可以指定返回纹理ID的道具镜像等，详见后文”Android 双输入“部分说明。
+
+`w ` 输入的图像宽度
+
+`h ` 输入的图像高度
+
+`frame_id`：当前处理的帧序列号，用于控制道具中的动画逻辑。
+
+`items ` 包含多个道具句柄的 int 数组，其中每个标识符应为调用 ```fuCreateItemFromPackage``` 函数的返回值，并且道具内容没有被销毁。
+
+`split_view_info`：分屏接口参数，详细的格式列表参加后续章节 [输入输出格式列表](#输入输出格式列表) 。
+
+__返回值:__  
+
+处理之后的输出图像的纹理ID。
+
+__备注:__  
+
+即使在非纹理模式下，函数仍会返回输出图像的纹理ID。虽然输出的图像可能是多种可选格式，但是绘制工作总是通过GPU完成，因此输出图像的纹理ID始终存在。输出的OpenGL纹理为SDK运行时在当前OpenGL context中创建的纹理，其ID应与输入ID不同。输出后使用该纹理时需要确保OpenGL context保持一致。
+
+该绘制接口需要OpenGL环境，环境异常会导致崩溃。
+
 ---
 
 ##### fuAvatarToTexture 视频处理接口，依据fuTrackFace获取到的人脸信息来绘制画面
@@ -1118,6 +1266,40 @@ public static native void fuDestroyLibData();
 ---
 
 #### 2.5 功能接口 - 系统
+
+##### fuBindItems 函数
+
+将资源道具绑定到controller道具上
+
+```java
+public static native int fuBindItems(int item_src, int[] items)
+```
+
+__参数:__  
+
+`item_src`：目标道具的标识符，目标道具将作为controller，管理和使用资源道具，目标道具需要有OnBind函数。标识符应为调用 ```fuCreateItemFromPackage``` 函数的返回值，并且道具没有被销毁。
+`items`：需要绑定的资源道具列表对应的标识符数组。标识符应为调用 ```fuCreateItemFromPackage``` 函数的返回值，并且道具没有被销毁。
+
+------
+
+##### fuUnbindItems 函数
+
+将资源道具从controller道具上解绑
+
+```java
+public static native int fuUnBindItems(int item_src, int[] items);
+```
+
+__参数:__  
+
+`item_src`：目标道具的标识符，目标道具将作为controller，管理和使用资源道具，目标道具需要有OnUnbind函数。该标识符应为调用 ```fuCreateItemFromPackage``` 函数的返回值，并且道具没有被销毁。
+`items`：需要解绑的资源道具列表对应的标识符数组。
+
+__备注:__  
+
+销毁资源道具前，需要将资源道具从Controller道具上解绑。
+
+-------
 
 ##### fuOnCameraChange  切换摄像头时调用
 
@@ -1664,7 +1846,9 @@ public static native int fuHumanProcessorGetResultJoint2ds(int index, float[] jo
 __参数:__  
 
 `index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。
-`joint2ds`：当前跟踪到人体的人体2D 关键点，长度 50。
+`joint2ds`：当前跟踪到人体的人体2D 关键点，长度 50。返回数据格式为一维数组：[x0,y0, x1,y1, x2,y2...,x24,y24]，数值单位是：**像素。** 2D人体关键点共有25个点，相应的的点位和 index 如图所示：
+
+![body2d](./imgs/body2d.png)  
 
 __返回值:__ 1 表示成功，0 表示失败。
 
@@ -1672,7 +1856,7 @@ __返回值:__ 1 表示成功，0 表示失败。
 
 ##### fuHumanProcessorGetResultJoint3ds  函数
 
-获取 HumanProcessor 人体算法模块跟踪人体3D 骨骼信息。
+获取 HumanProcessor 人体算法模块跟踪人体3D 关键点。
 
 ```java
 public static native int fuHumanProcessorGetResultJoint3ds(int index, float[] joint3ds);
@@ -1681,11 +1865,74 @@ public static native int fuHumanProcessorGetResultJoint3ds(int index, float[] jo
 __参数:__  
 
 `index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。  
-`joint3ds`：当前跟踪到人体的人体3D骨骼信息，长度固定。
+`joint3ds`：当前跟踪到人体的人体3D骨骼信息，长度固定。返回数据格式为：[x0,y0,z0, x1,y1,z1, x2,y2,z2, ..., x24,y24,z24]。数值单位是：**厘米**。3D人体关键点共有25个点，相应的点位示意图如图所示：  
+![body3d](./imgs/body3d.png)  
 
 __返回值:__  1 表示成功，0 表示失败。
 
+**备注：**
+
+输出3D点是在相机坐标系下（右手坐标系）的结果，所以需要设置绘制这些3D点的渲染器的相机FOV和算法FOV相同（不考虑绘制对齐的话可以不用设置FOV），FUAI_HumanProcessorGetFov获取FOV。
+![body3d](./imgs/axis.png)  
+
 ------
+
+##### fuHumanProcessorSetBonemap  函数
+
+在决定获取骨骼动画帧数据之前，需要在初始化阶段调用FUAI_HumanProcessorSetBonemap接口设置算法内部的bonemap。
+
+```java
+public static native void fuHumanProcessorSetBonemap(byte[] data);
+```
+
+__参数:__  
+
+`data`：bonemap json，参考bonemap.json，详询我司技术支持。  
+
+__备注:__  
+在决定获取骨骼动画帧数据之前，需要在初始化阶段调用FUAI_HumanProcessorSetBonemap接口设置算法内部的bonemap，bonemap的示例：boneMap.json，详询我司技术支持。
+
+目前算法对于bonemap有严格要求，需要和示例bonemap完全一致（骨骼名称、骨骼长度、骨骼的初始pose，后续算法测会优化此处，降低要求）。
+
+然后需要调用FUAI_HumanProcessorSetFov或者FUAI_HumanProcessorGetFov设置算法内部FOV和渲染器FOV相同。
+
+------
+
+##### fuHumanProcessorGetResultTransformArray  函数
+
+获取Model坐标系下的和 bonemap 中对应骨骼的local变换帧数据。
+
+```java
+public static native void fuHumanProcessorGetResultTransformArray(int index, float[]data);
+```
+
+__参数:__  
+
+`index`：第 index 个人体，从 0 开始，不超过 fuHumanProcessorGetNumResults。  
+`data`：返回的浮点数组。
+
+__返回值:__  数据格式如下
+
+[M0, M1, M2, ..., Mn] 其中Mx表示列主序存储的bonemap中对应index骨骼的当前姿态的局部变换矩阵（4 * 4），长度为16 * n的数组，其中n为bonemap中骨骼数。
+
+------
+
+##### fuHumanProcessorGetResultModelMatrix  函数
+
+获取 Model 矩阵，列主序存储的 4x4矩阵，长度为16的数组。
+
+```java
+public static native void fuHumanProcessorGetResultModelMatrix(int index, float[]matrix);
+```
+
+__参数:__  
+
+`index`：第index个人体，从0开始，不超过fuHumanProcessorGetNumResults。  
+`data`：返回的浮点数组。
+
+__返回值:__  获取Model 矩阵，列主序存储的 4*4矩阵，长度为16的数组
+
+-------
 
 ##### fuHumanProcessorGetResultHumanMask  函数
 
@@ -2462,6 +2709,57 @@ __备注:__
 该输入模式仅能配合 avatar 道具使用，加载人脸 AR 类道具会导致异常。
 
 该输入模式会简化对传入图像数据的处理，在 avatar 应用情境下性能较高。此外，对于 avatar 的控制更加灵活，可以允许用户自由操控 avatar，如拖动 avatar 转头、触发特定表情等。
+
+-------
+
+##### fuRenderBundlesSplitView 分屏接口参数信息
+
+__数据内容:__
+结构体 ```TSplitViewInfo```，其定义如下。
+
+```c
+typedef struct {
+  void* in_ptr;
+  int in_type;
+  int out_w;
+  int out_h;
+  float view_0_ratio;
+  int margin_in_pixel;
+  int is_vertical;
+  int is_image_first;
+  int rotation_mode_before_crop;
+  float crop_ratio_top;
+  int use_black_edge;
+} TSplitViewInfo;
+```
+
+__参数:__
+
+*in_ptr*：内存指针，指向输入的数据内容。
+
+*in_type*：输入的数据格式标识符。
+
+*out_w*：输出的图像宽度。
+
+*out_h*：输出的图像高度。
+
+*view_0_ratio*：第一个视口的占例。
+
+*margin_in_pixel*：两个视口间隔的像素大小。
+
+*is_vertical*：采用竖直分屏还是水平分屏。
+
+*is_image_first*：竖直分屏模式下是否输入图像在上，水平分屏模式下是否输入图像在左。
+
+*rotation_mode_before_crop*: 旋转输入图像和虚拟Avatar。
+
+*crop_ratio_top*: 不采用补充黑边的方式时，图像的裁剪比例
+
+*use_black_edge*: 是否采用补充黑边的方式完整显示输入图像和虚拟Avatar
+
+__输入输出支持:__
+
+仅作为fuRenderBundlesSplitView 分屏接口的参数
 
 ------
 

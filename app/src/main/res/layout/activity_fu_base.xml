@@ -19,11 +19,11 @@
 
         <ImageView
             android:id="@+id/fu_base_top_background"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
-            android:src="@drawable/fu_base_top_background"
-            android:visibility="gone"
+            android:layout_width="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_height="@dimen/x240"
+            android:src="@drawable/demo_bg_top_mask"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
