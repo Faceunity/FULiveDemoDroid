@@ -135,7 +135,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         } else {
             matrix = mMvpTemplateMatrix;
         }
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_STENCIL_BUFFER_BIT);
         int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mImgTextureId, mPhotoWidth, mPhotoHeight);
         mFullFrameRectTexture2D.drawFrame(fuTextureId, IMG_DATA_MATRIX, matrix);
         // 解决前几帧黑屏问题

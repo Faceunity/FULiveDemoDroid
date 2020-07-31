@@ -27,6 +27,10 @@ public class BeautificationParam {
      */
     public static final String COLOR_LEVEL = "color_level";
     /**
+     * 锐化程度，范围 [0-1]，默认 0.0
+     */
+    public static final String SHARPEN = "sharpen";
+    /**
      * 红润程度，范围 [0-2]，默认 0.5
      */
     public static final String RED_LEVEL = "red_level";

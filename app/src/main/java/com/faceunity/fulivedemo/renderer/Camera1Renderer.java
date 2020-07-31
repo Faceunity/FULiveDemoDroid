@@ -82,8 +82,6 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
                 mCameraWidth = size[0];
                 mCameraHeight = size[1];
                 parameters.setPreviewFormat(ImageFormat.NV21);
-                CameraUtils.setVideoStabilization(parameters);
-                CameraUtils.setExposureCompensation(mCamera, mExposureCompensation);
                 CameraUtils.setParameters(mCamera, parameters);
 
                 // log camera all parameters

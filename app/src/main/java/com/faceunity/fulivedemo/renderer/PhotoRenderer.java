@@ -28,14 +28,15 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     public final static String TAG = PhotoRenderer.class.getSimpleName();
     public static final float[] IMG_DATA_MATRIX = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
     public static final float[] ROTATE_90 = {0.0F, 1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F};
+    private static final int REQ_PHOTO_WIDTH = 1080;
+    private static final int REQ_PHOTO_HEIGHT = 1920;
 
     private GLSurfaceView mGlSurfaceView;
     private OnRendererStatusListener mOnRendererStatusListener;
     private String mPhotoPath;
-    private byte[] mPhotoNV21Bytes;
-    private int mPhotoTextureId;
-    private int mPhotoWidth = 720;
-    private int mPhotoHeight = 1280;
+    private int mPhotoTexId;
+    private int mPhotoWidth;
+    private int mPhotoHeight;
     private int mViewWidth;
     private int mViewHeight;
     private float[] mMvpMatrix;
@@ -63,7 +64,7 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
             }
         });
         try {
-            count.await(1, TimeUnit.SECONDS);
+            count.await(1000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // ignored
         }
@@ -77,31 +78,33 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         mProgramLandmarks = new ProgramLandmarks();
         loadPhoto(mPhotoPath);
         LimitFpsUtil.setTargetFps(LimitFpsUtil.DEFAULT_FPS);
+
         mOnRendererStatusListener.onSurfaceCreated();
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         Log.d(TAG, "onSurfaceChanged: viewWidth:" + width + ", viewHeight:" + height + ", photoWidth:"
-                + mPhotoWidth + ", photoHeight:" + mPhotoHeight + ", textureId:" + mPhotoTextureId);
+                + mPhotoWidth + ", photoHeight:" + mPhotoHeight + ", textureId:" + mPhotoTexId);
+        GLES20.glViewport(0, 0, width, height);
+        float[] mvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mPhotoWidth, mPhotoHeight);
+        Matrix.rotateM(mvpMatrix, 0, 90, 0, 0, 1);
+        mMvpMatrix = mvpMatrix;
         mViewHeight = height;
         mViewWidth = width;
-        GLES20.glViewport(0, 0, width, height);
-        mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mPhotoWidth, mPhotoHeight);
-        Matrix.rotateM(mMvpMatrix, 0, 90, 0, 0, 1);
 
         mOnRendererStatusListener.onSurfaceChanged(width, height);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mProgramTexture2d == null || mPhotoNV21Bytes == null) {
+        if (mProgramTexture2d == null) {
             return;
         }
 
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-        int fuTextureId = mOnRendererStatusListener.onDrawFrame(mPhotoNV21Bytes, mPhotoTextureId, mPhotoWidth, mPhotoHeight);
-        mProgramTexture2d.drawFrame(fuTextureId, IMG_DATA_MATRIX, mMvpMatrix);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_STENCIL_BUFFER_BIT);
+        int fuTexId = mOnRendererStatusListener.onDrawFrame(mPhotoTexId, mPhotoWidth, mPhotoHeight);
+        mProgramTexture2d.drawFrame(fuTexId, IMG_DATA_MATRIX, mMvpMatrix);
 
         if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS && mLandmarksData != null) {
             mProgramLandmarks.refresh(mLandmarksData, mPhotoWidth, mPhotoHeight, 90,
@@ -118,25 +121,25 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     }
 
     private void loadPhoto(String path) {
-        Log.d(TAG, "loadPhoto() path:" + path);
-        Bitmap bitmap = BitmapUtil.loadBitmap(path, mPhotoWidth, mPhotoHeight);
+        Bitmap bitmap = BitmapUtil.loadBitmap(path, REQ_PHOTO_WIDTH, REQ_PHOTO_HEIGHT);
         if (bitmap == null) {
             mOnRendererStatusListener.onLoadPhotoError("图片加载失败:" + path);
             return;
         }
 
-        mPhotoTextureId = GlUtil.createImageTexture(bitmap);
-        mPhotoWidth = bitmap.getWidth() / 2 * 2;
-        mPhotoHeight = bitmap.getHeight() / 2 * 2;
-        mPhotoNV21Bytes = BitmapUtil.getNV21(mPhotoWidth, mPhotoHeight, bitmap);
+        mPhotoTexId = GlUtil.createImageTexture(bitmap);
+        mPhotoWidth = bitmap.getWidth();
+        mPhotoHeight = bitmap.getHeight();
+        Log.i(TAG, "loadPhoto: path:" + path + ", width:" + mPhotoWidth + ", height:"
+                + mPhotoHeight + ", texId:" + mPhotoTexId);
     }
 
     private void onSurfaceDestroy() {
         Log.d(TAG, "onSurfaceDestroy");
-        if (mPhotoTextureId != 0) {
-            int[] textures = new int[]{mPhotoTextureId};
+        if (mPhotoTexId != 0) {
+            int[] textures = new int[]{mPhotoTexId};
             GLES20.glDeleteTextures(1, textures, 0);
-            mPhotoTextureId = 0;
+            mPhotoTexId = 0;
         }
         if (mProgramTexture2d != null) {
             mProgramTexture2d.release();
@@ -167,13 +170,12 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         /**
          * Called when drawing current frame.
          *
-         * @param photoNV21Bytes
-         * @param photoTextureId
+         * @param photoTexId
          * @param photoWidth
          * @param photoHeight
          * @return
          */
-        int onDrawFrame(byte[] photoNV21Bytes, int photoTextureId, int photoWidth, int photoHeight);
+        int onDrawFrame(int photoTexId, int photoWidth, int photoHeight);
 
         /**
          * Called when surface is destroyed

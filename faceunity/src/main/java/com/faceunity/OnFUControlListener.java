@@ -79,6 +79,13 @@ public interface OnFUControlListener {
     void onBlurLevelSelected(float level);
 
     /**
+     * 锐化程度
+     *
+     * @param level 锐化程度 [0, 1]，默认 0.0
+     */
+    void onSharpenLevelSelected(float level);
+
+    /**
      * 美白
      *
      * @param level

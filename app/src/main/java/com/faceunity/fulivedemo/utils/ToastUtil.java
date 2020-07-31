@@ -87,7 +87,10 @@ public final class ToastUtil {
     }
 
     public static void showNormalToast(Context context, @StringRes int strId) {
-        String text = context.getString(strId);
+        showNormalToast(context, context.getString(strId));
+    }
+
+    public static void showNormalToast(Context context, String text) {
         if (sNormalToast == null) {
             context = context.getApplicationContext();
             Resources resources = context.getResources();

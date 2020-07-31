@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -81,14 +82,14 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     }
 
     @Override
-    public int onDrawFrame(byte[] photoNV21Bytes, int photoTextureId, int photoWidth, int photoHeight) {
-        int fuTextureId = mFURenderer.onDrawFrame(photoNV21Bytes, photoTextureId, photoWidth, photoHeight);
-        checkPic(fuTextureId, photoWidth, photoHeight);
+    public int onDrawFrame(int photoTexId, int photoWidth, int photoHeight) {
+        int fuTexId = mFURenderer.onDrawFrame(photoTexId, photoWidth, photoHeight);
+        checkPic(fuTexId, photoWidth, photoHeight);
         if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS) {
             mFURenderer.getLandmarksData(0, mLandmarksData);
             mPhotoRenderer.setLandmarksData(mLandmarksData);
         }
-        return fuTextureId;
+        return fuTexId;
     }
 
     @Override
@@ -313,6 +314,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
             @Override
             public void onReadBitmapListener(Bitmap bitmap) {
                 final String filePath = MiscUtil.saveBitmap(bitmap, Constant.PHOTO_FILE_PATH, MiscUtil.getCurrentPhotoName());
+                Log.d(TAG, "onReadBitmapListener: filePath: " + filePath);
                 if (filePath != null) {
                     runOnUiThread(new Runnable() {
                         @Override

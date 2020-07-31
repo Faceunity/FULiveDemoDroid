@@ -38,9 +38,11 @@
     <string name="beauty_box_heavy_blur_fine">精细磨皮</string>
     <string name="beauty_box_color_level">美白</string>
     <string name="beauty_box_red_level">红润</string>
+    <string name="beauty_box_sharpen">锐化</string>
     <string name="beauty_box_eye_bright">亮眼</string>
     <string name="beauty_box_tooth_whiten">美牙</string>
     <string name="beauty_box_eye_enlarge">大眼</string>
+    <string name="beauty_box_blur_use_mask">BlurUseMask</string>
     <string name="beauty_box_cheek_thinning">瘦脸</string>
     <string name="beauty_box_cheek_v">V脸</string>
     <string name="beauty_box_cheek_narrow">窄脸</string>

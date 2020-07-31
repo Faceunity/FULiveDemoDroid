@@ -38,6 +38,7 @@
     <string name="beauty_box_heavy_blur_fine">Fine Smooth</string>
     <string name="beauty_box_color_level">Whiten</string>
     <string name="beauty_box_red_level">Ruddy</string>
+    <string name="beauty_box_sharpen">Sharpen</string>
     <string name="beauty_box_eye_bright">Eye Brighten</string>
     <string name="beauty_box_tooth_whiten">Tooth Whiten</string>
     <string name="beauty_box_eye_enlarge">Eye Enlarge</string>
