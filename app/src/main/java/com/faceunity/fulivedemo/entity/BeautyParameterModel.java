@@ -43,8 +43,10 @@ public abstract class BeautyParameterModel {
     public static float sColorLevel = 0.3f;// 美白
     public static float sBlurLevel = 0.7f; // 精细磨皮程度
     public static float sRedLevel = 0.3f;// 红润
+    public static float sSharpen = 0.2f;// 锐化
     public static float sEyeBright = 0.0f;// 亮眼
     public static float sToothWhiten = 0.0f;// 美牙
+
     // 美肤默认参数
     private static final Map<Integer, Float> FACE_SKIN_DEFAULT_PARAMS = new HashMap<>(16);
 
@@ -93,6 +95,7 @@ public abstract class BeautyParameterModel {
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_blur_level, sBlurLevel);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_color_level, sColorLevel);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_red_level, sRedLevel);
+        FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_sharpen, sSharpen);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_pouch, sMicroPouch);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_nasolabial, sMicroNasolabialFolds);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_eye_bright, sEyeBright);
@@ -113,6 +116,8 @@ public abstract class BeautyParameterModel {
                 return sColorLevel > 0;
             case R.id.beauty_box_red_level:
                 return sRedLevel > 0;
+            case R.id.beauty_box_sharpen:
+                return sSharpen > 0;
             case R.id.beauty_box_pouch:
                 return sMicroPouch > 0;
             case R.id.beauty_box_nasolabial:
@@ -170,6 +175,8 @@ public abstract class BeautyParameterModel {
                 return sColorLevel;
             case R.id.beauty_box_red_level:
                 return sRedLevel;
+            case R.id.beauty_box_sharpen:
+                return sSharpen;
             case R.id.beauty_box_pouch:
                 return sMicroPouch;
             case R.id.beauty_box_nasolabial:
@@ -229,6 +236,9 @@ public abstract class BeautyParameterModel {
                 break;
             case R.id.beauty_box_red_level:
                 sRedLevel = value;
+                break;
+            case R.id.beauty_box_sharpen:
+                sSharpen = value;
                 break;
             case R.id.beauty_box_pouch:
                 sMicroPouch = value;
@@ -356,6 +366,9 @@ public abstract class BeautyParameterModel {
         if (Float.compare(sRedLevel, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_red_level)) != 0) {
             return true;
         }
+        if (Float.compare(sSharpen, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_sharpen)) != 0) {
+            return true;
+        }
         if (Float.compare(sMicroPouch, FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_pouch)) != 0) {
             return true;
         }
@@ -402,6 +415,7 @@ public abstract class BeautyParameterModel {
         sBlurLevel = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_blur_level);
         sColorLevel = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_color_level);
         sRedLevel = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_red_level);
+        sSharpen = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_sharpen);
         sMicroPouch = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_pouch);
         sMicroNasolabialFolds = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_nasolabial);
         sEyeBright = FACE_SKIN_DEFAULT_PARAMS.get(R.id.beauty_box_eye_bright);

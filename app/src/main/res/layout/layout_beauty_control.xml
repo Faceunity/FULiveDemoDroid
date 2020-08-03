@@ -125,6 +125,16 @@
                         app:text_normal="@string/beauty_box_red_level" />
 
                     <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_sharpen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_sharpen_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_sharpen_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_sharpen_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_sharpen_nor_open"
+                        app:text_normal="@string/beauty_box_sharpen" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
                         android:id="@+id/beauty_box_eye_bright"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

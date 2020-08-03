@@ -1,9 +1,9 @@
 # Android Nama SDK 集成指导文档  
 级别：Public
 
-更新日期：2020-06-30
+更新日期：2020-07-29
 
-SDK版本: 7.0.0
+SDK版本: 7.1.0
 
 ------
 ## 最新更新内容：
@@ -150,22 +150,22 @@ SDK版本: 7.0.0
 全功能版本（支持 TensorFlow 和物理特效）：
 
 ```groovy
-implementation 'com.faceunity:nama:7.0.1'
+implementation 'com.faceunity:nama:7.1.0'
 ```
 
 lite 版（不含物理特效的版本）：
 
 ```groovy
-implementation 'com.faceunity:nama:7.0.1-lite'
+implementation 'com.faceunity:nama:7.1.0-lite'
 ```
 
-**注：** Gradle 集成的 aar 中仅包含库文件（libCNamaSDK.so、libfuai.so 与 nama.jar）以及初始化必须的数据模型等，如需美颜等数据包可以在[这里](https://github.com/Faceunity/FULiveDemoDroid/releases)下载。
+**注：** Gradle 集成的 aar 中仅包含库文件（libCNamaSDK.so、libfuai.so 与 nama.jar）以及初始化必须的数据模型等。
 
 #### 3.1.2 GitHub 下载
 
-- 全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v7.0.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.0/Faceunity-Android-v7.0.zip)
+- 全功能版本（支持 TensorFlow 和物理特效）：[Faceunity-Android-v7.1.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.1/Faceunity-Android-v7.1.zip)
 
-- lite 版（不含物理特效的版本）：[Faceunity-Android-v7.0-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.0/Faceunity-Android-v7.0-lite.zip)
+- lite 版（不含物理特效的版本）：[Faceunity-Android-v7.1-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.1/Faceunity-Android-v7.1-lite.zip)
 
 #### 3.1.3 库文件说明
 

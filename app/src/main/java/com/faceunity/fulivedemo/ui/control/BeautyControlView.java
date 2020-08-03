@@ -176,6 +176,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         onChangeFaceBeautyLevel(R.id.beauty_box_blur_level);
         onChangeFaceBeautyLevel(R.id.beauty_box_color_level);
         onChangeFaceBeautyLevel(R.id.beauty_box_red_level);
+        onChangeFaceBeautyLevel(R.id.beauty_box_sharpen);
         onChangeFaceBeautyLevel(R.id.beauty_box_pouch);
         onChangeFaceBeautyLevel(R.id.beauty_box_nasolabial);
         onChangeFaceBeautyLevel(R.id.beauty_box_eye_bright);
@@ -218,6 +219,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
                 onChangeFaceBeautyLevel(checkedId);
             }
         });
+
         checkFaceSkinChanged();
     }
 
@@ -335,6 +337,9 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
                 break;
             case R.id.beauty_box_red_level:
                 mOnFUControlListener.onRedLevelSelected(getValue(viewId));
+                break;
+            case R.id.beauty_box_sharpen:
+                mOnFUControlListener.onSharpenLevelSelected(getValue(viewId));
                 break;
             case R.id.beauty_box_pouch:
                 mOnFUControlListener.setRemovePouchStrength(getValue(viewId));
@@ -607,7 +612,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
             return mFilters.size();
         }
 
-        public void setFilterLevels(float filterLevels) {
+        void setFilterLevels(float filterLevels) {
             if (mFilterPositionSelect >= 0) {
                 setFilterLevel(mFilters.get(mFilterPositionSelect).getName(), filterLevels);
             }
@@ -617,7 +622,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
             mFilterPositionSelect = mFilters.indexOf(filter);
         }
 
-        public void setFilterProgress() {
+        void setFilterProgress() {
             if (mFilterPositionSelect > 0) {
                 seekToSeekBar(getFilterLevel(mFilters.get(mFilterPositionSelect).getName()));
             } else {
@@ -630,7 +635,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
             ImageView filterImg;
             TextView filterName;
 
-            public HomeRecyclerHolder(View itemView) {
+            HomeRecyclerHolder(View itemView) {
                 super(itemView);
                 filterImg = itemView.findViewById(R.id.control_recycler_img);
                 filterName = itemView.findViewById(R.id.control_recycler_text);

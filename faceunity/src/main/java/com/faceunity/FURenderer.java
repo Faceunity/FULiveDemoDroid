@@ -100,6 +100,7 @@ public class FURenderer implements OnFUControlListener {
     private static float mBlurLevel = 0.7f;//磨皮程度
     private static float mBlurType = 2.0f;//磨皮类型：精细磨皮
     private static float mColorLevel = 0.3f;//美白
+    private static float mSharpen = 0.2f;//锐化
     private static float mRedLevel = 0.3f;//红润
     private static float mEyeBright = 0.0f;//亮眼
     private static float mToothWhiten = 0.0f;//美牙
@@ -1163,6 +1164,7 @@ public class FURenderer implements OnFUControlListener {
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.BLUR_TYPE, mBlurType);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.BLUR_LEVEL, 6.0 * mBlurLevel);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.COLOR_LEVEL, mColorLevel);
+            faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.SHARPEN, mSharpen);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.RED_LEVEL, mRedLevel);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.EYE_BRIGHT, mEyeBright);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.TOOTH_WHITEN, mToothWhiten);
@@ -1498,6 +1500,12 @@ public class FURenderer implements OnFUControlListener {
     @Override
     public void onBlurLevelSelected(float level) {
         mBlurLevel = level;
+        mIsNeedUpdateFaceBeauty = true;
+    }
+
+    @Override
+    public void onSharpenLevelSelected(float level) {
+        mSharpen = level;
         mIsNeedUpdateFaceBeauty = true;
     }
 
@@ -2072,7 +2080,7 @@ public class FURenderer implements OnFUControlListener {
     }
 
     /**
-     * 动作识别设置边缘距离
+     * 动作识别设置边缘距离，主要是用于适配界面顶部的 UI 元素
      *
      * @param distance
      */
