@@ -115,7 +115,9 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
         if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             throw new RuntimeException("Camera Permission Denied");
         }
-
+        if (mCameraDevice != null) {
+            return;
+        }
         try {
             String cameraId = cameraFacing == FACE_FRONT ? mFrontCameraId : mBackCameraId;
             CameraCharacteristics cameraCharacteristics = mCameraManager.getCameraCharacteristics(cameraId);
@@ -184,8 +186,8 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
 
     @Override
     public void changeResolution(final int cameraWidth, final int cameraHeight) {
-        super.changeResolution(cameraWidth, cameraHeight);
         Log.d(TAG, "changeResolution() cameraWidth = [" + cameraWidth + "], cameraHeight = [" + cameraHeight + "]");
+        super.changeResolution(cameraWidth, cameraHeight);
         mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -211,9 +213,7 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
         if (mCameraTexId <= 0 || mCameraDevice == null || mIsPreviewing) {
             return;
         }
-        mIsPreviewing = true;
         Log.i(TAG, "startPreview. cameraTexId:" + mCameraTexId + ", cameraDevice:" + mCameraDevice);
-
         mSurfaceTexture = new SurfaceTexture(mCameraTexId);
         mSurfaceTexture.setDefaultBufferSize(mCameraWidth, mCameraHeight);
         showImageTexture(mShotBitmap);
@@ -239,6 +239,7 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
                     Log.d(TAG, "onConfigured: " + session + ", thread:" + Thread.currentThread().getName());
+                    mIsPreviewing = true;
                     mCameraCaptureSession = session;
                     CaptureRequest captureRequest = mCaptureRequestBuilder.build();
                     try {

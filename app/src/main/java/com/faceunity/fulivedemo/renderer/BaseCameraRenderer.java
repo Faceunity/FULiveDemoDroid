@@ -57,23 +57,23 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     protected int mFrontCameraOrientation = FRONT_CAMERA_ORIENTATION;
     protected int mCameraOrientation = FRONT_CAMERA_ORIENTATION;
     protected float[] mMvpMatrix;
-    protected float[] mTexMatrix = Arrays.copyOf(TEXTURE_MATRIX, TEXTURE_MATRIX.length);
+    private float[] mTexMatrix = Arrays.copyOf(TEXTURE_MATRIX, TEXTURE_MATRIX.length);
     protected byte[] mCameraNv21Byte;
-    protected byte[] mNv21ByteCopy;
+    private byte[] mNv21ByteCopy;
     protected SurfaceTexture mSurfaceTexture;
     protected GLSurfaceView mGlSurfaceView;
     protected Activity mActivity;
     protected Handler mBackgroundHandler;
     protected boolean mIsPreviewing;
     protected Bitmap mShotBitmap;
+    protected OnRendererStatusListener mOnRendererStatusListener;
     private ProgramTextureOES mProgramTextureOES;
     private ProgramTexture2d mProgramTexture2d;
     private ProgramLandmarks mProgramLandmarks;
     private float[] mLandmarksData;
-    protected int m2DTexId;
+    private int m2DTexId;
     private int mBitmap2dTexId;
-    protected OnRendererStatusListener mOnRendererStatusListener;
-    /* added */
+    /* 全身 avatar 相关 */
     private boolean mRenderRotatedImage;
     private boolean mDrawSmallViewport;
     private int mSmallViewportWidth;
@@ -112,6 +112,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
+                openCamera(mCameraFacing);
                 startPreview();
             }
         });
@@ -132,18 +133,12 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         mViewHeight = height;
         mSmallViewportX = width - mSmallViewportWidth - mSmallViewportHorizontalPadding;
         mSmallViewportY = mSmallViewportBottomPadding;
-        mBackgroundHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                startPreview();
-            }
-        });
         mOnRendererStatusListener.onSurfaceChanged(width, height);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mProgramTexture2d == null || mProgramTextureOES == null || mSurfaceTexture == null) {
+        if (mProgramTexture2d == null || mSurfaceTexture == null) {
             return;
         }
 
@@ -216,7 +211,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
             }
         });
         try {
-            countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+            countDownLatch.await(500, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // ignored
         }

@@ -20,7 +20,6 @@ import java.util.Map;
 public class Camera1Renderer extends BaseCameraRenderer implements Camera.PreviewCallback {
     private static final String TAG = "Camera1Renderer";
     private static final float EXPOSURE_COMPENSATION = 0.5F;
-    private final Object mCameraLock = new Object();
     private byte[][] mPreviewCallbackBufferArray;
     private Camera mCamera;
     private int mFrontCameraId;
@@ -59,49 +58,50 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
 
     @Override
     protected void openCamera(int cameraFacing) {
+        if (mCamera != null) {
+            return;
+        }
         try {
-            synchronized (mCameraLock) {
-                boolean isFront = cameraFacing == FACE_FRONT;
-                int cameraId = isFront ? mFrontCameraId : mBackCameraId;
-                mCamera = Camera.open(cameraId);
-                if (mCamera == null) {
-                    throw new RuntimeException("No camera");
-                }
+            boolean isFront = cameraFacing == FACE_FRONT;
+            int cameraId = isFront ? mFrontCameraId : mBackCameraId;
+            mCamera = Camera.open(cameraId);
+            if (mCamera == null) {
+                throw new RuntimeException("No camera");
+            }
 
-                mExposureCompensation = EXPOSURE_COMPENSATION;
-                CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
-                Log.i(TAG, "openCamera. facing: " + (isFront ? "front" : "back") + ", orientation:"
-                        + mCameraOrientation + ", previewWidth:" + mCameraWidth + ", previewHeight:"
-                        + mCameraHeight + " exposureCompensation:" + mExposureCompensation
-                        + ", thread:" + Thread.currentThread().getName());
+            mExposureCompensation = EXPOSURE_COMPENSATION;
+            CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
+            Log.i(TAG, "openCamera. facing: " + (isFront ? "front" : "back") + ", orientation:"
+                    + mCameraOrientation + ", previewWidth:" + mCameraWidth + ", previewHeight:"
+                    + mCameraHeight + " exposureCompensation:" + mExposureCompensation
+                    + ", thread:" + Thread.currentThread().getName());
 
-                Camera.Parameters parameters = mCamera.getParameters();
-                CameraUtils.setFocusModes(parameters);
-                CameraUtils.chooseFrameRate(parameters);
-                int[] size = CameraUtils.choosePreviewSize(parameters, mCameraWidth, mCameraHeight);
-                mCameraWidth = size[0];
-                mCameraHeight = size[1];
-                parameters.setPreviewFormat(ImageFormat.NV21);
-                CameraUtils.setParameters(mCamera, parameters);
+            Camera.Parameters parameters = mCamera.getParameters();
+            CameraUtils.setFocusModes(parameters);
+            CameraUtils.chooseFrameRate(parameters);
+            int[] size = CameraUtils.choosePreviewSize(parameters, mCameraWidth, mCameraHeight);
+            mCameraWidth = size[0];
+            mCameraHeight = size[1];
+            parameters.setPreviewFormat(ImageFormat.NV21);
+            CameraUtils.setParameters(mCamera, parameters);
 
-                // log camera all parameters
-                if (CameraUtils.DEBUG) {
-                    Map<String, String> fullCameraParameters = CameraUtils.getFullCameraParameters(mCamera);
-                    String fullParams = fullCameraParameters.toString();
-                    // log message is too long, so split it.
-                    if (fullParams.length() > 1000) {
-                        int trunk = fullParams.length() / 1000 + 1;
-                        for (int i = 0; i < trunk; i++) {
-                            int end = i == trunk - 1 ? fullParams.length() : (i + 1) * 1000;
-                            String substring = fullParams.substring(i * 1000, end);
-                            Log.v(TAG, "AFTER SET camera parameters: " + substring);
-                        }
+            // log camera all parameters
+            if (CameraUtils.DEBUG) {
+                Map<String, String> fullCameraParameters = CameraUtils.getFullCameraParameters(mCamera);
+                String fullParams = fullCameraParameters.toString();
+                // log message is too long, so split it.
+                if (fullParams.length() > 1000) {
+                    int trunk = fullParams.length() / 1000 + 1;
+                    for (int i = 0; i < trunk; i++) {
+                        int end = i == trunk - 1 ? fullParams.length() : (i + 1) * 1000;
+                        String substring = fullParams.substring(i * 1000, end);
+                        Log.v(TAG, "AFTER SET camera parameters: " + substring);
                     }
                 }
+            }
 
-                if (mViewWidth > 0 && mViewHeight > 0) {
-                    mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
-                }
+            if (mViewWidth > 0 && mViewHeight > 0) {
+                mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
             }
         } catch (Exception e) {
             Log.e(TAG, "openCamera: ", e);
@@ -110,33 +110,29 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
 
     @Override
     protected void startPreview() {
-        if (mCameraTexId <= 0) {
+        if (mCameraTexId <= 0 || mCamera == null || mIsPreviewing) {
             return;
         }
-        Log.d(TAG, "startPreview. isPreviewing:" + mIsPreviewing + ", cameraTexId:" + mCameraTexId + ", camera:" + mCamera);
+        Log.d(TAG, "startPreview. cameraTexId:" + mCameraTexId + ", camera:" + mCamera);
 
         showImageTexture(mShotBitmap);
         try {
-            synchronized (mCameraLock) {
-                if (mCamera == null || mIsPreviewing) {
-                    return;
-                }
-                mCamera.stopPreview();
-                if (mPreviewCallbackBufferArray == null) {
-                    mPreviewCallbackBufferArray = new byte[PREVIEW_BUFFER_SIZE][mCameraWidth * mCameraHeight * ImageFormat.getBitsPerPixel(ImageFormat.NV21) / 8];
-                }
-                // must call after stopPreview
-                mCamera.setPreviewCallbackWithBuffer(this);
-                for (byte[] bytes : mPreviewCallbackBufferArray) {
-                    mCamera.addCallbackBuffer(bytes);
-                }
-                if (mSurfaceTexture == null) {
-                    mSurfaceTexture = new SurfaceTexture(mCameraTexId);
-                }
-                mCamera.setPreviewTexture(mSurfaceTexture);
-                mCamera.startPreview();
-                mIsPreviewing = true;
+            mCamera.stopPreview();
+            if (mPreviewCallbackBufferArray == null) {
+                mPreviewCallbackBufferArray = new byte[PREVIEW_BUFFER_SIZE][mCameraWidth * mCameraHeight
+                        * ImageFormat.getBitsPerPixel(ImageFormat.NV21) / 8];
             }
+            // must call after stopPreview
+            mCamera.setPreviewCallbackWithBuffer(this);
+            for (byte[] bytes : mPreviewCallbackBufferArray) {
+                mCamera.addCallbackBuffer(bytes);
+            }
+            if (mSurfaceTexture == null) {
+                mSurfaceTexture = new SurfaceTexture(mCameraTexId);
+            }
+            mCamera.setPreviewTexture(mSurfaceTexture);
+            mCamera.startPreview();
+            mIsPreviewing = true;
         } catch (Exception e) {
             Log.e(TAG, "cameraStartPreview: ", e);
         }
@@ -146,16 +142,14 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
     protected void closeCamera() {
         Log.d(TAG, "closeCamera. thread:" + Thread.currentThread().getName());
         try {
-            synchronized (mCameraLock) {
-                if (mCamera != null) {
-                    mCamera.stopPreview();
-                    mCamera.setPreviewTexture(null);
-                    mCamera.setPreviewCallbackWithBuffer(null);
-                    mCamera.release();
-                    mCamera = null;
-                }
-                mIsPreviewing = false;
+            if (mCamera != null) {
+                mCamera.stopPreview();
+                mCamera.setPreviewTexture(null);
+                mCamera.setPreviewCallbackWithBuffer(null);
+                mCamera.release();
+                mCamera = null;
             }
+            mIsPreviewing = false;
         } catch (Exception e) {
             Log.e(TAG, "releaseCamera: ", e);
         }
@@ -174,8 +168,8 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
 
     @Override
     public void changeResolution(final int cameraWidth, final int cameraHeight) {
-        super.changeResolution(cameraWidth, cameraHeight);
         Log.d(TAG, "changeResolution() cameraWidth = [" + cameraWidth + "], cameraHeight = [" + cameraHeight + "]");
+        super.changeResolution(cameraWidth, cameraHeight);
         mBackgroundHandler.post(new Runnable() {
             @Override
             public void run() {
