@@ -123,6 +123,7 @@ public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBun
         ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(mEffectType);
         boolean isActionRecognition = mEffectType == Effect.EFFECT_TYPE_ACTION_RECOGNITION;
         boolean isPortraitSegment = mEffectType == Effect.EFFECT_TYPE_PORTRAIT_SEGMENT;
+        boolean isGestureRecognition = mEffectType == Effect.EFFECT_TYPE_GESTURE_RECOGNITION;
         return new FURenderer
                 .Builder(this)
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
@@ -131,6 +132,7 @@ public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBun
                 .setLoadAiHumanProcessor(isActionRecognition || isPortraitSegment)
                 .maxHumans(1)
                 .setNeedFaceBeauty(!(isActionRecognition))
+                .setLoadAiGesture(isGestureRecognition)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .setOnBundleLoadCompleteListener(this)
@@ -195,4 +197,12 @@ public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBun
         }
     }
 
+    @Override
+    public void onTrackStatusChanged(int type, int status) {
+        if (mEffectType == Effect.EFFECT_TYPE_GESTURE_RECOGNITION) {
+            runOnUiThread(() -> mTvTrackStatus.setVisibility(View.GONE));
+        } else {
+            super.onTrackStatusChanged(type, status);
+        }
+    }
 }

@@ -836,10 +836,8 @@ public class FURenderer implements OnFUControlListener {
                         faceunity.fuItemSetParam(controllerItem, "close_face_capture", 1.0);
                         // 关闭 DDE
                         faceunity.fuItemSetParam(controllerItem, "is_close_dde", 1.0);
-                        // 开启身体追踪
-                        faceunity.fuItemSetParam(controllerItem, "use_human_processor", 1.0);
                         // 进入身体追踪模式
-                        faceunity.fuItemSetParam(controllerItem, "enter_human_pose_track_mode", 1.0);
+                        faceunity.fuItemSetParam(controllerItem, "enable_human_processor", 1.0);
                         mRotationMode = faceunity.fuGetCurrentRotationMode();
                         // 设置 rotationMode 0，因为输入图像是转正的
                         faceunity.fuSetDefaultRotationMode(0);
@@ -912,7 +910,7 @@ public class FURenderer implements OnFUControlListener {
                             }
                             Log.d(TAG, "run: controller destroy " + Arrays.toString(validUnbindItems));
                         }
-                        faceunity.fuItemSetParam(controllerItem, "enter_human_pose_track_mode", 1.0);
+                        faceunity.fuItemSetParam(controllerItem, "enable_human_processor", 1.0);
                         int[] newControllerBoundItems = new int[PTA_ALWAYS_BIND_ITEM_COUNT + validBindItems.length];
                         System.arraycopy(controllerBoundItems, 0, newControllerBoundItems, 0, PTA_ALWAYS_BIND_ITEM_COUNT);
                         System.arraycopy(validBindItems, 0, newControllerBoundItems, PTA_ALWAYS_BIND_ITEM_COUNT, validBindItems.length);
@@ -927,7 +925,7 @@ public class FURenderer implements OnFUControlListener {
     private void destroyControllerRelated() {
         if (mControllerBoundItems != null && mControllerBoundItems[0] > 0) {
             int controllerItem = mItemsArray[0];
-            faceunity.fuItemSetParam(controllerItem, "quit_human_pose_track_mode", 1.0);
+            faceunity.fuItemSetParam(controllerItem, "enable_human_processor", 0.0);
             int[] controllerBoundItems = validateItems(mControllerBoundItems);
             Log.d(TAG, "destroyControllerRelated: unbind " + Arrays.toString(controllerBoundItems));
             faceunity.fuUnBindItems(controllerItem, controllerBoundItems);
