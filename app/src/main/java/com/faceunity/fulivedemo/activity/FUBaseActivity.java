@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -82,7 +83,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
         FURenderer.OnTrackingStatusChangedListener {
     public final static String TAG = FUBaseActivity.class.getSimpleName();
 
-    protected GLSurfaceView mGLSurfaceView;
+    protected GLSurfaceView mGlSurfaceView;
     protected BaseCameraRenderer mCameraRenderer;
     protected volatile boolean mIsDualInput = true;
     private TextView mDebugText;
@@ -247,6 +248,8 @@ public abstract class FUBaseActivity extends AppCompatActivity
                         strId = R.string.fu_base_is_tracking_text;
                     } else if (type == FURenderer.TRACK_TYPE_HUMAN) {
                         strId = R.string.toast_not_detect_body;
+                    } else if (type == FURenderer.TRACK_TYPE_GESTURE) {
+                        strId = R.string.toast_not_detect_gesture;
                     }
                     if (strId > 0) {
                         mTvTrackStatus.setText(strId);
@@ -271,7 +274,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
     @Override
     public int onDrawFrame(byte[] cameraNv21Byte, int cameraTextureId, int cameraWidth, int cameraHeight,
                            float[] mvpMatrix, float[] texMatrix, long timeStamp) {
-        int fuTexId = 0;
+        int fuTexId;
         if (mIsDualInput) {
             fuTexId = mFURenderer.onDrawFrame(cameraNv21Byte, cameraTextureId, cameraWidth, cameraHeight);
         } else {
@@ -366,19 +369,13 @@ public abstract class FUBaseActivity extends AppCompatActivity
         setContentView(R.layout.activity_fu_base);
         PermissionUtil.checkPermission(this);
         loadInternalConfigJson();
-        mGLSurfaceView = (GLSurfaceView) findViewById(R.id.fu_base_gl_surface);
-        mGLSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGLVersion(this));
-//        boolean hasCamera2 = CameraUtils.hasCamera2(this);
-//        Log.i(TAG, "onCreate: hasCamera2:" + hasCamera2);
-//        if (hasCamera2) {
-//            mCameraRenderer = new Camera2Renderer(this, mGLSurfaceView, this);
-//        } else {
-        mCameraRenderer = new Camera1Renderer(this, mGLSurfaceView, this);
-//        }
-        mFrontCameraOrientation = CameraUtils.getFrontCameraOrientation();
+        mGlSurfaceView = (GLSurfaceView) findViewById(R.id.fu_base_gl_surface);
+        mGlSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGlVersion(this));
+        mCameraRenderer = new Camera1Renderer(this, mGlSurfaceView, this);
+        mFrontCameraOrientation = CameraUtils.getCameraOrientation(Camera.CameraInfo.CAMERA_FACING_FRONT);
         mFURenderer = initFURenderer();
-        mGLSurfaceView.setRenderer(mCameraRenderer);
-        mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        mGlSurfaceView.setRenderer(mCameraRenderer);
+        mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -395,6 +392,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
                         break;
                     default:
                 }
+                mFURenderer.cameraChanged();
             }
         });
 
@@ -573,7 +571,7 @@ public abstract class FUBaseActivity extends AppCompatActivity
         public void onPrepared(final MediaEncoder encoder) {
             if (encoder instanceof MediaVideoEncoder) {
                 Log.d(TAG, "onPrepared: tid:" + Thread.currentThread().getId());
-                mGLSurfaceView.queueEvent(new Runnable() {
+                mGlSurfaceView.queueEvent(new Runnable() {
                     @Override
                     public void run() {
                         if (mIsRecordStopped) {

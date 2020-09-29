@@ -20,7 +20,8 @@
     <string name="home_function_name_makeup">Make Up</string>
     <string name="home_function_name_beauty_body">Body Shape</string>
     <string name="home_function_name_human_avatar">Whole-body Avatar</string>
-    <string name="home_function_name_action_recognition">Gesture recognition</string>
+    <string name="home_function_name_action_recognition">Action recognition</string>
+    <string name="home_function_name_bg_seg_green">Green Screen Key</string>
     <string name="camera_dialog_title">warning</string>
     <string name="camera_dialog_message">Camera permissions are disabled or the camera is occupied by another app!</string>
     <string name="sorry_no_permission">Sorry ,Your license is not supported for these functions.</string>
@@ -43,7 +44,9 @@
     <string name="beauty_box_tooth_whiten">Tooth Whiten</string>
     <string name="beauty_box_eye_enlarge">Eye Enlarge</string>
     <string name="beauty_box_cheek_thinning">Cheek Thin</string>
-    <string name="beauty_box_cheek_v">V Thin</string>
+    <string name="beauty_box_cheek_v">V Face</string>
+    <string name="beauty_box_cheekbones">Cheekbone</string>
+    <string name="beauty_box_lower_jaw">Jawbone</string>
     <string name="beauty_box_cheek_narrow">CheekNarrow</string>
     <string name="beauty_box_cheek_small">Cheek Small</string>
     <string name="beauty_box_intensity_chin">Chin</string>
@@ -284,5 +287,20 @@
     <string name="resolution_720p">720x1280</string>
     <string name="resolution_1080p">1080x1920</string>
     <string name="select_data_photo_or_video">Load picture or video</string>
+    <string name="toast_not_detect_gesture">No Gesture Tracking</string>
+
+    <string name="bg_seg_green_graphic">Keying</string>
+    <string name="bg_seg_green_background">Background</string>
+    <string name="bg_seg_green_key_color">Key Color</string>
+    <string name="bg_seg_green_similarity">Similarity</string>
+    <string name="bg_seg_green_smooth">Smoothness</string>
+    <string name="bg_seg_green_alpha">Transparency</string>
+    <string name="bg_seg_green_science">Science</string>
+    <string name="bg_seg_green_beach">Sand</string>
+    <string name="bg_seg_green_classroom">Classroom</string>
+    <string name="bg_seg_green_forest">Forest</string>
+    <string name="bg_seg_green_ink">Ink</string>
+    <string name="dialog_guide_bg_seg_green">Please use a solid background, a green screen is recommended for the best effect</string>
+    <string name="dialog_i_know">I know</string>
 
 </resources>

@@ -103,7 +103,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         Log.d(TAG, "onSurfaceChanged() called  viewWidth = [" + width + "], viewHeight = [" + height + "], photoWidth:"
                 + mPhotoWidth + ", photoHeight:" + mPhotoHeight);
         GLES20.glViewport(0, 0, mViewWidth = width, mViewHeight = height);
-        mMvpPhotoMatrix = GlUtil.changeMVPMatrixInside(mViewWidth, mViewHeight, mPhotoWidth, mPhotoHeight);
+        mMvpPhotoMatrix = GlUtil.changeMvpMatrixInside(mViewWidth, mViewHeight, mPhotoWidth, mPhotoHeight);
         Matrix.rotateM(mMvpPhotoMatrix, 0, 90, 0, 0, 1);
         float scale = (float) mViewWidth * mPhotoHeight / mViewHeight / mPhotoWidth;
         if (scale > 1) {
@@ -135,7 +135,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         } else {
             matrix = mMvpTemplateMatrix;
         }
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_STENCIL_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         int fuTextureId = mOnPhotoRendererStatusListener.onDrawFrame(mImgTextureId, mPhotoWidth, mPhotoHeight);
         mFullFrameRectTexture2D.drawFrame(fuTextureId, IMG_DATA_MATRIX, matrix);
         // 解决前几帧黑屏问题
@@ -204,7 +204,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         mTemplateWidth = src.getWidth();
         mTemplateHeight = src.getHeight();
         mTemplateBytes = BitmapUtil.getNV21(mTemplateWidth, mTemplateHeight, src);
-        mMvpTemplateMatrix = GlUtil.changeMVPMatrixInside(mViewWidth, mViewHeight, mTemplateWidth, mTemplateHeight);
+        mMvpTemplateMatrix = GlUtil.changeMvpMatrixInside(mViewWidth, mViewHeight, mTemplateWidth, mTemplateHeight);
         Matrix.rotateM(mMvpTemplateMatrix, 0, 90, 0, 0, 1);
     }
 
@@ -230,7 +230,7 @@ public class PosterPhotoRenderer implements GLSurfaceView.Renderer {
         Log.d(TAG, "reloadTemplateData: " + path);
         if (mPhotoBytes == null) {
             loadPhotoData(mPhotoPath, false);
-            mMvpPhotoMatrix = GlUtil.changeMVPMatrixInside(mViewWidth, mViewHeight, mPhotoWidth, mPhotoHeight);
+            mMvpPhotoMatrix = GlUtil.changeMvpMatrixInside(mViewWidth, mViewHeight, mPhotoWidth, mPhotoHeight);
             Matrix.rotateM(mMvpPhotoMatrix, 0, 90, 0, 0, 1);
             mFirstDrawPhoto = true;
             mDrawPhoto = false;

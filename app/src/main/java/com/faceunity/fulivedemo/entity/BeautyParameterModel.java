@@ -64,6 +64,8 @@ public abstract class BeautyParameterModel {
     }
 
     public static float sCheekThinning = 0f;//瘦脸
+    public static float sCheekBones = 0f;//颧骨
+    public static float sLowerJaw = 0f;//下颌骨
     public static float sCheekV = 0.5f;//V脸
     public static float sCheekNarrow = 0f;//窄脸
     public static float sCheekSmall = 0f;//小脸
@@ -75,6 +77,8 @@ public abstract class BeautyParameterModel {
 
     static {
         // 美型
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_lower_jaw, sLowerJaw);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheekbones, sCheekBones);
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_thinning, sCheekThinning);
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_narrow, sCheekNarrow);
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_small, sCheekSmall);
@@ -130,6 +134,10 @@ public abstract class BeautyParameterModel {
                 return sEyeEnlarging > 0;
             case R.id.beauty_box_cheek_thinning:
                 return sCheekThinning > 0;
+            case R.id.beauty_box_cheekbones:
+                return sCheekBones > 0;
+            case R.id.beauty_box_lower_jaw:
+                return sLowerJaw > 0;
             case R.id.beauty_box_cheek_narrow:
                 return sCheekNarrow > 0;
             case R.id.beauty_box_cheek_v:
@@ -189,6 +197,10 @@ public abstract class BeautyParameterModel {
                 return sEyeEnlarging;
             case R.id.beauty_box_cheek_thinning:
                 return sCheekThinning;
+            case R.id.beauty_box_cheekbones:
+                return sCheekBones;
+            case R.id.beauty_box_lower_jaw:
+                return sLowerJaw;
             case R.id.beauty_box_cheek_narrow:
                 return sCheekNarrow;
             case R.id.beauty_box_cheek_v:
@@ -258,6 +270,12 @@ public abstract class BeautyParameterModel {
             case R.id.beauty_box_cheek_thinning:
                 sCheekThinning = value;
                 break;
+            case R.id.beauty_box_cheekbones:
+                sCheekBones = value;
+                break;
+            case R.id.beauty_box_lower_jaw:
+                sLowerJaw = value;
+                break;
             case R.id.beauty_box_cheek_v:
                 sCheekV = value;
                 break;
@@ -281,6 +299,7 @@ public abstract class BeautyParameterModel {
                 break;
             case R.id.beauty_box_smile:
                 sMicroSmile = value;
+                break;
             case R.id.beauty_box_canthus:
                 sMicroCanthus = value;
                 break;
@@ -316,6 +335,12 @@ public abstract class BeautyParameterModel {
             return true;
         }
         if (Float.compare(sCheekThinning, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_thinning)) != 0) {
+            return true;
+        }
+        if (Float.compare(sCheekBones, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheekbones)) != 0) {
+            return true;
+        }
+        if (Float.compare(sLowerJaw, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_lower_jaw)) != 0) {
             return true;
         }
         if (Float.compare(sEyeEnlarging, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_eye_enlarge)) != 0) {
@@ -395,6 +420,8 @@ public abstract class BeautyParameterModel {
         sCheekSmall = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_small);
         sCheekV = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_v);
         sCheekThinning = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheek_thinning);
+        sCheekBones = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheekbones);
+        sLowerJaw = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_lower_jaw);
         sEyeEnlarging = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_eye_enlarge);
         sIntensityNose = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_nose);
         sIntensityMouth = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_mouth);

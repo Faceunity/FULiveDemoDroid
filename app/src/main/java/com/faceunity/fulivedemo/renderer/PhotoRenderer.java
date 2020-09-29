@@ -43,6 +43,7 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
     private float[] mLandmarksData;
     private ProgramTexture2d mProgramTexture2d;
     private ProgramLandmarks mProgramLandmarks;
+    private int m2DTexId;
 
     public PhotoRenderer(String photoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         mPhotoPath = photoPath;
@@ -87,7 +88,7 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         Log.d(TAG, "onSurfaceChanged: viewWidth:" + width + ", viewHeight:" + height + ", photoWidth:"
                 + mPhotoWidth + ", photoHeight:" + mPhotoHeight + ", textureId:" + mPhotoTexId);
         GLES20.glViewport(0, 0, width, height);
-        float[] mvpMatrix = GlUtil.changeMVPMatrixInside(width, height, mPhotoWidth, mPhotoHeight);
+        float[] mvpMatrix = GlUtil.changeMvpMatrixInside(width, height, mPhotoWidth, mPhotoHeight);
         Matrix.rotateM(mvpMatrix, 0, 90, 0, 0, 1);
         mMvpMatrix = mvpMatrix;
         mViewHeight = height;
@@ -101,10 +102,10 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         if (mProgramTexture2d == null) {
             return;
         }
-
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_STENCIL_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         int fuTexId = mOnRendererStatusListener.onDrawFrame(mPhotoTexId, mPhotoWidth, mPhotoHeight);
         mProgramTexture2d.drawFrame(fuTexId, IMG_DATA_MATRIX, mMvpMatrix);
+        m2DTexId = fuTexId;
 
         if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS && mLandmarksData != null) {
             mProgramLandmarks.refresh(mLandmarksData, mPhotoWidth, mPhotoHeight, 90,
@@ -149,8 +150,29 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
             mProgramLandmarks.release();
             mProgramLandmarks = null;
         }
+        m2DTexId = -1;
 
         mOnRendererStatusListener.onSurfaceDestroy();
+    }
+
+    public int getViewWidth() {
+        return mViewWidth;
+    }
+
+    public int getViewHeight() {
+        return mViewHeight;
+    }
+
+    public float[] getTexMatrix() {
+        return IMG_DATA_MATRIX;
+    }
+
+    public float[] getMvpMatrix() {
+        return mMvpMatrix;
+    }
+
+    public int get2dTexture() {
+        return m2DTexId;
     }
 
     public interface OnRendererStatusListener {

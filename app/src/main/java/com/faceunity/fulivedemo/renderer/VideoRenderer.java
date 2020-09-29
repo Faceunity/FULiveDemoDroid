@@ -65,6 +65,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private Context mContext;
     private Handler mPlayerHandler;
     private boolean mIsSystemCameraRecord;
+    private int m2DTexId;
 
     public VideoRenderer(String videoPath, GLSurfaceView glSurfaceView, OnRendererStatusListener onRendererStatusListener) {
         mVideoPath = videoPath;
@@ -146,25 +147,24 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
+        GLES20.glViewport(0, 0, width, height);
         mViewHeight = height;
         mViewWidth = width;
-        GLES20.glViewport(0, 0, width, height);
-        mOnVideoRendererStatusListener.onSurfaceChanged(width, height, mVideoWidth, mVideoHeight, mVideoRotation, mIsSystemCameraRecord);
         boolean isLandscape = mVideoRotation % 180 == 0;
-        mMvpMatrix = GlUtil.changeMVPMatrixInside(width, height, isLandscape ? mVideoWidth : mVideoHeight,
+        mMvpMatrix = GlUtil.changeMvpMatrixInside(width, height, isLandscape ? mVideoWidth : mVideoHeight,
                 isLandscape ? mVideoHeight : mVideoWidth);
-        Log.d(TAG, "onSurfaceChanged() width:" + width + ", height:" + height + ", videoWidth:"
+        mOnVideoRendererStatusListener.onSurfaceChanged(width, height, mVideoWidth, mVideoHeight, mVideoRotation, mIsSystemCameraRecord);
+        Log.d(TAG, "onSurfaceChanged() viewWidth:" + width + ", viewHeight:" + height + ", videoWidth:"
                 + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation
                 + ", mIsSystemCameraRecord:" + mIsSystemCameraRecord);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mProgramTexture2d == null || mProgramTextureOes == null || mSurfaceTexture == null) {
+        if (mProgramTexture2d == null || mSurfaceTexture == null) {
             return;
         }
-
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_STENCIL_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         try {
             mSurfaceTexture.updateTexImage();
             mSurfaceTexture.getTransformMatrix(mTexMatrix);
@@ -173,10 +173,11 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             return;
         }
 
-        int fuTextureId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth,
+        int fuTexId = mOnVideoRendererStatusListener.onDrawFrame(mVideoTextureId, mVideoWidth,
                 mVideoHeight, mTexMatrix, mSurfaceTexture.getTimestamp());
-        if (fuTextureId > 0) {
-            mProgramTexture2d.drawFrame(fuTextureId, mTexMatrix, mMvpMatrix);
+        m2DTexId = fuTexId;
+        if (fuTexId > 0) {
+            mProgramTexture2d.drawFrame(fuTexId, mTexMatrix, mMvpMatrix);
         } else {
             mProgramTextureOes.drawFrame(mVideoTextureId, mTexMatrix, mMvpMatrix);
         }
@@ -285,6 +286,26 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     public int getVideoHeight() {
         return mVideoRotation % 180 == 0 ? mVideoHeight : mVideoWidth;
+    }
+
+    public int getViewWidth() {
+        return mViewWidth;
+    }
+
+    public int getViewHeight() {
+        return mViewHeight;
+    }
+
+    public float[] getTexMatrix() {
+        return mTexMatrix;
+    }
+
+    public float[] getMvpMatrix() {
+        return mMvpMatrix;
+    }
+
+    public int get2dTexture() {
+        return m2DTexId;
     }
 
     private void startPlayerThread() {

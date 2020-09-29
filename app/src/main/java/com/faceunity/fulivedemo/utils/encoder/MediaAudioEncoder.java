@@ -19,8 +19,8 @@ public class MediaAudioEncoder extends MediaEncoder {
     private static final String MIME_TYPE = "audio/mp4a-latm";
     private static final int SAMPLE_RATE = 44100;    // 44.1[KHz] is only setting guaranteed to be available on all devices.
     private static final int BIT_RATE = 64000;
-    public static final int SAMPLES_PER_FRAME = 1024;    // AAC, bytes/frame/channel
-    public static final int FRAMES_PER_BUFFER = 25;    // AAC, frame/buffer/sec
+    private static final int SAMPLES_PER_FRAME = 1024;    // AAC, bytes/frame/channel
+    private static final int FRAMES_PER_BUFFER = 25;    // AAC, frame/buffer/sec
 
     private AudioThread mAudioThread = null;
 
@@ -99,19 +99,19 @@ public class MediaAudioEncoder extends MediaEncoder {
         public void run() {
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
             try {
-                final int min_buffer_size = AudioRecord.getMinBufferSize(
+                final int minBufferSize = AudioRecord.getMinBufferSize(
                         SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO,
                         AudioFormat.ENCODING_PCM_16BIT);
-                int buffer_size = SAMPLES_PER_FRAME * FRAMES_PER_BUFFER;
-                if (buffer_size < min_buffer_size)
-                    buffer_size = ((min_buffer_size / SAMPLES_PER_FRAME) + 1) * SAMPLES_PER_FRAME * 2;
+                int bufferSize = SAMPLES_PER_FRAME * FRAMES_PER_BUFFER;
+                if (bufferSize < minBufferSize)
+                    bufferSize = ((minBufferSize / SAMPLES_PER_FRAME) + 1) * SAMPLES_PER_FRAME * 2;
 
                 AudioRecord audioRecord = null;
                 for (final int source : AUDIO_SOURCES) {
                     try {
                         audioRecord = new AudioRecord(
                                 source, SAMPLE_RATE,
-                                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, buffer_size);
+                                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
                         if (audioRecord.getState() != AudioRecord.STATE_INITIALIZED)
                             audioRecord = null;
                     } catch (final Exception e) {
@@ -169,7 +169,7 @@ public class MediaAudioEncoder extends MediaEncoder {
      * @param mimeType
      * @return
      */
-    private static final MediaCodecInfo selectAudioCodec(final String mimeType) {
+    private static MediaCodecInfo selectAudioCodec(final String mimeType) {
         if (DEBUG)
             Log.v(TAG, "selectAudioCodec:");
 
@@ -183,14 +183,12 @@ public class MediaAudioEncoder extends MediaEncoder {
                 continue;
             }
             final String[] types = codecInfo.getSupportedTypes();
-            for (int j = 0; j < types.length; j++) {
+            for (String type : types) {
                 if (DEBUG)
-                    Log.i(TAG, "supportedType:" + codecInfo.getName() + ",MIME=" + types[j]);
-                if (types[j].equalsIgnoreCase(mimeType)) {
-                    if (result == null) {
-                        result = codecInfo;
-                        break LOOP;
-                    }
+                    Log.i(TAG, "supportedType:" + codecInfo.getName() + ",MIME=" + type);
+                if (type.equalsIgnoreCase(mimeType)) {
+                    result = codecInfo;
+                    break LOOP;
                 }
             }
         }

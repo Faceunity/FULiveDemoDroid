@@ -17,6 +17,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
@@ -443,6 +444,25 @@ public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<BaseRe
 
         /**
          * 设置文字
+         *
+         * @param id
+         * @param strId
+         * @return
+         */
+        public BaseViewHolder setText(@IdRes int id, @StringRes int strId) {
+            View view = getViewById(id);
+            if (view instanceof TextView) {
+                ((TextView) view).setText(strId);
+            }
+            return this;
+        }
+
+        /**
+         * 设置文字
+         *
+         * @param id
+         * @param text
+         * @return
          */
         public BaseViewHolder setText(@IdRes int id, String text) {
             View view = getViewById(id);

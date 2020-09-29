@@ -76,6 +76,14 @@ public class BeautificationParam {
      */
     public static final String FACE_SHAPE_LEVEL = "face_shape_level";
     /**
+     * 下颌骨，范围 [0-1]，默认 0
+     */
+    public static final String INTENSITY_LOW_JAW = "intensity_lower_jaw";
+    /**
+     * 颧骨，范围 [0-1]，默认 0
+     */
+    public static final String INTENSITY_CHEEKBONES = "intensity_cheekbones";
+    /**
      * 大眼程度，范围 [0-1]，默认 0.5
      */
     public static final String EYE_ENLARGING = "eye_enlarging";

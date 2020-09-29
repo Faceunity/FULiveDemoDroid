@@ -101,8 +101,9 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
             }
 
             if (mViewWidth > 0 && mViewHeight > 0) {
-                mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+                mMvpMatrix = GlUtil.changeMvpMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
             }
+            mOnRendererStatusListener.onCameraChanged(mCameraFacing, mCameraOrientation);
         } catch (Exception e) {
             Log.e(TAG, "openCamera: ", e);
         }
@@ -183,7 +184,6 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
                 startPreview();
                 mIsSwitchCamera = false;
                 mIsStopPreview = false;
-                mOnRendererStatusListener.onCameraChanged(mCameraFacing, mCameraOrientation);
             }
         });
     }

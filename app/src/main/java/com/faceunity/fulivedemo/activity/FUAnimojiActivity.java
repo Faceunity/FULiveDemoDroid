@@ -7,7 +7,7 @@ import android.view.View;
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
-import com.faceunity.fulivedemo.ui.control.AnimControlView;
+import com.faceunity.fulivedemo.ui.control.AnimojiControlView;
 
 /**
  * Animoji 和动漫滤镜效果
@@ -21,18 +21,18 @@ public class FUAnimojiActivity extends FUEffectActivity {
     protected void onCreate() {
         mBottomViewStub.setLayoutResource(R.layout.layout_fu_animoji);
         View view = mBottomViewStub.inflate();
-        final AnimControlView animControlView = view.findViewById(R.id.fu_anim_control);
-        animControlView.setOnFUControlListener(mFURenderer);
-        animControlView.setOnBottomAnimatorChangeListener(new AnimControlView.OnBottomAnimatorChangeListener() {
+        final AnimojiControlView animojiControlView = view.findViewById(R.id.fu_anim_control);
+        animojiControlView.setOnFUControlListener(mFURenderer);
+        animojiControlView.setOnBottomAnimatorChangeListener(new AnimojiControlView.OnBottomAnimatorChangeListener() {
             @Override
             public void onBottomAnimatorChangeListener(float showRate) {
                 mTakePicBtn.setDrawWidth((int) (getResources().getDimensionPixelSize(R.dimen.x166) * (1 - showRate * 0.265)));
             }
         });
-        mGLSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+        mGlSurfaceView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                animControlView.hideBottomLayoutAnimator();
+                animojiControlView.hideBottomLayoutAnimator();
                 return false;
             }
         });

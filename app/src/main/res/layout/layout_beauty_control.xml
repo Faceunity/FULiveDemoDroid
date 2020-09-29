@@ -280,6 +280,26 @@
                         app:text_normal="@string/beauty_box_cheek_small" />
 
                     <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_cheekbones"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_cheekbones_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_cheekbones_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_cheekbones_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_cheekbones_nor_open"
+                        app:text_normal="@string/beauty_box_cheekbones" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_lower_jaw"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_lower_jaw_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_lower_jaw_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_lower_jaw_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_lower_jaw_nor_open"
+                        app:text_normal="@string/beauty_box_lower_jaw" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
                         android:id="@+id/beauty_box_eye_enlarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

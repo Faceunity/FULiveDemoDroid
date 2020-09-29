@@ -149,7 +149,7 @@ public class MakeupParamHelper {
         private int height;
         private byte[] bytes;
 
-        TextureImage(int width, int height, byte[] bytes) {
+        public TextureImage(int width, int height, byte[] bytes) {
             this.width = width;
             this.height = height;
             this.bytes = bytes;

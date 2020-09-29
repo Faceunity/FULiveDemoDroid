@@ -39,7 +39,7 @@ public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBun
     protected void onCreate() {
         if (mEffectType == Effect.EFFECT_TYPE_ACTION_RECOGNITION) {
             findViewById(R.id.cl_custom_view).setVisibility(View.GONE);
-            mGLSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            mGlSurfaceView.setOnTouchListener(new View.OnTouchListener() {
                 private int mLongPressTimeout = ViewConfiguration.getLongPressTimeout();
                 private long mStartTimestamp;
                 private int mX = getResources().getDimensionPixelSize(R.dimen.x138);

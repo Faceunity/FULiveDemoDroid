@@ -129,7 +129,11 @@ public enum EffectEnum {
      * PTA
      */
     PTA_GIRL("pta_girl", R.drawable.demo_icon_avatar_female, "girl/", 1, Effect.EFFECT_TYPE_PTA, 0),
-    PTA_BOY("pta_boy", R.drawable.demo_icon_avatar_male, "boy/", 1, Effect.EFFECT_TYPE_PTA, 0);
+    PTA_BOY("pta_boy", R.drawable.demo_icon_avatar_male, "boy/", 1, Effect.EFFECT_TYPE_PTA, 0),
+    /**
+     * 绿幕抠像
+     */
+    BG_SEG_GREEN("bg_seg_green", 0, "bg_seg_green/green_screen.bundle", 1, Effect.EFFECT_TYPE_BG_SEG_GREEN, 0);
 
     private String bundleName;
     private int iconId;

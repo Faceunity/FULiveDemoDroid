@@ -7,9 +7,9 @@ package com.faceunity.fulivedemo.utils;
  */
 public class DecimalUtils {
     /**
-     * 两个浮点数的差值小于 0.01 认为相等
+     * 两个浮点数的差值小于 0.001 认为相等
      */
-    private static final float THRESHOLD = 0.01F;
+    private static final float THRESHOLD = 0.001F;
 
     private DecimalUtils() {
     }

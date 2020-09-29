@@ -25,7 +25,7 @@ public class MediaMuxerWrapper {
      */
     public MediaMuxerWrapper(String filePath) throws IOException {
         mOutputPath = filePath;
-        mMediaMuxer = new MediaMuxer(mOutputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+        mMediaMuxer = new MediaMuxer(filePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         mEncoderCount = mStatredCount = 0;
         mIsStarted = false;
     }

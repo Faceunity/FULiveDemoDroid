@@ -210,6 +210,25 @@ public class FileUtils {
         }
     }
 
+    public static void copyAssetsFileToLocal(Context context, File dir, String assetsPath) {
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        AssetManager assets = context.getAssets();
+        try {
+            String[] files = assets.list(assetsPath);
+            if (files != null) {
+                for (String file : files) {
+                    InputStream is = assets.open(assetsPath + File.separator + file);
+                    File dest = new File(dir, file);
+                    FileUtils.copyFile(is, dest);
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "copyAssetsFile: ", e);
+        }
+    }
+
     public static String readStringFromFile(File file) throws IOException {
         try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
             byte[] bytes = new byte[bis.available()];

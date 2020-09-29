@@ -2,6 +2,7 @@ package com.faceunity;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.opengl.EGL14;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -18,8 +19,12 @@ import com.faceunity.param.BodySlimParam;
 import com.faceunity.param.CartoonFilterParam;
 import com.faceunity.param.HairParam;
 import com.faceunity.param.MakeupParamHelper;
+import com.faceunity.utils.DeviceUtils;
+import com.faceunity.utils.FileUtils;
+import com.faceunity.utils.VideoDecoder;
 import com.faceunity.wrapper.faceunity;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,12 +47,22 @@ import java.util.concurrent.ConcurrentHashMap;
  * 2.合理调用FURenderer构造函数
  * 3.对应的时机调用onSurfaceCreated和onSurfaceDestroyed
  * 4.处理图像时调用onDrawFrame
+ // TODO: 2020/9/21 0021 拆分功能模块，目标是单一职责，高内聚低耦合
  */
 public class FURenderer implements OnFUControlListener {
     private static final String TAG = FURenderer.class.getSimpleName();
     public static final int FU_ADM_FLAG_EXTERNAL_OES_TEXTURE = faceunity.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE;
+    /**
+     * 人脸检测点位
+     */
     public static final int FACE_LANDMARKS_75 = faceunity.FUAITYPE_FACELANDMARKS75;
     public static final int FACE_LANDMARKS_239 = faceunity.FUAITYPE_FACELANDMARKS239;
+
+    /**
+     * 人脸检测模式
+     */
+    public static final int FACE_PROCESSOR_DETECT_MODE_IMAGE = 0;
+    public static final int FACE_PROCESSOR_DETECT_MODE_VIDEO = 1;
 
     /**
      * 外部输入类型
@@ -106,6 +121,8 @@ public class FURenderer implements OnFUControlListener {
     private static float mToothWhiten = 0.0f;//美牙
     private static float mFaceShape = 4;//脸型：精细变形
     private static float mFaceShapeLevel = 1.0f;//变形程度
+    private static float mIntensityCheekbones = 0f;//颧骨
+    private static float mIntensityLowerJaw = 0f;//下颌骨
     private static float mCheekThinning = 0f;//瘦脸
     private static float mCheekV = 0.5f;//V脸
     private static float mCheekNarrow = 0f;//窄脸
@@ -200,12 +217,28 @@ public class FURenderer implements OnFUControlListener {
     private int mCartoonFilterStyle = CartoonFilterParam.NO_FILTER;
     private static boolean sIsInited;
     /* 设备方向 */
-    private volatile int mDeviceOrientation = 90;
+    private int mDeviceOrientation = 90;
     /* 人脸识别方向 */
-    private volatile int mRotationMode = faceunity.FU_ROTATION_MODE_90;
+    private int mRotationMode = faceunity.FU_ROTATION_MODE_90;
 
     private boolean mIsLoadAiGesture;
     private boolean mIsLoadAiHumanProcessor;
+
+    /**
+     * 绿幕抠像 用到的参数
+     */
+    private double[] mKeyColor = new double[]{0, 255, 0};
+    private float mChromaThres = 0.45f;
+    private float mChromaThresT = 0.3f;
+    private float mAlphaL = 0.2f;
+    private float mStartX = 0f;
+    private float mStartY = 0f;
+    private float mEndX = 1f;
+    private float mEndY = 1f;
+    private boolean mRunBgSegGreen = true;
+    private int mBgSegGreenItem;
+    private String mSourcePath = "bg_seg_green/classroom.mp4";
+    private VideoDecoder mVideoDecoder;
 
     /**
      * 初始化系统环境，加载底层数据，并进行网络鉴权。
@@ -217,33 +250,29 @@ public class FURenderer implements OnFUControlListener {
             return;
         }
         // {trace:0, debug:1, info:2, warn:3, error:4, critical:4, off:6}
-        int logLevel = 6;
-        faceunity.fuSetLogLevel(logLevel);
-        Log.i(TAG, "initFURenderer logLevel: " + logLevel);
-
-        // 初始化高通 DSP
-        String path = context.getApplicationInfo().nativeLibraryDir;
-        faceunity.fuHexagonInitWithPath(path);
-        Log.d(TAG, "initFURenderer HexagonInitWithPath:" + path);
-
+        faceunity.fuSetLogLevel(3);
+        faceunity.fuCreateEGLContext();
         // 获取 Nama SDK 版本信息
         Log.e(TAG, "fu sdk version " + faceunity.fuGetVersion());
-        int isSetup = faceunity.fuSetup(new byte[0], authpack.A());
-        Log.d(TAG, "fuSetup. isSetup: " + (isSetup == 0 ? "no" : "yes"));
-        // 提前加载算法数据模型，用于人脸检测
+        Log.i(TAG, "device info: " + DeviceUtils.retrieveDeviceInfo(context));
+        faceunity.fuSetup(new byte[0], authpack.A());
+        faceunity.fuReleaseEGLContext();
+
+        // 提前加载人脸检测算法模型，必选
         loadAiModel(context, BUNDLE_AI_MODEL_FACE_PROCESSOR, faceunity.FUAITYPE_FACEPROCESSOR);
-        // 提前加载舌头跟踪模型，如果用不到 animoji，就不用不加载。
+        // 提前加载舌头跟踪算法模型，可选
         loadTongueModel(context, BUNDLE_TONGUE);
-        sIsInited = isLibInit();
-        Log.i(TAG, "initFURenderer finish. isLibraryInit: " + (sIsInited ? "yes" : "no"));
+        boolean isInited = isLibInit();
+        sIsInited = isInited;
+        Log.i(TAG, "initFURenderer finish. isLibraryInit: " + isInited);
     }
 
     /**
      * 释放 SDK 占用的内存。如需再次使用，需要调用 fuSetup
      */
     public static void destroyLibData() {
-        releaseAiModel(faceunity.FUAITYPE_FACEPROCESSOR);
         if (sIsInited) {
+            releaseAiModel(faceunity.FUAITYPE_FACEPROCESSOR);
             faceunity.fuDestroyLibData();
             sIsInited = isLibInit();
             Log.d(TAG, "destroyLibData. isLibraryInit: " + (sIsInited ? "yes" : "no"));
@@ -361,11 +390,11 @@ public class FURenderer implements OnFUControlListener {
     }
 
     /**
-     * 获取 Nama SDK 完整版本号，例如 6.7.0_tf_phy-f1e36a93-b9e3359-b5f220d
+     * 获取 Nama SDK 完整版本号，例如 7.2.0_phy_91ee86c9_451bd41
      *
      * @return full version
      */
-    public static String getFullVersion() {
+    public static String getVersion() {
         return faceunity.fuGetVersion();
     }
 
@@ -424,7 +453,7 @@ public class FURenderer implements OnFUControlListener {
             fuItemHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    loadAiModel(mContext, AI_MODEL_ASSETS_DIR + "ai_gesture.bundle", faceunity.FUAITYPE_HANDGESTURE);
+                    loadAiModel(mContext, AI_MODEL_ASSETS_DIR + "ai_hand_processor.bundle", faceunity.FUAITYPE_HANDGESTURE);
                 }
             });
         }
@@ -679,6 +708,11 @@ public class FURenderer implements OnFUControlListener {
             mEventQueue.clear();
             mEventQueue = null;
         }
+        if (mVideoDecoder != null) {
+            mVideoDecoder.release();
+            mVideoDecoder = null;
+        }
+        mBgSegGreenItem = 0;
         mGlThreadId = 0;
         if (mItemsArray.length > PTA_BIND_ITEM_COUNT) {
             int posterIndex = mItemsArray[ITEM_ARRAYS_CHANGE_FACE_INDEX];
@@ -793,7 +827,7 @@ public class FURenderer implements OnFUControlListener {
                     return;
                 }
                 final int controllerConfigItem = loadItem(mContext, PTA_ASSETS_DIR + "controller_config.bundle");
-                int[] defaultItems = new int[PTA_BIND_ITEM_COUNT];
+                final int[] defaultItems = new int[PTA_BIND_ITEM_COUNT];
                 defaultItems[0] = controllerConfigItem;
                 if (controllerConfigItem > 0) {
                     queueEvent(new Runnable() {
@@ -841,19 +875,20 @@ public class FURenderer implements OnFUControlListener {
                         mRotationMode = faceunity.fuGetCurrentRotationMode();
                         // 设置 rotationMode 0，因为输入图像是转正的
                         faceunity.fuSetDefaultRotationMode(0);
+
+                        int[] items = new int[PTA_ITEM_COUNT];
+                        items[0] = controllerItem;
+                        items[1] = fxaaItem;
+                        mItemsArray = items;
+                        int[] validDefaultItems = validateItems(defaultItems);
+                        int[] controllerBoundItems = new int[validDefaultItems.length + validGestureItems.length];
+                        System.arraycopy(validDefaultItems, 0, controllerBoundItems, 0, validDefaultItems.length);
+                        System.arraycopy(validGestureItems, 0, controllerBoundItems, validDefaultItems.length, validGestureItems.length);
+                        mControllerBoundItems = controllerBoundItems;
+                        Log.d(TAG, "run: controller default bind " + Arrays.toString(controllerBoundItems));
+                        setHumanTrackScene(mHumanTrackScene);
                     }
                 });
-                int[] items = new int[PTA_ITEM_COUNT];
-                items[0] = controllerItem;
-                items[1] = fxaaItem;
-                mItemsArray = items;
-                int[] validDefaultItems = validateItems(defaultItems);
-                int[] controllerBoundItems = new int[validDefaultItems.length + validGestureItems.length];
-                System.arraycopy(validDefaultItems, 0, controllerBoundItems, 0, validDefaultItems.length);
-                System.arraycopy(validGestureItems, 0, controllerBoundItems, validDefaultItems.length, validGestureItems.length);
-                mControllerBoundItems = controllerBoundItems;
-                Log.d(TAG, "run: controller default bind " + Arrays.toString(controllerBoundItems));
-                setHumanTrackScene(mHumanTrackScene);
             }
         });
     }
@@ -910,7 +945,6 @@ public class FURenderer implements OnFUControlListener {
                             }
                             Log.d(TAG, "run: controller destroy " + Arrays.toString(validUnbindItems));
                         }
-                        faceunity.fuItemSetParam(controllerItem, "enable_human_processor", 1.0);
                         int[] newControllerBoundItems = new int[PTA_ALWAYS_BIND_ITEM_COUNT + validBindItems.length];
                         System.arraycopy(controllerBoundItems, 0, newControllerBoundItems, 0, PTA_ALWAYS_BIND_ITEM_COUNT);
                         System.arraycopy(validBindItems, 0, newControllerBoundItems, PTA_ALWAYS_BIND_ITEM_COUNT, validBindItems.length);
@@ -1020,10 +1054,11 @@ public class FURenderer implements OnFUControlListener {
         if (img == null || w <= 0 || h <= 0) {
             return 0;
         }
+        faceunity.fuOnCameraChange();
         int currRotMode = faceunity.fuGetCurrentRotationMode();
         faceunity.fuSetDefaultRotationMode(rotMode);
         for (int i = 0; i < MAX_TRACK_COUNT; i++) {
-            faceunity.fuTrackFace(img, 0, w, h);
+            faceunity.fuTrackFace(img, faceunity.FU_FORMAT_NV21_BUFFER, w, h);
         }
         faceunity.fuSetDefaultRotationMode(currRotMode);
         return faceunity.fuIsTracking();
@@ -1110,16 +1145,20 @@ public class FURenderer implements OnFUControlListener {
     private void prepareDrawFrame() {
         //计算FPS等数据
         benchmarkFPS();
-
+        // 人脸、人体、手势检测
         if (mIsLoadAiHumanProcessor) {
-            // 获取人体是否识别，并调用回调接口
             int trackHumans = faceunity.fuHumanProcessorGetNumResults();
             if (mOnTrackingStatusChangedListener != null && mTrackHumanStatus != trackHumans) {
                 mTrackHumanStatus = trackHumans;
                 mOnTrackingStatusChangedListener.onTrackStatusChanged(TRACK_TYPE_HUMAN, trackHumans);
             }
+        } else if (mIsLoadAiGesture) {
+            int trackGesture = faceunity.fuHandDetectorGetResultNumHands();
+            if (mOnTrackingStatusChangedListener != null && mTrackGestureStatus != trackGesture) {
+                mTrackGestureStatus = trackGesture;
+                mOnTrackingStatusChangedListener.onTrackStatusChanged(TRACK_TYPE_GESTURE, trackGesture);
+            }
         } else {
-            // 获取人脸是否识别，并调用回调接口
             int trackFace = faceunity.fuIsTracking();
             if (mOnTrackingStatusChangedListener != null && mTrackFaceStatus != trackFace) {
                 mTrackFaceStatus = trackFace;
@@ -1174,6 +1213,8 @@ public class FURenderer implements OnFUControlListener {
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.CHEEK_NARROW, mCheekNarrow);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.CHEEK_SMALL, mCheekSmall);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.CHEEK_V, mCheekV);
+            faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.INTENSITY_CHEEKBONES, mIntensityCheekbones);
+            faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.INTENSITY_LOW_JAW, mIntensityLowerJaw);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.INTENSITY_NOSE, mIntensityNose);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.INTENSITY_CHIN, mIntensityChin);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.INTENSITY_FOREHEAD, mIntensityForehead);
@@ -1220,6 +1261,9 @@ public class FURenderer implements OnFUControlListener {
      */
     public void onCameraChange(final int cameraFacing, final int inputOrientation) {
         Log.d(TAG, "onCameraChange. cameraFacing: " + cameraFacing + ", inputOrientation:" + inputOrientation);
+        if (mVideoDecoder != null) {
+            mVideoDecoder.setFrontCam(cameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT);
+        }
         queueEvent(new Runnable() {
             @Override
             public void run() {
@@ -1272,6 +1316,21 @@ public class FURenderer implements OnFUControlListener {
                 }
             });
         }
+    }
+
+    /**
+     * 默认的视频模式下，不保证每帧都检测出人脸；对于图片场景，要设置图片模式
+     *
+     * @param mode 0 图片模式, 1 视频模式, 默认 1
+     */
+    public void setFaceProcessorDetectMode(final int mode) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                faceunity.fuSetFaceProcessorDetectMode(mode);
+                Log.d(TAG, "fuSetFaceProcessorDetectMode: " + mode);
+            }
+        });
     }
 
     /**
@@ -1560,6 +1619,18 @@ public class FURenderer implements OnFUControlListener {
     @Override
     public void onCheekVSelected(float level) {
         mCheekV = level;
+        mIsNeedUpdateFaceBeauty = true;
+    }
+
+    @Override
+    public void setCheekbonesIntensity(float intensity) {
+        mIntensityCheekbones = intensity;
+        mIsNeedUpdateFaceBeauty = true;
+    }
+
+    @Override
+    public void setLowerJawIntensity(float intensity) {
+        mIntensityLowerJaw = intensity;
         mIsNeedUpdateFaceBeauty = true;
     }
 
@@ -1865,14 +1936,6 @@ public class FURenderer implements OnFUControlListener {
         mIsNeedUpdateFaceBeauty = true;
     }
 
-    private void setBeautyBodyOrientation() {
-        int itemBody = mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY];
-        if (itemBody > 0) {
-            int bodyOrientation = calculateRotationMode();
-            faceunity.fuItemSetParam(itemBody, BodySlimParam.ORIENTATION, bodyOrientation);
-        }
-    }
-
     @Override
     public void onLightMakeupCombinationSelected(List<LightMakeupItem> makeupItems) {
         Set<Integer> keySet = mLightMakeupItemMap.keySet();
@@ -1907,27 +1970,6 @@ public class FURenderer implements OnFUControlListener {
         }
     }
 
-    private void onLightMakeupSelected(final LightMakeupItem makeupItem, final float level) {
-        int type = makeupItem.getType();
-        LightMakeupItem item = mLightMakeupItemMap.get(type);
-        if (item != null) {
-            item.setLevel(level);
-        } else {
-            // 复制一份
-            mLightMakeupItemMap.put(type, makeupItem.cloneSelf());
-        }
-        if (mFuItemHandler == null) {
-            queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_LIGHT_MAKEUP_INDEX, makeupItem));
-                }
-            });
-        } else {
-            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_LIGHT_MAKEUP_INDEX, makeupItem));
-        }
-    }
-
     @Override
     public void onLightMakeupItemLevelChanged(LightMakeupItem makeupItem) {
         final int type = makeupItem.getType();
@@ -1949,11 +1991,6 @@ public class FURenderer implements OnFUControlListener {
         });
     }
 
-    /**
-     * 设置相机滤镜的风格
-     *
-     * @param style
-     */
     @Override
     public void setCartoonFilter(final int style) {
         if (mCartoonFilterStyle == style) {
@@ -1979,6 +2016,139 @@ public class FURenderer implements OnFUControlListener {
         });
     }
 
+
+    @Override
+    public void setKeyColor(final double[] rgb) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mKeyColor = rgb;
+                int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                if (item > 0) {
+                    faceunity.fuItemSetParam(item, "key_color", rgb);
+//                    Log.d(TAG, "setKeyColor " + Arrays.toString(rgb));
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setChromaThres(final float intensity) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mChromaThres = intensity;
+                int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                if (item > 0) {
+                    faceunity.fuItemSetParam(item, "chroma_thres", intensity);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setChromaThresT(final float intensity) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mChromaThresT = intensity;
+                int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                if (item > 0) {
+                    faceunity.fuItemSetParam(item, "chroma_thres_T", intensity);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setAlphaL(final float intensity) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mAlphaL = intensity;
+                int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                if (item > 0) {
+                    faceunity.fuItemSetParam(item, "alpha_L", intensity);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setTransform(final float startX, final float startY, final float endX, final float endY) {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mStartX = startX;
+                mStartY = startY;
+                mEndX = endX;
+                mEndY = endY;
+                int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                if (item > 0) {
+                    faceunity.fuItemSetParam(item, "start_x", startX);
+                    faceunity.fuItemSetParam(item, "start_y", startY);
+                    faceunity.fuItemSetParam(item, "end_x", endX);
+                    faceunity.fuItemSetParam(item, "end_y", endY);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setTexBgSource(String filePath) {
+        mSourcePath = filePath;
+        if (mVideoDecoder == null) {
+            return;
+        }
+        if (filePath == null) {
+            mVideoDecoder.stop();
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                    if (item > 0) {
+                        faceunity.fuDeleteTexForItem(item, "tex_bg");
+                    }
+                }
+            });
+        } else {
+            File file = new File(FileUtils.getExternalFileDir(mContext), filePath);
+            mVideoDecoder.start(file.getAbsolutePath());
+        }
+    }
+
+    @Override
+    public void setRunBgSegGreen(final boolean run) {
+        if (mRunBgSegGreen == run) {
+            return;
+        }
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mRunBgSegGreen = run;
+                mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] = run ? mBgSegGreenItem : 0;
+            }
+        });
+    }
+
+    private VideoDecoder.OnReadPixelListener mOnReadPixelListener = new VideoDecoder.OnReadPixelListener() {
+
+        @Override
+        public void onReadPixel(final int width, final int height, final byte[] rgba) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                    if (item > 0) {
+                        faceunity.fuDeleteTexForItem(item, "tex_bg");
+                        faceunity.fuCreateTexForItem(item, "tex_bg", rgba, width, height);
+//                        Log.v(TAG, "fuCreateTexForItem: tex_bg. rgba: " + rgba + ", width: " + width + ", height: " + height);
+                    }
+                }
+            });
+        }
+    };
+
     /**
      * 海报换脸，输入人脸五官，自动变形调整
      *
@@ -1996,6 +2166,35 @@ public class FURenderer implements OnFUControlListener {
         });
     }
 
+    private void onLightMakeupSelected(final LightMakeupItem makeupItem, final float level) {
+        int type = makeupItem.getType();
+        LightMakeupItem item = mLightMakeupItemMap.get(type);
+        if (item != null) {
+            item.setLevel(level);
+        } else {
+            // 复制一份
+            mLightMakeupItemMap.put(type, makeupItem.cloneSelf());
+        }
+        if (mFuItemHandler == null) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_LIGHT_MAKEUP_INDEX, makeupItem));
+                }
+            });
+        } else {
+            mFuItemHandler.sendMessage(Message.obtain(mFuItemHandler, ITEM_ARRAYS_LIGHT_MAKEUP_INDEX, makeupItem));
+        }
+    }
+
+    private void setBeautyBodyOrientation() {
+        int itemBody = mItemsArray[ITEM_ARRAYS_BEAUTIFY_BODY];
+        if (itemBody > 0) {
+            int bodyOrientation = calculateRotationMode();
+            faceunity.fuItemSetParam(itemBody, BodySlimParam.ORIENTATION, bodyOrientation);
+        }
+    }
+
     private double[] floatArrayToDouble(float[] input) {
         if (input == null) {
             return null;
@@ -2011,6 +2210,7 @@ public class FURenderer implements OnFUControlListener {
 
     private int mTrackHumanStatus = -1;
     private int mTrackFaceStatus = -1;
+    private int mTrackGestureStatus = -1;
 
     public interface OnTrackingStatusChangedListener {
         /**
@@ -2155,6 +2355,8 @@ public class FURenderer implements OnFUControlListener {
         }
         faceunity.fuItemSetParam(itemHandle, "rotMode", rotMode);
         faceunity.fuItemSetParam(itemHandle, "rotationMode", rotMode);
+        // for green_screen bundle
+        faceunity.fuItemSetParam(itemHandle, "rotation_mode", rotMode);
     }
 
     /*----------------------------------Builder---------------------------------------*/
@@ -2469,10 +2671,26 @@ public class FURenderer implements OnFUControlListener {
                                 faceunity.fuDestroyItem(mItemsArray[ITEM_ARRAYS_EFFECT_INDEX]);
                                 mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] = 0;
                             }
-                            if (itemEffect > 0) {
-                                updateEffectItemParams(effect, itemEffect);
-                            }
                             mItemsArray[ITEM_ARRAYS_EFFECT_INDEX] = itemEffect;
+
+                            if (effect.getType() == Effect.EFFECT_TYPE_BG_SEG_GREEN) {
+                                mBgSegGreenItem = itemEffect;
+                                setKeyColor(mKeyColor);
+                                setChromaThres(mChromaThres);
+                                setChromaThresT(mChromaThresT);
+                                setAlphaL(mAlphaL);
+                                setTransform(mStartX, mStartY, mEndX, mEndY);
+                                if (mVideoDecoder == null) {
+                                    mVideoDecoder = new VideoDecoder();
+                                    boolean external = mExternalInputType == EXTERNAL_INPUT_TYPE_IMAGE ||
+                                            mExternalInputType == EXTERNAL_INPUT_TYPE_VIDEO;
+                                    mVideoDecoder.create(EGL14.eglGetCurrentContext(), !external && mCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT);
+                                    mVideoDecoder.setOnReadPixelListener(mOnReadPixelListener);
+                                }
+                                setTexBgSource(mSourcePath);
+                                setRunBgSegGreen(mRunBgSegGreen);
+                            }
+                            updateEffectItemParams(effect, itemEffect);
                         }
                     });
                 }

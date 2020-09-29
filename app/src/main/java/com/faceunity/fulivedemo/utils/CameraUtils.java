@@ -90,31 +90,6 @@ public final class CameraUtils {
     }
 
     /**
-     * 获取前置相机的方向
-     *
-     * @return
-     */
-    public static int getFrontCameraOrientation() {
-        Camera.CameraInfo info = new Camera.CameraInfo();
-        int cameraId = -1;
-        int numCameras = Camera.getNumberOfCameras();
-        for (int i = 0; i < numCameras; i++) {
-            Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                cameraId = i;
-                break;
-            }
-        }
-        if (cameraId < 0) {
-            // no front camera, regard it as back camera
-            return 90;
-        } else {
-            return info.orientation;
-        }
-    }
-
-
-    /**
      * 获取相机方向
      *
      * @param cameraFacing

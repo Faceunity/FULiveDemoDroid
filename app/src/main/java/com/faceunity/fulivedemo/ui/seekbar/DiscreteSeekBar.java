@@ -787,7 +787,6 @@ public class DiscreteSeekBar extends View {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        //TODO: Should we reverse the keys for RTL? The framework's SeekBar does NOT....
         boolean handled = false;
         if (isEnabled()) {
             int progress = getAnimatedProgress();
