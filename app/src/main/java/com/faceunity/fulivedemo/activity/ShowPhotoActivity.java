@@ -3,6 +3,7 @@ package com.faceunity.fulivedemo.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -13,6 +14,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -30,13 +32,17 @@ import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.renderer.BaseCameraRenderer;
 import com.faceunity.fulivedemo.renderer.PhotoRenderer;
+import com.faceunity.fulivedemo.ui.ColorPickerView;
+import com.faceunity.fulivedemo.ui.GestureTouchHandler;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
-import com.faceunity.fulivedemo.ui.control.AnimControlView;
+import com.faceunity.fulivedemo.ui.control.AnimojiControlView;
 import com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyControlView;
 import com.faceunity.fulivedemo.ui.control.BeautyHairControlView;
+import com.faceunity.fulivedemo.ui.control.BgSegGreenControlView;
 import com.faceunity.fulivedemo.ui.control.LightMakeupControlView;
 import com.faceunity.fulivedemo.ui.control.MakeupControlView;
+import com.faceunity.fulivedemo.utils.ColorPickerTouchEvent;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.gles.core.GlUtil;
@@ -47,7 +53,7 @@ import com.faceunity.utils.MiscUtil;
 import java.io.File;
 
 public class ShowPhotoActivity extends AppCompatActivity implements PhotoRenderer.OnRendererStatusListener,
-        FURenderer.OnTrackingStatusChangedListener, SensorEventListener {
+        FURenderer.OnTrackingStatusChangedListener, SensorEventListener, ColorPickerTouchEvent.OnTouchEventListener {
     public final static String TAG = ShowPhotoActivity.class.getSimpleName();
 
     private PhotoRenderer mPhotoRenderer;
@@ -57,8 +63,6 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     private BeautyControlView mBeautyControlView;
     private FURenderer mFURenderer;
     private float[] mLandmarksData;
-    private boolean mIsBeautyFace;
-    private boolean mIsMakeup;
 
     private volatile boolean mTakePicing = false;
     private volatile boolean mIsNeedTakePic = false;
@@ -66,72 +70,12 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     private MakeupControlView mMakeupControlView;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mPhotoRenderer.onCreate();
-        if (mBeautyControlView != null) {
-            mBeautyControlView.onResume();
-        }
-        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
-    @Override
-    public void onSurfaceChanged(int viewWidth, int viewHeight) {
-    }
-
-    @Override
-    public int onDrawFrame(int photoTexId, int photoWidth, int photoHeight) {
-        int fuTexId = mFURenderer.onDrawFrame(photoTexId, photoWidth, photoHeight);
-        checkPic(fuTexId, photoWidth, photoHeight);
-        if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS) {
-            mFURenderer.getLandmarksData(0, mLandmarksData);
-            mPhotoRenderer.setLandmarksData(mLandmarksData);
-        }
-        return fuTexId;
-    }
-
-    @Override
-    public void onSurfaceDestroy() {
-        mFURenderer.onSurfaceDestroyed();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mPhotoRenderer.onDestroy();
-        mSensorManager.unregisterListener(this);
-    }
-
-    @Override
-    public void onSurfaceCreated() {
-        mFURenderer.onSurfaceCreated();
-        if (mMakeupControlView != null) {
-            mMakeupControlView.selectDefault();
-        }
-    }
-
-    @Override
-    public void onTrackStatusChanged(int type, int status) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mTvTrackStatus.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
-                if (status <= 0) {
-                    int strId = 0;
-                    if (type == FURenderer.TRACK_TYPE_FACE) {
-                        strId = R.string.fu_base_is_tracking_text;
-                    } else if (type == FURenderer.TRACK_TYPE_HUMAN) {
-                        strId = R.string.toast_not_detect_body;
-                    }
-                    if (strId > 0) {
-                        mTvTrackStatus.setText(strId);
-                    }
-                }
-            }
-        });
-    }
+    private GLSurfaceView mGlSurfaceView;
+    private ColorPickerTouchEvent mColorPickerTouchEvent;
+    private int mPickedColor;
+    private boolean mIsShowColorPicker;
+    private BgSegGreenControlView mBgSegGreenControlView;
+    private GestureTouchHandler mGestureTouchHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,20 +95,44 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         }
         String filePath = MiscUtil.getFileAbsolutePath(this, uri);
 
-        GLSurfaceView glSurfaceView = (android.opengl.GLSurfaceView) findViewById(R.id.show_gl_surface);
-        glSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGLVersion(this));
-        mPhotoRenderer = new PhotoRenderer(filePath, glSurfaceView, this);
-        glSurfaceView.setRenderer(mPhotoRenderer);
-        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        boolean isBgSegGreen = BgSegGreenActivity.TAG.equals(selectDataType);
+        mGlSurfaceView = findViewById(R.id.show_gl_surface);
+        mGlSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGlVersion(this));
+        mPhotoRenderer = new PhotoRenderer(filePath, mGlSurfaceView, this);
+        mGlSurfaceView.setRenderer(mPhotoRenderer);
+        mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        if (isBgSegGreen) {
+            mGlSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return !mIsShowColorPicker && mGestureTouchHandler.onTouchEvent(event);
+                }
+            });
+            mGestureTouchHandler = new GestureTouchHandler(this);
+            mGestureTouchHandler.setOnTouchResultListener(new GestureTouchHandler.OnTouchResultListener() {
 
-        //初始化FU相关 authpack 为证书文件
-        mIsBeautyFace = FUBeautyActivity.TAG.equals(selectDataType);
-        mIsMakeup = FUMakeupActivity.TAG.equals(selectDataType);
+                @Override
+                public void onTransform(float x1, float y1, float x2, float y2) {
+                    mFURenderer.setTransform(x1, y1, x2, y2);
+                }
+
+                @Override
+                public void onClick() {
+                    if (mBgSegGreenControlView.isShown()) {
+                        mBgSegGreenControlView.hideBottomLayoutAnimator();
+                    }
+                }
+            });
+        }
+
+        boolean isBeautyFace = FUBeautyActivity.TAG.equals(selectDataType);
+        boolean isMakeup = FUMakeupActivity.TAG.equals(selectDataType);
         boolean isLightMakeup = LightMakeupActivity.TAG.equals(selectDataType);
         boolean isBodySlim = BeautifyBodyActivity.TAG.equals(selectDataType);
         boolean isHairSeg = FUHairActivity.TAG.equals(selectDataType);
         boolean isPortraitSegment = selectEffectType == Effect.EFFECT_TYPE_PORTRAIT_SEGMENT;
         boolean loadAiHumanProcessor = isBodySlim || isPortraitSegment;
+        boolean isGestureRecognition = selectEffectType == Effect.EFFECT_TYPE_GESTURE_RECOGNITION;
         mFURenderer = new FURenderer
                 .Builder(this)
                 .maxFaces(loadAiHumanProcessor ? 1 : 4)
@@ -174,20 +142,23 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                 .setLoadAiHumanProcessor(loadAiHumanProcessor)
                 .setNeedBeautyHair(isHairSeg)
                 .setNeedBodySlim(isBodySlim)
+                .setLoadAiGesture(isGestureRecognition)
+                .defaultEffect(isBgSegGreen ? EffectEnum.BG_SEG_GREEN.effect() : null)
                 .setNeedFaceBeauty(!isBodySlim)
                 .setCameraFacing(Camera.CameraInfo.CAMERA_FACING_BACK)
                 .setOnTrackingStatusChangedListener(this)
                 .build();
 
-        if (mIsMakeup) {
+        if (isMakeup) {
             mLandmarksData = new float[239 * 2];
         } else {
             mLandmarksData = new float[75 * 2];
         }
         mTvTrackStatus = (TextView) findViewById(R.id.fu_base_is_tracking_text);
+        mTvTrackStatus.setVisibility(View.GONE);
         mEffectDescription = (TextView) findViewById(R.id.fu_base_effect_description);
         mSaveImageView = (ImageView) findViewById(R.id.show_save_btn);
-        if (mIsBeautyFace) {
+        if (isBeautyFace) {
             mBeautyControlView = (BeautyControlView) findViewById(R.id.fu_beauty_control);
             mBeautyControlView.setVisibility(View.VISIBLE);
             mBeautyControlView.setOnFUControlListener(mFURenderer);
@@ -197,13 +168,13 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                     mSaveImageView.setAlpha(1 - showRate);
                 }
             });
-            glSurfaceView.setOnClickListener(new OnMultiClickListener() {
+            mGlSurfaceView.setOnClickListener(new OnMultiClickListener() {
                 @Override
                 protected void onMultiClick(View v) {
                     mBeautyControlView.hideBottomLayoutAnimator();
                 }
             });
-        } else if (mIsMakeup) {
+        } else if (isMakeup) {
             mMakeupControlView = findViewById(R.id.fu_makeup_control);
             mMakeupControlView.setVisibility(View.VISIBLE);
             mMakeupControlView.setOnFUControlListener(mFURenderer);
@@ -219,15 +190,57 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                 }
             });
         } else if (FUAnimojiActivity.TAG.equals(selectDataType)) {
-            AnimControlView animControlView = findViewById(R.id.fu_anim_control);
+            AnimojiControlView animControlView = findViewById(R.id.fu_anim_control);
             animControlView.setVisibility(View.VISIBLE);
             animControlView.setOnFUControlListener(mFURenderer);
-            animControlView.setOnBottomAnimatorChangeListener(new AnimControlView.OnBottomAnimatorChangeListener() {
+            animControlView.setOnBottomAnimatorChangeListener(new AnimojiControlView.OnBottomAnimatorChangeListener() {
                 @Override
                 public void onBottomAnimatorChangeListener(float showRate) {
                     mSaveImageView.setAlpha(1 - showRate);
                 }
             });
+        } else if (isBgSegGreen) {
+            final ConstraintLayout constraintLayout = (ConstraintLayout) mGlSurfaceView.getParent();
+            mBgSegGreenControlView = findViewById(R.id.fu_bg_seg_green);
+            mBgSegGreenControlView.setVisibility(View.VISIBLE);
+            mBgSegGreenControlView.setOnFUControlListener(mFURenderer);
+            mBgSegGreenControlView.setOnBottomAnimatorChangeListener(new BgSegGreenControlView.OnBottomAnimatorChangeListener() {
+                @Override
+                public void onBottomAnimatorChangeListener(float showRate) {
+                    mSaveImageView.setAlpha(1 - showRate);
+                }
+            });
+            mBgSegGreenControlView.setOnColorPickerStateChangedListener(new BgSegGreenControlView.OnColorPickerStateChangedListener() {
+                @Override
+                public void onColorPickerStateChanged(boolean selected, int color) {
+                    mFURenderer.setRunBgSegGreen(!selected);
+                    mIsShowColorPicker = selected;
+                    ColorPickerView colorPickerView = mColorPickerTouchEvent.getColorPickerView();
+                    colorPickerView.setPickedColor(color);
+                    colorPickerView.setVisibility(selected ? View.VISIBLE : View.GONE);
+                    if (selected) {
+                        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) colorPickerView.getLayoutParams();
+                        layoutParams.leftMargin = (constraintLayout.getWidth() - colorPickerView.getWidth()) / 2;
+                        layoutParams.topMargin = (constraintLayout.getHeight() - colorPickerView.getHeight()) / 2;
+                        colorPickerView.setLayoutParams(layoutParams);
+                    }
+                }
+            });
+            mColorPickerTouchEvent = new ColorPickerTouchEvent(this);
+            constraintLayout.post(new Runnable() {
+                @Override
+                public void run() {
+                    ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                    layoutParams.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID;
+                    layoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
+                    layoutParams.leftMargin = constraintLayout.getWidth() / 2;
+                    layoutParams.topMargin = constraintLayout.getHeight() / 2;
+                    ColorPickerView colorPickerView = mColorPickerTouchEvent.getColorPickerView();
+                    constraintLayout.addView(colorPickerView, layoutParams);
+                    colorPickerView.setVisibility(View.GONE);
+                }
+            });
+            mSaveImageView.setAlpha(0f);
         } else if (isHairSeg) {
             BeautyHairControlView beautyHairControlView = findViewById(R.id.fu_beauty_hair);
             beautyHairControlView.setVisibility(View.VISIBLE);
@@ -244,6 +257,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
             RecyclerView effectRecyclerView = findViewById(R.id.fu_effect_recycler);
             effectRecyclerView.setVisibility(View.VISIBLE);
             effectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            effectRecyclerView.setHasFixedSize(true);
             EffectRecyclerAdapter effectRecyclerAdapter;
             effectRecyclerView.setAdapter(effectRecyclerAdapter = new EffectRecyclerAdapter(this, selectEffectType, mFURenderer));
             ((SimpleItemAnimator) effectRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -265,8 +279,90 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
         }
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mSaveImageView.getLayoutParams();
-        params.bottomMargin = (int) getResources().getDimension(mIsBeautyFace ? R.dimen.x151 : R.dimen.x199);
+        params.bottomMargin = (int) getResources().getDimension(isBeautyFace ? R.dimen.x151 : R.dimen.x199);
         mSaveImageView.setLayoutParams(params);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPhotoRenderer.onCreate();
+        if (mBeautyControlView != null) {
+            mBeautyControlView.onResume();
+        }
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mPhotoRenderer.onDestroy();
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (super.onTouchEvent(event)) {
+            return true;
+        }
+        return mIsShowColorPicker && mColorPickerTouchEvent.handleTouchEvent(event, mGlSurfaceView,
+                mPhotoRenderer.getViewWidth(), mPhotoRenderer.getViewHeight(),
+                mPhotoRenderer.getTexMatrix(), mPhotoRenderer.getMvpMatrix(),
+                mPhotoRenderer.get2dTexture(), this);
+    }
+
+    @Override
+    public void onSurfaceCreated() {
+        mFURenderer.onSurfaceCreated();
+        if (mMakeupControlView != null) {
+            mMakeupControlView.selectDefault();
+        }
+    }
+
+    @Override
+    public void onSurfaceChanged(int viewWidth, int viewHeight) {
+        if (mGestureTouchHandler != null) {
+            mGestureTouchHandler.setViewSize(viewWidth, viewHeight);
+        }
+    }
+
+    @Override
+    public int onDrawFrame(int photoTexId, int photoWidth, int photoHeight) {
+        int fuTexId = mFURenderer.onDrawFrame(photoTexId, photoWidth, photoHeight);
+        checkPic(fuTexId, photoWidth, photoHeight);
+        if (BaseCameraRenderer.ENABLE_DRAW_LANDMARKS) {
+            mFURenderer.getLandmarksData(0, mLandmarksData);
+            mPhotoRenderer.setLandmarksData(mLandmarksData);
+        }
+        return fuTexId;
+    }
+
+    @Override
+    public void onSurfaceDestroy() {
+        mFURenderer.onSurfaceDestroyed();
+    }
+
+    @Override
+    public void onTrackStatusChanged(int type, int status) {
+        if (mBgSegGreenControlView == null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mTvTrackStatus.setVisibility(status > 0 ? View.INVISIBLE : View.VISIBLE);
+                    if (status <= 0) {
+                        int strId = 0;
+                        if (type == FURenderer.TRACK_TYPE_FACE) {
+                            strId = R.string.fu_base_is_tracking_text;
+                        } else if (type == FURenderer.TRACK_TYPE_HUMAN) {
+                            strId = R.string.toast_not_detect_body;
+                        }
+                        if (strId > 0) {
+                            mTvTrackStatus.setText(strId);
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -368,4 +464,27 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+    @Override
+    public void onReadRgba(int r, int g, int b, int a) {
+        int argb = Color.argb(a, r, g, b);
+        mBgSegGreenControlView.postSetPalettePickColor(argb);
+        mPickedColor = argb;
+    }
+
+    @Override
+    public void onActionUp() {
+        mFURenderer.setRunBgSegGreen(true);
+        int pickedColor = mPickedColor;
+        setKeyColor(pickedColor);
+        mIsShowColorPicker = false;
+    }
+
+    private void setKeyColor(int color) {
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        mFURenderer.setKeyColor(new double[]{red, green, blue});
+    }
+
 }

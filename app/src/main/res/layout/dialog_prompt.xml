@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/x560"
+    android:layout_height="@dimen/x274"
+    android:background="@drawable/bg_confirm_dialog">
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/x176"
+        android:gravity="center"
+        android:layout_marginLeft="@dimen/x40"
+        android:layout_marginRight="@dimen/x40"
+        android:text="@string/dialog_guide_bg_seg_green"
+        android:textColor="@color/btn_live_photo_text"
+        android:textSize="@dimen/x30"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_confirm"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/x97"
+        android:gravity="center"
+        android:text="@string/dialog_i_know"
+        android:textColor="@color/main_color"
+        android:textSize="@dimen/x32"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <View
+        android:layout_width="@dimen/x530"
+        android:layout_height="@dimen/x1"
+        android:layout_marginTop="@dimen/x176"
+        android:background="@color/divider_line_color2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

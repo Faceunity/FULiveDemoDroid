@@ -3,10 +3,10 @@ package com.faceunity.fulivedemo.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -119,7 +119,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
         mTemplatePath = getIntent().getStringExtra(TEMPLATE_PATH);
         Log.i(TAG, "onCreate: photo:" + photoPath + ", template:" + mTemplatePath);
         mGlSurfaceView = findViewById(R.id.gl_surface);
-        mGlSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGLVersion(this));
+        mGlSurfaceView.setEGLContextClientVersion(GlUtil.getSupportGlVersion(this));
         mPosterPhotoRenderer = new PosterPhotoRenderer(photoPath, mGlSurfaceView, this);
         mGlSurfaceView.setRenderer(mPosterPhotoRenderer);
         mGlSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
@@ -162,14 +162,14 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
         Glide.with(this).load(R.drawable.loading_gif).into(ivLoading);
         showLoadingView(true);
 
-        int frontCameraOrientation = CameraUtils.getFrontCameraOrientation();
+        int cameraOrientation = CameraUtils.getCameraOrientation(Camera.CameraInfo.CAMERA_FACING_FRONT);
         mFURenderer = new FURenderer
                 .Builder(this)
                 .setNeedFaceBeauty(false)
                 .maxFaces(4)
                 .setExternalInputType(FURenderer.EXTERNAL_INPUT_TYPE_IMAGE)
                 .setNeedPosterFace(true)
-                .inputImageOrientation(frontCameraOrientation)
+                .inputImageOrientation(cameraOrientation)
                 .build();
     }
 
@@ -211,6 +211,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
     public void onSurfaceCreated() {
         mFURenderer.onSurfaceCreated();
         mFURenderer.setBeautificationOn(false);
+        mFURenderer.setFaceProcessorDetectMode(FURenderer.FACE_PROCESSOR_DETECT_MODE_IMAGE);
         mIsFirstDraw = true;
         mIsNeedReInput = true;
         mIsTrackedTemplate = false;
@@ -290,6 +291,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
 
     @Override
     public void onSurfaceDestroy() {
+        mFURenderer.setFaceProcessorDetectMode(FURenderer.FACE_PROCESSOR_DETECT_MODE_VIDEO);
         mFURenderer.onSurfaceDestroyed();
         mTexId = 0;
         mIsTrackedTemplate = false;
@@ -438,12 +440,7 @@ public class PosterChangeFaceActivity extends AppCompatActivity implements Poste
             @Override
             public void run() {
                 ToastUtil.makeFineToast(PosterChangeFaceActivity.this, error, R.drawable.icon_fail).show();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        PosterChangeFaceActivity.this.onBackPressed();
-                    }
-                }, 1500);
+                PosterChangeFaceActivity.this.onBackPressed();
             }
         });
     }

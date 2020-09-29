@@ -924,3 +924,14 @@ fuItemGetParams(1, "{\"name\":\"get_bundle_type\", \"bundle_id\":3}");
 //设置是否开启低质量灯光的渲染，value = 1.0代表开启，value=0.0代表不开启
 fuItemSetParamd(1, "low_quality_lighting", 1.0);
 ```
+##### 更新贴图（从RGBA Buffer创建贴图）
+```C
+//参数名为json结构
+{
+    "name":"update_tex_from_data", //字符串， 固定
+    "UUID":0, //整数，目标道具的handle id，如果设置UUID = 0，则表示目标道具是头
+    "dc_name":"eyeL", //字符串，目标mesh的名字
+}
+
+fuCreateTexForItem(1, "{\"name\":\"update_tex_from_data\", \"UUID\":0, \"dc_name\":\"eyel\"}", __pointer data, int width, int height);
+```

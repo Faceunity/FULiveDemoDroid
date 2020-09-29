@@ -105,6 +105,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(TAG, "onSurfaceCreated. thread:" + Thread.currentThread().getName());
+        GlUtil.logVersionInfo();
         mProgramTexture2d = new ProgramTexture2d();
         mProgramTextureOES = new ProgramTextureOES();
         mProgramLandmarks = new ProgramLandmarks();
@@ -124,7 +125,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
         if (mViewWidth != width || mViewHeight != height) {
-            mMvpMatrix = GlUtil.changeMVPMatrixCrop(width, height, mCameraHeight, mCameraWidth);
+            mMvpMatrix = GlUtil.changeMvpMatrixCrop(width, height, mCameraHeight, mCameraWidth);
         }
         Log.d(TAG, "onSurfaceChanged. viewWidth:" + width + ", viewHeight:" + height
                 + ". cameraOrientation:" + mCameraOrientation + ", cameraWidth:" + mCameraWidth
@@ -141,8 +142,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         if (mProgramTexture2d == null || mSurfaceTexture == null) {
             return;
         }
-
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_STENCIL_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         if (mShotBitmap == null) {
             try {
                 mSurfaceTexture.updateTexImage();
@@ -287,7 +287,6 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
                 startPreview();
                 mIsSwitchCamera = false;
                 mIsStopPreview = false;
-                mOnRendererStatusListener.onCameraChanged(mCameraFacing, mCameraOrientation);
             }
         });
     }
@@ -299,7 +298,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
         mGlSurfaceView.queueEvent(new Runnable() {
             @Override
             public void run() {
-                mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+                mMvpMatrix = GlUtil.changeMvpMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
                 deleteBitmapTexId();
             }
         });
@@ -319,7 +318,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
                 deleteBitmapTexId();
                 mBitmap2dTexId = GlUtil.createImageTexture(bitmap);
                 m2DTexId = mBitmap2dTexId;
-                float[] mvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, bitmap.getWidth(), bitmap.getHeight());
+                float[] mvpMatrix = GlUtil.changeMvpMatrixCrop(mViewWidth, mViewHeight, bitmap.getWidth(), bitmap.getHeight());
                 float[] scaleMatrix = Arrays.copyOf(GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX.length);
                 Matrix.scaleM(scaleMatrix, 0, -1F, 1F, 1F);
                 Matrix.multiplyMM(mMvpMatrix, 0, scaleMatrix, 0, mvpMatrix, 0);
@@ -337,9 +336,21 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
 
     private void deleteBitmapTexId() {
         if (mBitmap2dTexId > 0) {
-            GlUtil.deleteTextureId(new int[]{mBitmap2dTexId});
+            GlUtil.deleteTextures(new int[]{mBitmap2dTexId});
             mBitmap2dTexId = 0;
         }
+    }
+
+    public float[] getTexMatrix() {
+        return mTexMatrix;
+    }
+
+    public float[] getMvpMatrix() {
+        return mMvpMatrix;
+    }
+
+    public int get2dTexture() {
+        return m2DTexId;
     }
 
     public int getCameraWidth() {
@@ -356,6 +367,10 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
 
     public int getViewHeight() {
         return mViewHeight;
+    }
+
+    public int getCameraFacing() {
+        return mCameraFacing;
     }
 
     public void handleFocus(float rawX, float rawY, int areaSize) {
@@ -415,6 +430,7 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
             mSurfaceTexture.release();
             mSurfaceTexture = null;
         }
+        m2DTexId = -1;
 
         mOnRendererStatusListener.onSurfaceDestroy();
     }

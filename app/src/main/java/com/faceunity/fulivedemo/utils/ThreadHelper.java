@@ -15,9 +15,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 多线程工具类
+ * 线程工具类
  *
- * @author Richie
+ * @author Richie on 2020.07.07
  */
 public final class ThreadHelper {
     private final Handler mMainHandler;
@@ -44,7 +44,7 @@ public final class ThreadHelper {
     }
 
     public static ThreadHelper getInstance() {
-        return ThreadHelperHolder.instance;
+        return ThreadHelperHolder.INSTANCE;
     }
 
     private synchronized void ensureSubHandler() {
@@ -301,7 +301,7 @@ public final class ThreadHelper {
     }
 
     private static class ThreadHelperHolder {
-        private static final ThreadHelper instance = new ThreadHelper();
+        private static final ThreadHelper INSTANCE = new ThreadHelper();
     }
 
 }

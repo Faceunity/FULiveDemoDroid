@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_bsg_picked_color"
+        android:layout_width="@dimen/x74"
+        android:layout_height="@dimen/x74"
+        android:src="@drawable/shape_bsg_pick_color" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_bsg_anchor"
+        android:layout_width="@dimen/x72"
+        android:layout_height="@dimen/x60"
+        android:layout_marginTop="@dimen/x74">
+
+        <ImageView
+            android:id="@+id/iv_bsg_anchor_top"
+            android:layout_width="@dimen/x4"
+            android:layout_height="@dimen/x8"
+            android:layout_marginTop="@dimen/x18"
+            android:src="@drawable/shape_bsg_anchor"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:layout_width="@dimen/x4"
+            android:layout_height="@dimen/x8"
+            android:layout_marginTop="@dimen/x8"
+            android:src="@drawable/shape_bsg_anchor"
+            app:layout_constraintLeft_toLeftOf="@id/iv_bsg_anchor_top"
+            app:layout_constraintRight_toRightOf="@id/iv_bsg_anchor_top"
+            app:layout_constraintTop_toBottomOf="@id/iv_bsg_anchor_top" />
+
+        <ImageView
+            android:id="@+id/iv_bsg_anchor_left"
+            android:layout_width="@dimen/x8"
+            android:layout_height="@dimen/x4"
+            android:layout_marginTop="@dimen/x2"
+            android:layout_marginRight="@dimen/x2"
+            android:src="@drawable/shape_bsg_anchor"
+            app:layout_constraintRight_toLeftOf="@id/iv_bsg_anchor_top"
+            app:layout_constraintTop_toBottomOf="@id/iv_bsg_anchor_top" />
+
+        <ImageView
+            android:layout_width="@dimen/x8"
+            android:layout_height="@dimen/x4"
+            android:layout_marginLeft="@dimen/x8"
+            android:src="@drawable/shape_bsg_anchor"
+            app:layout_constraintLeft_toRightOf="@id/iv_bsg_anchor_left"
+            app:layout_constraintTop_toTopOf="@id/iv_bsg_anchor_left" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</merge>

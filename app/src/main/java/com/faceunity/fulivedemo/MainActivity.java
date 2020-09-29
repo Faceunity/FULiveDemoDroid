@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import com.faceunity.FURenderer;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.activity.BeautifyBodyActivity;
+import com.faceunity.fulivedemo.activity.BgSegGreenActivity;
 import com.faceunity.fulivedemo.activity.FUAnimojiActivity;
 import com.faceunity.fulivedemo.activity.FUBeautyActivity;
 import com.faceunity.fulivedemo.activity.FUEffectActivity;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         ScreenUtils.fullScreen(this);
         setContentView(R.layout.activity_main);
-        PermissionUtil.checkPermission(this);
+        PermissionUtil.checkPermissions(this);
 
         RecyclerView recyclerView = findViewById(R.id.rv_main_list);
         ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_action, R.string.home_function_name_action_recognition, "2-65536", Effect.EFFECT_TYPE_ACTION_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_background, R.string.home_function_name_portrait_segment, "258-0", Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.main_gesture, R.string.home_function_name_gesture, "514-0", Effect.EFFECT_TYPE_GESTURE_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_green_curtain, R.string.home_function_name_bg_seg_green, "0-512", Effect.EFFECT_TYPE_BG_SEG_GREEN, ModuleEntity.UI_TYPE_MODULE));
         return Collections.unmodifiableList(moduleEntities);
     }
 
@@ -227,6 +229,10 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra(FUEffectActivity.EFFECT_TYPE, moduleEntity.effectType);
                     }
                     break;
+                    case R.string.home_function_name_bg_seg_green: {
+                        intent = new Intent(MainActivity.this, BgSegGreenActivity.class);
+                    }
+                    break;
                     default:
                 }
                 if (intent != null) {
@@ -289,18 +295,6 @@ public class MainActivity extends AppCompatActivity {
             this.authCode = authCode;
             this.effectType = effectType;
             this.uiType = uiType;
-        }
-
-        @Override
-        public String toString() {
-            return "ModuleEntity{" +
-                    "iconId=" + iconId +
-                    ", nameId=" + nameId +
-                    ", authCode='" + authCode + '\'' +
-                    ", effectType=" + effectType +
-                    ", uiType=" + uiType +
-                    ", enable=" + enable +
-                    '}';
         }
     }
 

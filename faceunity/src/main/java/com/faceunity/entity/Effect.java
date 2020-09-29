@@ -25,6 +25,7 @@ public class Effect {
     public static final int EFFECT_TYPE_HAIR_GRADIENT = 12;
     public static final int EFFECT_TYPE_PTA = 13;
     public static final int EFFECT_TYPE_BIG_HEAD = 14;
+    public static final int EFFECT_TYPE_BG_SEG_GREEN = 15;
 
     private String bundleName;
     private int iconId;

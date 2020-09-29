@@ -17,7 +17,7 @@ public final class RenderHandler implements Runnable {
     private static final boolean DEBUG = false;
 
     private final Object mLock = new Object();
-    private EGLContext mShard_context;
+    private EGLContext mShardContext;
     private Surface mSurface;
     private int mTexId;
     private float[] mtx = new float[16];
@@ -31,7 +31,7 @@ public final class RenderHandler implements Runnable {
     private EglCore mEglCore;
     private Program mFullScreen;
 
-    public static final RenderHandler createHandler(final String name) {
+    public static RenderHandler createHandler(final String name) {
         if (DEBUG)
             Log.v(TAG, "createHandler:");
         final RenderHandler handler = new RenderHandler();
@@ -45,14 +45,14 @@ public final class RenderHandler implements Runnable {
         return handler;
     }
 
-    public final void setEglContext(final EGLContext shared_context, final Surface surface, final int tex_id) {
+    public final void setEglContext(final EGLContext sharedContext, final Surface surface, final int texId) {
         if (DEBUG)
             Log.i(TAG, "setEglContext:");
         synchronized (mLock) {
             if (mRequestRelease)
                 return;
-            mShard_context = shared_context;
-            mTexId = tex_id;
+            mShardContext = sharedContext;
+            mTexId = texId;
             mSurface = surface;
             mRequestSetEglContext = true;
             Matrix.setIdentityM(mtx, 0);
@@ -65,29 +65,21 @@ public final class RenderHandler implements Runnable {
         }
     }
 
-    public final void draw(final int tex_id) {
-        draw(tex_id, mtx, mvp);
+    public final void draw(final int texId) {
+        draw(texId, mtx, mvp);
     }
 
-    public final void draw(final int tex_id, final float[] tex_matrix) {
-        draw(tex_id, tex_matrix, mvp);
+    public final void draw(final int texId, final float[] texMatrix) {
+        draw(texId, texMatrix, mvp);
     }
 
-    public final void draw(final int tex_id, final float[] tex_matrix, final float[] mvp_matrix) {
+    public final void draw(final int texId, final float[] texMatrix, final float[] mvpMatrix) {
         synchronized (mLock) {
             if (mRequestRelease)
                 return;
-            mTexId = tex_id;
-            if ((tex_matrix != null) && (tex_matrix.length == 16)) {
-                System.arraycopy(tex_matrix, 0, mtx, 0, 16);
-            } else {
-                Matrix.setIdentityM(mtx, 0);
-            }
-            if ((mvp_matrix != null) && (mvp_matrix.length == 16)) {
-                System.arraycopy(mvp_matrix, 0, mvp, 0, 16);
-            } else {
-                Matrix.setIdentityM(mvp, 0);
-            }
+            mTexId = texId;
+            System.arraycopy(texMatrix, 0, mtx, 0, texMatrix.length);
+            System.arraycopy(mvpMatrix, 0, mvp, 0, mvpMatrix.length);
             mRequestDraw++;
             mLock.notifyAll();
 /*			try {
@@ -150,7 +142,7 @@ public final class RenderHandler implements Runnable {
                     mInputWindowSurface.makeCurrent();
                     // clear screen with yellow color so that you can see rendering rectangle
                     GLES20.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+                    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
                     mFullScreen.drawFrame(mTexId, mtx, mvp);
                     mInputWindowSurface.swapBuffers();
                 }
@@ -173,11 +165,11 @@ public final class RenderHandler implements Runnable {
             Log.i(TAG, "RenderHandler thread finished:");
     }
 
-    private final void internalPrepare() {
+    private void internalPrepare() {
         if (DEBUG)
             Log.i(TAG, "internalPrepare:");
         internalRelease();
-        mEglCore = new EglCore(mShard_context, EglCore.FLAG_RECORDABLE);
+        mEglCore = new EglCore(mShardContext, EglCore.FLAG_RECORDABLE);
         mInputWindowSurface = new WindowSurface(mEglCore, mSurface, true);
         mInputWindowSurface.makeCurrent();
         mFullScreen = new ProgramTexture2d();
@@ -185,7 +177,7 @@ public final class RenderHandler implements Runnable {
         mLock.notifyAll();
     }
 
-    private final void internalRelease() {
+    private void internalRelease() {
         if (DEBUG)
             Log.i(TAG, "internalRelease:");
         if (mInputWindowSurface != null) {

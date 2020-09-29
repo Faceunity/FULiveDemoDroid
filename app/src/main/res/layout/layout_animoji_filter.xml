@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/x266"
     android:layout_gravity="bottom"
-    android:background="#BD050F14">
+    android:background="@color/primary_list">
 
     <com.faceunity.fulivedemo.ui.CheckGroup
         android:id="@+id/rg_anim"

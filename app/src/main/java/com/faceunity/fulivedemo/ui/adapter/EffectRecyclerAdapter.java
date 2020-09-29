@@ -77,7 +77,7 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
         if (mPositionSelect == position) {
             holder.effectImg.setBackgroundResource(R.drawable.effect_select);
         } else {
-            holder.effectImg.setBackgroundResource(0);
+            holder.effectImg.setBackgroundResource(R.color.transparent);
         }
     }
 

@@ -21,7 +21,7 @@ import com.faceunity.fulivedemo.utils.OnMultiClickListener;
  * @author Richie on 2018.08.28
  */
 public class NoTrackFaceDialogFragment extends BaseDialogFragment {
-    public static final String MESSAGE = "message";
+    private static final String MESSAGE = "message";
     private OnDismissListener mOnDismissListener;
 
     public static NoTrackFaceDialogFragment newInstance(@StringRes int res) {

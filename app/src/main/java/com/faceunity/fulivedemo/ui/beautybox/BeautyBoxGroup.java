@@ -14,7 +14,7 @@ import androidx.annotation.IdRes;
  */
 public class BeautyBoxGroup extends LinearLayout {
     // holds the checked id; the selection is empty by default
-    private int mCheckedId = -1;
+    private int mCheckedId = View.NO_ID;
     // tracks children radio buttons checked state
     private BaseBeautyBox.OnCheckedChangeListener mChildOnCheckedChangeListener;
     // when true, mOnCheckedChangeListener discards events

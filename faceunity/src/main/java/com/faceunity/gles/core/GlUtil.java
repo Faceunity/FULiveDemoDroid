@@ -29,6 +29,7 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 
 /**
  * Some OpenGL utility functions.
@@ -217,14 +218,6 @@ public abstract class GlUtil {
         return fb;
     }
 
-    public static float[] changeMVPMatrixCrop(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
-        float scale = viewWidth * textureHeight / viewHeight / textureWidth;
-        float[] mvp = new float[16];
-        Matrix.setIdentityM(mvp, 0);
-        Matrix.scaleM(mvp, 0, scale > 1 ? 1F : (1F / scale), scale > 1 ? scale : 1F, 1F);
-        return mvp;
-    }
-
     /**
      * Writes GL version info to the log.
      */
@@ -278,18 +271,17 @@ public abstract class GlUtil {
         return texId;
     }
 
-    public static void deleteTextureId(int[] textureId) {
+    public static void deleteTextures(int[] textureId) {
         if (textureId != null && textureId.length > 0) {
             GLES20.glDeleteTextures(textureId.length, textureId, 0);
         }
     }
 
-    public static void createFBO(int[] fboTex, int[] fboId, int width, int height) {
+    public static void createFrameBuffers(int[] fboTex, int[] fboId, int width, int height) {
 //generate fbo id
-        GLES20.glGenFramebuffers(1, fboId, 0);
+        GLES20.glGenFramebuffers(fboId.length, fboId, 0);
 //generate texture
-        GLES20.glGenTextures(1, fboTex, 0);
-
+        GLES20.glGenTextures(fboTex.length, fboTex, 0);
 //Bind Frame buffer
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId[0]);
 //Bind texture
@@ -307,31 +299,22 @@ public abstract class GlUtil {
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
     }
 
-    public static void deleteFBO(int[] fboId) {
+    public static void deleteFrameBuffers(int[] fboId) {
         if (fboId != null && fboId.length > 0) {
             GLES20.glDeleteFramebuffers(fboId.length, fboId, 0);
         }
     }
 
-    public static float[] changeMVPMatrixCrop(float[] mvpMatrix, float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
+    public static float[] changeMvpMatrixCrop(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
         float scale = viewWidth * textureHeight / viewHeight / textureWidth;
-        // 浮点数近似相等
-        if (Math.abs(scale - 1) < 1e-6f) {
-            return mvpMatrix;
-        } else {
-            float[] mvp = new float[16];
-            float[] tmp = new float[16];
-            Matrix.setIdentityM(tmp, 0);
-            Matrix.scaleM(tmp, 0, scale > 1 ? 1F : (1F / scale), scale > 1 ? scale : 1F, 1F);
-            Matrix.multiplyMM(mvp, 0, tmp, 0, mvpMatrix, 0);
-            return mvp;
-        }
+        float[] mvp = Arrays.copyOf(IDENTITY_MATRIX, IDENTITY_MATRIX.length);
+        Matrix.scaleM(mvp, 0, scale > 1 ? 1F : (1F / scale), scale > 1 ? scale : 1F, 1F);
+        return mvp;
     }
 
-    public static float[] changeMVPMatrixInside(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
+    public static float[] changeMvpMatrixInside(float viewWidth, float viewHeight, float textureWidth, float textureHeight) {
         float scale = viewWidth * textureHeight / viewHeight / textureWidth;
-        float[] mvp = new float[16];
-        Matrix.setIdentityM(mvp, 0);
+        float[] mvp = Arrays.copyOf(IDENTITY_MATRIX, IDENTITY_MATRIX.length);
         Matrix.scaleM(mvp, 0, scale > 1 ? (1F / scale) : 1F, scale > 1 ? 1F : scale, 1F);
         return mvp;
     }
@@ -342,7 +325,7 @@ public abstract class GlUtil {
      * @param context
      * @return
      */
-    public static int getSupportGLVersion(Context context) {
+    public static int getSupportGlVersion(Context context) {
         final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
         int version = configurationInfo.reqGlEsVersion >= 0x30000 ? 3 : 2;

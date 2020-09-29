@@ -227,6 +227,8 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         onChangeFaceBeautyLevel(R.id.beauty_box_eye_enlarge);
         onChangeFaceBeautyLevel(R.id.beauty_box_cheek_thinning);
         onChangeFaceBeautyLevel(R.id.beauty_box_cheek_v);
+        onChangeFaceBeautyLevel(R.id.beauty_box_cheekbones);
+        onChangeFaceBeautyLevel(R.id.beauty_box_lower_jaw);
         onChangeFaceBeautyLevel(R.id.beauty_box_cheek_narrow);
         onChangeFaceBeautyLevel(R.id.beauty_box_cheek_small);
         onChangeFaceBeautyLevel(R.id.beauty_box_intensity_chin);
@@ -244,8 +246,9 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
     private void initViewFilterRecycler() {
         mFilterRecyclerView = findViewById(R.id.filter_recycle_view);
         mFilterRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
-        mFilterRecyclerView.setAdapter(mFilterRecyclerAdapter = new FilterRecyclerAdapter());
+        mFilterRecyclerView.setHasFixedSize(true);
         ((SimpleItemAnimator) mFilterRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        mFilterRecyclerView.setAdapter(mFilterRecyclerAdapter = new FilterRecyclerAdapter());
     }
 
     private void updateViewFilterRecycler() {
@@ -361,6 +364,12 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
                 break;
             case R.id.beauty_box_cheek_narrow:
                 mOnFUControlListener.onCheekNarrowSelected(getValue(viewId));
+                break;
+            case R.id.beauty_box_cheekbones:
+                mOnFUControlListener.setCheekbonesIntensity(getValue(viewId));
+                break;
+            case R.id.beauty_box_lower_jaw:
+                mOnFUControlListener.setLowerJawIntensity(getValue(viewId));
                 break;
             case R.id.beauty_box_cheek_v:
                 mOnFUControlListener.onCheekVSelected(getValue(viewId));
@@ -586,10 +595,10 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
             holder.filterImg.setImageResource(filters.get(position).getIconId());
             holder.filterName.setText(filters.get(position).getNameId());
             if (mFilterPositionSelect == position) {
-                holder.filterImg.setBackgroundResource(R.drawable.control_filter_select);
+                holder.filterImg.setBackgroundResource(R.drawable.shape_filter_selected);
                 holder.filterName.setSelected(true);
             } else {
-                holder.filterImg.setBackgroundResource(0);
+                holder.filterImg.setBackgroundResource(R.color.transparent);
                 holder.filterName.setSelected(false);
             }
             holder.itemView.setOnClickListener(new OnMultiClickListener() {

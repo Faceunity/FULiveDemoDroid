@@ -42,8 +42,8 @@ public class MediaVideoEncoder extends MediaEncoder {
     private Surface mSurface;
 
     private ProgramTexture2d program;
-    private int[] mTextureId;
-    private int[] mFBOId;
+    private int[] mFboTex;
+    private int[] mFboId;
     private int[] mViewPort = new int[4];
     private int mFrameCount;
 
@@ -72,7 +72,7 @@ public class MediaVideoEncoder extends MediaEncoder {
      * @param mimeType
      * @return null if no codec matched
      */
-    protected static final MediaCodecInfo selectVideoCodec(final String mimeType) {
+    private static MediaCodecInfo selectVideoCodec(final String mimeType) {
         if (DEBUG)
             Log.v(TAG, "selectVideoCodec: " + mimeType);
 
@@ -86,10 +86,10 @@ public class MediaVideoEncoder extends MediaEncoder {
             }
             // select first codec that match a specific MIME type and color format
             final String[] types = codecInfo.getSupportedTypes();
-            for (int j = 0; j < types.length; j++) {
-                if (types[j].equalsIgnoreCase(mimeType)) {
+            for (String type : types) {
+                if (type.equalsIgnoreCase(mimeType)) {
                     if (DEBUG)
-                        Log.i(TAG, "codec:" + codecInfo.getName() + ",MIME=" + types[j]);
+                        Log.i(TAG, "codec:" + codecInfo.getName() + ",MIME=" + type);
                     final int format = selectColorFormat(codecInfo, mimeType);
                     if (format > 0) {
                         return codecInfo;
@@ -145,7 +145,7 @@ public class MediaVideoEncoder extends MediaEncoder {
             return false;
         }
         GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mViewPort, 0);
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFBOId[0]);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFboId[0]);
         GLES20.glViewport(cropX, cropY, textureWidth, textureHeight);
         program.drawFrame(texId, texMatrix, mvpMatrix);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
@@ -156,17 +156,17 @@ public class MediaVideoEncoder extends MediaEncoder {
         }
         boolean result;
         if (result = super.frameAvailableSoon()) {
-            mRenderHandler.draw(mTextureId[0], GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX);
+            mRenderHandler.draw(mFboTex[0], GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX);
         }
         return result;
     }
 
-    public void setEglContext(final EGLContext shared_context) {
-        mTextureId = new int[1];
-        mFBOId = new int[1];
-        GlUtil.createFBO(mTextureId, mFBOId, mWidth, mHeight);
+    public void setEglContext(final EGLContext sharedContext) {
+        mFboTex = new int[1];
+        mFboId = new int[1];
+        GlUtil.createFrameBuffers(mFboTex, mFboId, mWidth, mHeight);
         program = new ProgramTexture2d();
-        mRenderHandler.setEglContext(shared_context, mSurface, mTextureId[0]);
+        mRenderHandler.setEglContext(sharedContext, mSurface, mFboTex[0]);
     }
 
     private int calcBitRate() {
@@ -189,8 +189,14 @@ public class MediaVideoEncoder extends MediaEncoder {
             mRenderHandler.release();
             mRenderHandler = null;
         }
-        GlUtil.deleteFBO(mFBOId);
-        GlUtil.deleteTextureId(mTextureId);
+        GlUtil.deleteFrameBuffers(mFboId);
+        if (mFboId != null) {
+            mFboId[0] = -1;
+        }
+        GlUtil.deleteTextures(mFboTex);
+        if (mFboTex != null) {
+            mFboTex[0] = -1;
+        }
         if (program != null) {
             program.release();
             program = null;
@@ -204,7 +210,7 @@ public class MediaVideoEncoder extends MediaEncoder {
      *
      * @return 0 if no colorFormat is matched
      */
-    protected static final int selectColorFormat(final MediaCodecInfo codecInfo, final String mimeType) {
+    private static int selectColorFormat(final MediaCodecInfo codecInfo, final String mimeType) {
         if (DEBUG)
             Log.i(TAG, "selectColorFormat: " + mimeType);
         int result = 0;
@@ -219,8 +225,7 @@ public class MediaVideoEncoder extends MediaEncoder {
         for (int i = 0; i < caps.colorFormats.length; i++) {
             colorFormat = caps.colorFormats[i];
             if (isRecognizedViewoFormat(colorFormat)) {
-                if (result == 0)
-                    result = colorFormat;
+                result = colorFormat;
                 break;
             }
         }
@@ -232,7 +237,7 @@ public class MediaVideoEncoder extends MediaEncoder {
     /**
      * color formats that we can use in this class
      */
-    protected static int[] recognizedFormats;
+    private static int[] recognizedFormats;
 
     static {
         recognizedFormats = new int[]{
@@ -243,7 +248,7 @@ public class MediaVideoEncoder extends MediaEncoder {
         };
     }
 
-    private static final boolean isRecognizedViewoFormat(final int colorFormat) {
+    private static boolean isRecognizedViewoFormat(final int colorFormat) {
         if (DEBUG)
             Log.i(TAG, "isRecognizedViewoFormat:colorFormat=" + colorFormat);
         final int n = recognizedFormats != null ? recognizedFormats.length : 0;

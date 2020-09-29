@@ -4,9 +4,10 @@ import android.app.Application;
 import android.content.Context;
 
 import com.faceunity.FURenderer;
-import com.faceunity.fulivedemo.utils.LogUtils;
 import com.faceunity.fulivedemo.utils.ThreadHelper;
 import com.faceunity.utils.FileUtils;
+
+import java.io.File;
 
 /**
  * Created by tujh on 2018/3/30.
@@ -26,13 +27,10 @@ public class FUApplication extends Application {
         ThreadHelper.getInstance().execute(new Runnable() {
             @Override
             public void run() {
-                // 异步拷贝 assets 资源
+                FileUtils.copyAssetsFileToLocal(sContext, new File(sContext.getExternalFilesDir(null), "bg_seg_green"), "bg_seg_green/sample");
                 FileUtils.copyAssetsChangeFaceTemplate(sContext);
             }
         });
 
-        LogUtils.config(this);
-        LogUtils.i("************* device info *************\n"
-                + LogUtils.retrieveDeviceInfo(this));
     }
 }

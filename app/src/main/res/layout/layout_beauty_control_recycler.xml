@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/x24"
-        android:textColor="@color/colorWhite"
+        android:textColor="@color/beauty_control_bottom_radio_color"
         android:textSize="@dimen/text_size_20"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -21,6 +21,7 @@
     <string name="home_function_name_beauty_body">美体</string>
     <string name="home_function_name_human_avatar">全身 Avatar</string>
     <string name="home_function_name_action_recognition">动作识别</string>
+    <string name="home_function_name_bg_seg_green">绿幕抠像</string>
     <string name="camera_dialog_title">警告</string>
     <string name="sorry_no_permission">抱歉，你所使用的证书权限或SDK不包括该功能。</string>
     <string name="camera_dialog_message">相机权限被禁用或者相机被别的应用占用！</string>
@@ -42,7 +43,6 @@
     <string name="beauty_box_eye_bright">亮眼</string>
     <string name="beauty_box_tooth_whiten">美牙</string>
     <string name="beauty_box_eye_enlarge">大眼</string>
-    <string name="beauty_box_blur_use_mask">BlurUseMask</string>
     <string name="beauty_box_cheek_thinning">瘦脸</string>
     <string name="beauty_box_cheek_v">V脸</string>
     <string name="beauty_box_cheek_narrow">窄脸</string>
@@ -51,6 +51,8 @@
     <string name="beauty_box_intensity_forehead">额头</string>
     <string name="beauty_box_intensity_nose">瘦鼻</string>
     <string name="beauty_box_intensity_mouth">嘴型</string>
+    <string name="beauty_box_cheekbones">瘦颧骨</string>
+    <string name="beauty_box_lower_jaw">瘦下颌骨</string>
     <string name="beauty_radio_skin_beauty">美肤</string>
     <string name="beauty_radio_face_shape">美型</string>
     <string name="beauty_radio_filter">滤镜</string>
@@ -285,5 +287,20 @@
     <string name="resolution_720p">720x1280</string>
     <string name="resolution_1080p">1080x1920</string>
     <string name="select_data_photo_or_video">载入图片或视频</string>
+    <string name="toast_not_detect_gesture">未检测到手势</string>
+
+    <string name="bg_seg_green_graphic">抠像</string>
+    <string name="bg_seg_green_background">背景</string>
+    <string name="bg_seg_green_key_color">关键颜色</string>
+    <string name="bg_seg_green_similarity">相似度</string>
+    <string name="bg_seg_green_smooth">平滑</string>
+    <string name="bg_seg_green_alpha">透明度</string>
+    <string name="bg_seg_green_science">科学</string>
+    <string name="bg_seg_green_beach">沙滩</string>
+    <string name="bg_seg_green_classroom">教室</string>
+    <string name="bg_seg_green_forest">森林</string>
+    <string name="bg_seg_green_ink">水墨</string>
+    <string name="dialog_guide_bg_seg_green">请使用纯色背景拍摄，推荐绿色幕布效果最佳</string>
+    <string name="dialog_i_know">我知道了</string>
 
 </resources>

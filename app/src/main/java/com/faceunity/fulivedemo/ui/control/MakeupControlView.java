@@ -666,7 +666,7 @@ public class MakeupControlView extends FrameLayout {
         protected void handleSelectedState(BaseViewHolder viewHolder, MakeupCombination data, boolean selected) {
             ((TextView) viewHolder.getViewById(R.id.tv_makeup)).setTextColor(selected ?
                     getResources().getColor(R.color.main_color) : getResources().getColor(R.color.colorWhite));
-            viewHolder.setBackground(R.id.iv_makeup, selected ? R.drawable.control_filter_select : 0);
+            viewHolder.setBackground(R.id.iv_makeup, selected ? R.drawable.shape_filter_selected : 0);
         }
     }
 
@@ -728,7 +728,7 @@ public class MakeupControlView extends FrameLayout {
 
         @Override
         protected void handleSelectedState(BaseViewHolder viewHolder, MakeupItem data, boolean selected) {
-            viewHolder.setBackground(R.id.makeup_recycler_img, selected ? R.drawable.control_filter_select : 0);
+            viewHolder.setBackground(R.id.makeup_recycler_img, selected ? R.drawable.shape_filter_selected : 0);
         }
 
         @Override

@@ -141,8 +141,9 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
                     Log.d(TAG, "onCameraOpened: " + camera + ", thread:" + Thread.currentThread().getName());
                     mCameraDevice = camera;
                     if (mViewWidth > 0 && mViewHeight > 0) {
-                        mMvpMatrix = GlUtil.changeMVPMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
+                        mMvpMatrix = GlUtil.changeMvpMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
                     }
+                    mOnRendererStatusListener.onCameraChanged(mCameraFacing, mCameraOrientation);
                     startPreview();
                 }
 
@@ -203,7 +204,6 @@ public class Camera2Renderer extends BaseCameraRenderer implements ImageReader.O
                 startPreview();
                 mIsSwitchCamera = false;
                 mIsStopPreview = false;
-                mOnRendererStatusListener.onCameraChanged(mCameraFacing, mCameraOrientation);
             }
         });
     }

@@ -53,10 +53,8 @@ public final class ToastUtil {
         toast.show();
     }
 
-    public static void showToast(Context context, int str) {
-        Toast toast = Toast.makeText(context, str, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
+    public static void showToast(Context context, @StringRes int strId) {
+        showToast(context, context.getString(strId));
     }
 
     public static void showWhiteTextToast(Context context, @StringRes int strId) {
@@ -118,31 +116,4 @@ public final class ToastUtil {
         }
     }
 
-    public static Toast makeNormalToast(Context context, @StringRes int strId) {
-        return makeNormalToast(context, context.getString(strId));
-    }
-
-    public static Toast makeNormalToast(Context context, String text) {
-        if (sNormalToast == null) {
-            context = context.getApplicationContext();
-            Resources resources = context.getResources();
-            TextView textView = new TextView(context);
-            textView.setTextColor(resources.getColor(R.color.colorWhite));
-            textView.setGravity(Gravity.CENTER);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.x26));
-            textView.setBackgroundResource(R.drawable.more_toast_background);
-            int hPadding = resources.getDimensionPixelSize(R.dimen.x28);
-            int vPadding = resources.getDimensionPixelSize(R.dimen.x16);
-            textView.setPadding(hPadding, vPadding, hPadding, vPadding);
-            textView.setText(text);
-            sNormalToast = new Toast(context);
-            sNormalToast.setView(textView);
-            sNormalToast.setDuration(Toast.LENGTH_SHORT);
-        } else {
-            ((TextView) sNormalToast.getView()).setText(text);
-        }
-        int yOffset = context.getResources().getDimensionPixelSize(R.dimen.x582);
-        sNormalToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP, 0, yOffset);
-        return sNormalToast;
-    }
 }

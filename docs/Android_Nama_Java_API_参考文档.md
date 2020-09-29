@@ -1,11 +1,27 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2020-07-29
-SDK版本: 7.1.0
+更新日期：2020-09-25
+SDK版本: 7.2.0
 
 ------
 ### 最新更新内容：
+
+**2020-9-24 v7.2.0:**
+
+1. 新增绿幕抠像功能，支持替换图片、视频背景等，详见绿幕抠像功能文档。
+2. 美颜模块新增瘦颧骨、瘦下颌骨功能。
+3. 优化美颜性能以及功耗，优化集成入第三方推流服务时易发热掉帧问题。
+4. 优化手势识别功能的效果以及性能，提升识别稳定性和手势跟随性效果，优化手势识别时cpu占有率。
+5. 优化PC版各个功能性能，帧率提升显著。美发、美体、背景分割帧率提升30%以上，美颜、Animoji、美妆、手势等功能也有10%以上的帧率提升。
+6. 优化包增量，SDK分为lite版，和全功能版本。lite版体积更小，包含人脸相关的功能(海报换脸除外)。
+7. 优化人脸跟踪稳定性，提升贴纸的稳定性。
+8. 提供独立核心算法SDK，接口文档详见算法SDK文档([FUAI_C_API_参考文档.md](./FUAI_C_API_参考文档.md))。
+9. fuGetFaceInfo接口新增三个参数，分别为：舌头方向(tongue_direction)，表情识别(expression_type)，头部旋转信息欧拉角参数(rotation_euler)。
+10. 新增fuOnDeviceLostSafe函数，详见接口文档。
+11. 新增fuSetFaceProcessorDetectMode函数，人脸识别跟踪区分图片模式和视频模式，详见接口文档。
+12. 新增人体动作识别动作定义文档([人体动作识别文档.md](../resource/docs/人体动作识别文档.md))。
+13. 新增ai_hand_processor.bundle，替代ai_gesture.bundle，提供手势识别跟踪能力。
 
 **2020-7-29 v7.1.0:**
 
@@ -33,6 +49,8 @@ SDK版本: 7.1.0
   - fuGetLogLevel,获取当前日志级别。
   - fuSetLogLevel,设置当前日志级别。
   - fuOpenFileLog,打开文件日志，默认使用console日志。
+  - fuHexagonInitWithPath,初始化dsp加速功能
+  - fuHexagonTearDown,关闭dsp加速功能
   - fuFaceProcessorSetMinFaceRatio，设置人脸检测距离的接口。
   - fuSetTrackFaceAIType，设置fuTrackFace算法运行类型接口。
   - fuSetCropState，设置裁剪状态。
@@ -84,7 +102,7 @@ SDK版本: 7.1.0
 
 SDK相关的所有调用要求在同一个线程中顺序执行，不支持多线程。少数接口可以异步调用（如道具加载），会在备注中特别注明。SDK所有渲染线程调用的接口需要保持 OpenGL context 一致，否则会引发纹理数据异常。如果需要用到SDK的绘制功能，则渲染线程的所有调用需要预先初始化OpenGL环境，没有初始化或初始化不正确会导致崩溃。我们对OpenGL的环境要求为 GLES 2.0 以上。具体调用方式，可以参考各平台 demo。
 
-底层接口根据作用逻辑归为五类：初始化、加载道具、主运行接口、销毁、功能接口、P2A相关接口。
+底层接口根据作用逻辑归为六类：初始化、加载道具、主运行接口、销毁、功能接口、P2A相关接口。
 
 ------
 
@@ -232,6 +250,22 @@ Android 平台的原生相机数据为横屏，需要进行该设置加速首次
 
 --------
 
+##### fuSetFaceProcessorDetectMode 设置人脸识别模式
+**接口说明：**SDK人脸识别模式分为图片模式和视频模式。图片模式更为及时，视频模式性能更优。  
+
+```java
+public static native int fuSetFaceProcessorDetectMode(int mode);
+```
+__参数:__  
+
+`in]`：0为图像模式，1为视频模式。 
+
+__返回值:__  
+
+1为成功，0为失败。
+
+------
+
 ##### fuSetInputCameraMatrix 设置输入纹理的转正方式
 
 **接口说明：**为 `fuRenderBundles`、`fuRenderBundlesWithCamera`、`fuRenderBundlesSplitView` 函数，设置输入纹理的转正方式，转为人像竖屏模式。  
@@ -291,26 +325,27 @@ __参数说明:__
 
 ```c
 typedef enum FUAITYPE{
-	FUAITYPE_BACKGROUNDSEGMENTATION=1<<1,//背景分割,7.0.0可使用FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION
-	FUAITYPE_HAIRSEGMENTATION=1<<2,		//头发分割，7.0.0可使用FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION
+	FUAITYPE_BACKGROUNDSEGMENTATION=1<<1,//背景分割,7.0.0及以上版本可使用FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION
+	FUAITYPE_HAIRSEGMENTATION=1<<2,		//头发分割，7.0.0及以上版本可使用FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION
 	FUAITYPE_HANDGESTURE=1<<3,			//手势识别
 	FUAITYPE_TONGUETRACKING=1<<4,		//暂未使用
 	FUAITYPE_FACELANDMARKS75=1<<5,		//废弃
 	FUAITYPE_FACELANDMARKS209=1<<6,		//废弃
-	FUAITYPE_FACELANDMARKS239=1<<7,		//废弃
+	FUAITYPE_FACELANDMARKS239=1<<7,		//高级人脸特征点，7.0.0之后实际为241点
 	FUAITYPE_HUMANPOSE2D=1<<8,			//2D身体点位，7.0.0可使用FUAITYPE_HUMAN_PROCESSOR_2D_DANCE
 	FUAITYPE_BACKGROUNDSEGMENTATION_GREEN=1<<9,//绿幕分割
 	FUAITYPE_FACEPROCESSOR=1<<10，				//人脸算法模块，默认带低质量高性能表情跟踪
 	FUAITYPE_FACEPROCESSOR_FACECAPTURE = 1 << 11,	//高质量表情跟踪
-  	FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 12,	//头发分割
-  	FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 13,	//头部分割
-  	FUAITYPE_HUMAN_PROCESSOR = 1 << 14,			//人体算法模块
-  	FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 15,	//人体检测
-  	FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 16,//2D半身点位
-  	FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 17,//2D全身点位
-  	FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 18,//3D半身点位
-  	FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 19,//3D全身点位
-  	FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 20 //人体分割
+  	FUAITYPE_FACEPROCESSOR_FACECAPTURE_TONGUETRACKING = 1 << 12,	//高质量表情跟踪模式下额外进行舌头追踪
+  	FUAITYPE_FACEPROCESSOR_HAIRSEGMENTATION = 1 << 13,	//人脸算法模式下进行头发分割
+  	FUAITYPE_FACEPROCESSOR_HEADSEGMENTATION = 1 << 14,	//人脸算法模式下进行头部分割
+  	FUAITYPE_HUMAN_PROCESSOR = 1 << 15,			//人体算法模块
+  	FUAITYPE_HUMAN_PROCESSOR_DETECT = 1 << 16,	//人体算法模式下进行每帧都进行全图人体检测，性能相对较差
+  	FUAITYPE_HUMAN_PROCESSOR_2D_SELFIE = 1 << 17,//人体算法模式下进行2D半身点位
+  	FUAITYPE_HUMAN_PROCESSOR_2D_DANCE = 1 << 18,//人体算法模式下进行2D全身点位
+  	FUAITYPE_HUMAN_PROCESSOR_3D_SELFIE = 1 << 19,//人体算法模式下进行3D半身点位
+  	FUAITYPE_HUMAN_PROCESSOR_3D_DANCE = 1 << 20,//人体算法模式下进行3D全身点位
+  	FUAITYPE_HUMAN_PROCESSOR_SEGMENTATION = 1 << 21 //人体算法模式下进行人体分割
 }FUAITYPE;
 ```
 
@@ -318,7 +353,7 @@ __返回值:__
 
 `int` 返回1代表成功，返回0代表失败。
 
-可以通过 fuReleaseAIModel 释放模型，以及通过 fuIsAIModelLoaded 查询是否AI能力模型是否已经加载。
+可以通过 fuReleaseAIModel 释放模型，以及通过 fuIsAIModelLoaded 查询AI能力模型是否已经加载。
 
 __备注:__  
 
@@ -326,7 +361,7 @@ AI 能力会随 SDK 一起发布，存放在 assets/model目录中。
 
 - ai_bgseg.bundle 为背景分割AI能力模型，对应FUAITYPE_BACKGROUNDSEGMENTATION。7.0.0之后版本，可以统一使用ai_human_processor.bundle对应的全身mask模块。
 - ai_hairseg.bundle 为头发分割AI能力模型，对应FUAITYPE_HAIRSEGMENTATION。7.0.0之后版本，可以统一使用ai_face_processor.bundle对应的头发mask模块。
-- ai_gesture.bundle 为手势识别AI能力模型，对应FUAITYPE_HANDGESTURE。
+- ai_hand_processor.bundle ( ai_gesture.bundle 7.2.0 后废弃） 为手势识别AI能力模型，对应FUAITYPE_HANDGESTURE。 
 - ai_facelandmarks75.bundle 为脸部特征点75点AI能力模型。	//废弃
 - ai_facelandmarks209.bundle 为脸部特征点209点AI能力模型。	//废弃
 - ai_facelandmarks239.bundle 为脸部特征点239点AI能力模型。	//废弃
@@ -339,7 +374,7 @@ AI 能力会随 SDK 一起发布，存放在 assets/model目录中。
 
 **接口说明：**
 
-当不需要是使用特定的AI能力时，可以释放其资源，节省内存空间。
+当不需要使用特定的AI能力时，可以释放其资源，节省内存空间。
 
 ```java
 public static native int fuReleaseAIModel(int type);
@@ -450,6 +485,31 @@ __参数:__
 __返回值:__
 
 1 表示成功，0 表示失败。
+
+-----
+
+##### fuHexagonInitWithPath 初始化Hexagon dsp加速功能
+
+**接口说明：**
+
+初始化Hexagon dsp加速功能，启用dsp加速后，可以降低部分算法的计算耗时，提升性能。
+
+支持dsp加速的算法有：人体检测算法、人体骨骼关键点算法。
+
+dsp运行时需要动态加载如下四个动态库：libhexagon_interface.so,libHexagon_nn_skel.so,libHexagon_nn_skel_v65.so,libHexagon_nn_skel_v66.so，本接口在初始化时需要传入这四个动态库的路径
+
+```java
+public static native void fuHexagonInitWithPath(String var0);
+```
+
+__参数:__
+
+`var0`：dsp依赖的动态库的路径。
+
+__备注:__  
+Android设备集成了较新的高通cpu才支持dsp加速，目前支持的cpu有：骁龙835、骁龙660/820/821、骁龙710/845、骁龙855、骁龙865。
+
+目前dsp加速功能还处于内部试用阶段，可能存在兼容问题，不建议客户大规模集成使用。
 
 -----
 
@@ -1241,15 +1301,15 @@ public static native void fuDestroyAllItems();
 
 __备注:__  
 
-该函数会即刻释放系统所占用的资源。但不会破坏 ```fuSetup``` 的系统初始化信息，应用临时挂起到后台时可以调用该函数释放资源，再次激活时无需重新初始化系统。
+该函数必须在有context的情况下调用,该函数会即刻释放系统所占用的资源。但不会破坏 ```fuSetup``` 的系统初始化信息，应用临时挂起到后台时可以调用该函数释放资源，再次激活时无需重新初始化系统。  
 
 ----
 
-##### fuOnDeviceLost 重置系统的 GL 状态
+##### fuOnDeviceLost 释放内存资源
 
 **接口说明：**
 
-特殊函数，当 OpenGL context 被外部释放/破坏时调用，用于重置系统的 GL 状态。
+特殊函数，当程序退出或OpenGL context准备销毁时，调用该函数，会进行资源清理和回收，所有系统占用的内存资源会被释放，包括GL的GPU资源以及内存。
 
 ```java
 public static native void fuOnDeviceLost();
@@ -1257,17 +1317,41 @@ public static native void fuOnDeviceLost();
 
 __备注:__  
 
-该函数仅在无法在原 OpenGL context 内正确清理资源的情况下调用。调用该函数时，会尝试进行资源清理和回收，所有系统占用的内存资源会被释放，但由于 context 发生变化，OpenGL 资源相关的内存可能会发生泄露。
+该函数必须在有context的情况下调用，且context必须和在fuRender开头的系列渲染函数的context保持一致，否则可能由于context 发生变化，OpenGL 资源相关的内存可能会发生泄露。
+
+-------
+
+##### fuOnDeviceLostSafe 释放 CPU 资源
+**特殊函数**，当客户端调用代码存在逻辑BUG时，可能会导致OpenGL Context状态异常，此时fuOnDeviceLost无法成功释放GPU资源进而导致应用崩溃，若无法有效定位客户端BUG，可以使用本函数替代。本函数只负责释放CPU资源，对GPU资源不进行销毁操作，借由外部context的销毁统一维护。
+
+```java
+public static native void fuOnDeviceLostSafe();
+```
+
+__备注:__  
+
+1. 请优先使用fuOndeviceLost函数，仅当OpenGL环境异常时使用本函数；
+
+2. 不恰当的调用会造成OpenGL 资源相关的内存发生泄露，不恰当调用包括：在同一个OpenGL Context下，重复调用本函数；
 
 ----
 
-##### fuDestroyLibData 释放Tracker内存
+##### fuDestroyLibData 释放初始化相关资源
 **接口说明：**
 
-特殊函数，当不再需要Nama SDK时，可以释放由 ```fuSetup```初始化所分配的人脸跟踪模块的内存，约30M左右。调用后，人脸跟踪以及道具绘制功能将失效， ```fuRenderItemEx ```，```fuTrackFace```等函数将失败。如需使用，需要重新调用 ```fuSetup```进行初始化。
+特殊函数，当不再需要Nama SDK时，可以释放由fuSetup初始化所分配的相关资源。调用后，人脸跟踪以及道具绘制功能将失效，fuRender 相关接口、```fuTrackFace```等函数将失败。如需使用，需要重新调用 ```fuSetup```进行初始化。
 
 ```java
 public static native void fuDestroyLibData();
+```
+
+##### fuHexagonTearDown 关闭dsp加速功能
+**接口说明：**
+
+关闭dsp加速功能，释放资源
+
+```java
+public static native void fuHexagonTearDown();
 ```
 
 ---
@@ -1322,7 +1406,8 @@ public static native void fuOnCameraChange();
 
 在其他人脸信息发生残留的情景下，也可以调用该函数来清除人脸信息残留。
 
------
+--------
+
 ##### fuSetTongueTracking 开启舌头的跟踪
 
 ```java
@@ -1432,27 +1517,56 @@ __备注:__
 
 所有支持获取的信息、含义、权限要求如下：
 
-| 信息名称               | 长度                | 含义                                                         | 权限     |
-| ---------------------- | ------------------- | ------------------------------------------------------------ | -------- |
-| face_rect              | 4                   | 人脸矩形框，图像分辨率坐标，数据为 (x_min, y_min, x_max, y_max) | 默认     |
-| rotation_mode          | 1                   | 识别人脸相对于设备图像的旋转朝向，取值范围 0-3，分别代表旋转0度、90度、180度、270度 | 默认     |
-| failure_rate           | 1                   | 人脸跟踪的失败率，表示人脸跟踪的质量。取值范围为 0-2，取值越低代表人脸跟踪的质量越高 | 默认     |
-| is_calibrating         | 1                   | 表示是否SDK正在进行主动表情校准，取值为 0 或 1。             | 默认     |
-| focal_length           | 1                   | SDK当前三维人脸跟踪所采用的焦距数值                          | 默认     |
-| landmarks              | 75x2                | 人脸 75 个特征点，图像分辨率坐标                             | Landmark |
-| rotation               | 4                   | 人脸三维旋转，数据为旋转四元数\*                             | Landmark |
-| translation            | 3                   | 人脸三维平移，数据为 (x, y, z)                               | Landmark |
-| eye_rotation           | 4                   | 眼球旋转，数据为旋转四元数\*，上下22度，左右30度。           | Landmark |
-| eye_rotation_xy        | 2                   | 眼球旋转，数据范围为[-1,1]，第一个通道表示水平方向转动，第二个通道表示垂直方向转动 | Landmark |
-| expression             | 46                  | 人脸表情系数，表情系数含义可以参考《Expression Guide》       | Avatar   |
-| expression_with_tongue | 56                  | 1-46为人脸表情系数，同上expression，表情系数含义可以参考《Expression Guide》。47-56为舌头blendshape系数 | Avatar   |
-| armesh_vertex_num      | 1                   | armesh三维网格顶点数量                                       | armesh   |
-| armesh_face_num        | 1                   | armesh三维网格三角面片数量                                   | armesh   |
-| armesh_vertices        | armesh_vertex_num*3 | armesh三维网格顶点位置数据                                   | armesh   |
-| armesh_uvs             | armesh_vertex_num*2 | armesh三维网格顶点纹理数据                                   | armesh   |
-| armesh_faces           | armesh_face_num*3   | armesh三维网格三角片数据                                     | armesh   |
+| 信息名称       | 长度 | 类型|含义                                                         | 权限     |
+| -------------- | ---- | ------------------------------------------------------------ | -------- | -------- |
+| face_rect      | 4    | float |人脸矩形框，图像分辨率坐标，数据为 (x_min, y_min, x_max, y_max) | 默认     |
+| rotation_mode  | 1    | int |识别人脸相对于设备图像的旋转朝向，取值范围 0-3，分别代表旋转0度、90度、180度、270度 | 默认     |
+| failure_rate[已废弃] | 1    | float |人脸跟踪的失败率，表示人脸跟踪的质量。取值范围为 0-2，取值越低代表人脸跟踪的质量越高 | 默认     |
+| is_calibrating | 1    | int |表示是否SDK正在进行主动表情校准，取值为 0 或 1。             | 默认     |
+| focal_length   | 1    | float| SDK当前三维人脸跟踪所采用的焦距数值                          | 默认     |
+| landmarks      | 75*2 | float|人脸 75 个特征点，图像分辨率坐标                             | Landmark |
+| landmarks_ar | 75*3 | float |3D 人脸特征点 | Avatar |
+| rotation       | 4    | float|人脸三维旋转，数据为旋转四元数\*                              | Landmark |
+| translation    | 3    | float|人脸三维平移，数据为 (x, y, z)                               | Landmark |
+| eye_rotation   | 4    | float| 眼球旋转，数据为旋转四元数\*，上下22度，左右30度。                                  | Landmark |
+| eye_rotation_xy   | 2    | float| 眼球旋转，数据范围为[-1,1]，第一个通道表示水平方向转动，第二个通道表示垂直方向转动                                  | Landmark |
+| expression     | 46   | float| 人脸表情系数，表情系数含义可以参考《Expression Guide》       | Avatar   |
+| expression_with_tongue     | 56   | float | 1-46为人脸表情系数，同上expression，表情系数含义可以参考《Expression Guide》。47-56为舌头blendshape系数       | Avatar   |
+| armesh_vertex_num     | 1   |int| armesh三维网格顶点数量       | armesh   |
+| armesh_face_num     | 1   | int| armesh三维网格三角面片数量       | armesh   |
+| armesh_vertices     | armesh_vertex_num * 3   |float| armesh三维网格顶点位置数据       | armesh   |
+| armesh_uvs     | armesh_vertex_num * 2   |float| armesh三维网格顶点纹理数据       | armesh   |
+| armesh_faces     | armesh_face_num * 3   |int| armesh三维网格三角片数据       | armesh  |
+| armesh_trans_mat     | 4x4 |float| armesh 的transformation。 __注意:__ 1. 获取'armesh_trans_mat'前需要先获取对应脸的'armesh_vertices'。2. 该trans_mat,相比使用'position'和'rotation'重算的transform更加准确，配合armesh，更好贴合人脸。 | armesh  |
+| tongue_direction | 1 |int| 舌头方向，数值对应 FUAITONGUETYPE 定义，见下表。 | Avatar |
+| expression_type | 1 |int| 表情识别，数值对应 FUAIEXPRESSIONTYPE定义，见下表。 | Avatar |
+| rotation_euler | 3 |float| 返回头部旋转欧拉角，分别为roll、pitch、yaw | 默认 |
 
 *注：*旋转四元数转换为欧拉角可以参考 [该网页](https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles)。
+
+```C
+typedef enum FUAITONGUETYPE {
+  FUAITONGUE_UNKNOWN = 0,
+  FUAITONGUE_UP = 1 << 1,
+  FUAITONGUE_DOWN = 1 << 2,
+  FUAITONGUE_LEFT = 1 << 3,
+  FUAITONGUE_RIGHT = 1 << 4,
+  FUAITONGUE_LEFT_UP = 1 << 5,
+  FUAITONGUE_LEFT_DOWN = 1 << 6,
+  FUAITONGUE_RIGHT_UP = 1 << 7,
+  FUAITONGUE_RIGHT_DOWN = 1 << 8,
+} FUAITONGUETYPE;
+```
+
+```C
+typedef enum FUAIEXPRESSIONTYPE {
+  FUAIEXPRESSION_UNKNOWN = 0,
+  FUAIEXPRESSION_SMILE = 1 << 1,
+  FUAIEXPRESSION_MOUTH_OPEN = 1 << 2,
+  FUAIEXPRESSION_EYE_BLINK = 1 << 3,
+  FUAIEXPRESSION_POUT = 1 << 4,
+} FUAIEXPRESSIONTYPE;
+```
 
 -----
 
@@ -1478,6 +1592,22 @@ __备注:__
 
 ----
 
+##### fuGetOpenGLSupported 判定当前的GL环境是否支持
+
+**接口说明：**
+
+判定当前的GL环境是否支持，1为支持，0为不支持。
+
+```java
+public stativ native int fuGetOpenGLSupported();
+```
+
+__备注:__  
+
+不支持时可能无法正常渲染。
+
+------
+
 ##### fuGetVersion  获取 SDK 版本信息
 
 ```java
@@ -1490,11 +1620,11 @@ public static native String fuGetVersion();
 
 **返回值：**
 
-`String ` 版本信息
+`String `：版本信息
 
 ----
 
-##### fuGetModuleCode   获取 SDK 鉴权后证书可用的鉴权码
+##### fuGetModuleCode   获取证书的鉴权码
 
 ```java
 public static native int fuGetModuleCode(int i);
@@ -1502,15 +1632,15 @@ public static native int fuGetModuleCode(int i);
 
 **接口说明：**
 
-获取 SDK 鉴权后证书可用的鉴权码
+获取证书的module code。module code用于识别识别证书是否具有某些特定的功能。该接口一般情况下不需要使用，需要使用时请联系技术支持。
 
 **参数说明：**
 
-`i` 传0即可
+`i`：第 i 个module code。 
 
 **返回值：**
 
-`int ` 鉴权码
+`int `：为各个功能的bitmask，详询技术支持。
 
 ----
 
@@ -1655,55 +1785,6 @@ __返回值:__
 ----
 
 #### 2.6 功能接口 - 效果
-
-##### fuSetExpressionCalibration  开启表情校准功能
-
-```java
-public static native void fuSetExpressionCalibration(int mode);
-```
-
-**接口说明：**
-
-设置人脸表情校准功能。该功能的目的是使表情识别模块可以更加适应不同人的人脸特征，以实现更加准确可控的表情跟踪效果。
-
-该功能分为两种模式，主动校准 和 被动校准。
-
-- 主动校准：该种模式下系统会进行快速集中的表情校准，一般为初次识别到人脸之后的2-3秒钟。在该段时间内，需要用户尽量保持无表情状态，该过程结束后再开始使用。该过程的开始和结束可以通过 ```fuGetFaceInfo``` 接口获取参数 ```is_calibrating```。
-- 被动校准：该种模式下会在整个用户使用过程中逐渐进行表情校准，用户对该过程没有明显感觉。该种校准的强度比主动校准较弱。
-
-默认状态为开启被动校准。
-
-**参数说明：**
-
-`mode` 0为关闭表情校准，1为主动校准，2为被动校准。
-
-__备注:__  
-
-当利用主处理接口处理静态图片时，由于需要针对同一数据重复调用，需要将表情校准功能关闭。
-
------
-
-##### fuLoadAnimModel   加载表情动画数据包，并启用表情优化功能
-
-```java
-public static native int fuLoadAnimModel(byte[] data);
-```
-
-**接口说明：**
-
-加载表情动画数据包，并开启该功能。
-
-表情优化功能可以使实时跟踪后得到的表情更加自然生动，但会引入一定表情延迟。
-
-**参数说明：**
-
-`data` 表情动画数据包的字节数组
-
-__返回值:__  
-
-返回值 1 代表加载成功，并启用表情优化功能。返回值 0 代表失败。
-
------
 
 ##### fuSetFocalLengthScale 修改系统焦距
 
@@ -2068,7 +2149,7 @@ __返回值:__  人体算法模块跟踪人体动作置信度。
 
 ##### fuHandDetectorGetResultNumHands  函数
 
-获取 HandGesture 手势算法模块跟踪手势数量。需加载 ai_gesture.bundle
+获取 HandGesture 手势算法模块跟踪手势数量。需加载 ai_hand_processor.bundle
 
 ```C
 public static native int fuHandDetectorGetResultNumHands();
@@ -2369,6 +2450,8 @@ __返回值:__
 
 ##### fuSetDefaultOrientation 设置默认的人脸朝向
 
+__注意__: 7.0.0版本该接口已废弃。
+
 **接口说明：**
 
 设置默认的人脸朝向。正确设置默认的人脸朝向可以显著提升人脸首次识别的速度。  
@@ -2385,7 +2468,58 @@ __备注:__
 
 Android 平台的原生相机数据为横屏，需要进行该设置加速首次识别。根据经验，Android 前置摄像头一般设置参数 1，后置摄像头一般设置参数 3。部分手机存在例外，自动计算的代码可以参考 FULiveDemo。
 
+-------
+
+##### fuSetExpressionCalibration  开启表情校准功能
+
+__注意__: 7.0.0版本该接口已废弃。
+
+```java
+public static native void fuSetExpressionCalibration(int mode);
+```
+
+**接口说明：**
+
+设置人脸表情校准功能。该功能的目的是使表情识别模块可以更加适应不同人的人脸特征，以实现更加准确可控的表情跟踪效果。
+
+该功能分为两种模式，主动校准 和 被动校准。
+
+- 主动校准：该种模式下系统会进行快速集中的表情校准，一般为初次识别到人脸之后的2-3秒钟。在该段时间内，需要用户尽量保持无表情状态，该过程结束后再开始使用。该过程的开始和结束可以通过 ```fuGetFaceInfo``` 接口获取参数 ```is_calibrating```。
+- 被动校准：该种模式下会在整个用户使用过程中逐渐进行表情校准，用户对该过程没有明显感觉。该种校准的强度比主动校准较弱。
+
+默认状态为开启被动校准。
+
+**参数说明：**
+
+`mode` 0为关闭表情校准，1为主动校准，2为被动校准。
+
+__备注:__  
+
+当利用主处理接口处理静态图片时，由于需要针对同一数据重复调用，需要将表情校准功能关闭。
+
 --------
+
+##### fuLoadAnimModel   加载表情动画数据包，并启用表情优化功能
+
+```java
+public static native int fuLoadAnimModel(byte[] data);
+```
+
+**接口说明：**
+
+加载表情动画数据包，并开启该功能。
+
+表情优化功能可以使实时跟踪后得到的表情更加自然生动，但会引入一定表情延迟。
+
+**参数说明：**
+
+`data` 表情动画数据包的字节数组
+
+__返回值:__  
+
+返回值 1 代表加载成功，并启用表情优化功能。返回值 0 代表失败。
+
+-----
 
 ### 3. 输入输出格式列表
 
@@ -2485,7 +2619,7 @@ FU_FORMAT_NV21_BUFFER
 
 __数据内容:__
 
-连续内存，前一段是 Y 数据，长度为 ```w*h```，后一段是 UV 数据，长度为 ```2*((w+1)>>1)```（分辨率是Y的一半，但包含UV两个通道）。两段数据在内存中连续存放。
+连续内存，前一段是 Y 数据，长度为 ```w*h```，后一段是 UV 数据，长度为```（w*h + 3）>>1 ``` ，stride为```2*((w+1)>>1)```（分辨率是Y的一半，但包含UV两个通道）。两段数据在内存中连续存放。
 
 __输入输出支持:__
 
@@ -2507,6 +2641,7 @@ __数据格式标识符:__
 FU_FORMAT_NV12_BUFFER
 
 __数据内容:__
+
 结构体 ```TNV12Buffer```，其定义如下。
 
 ```c
@@ -2549,7 +2684,7 @@ FU_FORMAT_I420_BUFFER
 
 __数据内容:__
 
-连续内存，第一段是 Y 数据，长度为 ```w*h```，第二段是 U 数据，长度为 ```((w+1)>>1)```，第三段是 V 数据，长度为 ```((w+1)>>1)```（后两个通道分辨率是Y的一半）。三段数据在内存中连续存放。
+连续内存，第一段是 Y 数据，长度为 ```w*h```，stride为 `w `，第二段是 U 数据，长度为  ```（w*h + 3）>>2 ```，stride为 ```((w+1)>>1)```，第三段是 V 数据，长度为 ```（w*h + 3）>>2 ```，stride为 ```((w+1)>>1)```（后两个通道分辨率是Y的一半）。三段数据在内存中连续存放。
 
 __输入输出支持:__
 
@@ -2598,10 +2733,10 @@ __参数:__
 | FU_ADM_FLAG_I420_TEXTURE                           | 传入的纹理为 I420 数据格式                   |
 | FU_ADM_FLAG_I420_BUFFER                            | 传入的内存图像数据为 I420 数据格式           |
 | FU_ADM_FLAG_RGBA_BUFFER                            | 传入的内存图像数据为 RGBA 数据格式           |
-| FU_ADM_FLAG_FLIP_X                                 | 输出画面左右镜像                             |
-| FU_ADM_FLAG_FLIP_Y                                 | 输出画面上下镜像                             |
-| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_OPPOSITE_X | 输出画面纹理和 readback 左右镜像             |
-| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_OPPOSITE_Y | 输出画面纹理和 readback 上下镜像             |
+| FU_ADM_FLAG_FLIP_X                                 | 绘制的道具画面左右镜像                       |
+| FU_ADM_FLAG_FLIP_Y                                 | 绘制的道具画面上下镜像                       |
+| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_OPPOSITE_X | 对readback为RGBA的接口的buffer数据左右镜像   |
+| FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_OPPOSITE_Y | 对readback为RGBA的接口的buffer数据上下镜像   |
 | FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_ROTATE_90  | 输出画面纹理和 readback 旋转 90度            |
 | FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_ROTATE_180 | 输出画面纹理和 readback 旋转 180度           |
 | FU_ADM_FLAG_TEXTURE_AND_READBACK_BUFFER_ROTATE_270 | 输出画面纹理和 readback 旋转 270度           |

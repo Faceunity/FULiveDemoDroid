@@ -44,7 +44,7 @@ public class BeautifyBodyControlView extends FrameLayout {
     // 进度值阈值
     private SparseArray<Float> mThreshHold = new SparseArray<>();
     // 进度值默认值
-    private SparseArray<Float> mDefault = new SparseArray<>();
+    private SparseArray<Float> mDefaultValues = new SparseArray<>();
     private OnFUControlListener mOnFUControlListener;
 
     public BeautifyBodyControlView(Context context) {
@@ -114,13 +114,13 @@ public class BeautifyBodyControlView extends FrameLayout {
         mIntensitys.put(R.id.beauty_box_head_slim, 0.0f);
         mIntensitys.put(R.id.beauty_box_leg_thin_slim, 0.0f);
 
-        mDefault.put(R.id.beauty_box_body_slim, 0.0f);
-        mDefault.put(R.id.beauty_box_long_leg, 0.0f);
-        mDefault.put(R.id.beauty_box_thin_waist, 0.0f);
-        mDefault.put(R.id.beauty_box_beauty_shoulder, 0.5f);
-        mDefault.put(R.id.beauty_box_hip_slim, 0.0f);
-        mDefault.put(R.id.beauty_box_head_slim, 0.0f);
-        mDefault.put(R.id.beauty_box_leg_thin_slim, 0.0f);
+        mDefaultValues.put(R.id.beauty_box_body_slim, 0.0f);
+        mDefaultValues.put(R.id.beauty_box_long_leg, 0.0f);
+        mDefaultValues.put(R.id.beauty_box_thin_waist, 0.0f);
+        mDefaultValues.put(R.id.beauty_box_beauty_shoulder, 0.5f);
+        mDefaultValues.put(R.id.beauty_box_hip_slim, 0.0f);
+        mDefaultValues.put(R.id.beauty_box_head_slim, 0.0f);
+        mDefaultValues.put(R.id.beauty_box_leg_thin_slim, 0.0f);
     }
 
     private void updateBeautyBoxState() {
@@ -166,8 +166,8 @@ public class BeautifyBodyControlView extends FrameLayout {
     }
 
     private boolean checkIfDefaultIntensity() {
-        for (int i = 0, j = mDefault.size(); i < j; i++) {
-            if (!DecimalUtils.floatEquals(mDefault.valueAt(i), mIntensitys.get(mDefault.keyAt(i)))) {
+        for (int i = 0, j = mDefaultValues.size(); i < j; i++) {
+            if (!DecimalUtils.floatEquals(mDefaultValues.valueAt(i), mIntensitys.get(mDefaultValues.keyAt(i)))) {
                 return false;
             }
         }
@@ -272,9 +272,9 @@ public class BeautifyBodyControlView extends FrameLayout {
                             @Override
                             public void onConfirm() {
                                 setRecoverEnable(false);
-                                for (int i = 0, j = mDefault.size(); i < j; i++) {
-                                    int key = mDefault.keyAt(i);
-                                    Float value = mDefault.valueAt(i);
+                                for (int i = 0, j = mDefaultValues.size(); i < j; i++) {
+                                    int key = mDefaultValues.keyAt(i);
+                                    Float value = mDefaultValues.valueAt(i);
                                     mIntensitys.put(key, value);
                                     setBodyParam(key, value);
                                 }

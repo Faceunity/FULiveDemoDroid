@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@color/primary_list">
+
+    <com.faceunity.fulivedemo.ui.CheckGroup
+        android:id="@+id/cg_bsg_tab_group"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x98"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.faceunity.fulivedemo.ui.CheckBoxCompat
+            android:id="@+id/cb_bsg_tab_graphic"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="@string/bg_seg_green_graphic"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+        <com.faceunity.fulivedemo.ui.CheckBoxCompat
+            android:id="@+id/cb_bsg_tab_background"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/bg_seg_green_background"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+    </com.faceunity.fulivedemo.ui.CheckGroup>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_bsg_panel_graphic"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/x268"
+        app:layout_constraintBottom_toTopOf="@id/cg_bsg_tab_group"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_bgs_recover"
+            android:layout_width="@dimen/x146"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/x30"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_recover_bsg"
+                android:layout_width="@dimen/x88"
+                android:layout_height="@dimen/x88"
+                android:layout_marginLeft="@dimen/x32"
+                android:src="@drawable/demo_icon_recover_open"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_recover_bsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/x16"
+                android:text="@string/recover"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/text_size_20"
+                app:layout_constraintLeft_toLeftOf="@id/iv_recover_bsg"
+                app:layout_constraintRight_toRightOf="@id/iv_recover_bsg"
+                app:layout_constraintTop_toBottomOf="@id/iv_recover_bsg" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.faceunity.fulivedemo.ui.beautybox.BeautyBoxGroup
+            android:id="@+id/bbg_bsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/x146"
+            android:gravity="center_horizontal|bottom"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent">
+
+            <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                android:id="@+id/bg_bgs_key_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:checked_model="open_double"
+                app:drawable_close_checked="@drawable/demo_icon_key_color_sel"
+                app:drawable_close_normal="@drawable/demo_icon_key_color_nor"
+                app:text_normal="@string/bg_seg_green_key_color" />
+
+            <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                android:id="@+id/bg_bgs_similarity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:drawable_close_checked="@drawable/demo_icon_similarityr_sel"
+                app:drawable_close_normal="@drawable/demo_icon_similarityr_nor"
+                app:drawable_open_checked="@drawable/demo_icon_similarityr_sel_open"
+                app:drawable_open_normal="@drawable/demo_icon_similarityr_nor_open"
+                app:text_normal="@string/bg_seg_green_similarity" />
+
+            <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                android:id="@+id/bg_bgs_smooth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:drawable_close_checked="@drawable/demo_icon_smooth_sel"
+                app:drawable_close_normal="@drawable/demo_icon_smooth_nor"
+                app:drawable_open_checked="@drawable/demo_icon_smooth_sel_open"
+                app:drawable_open_normal="@drawable/demo_icon_smooth_nor_open"
+                app:text_normal="@string/bg_seg_green_smooth" />
+
+            <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                android:id="@+id/bg_bgs_alpha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:drawable_close_checked="@drawable/demo_icon_transparency_sel"
+                app:drawable_close_normal="@drawable/demo_icon_transparency_nor"
+                app:drawable_open_checked="@drawable/demo_icon_transparency_sel_open"
+                app:drawable_open_normal="@drawable/demo_icon_transparency_nor_open"
+                app:text_normal="@string/bg_seg_green_alpha" />
+
+        </com.faceunity.fulivedemo.ui.beautybox.BeautyBoxGroup>
+
+        <View
+            android:layout_width="@dimen/x1"
+            android:layout_height="@dimen/x40"
+            android:layout_marginLeft="@dimen/x146"
+            android:layout_marginBottom="@dimen/x90"
+            android:background="@color/divider_line_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent" />
+
+        <com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar
+            android:id="@+id/seek_bar_bsg_graphic"
+            android:layout_width="@dimen/x528"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x36"
+            android:visibility="gone"
+            app:dsb_indicatorColor="@color/main_color"
+            app:dsb_indicatorElevation="0dp"
+            app:dsb_indicatorPopupEnabled="true"
+            app:dsb_max="100"
+            app:dsb_min="0"
+            app:dsb_progressColor="@color/main_color"
+            app:dsb_rippleColor="@color/main_color"
+            app:dsb_scrubberHeight="@dimen/x4"
+            app:dsb_thumbSize="@dimen/x32"
+            app:dsb_trackBaseHeight="@dimen/x16"
+            app:dsb_trackColor="@color/colorWhite"
+            app:dsb_trackHeight="@dimen/x4"
+            app:dsb_value="0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_bsg_palette"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/x88"
+            android:layout_marginLeft="@dimen/x16"
+            android:layout_marginTop="@dimen/x10"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.faceunity.fulivedemo.ui.RingCircleView
+                android:id="@+id/iv_bsg_palette_pick"
+                android:layout_width="@dimen/x88"
+                android:layout_height="0dp"
+                android:padding="@dimen/x16"
+                app:inner_padding="@dimen/x20"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.faceunity.fulivedemo.ui.RingCircleView
+                android:id="@+id/iv_bsg_palette_green"
+                android:layout_width="@dimen/x88"
+                android:layout_height="@dimen/x88"
+                android:padding="@dimen/x16"
+                app:inner_padding="@dimen/x20"
+                app:layout_constraintBottom_toBottomOf="@id/iv_bsg_palette_pick"
+                app:layout_constraintLeft_toRightOf="@id/iv_bsg_palette_pick"
+                app:layout_constraintTop_toTopOf="@id/iv_bsg_palette_pick" />
+
+            <com.faceunity.fulivedemo.ui.RingCircleView
+                android:id="@+id/iv_bsg_palette_blue"
+                android:layout_width="@dimen/x88"
+                android:layout_height="@dimen/x88"
+                android:padding="@dimen/x16"
+                app:inner_padding="@dimen/x20"
+                app:layout_constraintBottom_toBottomOf="@id/iv_bsg_palette_pick"
+                app:layout_constraintLeft_toRightOf="@id/iv_bsg_palette_green"
+                app:layout_constraintTop_toTopOf="@id/iv_bsg_palette_pick" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_bsg_panel_background"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/x268"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/cg_bsg_tab_group"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_bsg_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/x20"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x1"
+        android:background="@color/divider_line_color"
+        app:layout_constraintBottom_toTopOf="@id/cg_bsg_tab_group" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

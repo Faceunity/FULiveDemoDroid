@@ -87,6 +87,10 @@
             android:name=".activity.PtaActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
+        <activity
+            android:name=".activity.BgSegGreenActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme" />
     </application>
 
 </manifest>

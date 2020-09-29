@@ -66,4 +66,8 @@
             <enum name="quadruple" value="3" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="RingCircleView">
+        <attr name="inner_padding" format="dimension" />
+    </declare-styleable>
 </resources>

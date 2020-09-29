@@ -15,7 +15,7 @@ public abstract class MediaEncoder implements Runnable {
     private static final String TAG = MediaEncoder.class.getSimpleName();
     private static final boolean DEBUG = false;
 
-    protected static final int TIMEOUT_USEC = 10000;    // 10[msec]
+    private static final int TIMEOUT_USEC = 10000;    // 10[msec]
     protected TimeListener listener;//录制时间回调
 
     public interface TimeListener {
@@ -23,9 +23,9 @@ public abstract class MediaEncoder implements Runnable {
     }
 
     public interface MediaEncoderListener {
-        public void onPrepared(MediaEncoder encoder);
+        void onPrepared(MediaEncoder encoder);
 
-        public void onStopped(MediaEncoder encoder);
+        void onStopped(MediaEncoder encoder);
     }
 
     public void setListener(TimeListener listener) {
@@ -77,7 +77,7 @@ public abstract class MediaEncoder implements Runnable {
             throw new NullPointerException("MediaDecoderListener is null");
         if (muxer == null)
             throw new NullPointerException("MediaExtractorWrapper is null");
-        mWeakMuxer = new WeakReference<MediaMuxerWrapper>(muxer);
+        mWeakMuxer = new WeakReference<>(muxer);
         muxer.addEncoder(this);
         mListener = listener;
         synchronized (mLock) {
@@ -204,7 +204,7 @@ public abstract class MediaEncoder implements Runnable {
 //********************************************************************************
 
     /**
-     * Release all releated objects
+     * Release all related objects
      */
     protected void release() {
         if (DEBUG)
@@ -322,7 +322,7 @@ public abstract class MediaEncoder implements Runnable {
                     // wait 5 counts(=TIMEOUT_USEC x 5 = 50msec) until data/EOS come
                     if (!mIsEOS) {
                         if (++count > 5)
-                            break LOOP;        // out of while
+                            break;        // out of while
                     }
                 } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                     if (DEBUG)
