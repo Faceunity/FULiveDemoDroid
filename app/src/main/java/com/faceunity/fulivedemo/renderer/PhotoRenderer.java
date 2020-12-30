@@ -26,8 +26,18 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class PhotoRenderer implements GLSurfaceView.Renderer {
     public final static String TAG = PhotoRenderer.class.getSimpleName();
-    public static final float[] IMG_DATA_MATRIX = {0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
-    public static final float[] ROTATE_90 = {0.0F, 1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F};
+    public static final float[] IMG_DATA_MATRIX = {
+            0.0f, -1.0f, 0.0f, 0.0f,
+            -1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f, 1.0f
+    };
+    public static final float[] ROTATE_90 = {
+            0.0F, 1.0F, 0.0F, 0.0F,
+            -1.0F, 0.0F, 0.0F, 0.0F,
+            0.0F, 0.0F, 1.0F, 0.0F,
+            0.0F, 0.0F, 0.0F, 1.0F
+    };
     private static final int REQ_PHOTO_WIDTH = 1080;
     private static final int REQ_PHOTO_HEIGHT = 1920;
 
@@ -91,8 +101,8 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
         float[] mvpMatrix = GlUtil.changeMvpMatrixInside(width, height, mPhotoWidth, mPhotoHeight);
         Matrix.rotateM(mvpMatrix, 0, 90, 0, 0, 1);
         mMvpMatrix = mvpMatrix;
-        mViewHeight = height;
         mViewWidth = width;
+        mViewHeight = height;
 
         mOnRendererStatusListener.onSurfaceChanged(width, height);
     }
@@ -137,10 +147,10 @@ public class PhotoRenderer implements GLSurfaceView.Renderer {
 
     private void onSurfaceDestroy() {
         Log.d(TAG, "onSurfaceDestroy");
-        if (mPhotoTexId != 0) {
+        if (mPhotoTexId > 0) {
             int[] textures = new int[]{mPhotoTexId};
-            GLES20.glDeleteTextures(1, textures, 0);
-            mPhotoTexId = 0;
+            GlUtil.deleteTextures(textures);
+            mPhotoTexId = -1;
         }
         if (mProgramTexture2d != null) {
             mProgramTexture2d.release();

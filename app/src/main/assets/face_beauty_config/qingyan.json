@@ -1,0 +1,12 @@
+{
+  "filter_name": "ziran3",
+  "filter_level": 0.3,
+  "color_level": 0.4,
+  "red_level": 0.2,
+  "blur_level": 0.6,
+  "eye_bright": 0.5,
+  "tooth_whiten": 0.4,
+  "cheek_thinning": 0.3,
+  "intensity_nose": 0.5,
+  "eye_enlarging": 0.25
+}

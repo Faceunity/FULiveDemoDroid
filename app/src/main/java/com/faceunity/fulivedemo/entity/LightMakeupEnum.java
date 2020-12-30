@@ -18,11 +18,6 @@ import java.util.Map;
  * @author Richie on 2018.11.12
  */
 public enum LightMakeupEnum {
-
-    /**
-     * 美妆项，前几项是预置的效果
-     * 排在列表最前方，顺序为桃花妆、雀斑妆、朋克妆（其中朋克没有腮红，3个妆容的眼线、眼睫毛共用1个的）
-     */
     MAKEUP_NONE("卸妆", "", LightMakeupItem.FACE_MAKEUP_TYPE_NONE, R.drawable.makeup_none_normal, R.string.makeup_radio_remove, true),
 
     // 腮红

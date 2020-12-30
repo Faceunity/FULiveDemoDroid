@@ -58,32 +58,31 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
 
     @Override
     protected void openCamera(int cameraFacing) {
-        if (mCamera != null) {
-            return;
-        }
         try {
+            if (mCamera != null) {
+                return;
+            }
             boolean isFront = cameraFacing == FACE_FRONT;
             int cameraId = isFront ? mFrontCameraId : mBackCameraId;
-            mCamera = Camera.open(cameraId);
-            if (mCamera == null) {
+            Camera camera = Camera.open(cameraId);
+            if (camera == null) {
                 throw new RuntimeException("No camera");
             }
-
             mExposureCompensation = EXPOSURE_COMPENSATION;
-            CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, mCamera);
+            CameraUtils.setCameraDisplayOrientation(mActivity, cameraId, camera);
             Log.i(TAG, "openCamera. facing: " + (isFront ? "front" : "back") + ", orientation:"
                     + mCameraOrientation + ", previewWidth:" + mCameraWidth + ", previewHeight:"
-                    + mCameraHeight + " exposureCompensation:" + mExposureCompensation
-                    + ", thread:" + Thread.currentThread().getName());
+                    + mCameraHeight + " exposureCompensation:" + mExposureCompensation);
 
-            Camera.Parameters parameters = mCamera.getParameters();
+            Camera.Parameters parameters = camera.getParameters();
             CameraUtils.setFocusModes(parameters);
             CameraUtils.chooseFrameRate(parameters);
             int[] size = CameraUtils.choosePreviewSize(parameters, mCameraWidth, mCameraHeight);
             mCameraWidth = size[0];
             mCameraHeight = size[1];
             parameters.setPreviewFormat(ImageFormat.NV21);
-            CameraUtils.setParameters(mCamera, parameters);
+            CameraUtils.setParameters(camera, parameters);
+            mCamera = camera;
 
             // log camera all parameters
             if (CameraUtils.DEBUG) {
@@ -99,7 +98,6 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
                     }
                 }
             }
-
             if (mViewWidth > 0 && mViewHeight > 0) {
                 mMvpMatrix = GlUtil.changeMvpMatrixCrop(mViewWidth, mViewHeight, mCameraHeight, mCameraWidth);
             }
@@ -114,25 +112,25 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
         if (mCameraTexId <= 0 || mCamera == null || mIsPreviewing) {
             return;
         }
-        Log.d(TAG, "startPreview. cameraTexId:" + mCameraTexId + ", camera:" + mCamera);
-
+        Camera camera = mCamera;
+        Log.d(TAG, "startPreview. camera:" + camera);
         showImageTexture(mShotBitmap);
         try {
-            mCamera.stopPreview();
+            camera.stopPreview();
             if (mPreviewCallbackBufferArray == null) {
                 mPreviewCallbackBufferArray = new byte[PREVIEW_BUFFER_SIZE][mCameraWidth * mCameraHeight
                         * ImageFormat.getBitsPerPixel(ImageFormat.NV21) / 8];
             }
             // must call after stopPreview
-            mCamera.setPreviewCallbackWithBuffer(this);
+            camera.setPreviewCallbackWithBuffer(this);
             for (byte[] bytes : mPreviewCallbackBufferArray) {
-                mCamera.addCallbackBuffer(bytes);
+                camera.addCallbackBuffer(bytes);
             }
             if (mSurfaceTexture == null) {
                 mSurfaceTexture = new SurfaceTexture(mCameraTexId);
             }
-            mCamera.setPreviewTexture(mSurfaceTexture);
-            mCamera.startPreview();
+            camera.setPreviewTexture(mSurfaceTexture);
+            camera.startPreview();
             mIsPreviewing = true;
         } catch (Exception e) {
             Log.e(TAG, "cameraStartPreview: ", e);
@@ -141,19 +139,21 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
 
     @Override
     protected void closeCamera() {
-        Log.d(TAG, "closeCamera. thread:" + Thread.currentThread().getName());
+        Log.d(TAG, "closeCamera. camera:" + mCamera);
         try {
-            if (mCamera != null) {
-                mCamera.stopPreview();
-                mCamera.setPreviewTexture(null);
-                mCamera.setPreviewCallbackWithBuffer(null);
-                mCamera.release();
+            Camera camera = mCamera;
+            if (camera != null) {
+                camera.stopPreview();
+                camera.setPreviewTexture(null);
+                camera.setPreviewCallbackWithBuffer(null);
+                camera.release();
                 mCamera = null;
             }
-            mIsPreviewing = false;
         } catch (Exception e) {
             Log.e(TAG, "releaseCamera: ", e);
+            mCamera = null;
         }
+        mIsPreviewing = false;
         super.closeCamera();
     }
 
@@ -161,7 +161,7 @@ public class Camera1Renderer extends BaseCameraRenderer implements Camera.Previe
     public void onPreviewFrame(byte[] data, Camera camera) {
         // called on CameraRenderer thread
         mCameraNv21Byte = data;
-        mCamera.addCallbackBuffer(data);
+        camera.addCallbackBuffer(data);
         if (!mIsStopPreview) {
             mGlSurfaceView.requestRender();
         }

@@ -8,8 +8,11 @@ import android.net.Uri;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
@@ -53,8 +56,8 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
     private int mVideoHeight = 1280;
     private int mViewWidth;
     private int mViewHeight;
-    private int mVideoRotation = 0;
-    private float[] mTexMatrix = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+    private int mVideoRotation;
+    private final float[] mTexMatrix = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     private float[] mMvpMatrix;
     private float[] mLandmarksData;
     private ProgramLandmarks mProgramLandmarks;
@@ -103,7 +106,7 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
             }
         });
         try {
-            count.await(1000, TimeUnit.MILLISECONDS);
+            count.await(500, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // ignored
         }
@@ -153,6 +156,11 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         boolean isLandscape = mVideoRotation % 180 == 0;
         mMvpMatrix = GlUtil.changeMvpMatrixInside(width, height, isLandscape ? mVideoWidth : mVideoHeight,
                 isLandscape ? mVideoHeight : mVideoWidth);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            if (mVideoWidth > mVideoHeight) {
+                Matrix.rotateM(mMvpMatrix, 0, 360 - mVideoRotation, 0, 0, 1);
+            }
+        }
         mOnVideoRendererStatusListener.onSurfaceChanged(width, height, mVideoWidth, mVideoHeight, mVideoRotation, mIsSystemCameraRecord);
         Log.d(TAG, "onSurfaceChanged() viewWidth:" + width + ", viewHeight:" + height + ", videoWidth:"
                 + mVideoWidth + ", videoHeight:" + mVideoHeight + ", videoRotation:" + mVideoRotation
@@ -197,10 +205,10 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
 
     private void onSurfaceDestroy() {
         Log.d(TAG, "onSurfaceDestroy");
-        if (mVideoTextureId != 0) {
+        if (mVideoTextureId > 0) {
             int[] textures = new int[]{mVideoTextureId};
-            GLES20.glDeleteTextures(1, textures, 0);
-            mVideoTextureId = 0;
+            GlUtil.deleteTextures(textures);
+            mVideoTextureId = -1;
         }
         if (mProgramTexture2d != null) {
             mProgramTexture2d.release();
@@ -304,12 +312,16 @@ public class VideoRenderer implements GLSurfaceView.Renderer {
         return mMvpMatrix;
     }
 
+    public int getVideoRotation() {
+        return mVideoRotation;
+    }
+
     public int get2dTexture() {
         return m2DTexId;
     }
 
     private void startPlayerThread() {
-        HandlerThread playerThread = new HandlerThread("exo_player");
+        HandlerThread playerThread = new HandlerThread("exo_player", Process.THREAD_PRIORITY_BACKGROUND);
         playerThread.start();
         mPlayerHandler = new Handler(playerThread.getLooper());
     }

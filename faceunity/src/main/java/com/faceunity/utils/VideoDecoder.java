@@ -3,7 +3,6 @@ package com.faceunity.utils;
 import android.graphics.SurfaceTexture;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.opengl.EGL14;
 import android.opengl.EGLContext;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
@@ -11,6 +10,7 @@ import android.opengl.Matrix;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Process;
 import android.util.Log;
 import android.view.Surface;
 
@@ -21,36 +21,37 @@ import com.faceunity.gles.core.OffscreenSurface;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 
 import javax.microedition.khronos.opengles.GL10;
+
 
 /**
  * @author Richie on 2020.08.21
  */
 public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = "VideoDecoder";
-    private int mVideoWidth = 1280;
-    private int mVideoHeight = 720;
+    private int mVideoWidth = 1;
+    private int mVideoHeight = 1;
     private String mVideoPath;
     private SurfaceTexture mSurfaceTexture;
-    private EGLContext mSharedContext = EGL14.EGL_NO_CONTEXT;
-    private ProgramTextureOES mProgramTextureOES;
+    private ProgramTextureOES mProgramTextureOes;
     private OffscreenSurface mOffscreenSurface;
     private EglCore mEglCore;
     private MediaPlayer mMediaPlayer;
-    private ByteBuffer mRgbaBuffer;
     private int mVideoTexId;
-    private float[] mMvpMatrix;
-    private float[] mTexMatrix = new float[16];
-    private int[] mTextures = new int[1];
-    private int[] mFrameBuffers = new int[1];
-    private byte[] mRgbaByte;
-    private volatile boolean mIsStopDecode;
+    private final float[] mMvpMatrix = new float[16];
+    private final int[] mTextures = new int[1];
+    private final int[] mFrameBuffers = new int[1];
+    private final int[] mViewport = new int[4];
+    private final int[] mFboBackup = new int[1];
+    private boolean mIsStopRunning;
     private Handler mDecodeHandler;
     private Surface mSurface;
-    private OnReadPixelListener mOnReadPixelListener;
-    private boolean mIsFrontCam;
+    private boolean mIsFrontCam = true;
+    private OnPlayerStartListener mOnPlayerStartListener;
+    private boolean mUseTexture = true;
+    private ByteBuffer mRgbaBuffer;
+    private byte[] mRgbaByte;
 
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture) {
@@ -59,37 +60,45 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
         } catch (Exception e) {
             return;
         }
-        surfaceTexture.getTransformMatrix(mTexMatrix);
         int drawWidth = mVideoWidth;
         int drawHeight = mVideoHeight;
+        int[] viewport = mViewport;
+        GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
+        GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, mFboBackup, 0);
         GLES20.glViewport(0, 0, drawWidth, drawHeight);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[0]);
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        if (mProgramTextureOES != null) {
-            mProgramTextureOES.drawFrame(mVideoTexId, mTexMatrix, mMvpMatrix);
+        if (mProgramTextureOes != null) {
+            mProgramTextureOes.drawFrame(mVideoTexId, GlUtil.IDENTITY_MATRIX, mMvpMatrix);
         }
-        ByteBuffer rgbaBuffer = mRgbaBuffer;
-        rgbaBuffer.rewind();
-        GLES20.glReadPixels(0, 0, drawWidth, drawHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, rgbaBuffer);
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-        rgbaBuffer.rewind();
-        rgbaBuffer.get(mRgbaByte);
-        if (mOnReadPixelListener != null && !mIsStopDecode) {
-            mOnReadPixelListener.onReadPixel(drawWidth, drawHeight, mRgbaByte);
+
+        if (!mUseTexture) {
+            ByteBuffer rgbaBuffer = mRgbaBuffer;
+            rgbaBuffer.rewind();
+            GLES20.glReadPixels(0, 0, drawWidth, drawHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, rgbaBuffer);
+            rgbaBuffer.rewind();
+            rgbaBuffer.get(mRgbaByte);
+            if (mOnPlayerStartListener != null) {
+                mOnPlayerStartListener.onReadPixel(drawWidth, drawHeight, mRgbaByte);
+            }
         }
+
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFboBackup[0]);
+        GLES20.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
     }
 
-    public void setOnReadPixelListener(OnReadPixelListener onReadPixelListener) {
-        mOnReadPixelListener = onReadPixelListener;
-    }
-
-    public void create(EGLContext sharedContext, boolean isFrontCam) {
-        Log.d(TAG, "create() called with: sharedContext = [" + sharedContext + "], isFrontCam = [" + isFrontCam + "]");
-        mSharedContext = sharedContext;
-        mIsFrontCam = isFrontCam;
-        HandlerThread handlerThread = new HandlerThread("video_decoder");
+    public void create(final EGLContext sharedContext) {
+        Log.d(TAG, "create sharedContext " + sharedContext);
+        HandlerThread handlerThread = new HandlerThread("video_decoder", Process.THREAD_PRIORITY_BACKGROUND);
         handlerThread.start();
-        mDecodeHandler = new Handler(handlerThread.getLooper());
+        Handler decodeHandler = new Handler(handlerThread.getLooper());
+        decodeHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                createSurface(sharedContext);
+            }
+        });
+        mDecodeHandler = decodeHandler;
+        computeDrawParams();
     }
 
     public void setFrontCam(final boolean frontCam) {
@@ -102,37 +111,54 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
         });
     }
 
-    private void computeDrawParams() {
-        mMvpMatrix = Arrays.copyOf(GlUtil.IDENTITY_MATRIX, GlUtil.IDENTITY_MATRIX.length);
-        Matrix.rotateM(mMvpMatrix, 0, 180, 0, 0, 1);
-        Matrix.scaleM(mMvpMatrix, 0, mIsFrontCam ? 1 : -1, 1, 1);
+    public void setUseTexture(boolean useTexture) {
+        mUseTexture = useTexture;
+    }
+
+    public void setOnPlayerStartListener(OnPlayerStartListener onPlayerStartListener) {
+        mOnPlayerStartListener = onPlayerStartListener;
     }
 
     public void start(String videoPath) {
-        Log.d(TAG, "start: ");
+        Log.d(TAG, "start videoPath " + videoPath);
+        mIsStopRunning = false;
         mVideoPath = videoPath;
-        mIsStopDecode = false;
         mDecodeHandler.post(new Runnable() {
             @Override
             public void run() {
+                int videoWidth = mVideoWidth;
+                int videoHeight = mVideoHeight;
                 retrieveVideoInfo();
-                createSurface();
+                if (videoWidth != mVideoWidth || videoHeight != mVideoHeight) {
+                    Log.i(TAG, "recreate offscreen surface");
+                    int capacity = mVideoWidth * mVideoHeight * 4;
+                    ByteBuffer rgbaBuffer = ByteBuffer.allocateDirect(capacity);
+                    rgbaBuffer.order(ByteOrder.LITTLE_ENDIAN);
+                    mRgbaBuffer = rgbaBuffer;
+                    mRgbaByte = new byte[capacity];
+                    releaseOffScreenSurface();
+                    createOffScreenSurface();
+                }
                 createMediaPlayer();
             }
         });
     }
 
     public void stop() {
-        Log.d(TAG, "stop: ");
-        if (mIsStopDecode) {
+        Log.d(TAG, "stop");
+        if (mIsStopRunning) {
             return;
         }
-        mIsStopDecode = true;
+        mIsStopRunning = true;
         mDecodeHandler.post(new Runnable() {
             @Override
             public void run() {
-                releaseMediaPlayer();
-                releaseSurface();
+                if (mMediaPlayer != null) {
+                    mMediaPlayer.reset();
+                }
+                releaseOffScreenSurface();
+                mVideoWidth = 1;
+                mVideoHeight = 1;
             }
         });
     }
@@ -140,7 +166,19 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
     public void release() {
         Log.d(TAG, "release");
         stop();
+        mDecodeHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                releaseMediaPlayer();
+                releaseSurface();
+            }
+        });
         mDecodeHandler.getLooper().quitSafely();
+    }
+
+    private void computeDrawParams() {
+        Matrix.setIdentityM(mMvpMatrix, 0);
+        Matrix.scaleM(mMvpMatrix, 0, mIsFrontCam ? -1 : 1, 1, 1);
     }
 
     private void retrieveVideoInfo() {
@@ -156,24 +194,17 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
         } finally {
             mediaMetadataRetriever.release();
         }
-        int capacity = mVideoWidth * mVideoHeight * 4;
-        mRgbaBuffer = ByteBuffer.allocate(capacity);
-        mRgbaBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        mRgbaByte = new byte[capacity];
-        computeDrawParams();
         Log.d(TAG, "retrieveVideoInfo DecodeVideoTask path:" + mVideoPath + ", width:" + mVideoWidth + ", height:" + mVideoHeight);
     }
 
-    private void createSurface() {
+    private void createSurface(EGLContext sharedContext) {
         Log.d(TAG, "createSurface");
-        releaseSurface();
-        mEglCore = new EglCore(mSharedContext, 0);
-        mOffscreenSurface = new OffscreenSurface(mEglCore, mVideoWidth, mVideoHeight);
-        mOffscreenSurface.makeCurrent();
+        mEglCore = new EglCore(sharedContext, 0);
+        createOffScreenSurface();
         mVideoTexId = GlUtil.createTextureObject(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
         mSurfaceTexture = new SurfaceTexture(mVideoTexId);
-        mProgramTextureOES = new ProgramTextureOES();
-        GlUtil.createFrameBuffers(mTextures, mFrameBuffers, mVideoWidth, mVideoHeight);
+        mSurface = new Surface(mSurfaceTexture);
+        mProgramTextureOes = new ProgramTextureOES();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mSurfaceTexture.setOnFrameAvailableListener(this, mDecodeHandler);
         } else {
@@ -183,26 +214,30 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
 
     private void createMediaPlayer() {
         Log.d(TAG, "createMediaPlayer");
-        releaseMediaPlayer();
         try {
-            mMediaPlayer = new MediaPlayer();
+            if (mMediaPlayer != null) {
+                mMediaPlayer.reset();
+            } else {
+                mMediaPlayer = new MediaPlayer();
+            }
             mMediaPlayer.setDataSource(mVideoPath);
             mMediaPlayer.setVolume(0F, 0F);
             mMediaPlayer.setLooping(true);
-            mSurface = new Surface(mSurfaceTexture);
             mMediaPlayer.setSurface(mSurface);
             mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(final MediaPlayer mp) {
                     Log.d(TAG, "onPrepared");
                     mMediaPlayer.start();
+                    if (mOnPlayerStartListener != null) {
+                        mOnPlayerStartListener.onStart(mTextures[0]);
+                    }
                 }
             });
             mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
                     mp.reset();
-                    createMediaPlayer();
                     return true;
                 }
             });
@@ -223,32 +258,46 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
             mSurface.release();
             mSurface = null;
         }
-        if (mProgramTextureOES != null) {
-            mProgramTextureOES.release();
-            mProgramTextureOES = null;
-        }
-        if (mFrameBuffers[0] > 0) {
-            GlUtil.deleteFrameBuffers(mFrameBuffers);
-            mFrameBuffers[0] = -1;
-        }
-        if (mTextures[0] > 0) {
-            GlUtil.deleteTextures(mTextures);
-            mTextures[0] = -1;
+        if (mProgramTextureOes != null) {
+            mProgramTextureOes.release();
+            mProgramTextureOes = null;
         }
         if (mVideoTexId > 0) {
             int[] textures = new int[]{mVideoTexId};
             GlUtil.deleteTextures(textures);
             mVideoTexId = -1;
         }
-        if (mOffscreenSurface != null) {
-            mOffscreenSurface.release();
-            mOffscreenSurface = null;
-        }
+        releaseOffScreenSurface();
         if (mEglCore != null) {
             mEglCore.release();
             mEglCore = null;
         }
-        mSharedContext = EGL14.EGL_NO_CONTEXT;
+        mVideoWidth = 1;
+        mVideoHeight = 1;
+    }
+
+    private void createOffScreenSurface() {
+        Log.d(TAG, "createOffScreenSurface");
+        mOffscreenSurface = new OffscreenSurface(mEglCore, mVideoWidth, mVideoHeight);
+        mOffscreenSurface.makeCurrent();
+        GlUtil.createFrameBuffers(mTextures, mFrameBuffers, mVideoWidth, mVideoHeight);
+    }
+
+    private void releaseOffScreenSurface() {
+        Log.d(TAG, "releaseOffScreenSurface");
+        GlUtil.deleteFrameBuffers(mFrameBuffers);
+        if (mFrameBuffers[0] > 0) {
+            mFrameBuffers[0] = -1;
+        }
+        GlUtil.deleteTextures(mTextures);
+        if (mTextures[0] > 0) {
+            mTextures[0] = -1;
+        }
+        mFboBackup[0] = -1;
+        if (mOffscreenSurface != null) {
+            mOffscreenSurface.release();
+            mOffscreenSurface = null;
+        }
     }
 
     private void releaseMediaPlayer() {
@@ -256,6 +305,9 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
         if (mMediaPlayer != null) {
             try {
                 mMediaPlayer.stop();
+                mMediaPlayer.setSurface(null);
+                mMediaPlayer.setOnPreparedListener(null);
+                mMediaPlayer.setOnErrorListener(null);
                 mMediaPlayer.release();
             } catch (Exception e) {
                 Log.e(TAG, "releaseMediaPlayer: ", e);
@@ -264,9 +316,16 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
         }
     }
 
-    public interface OnReadPixelListener {
+    public interface OnPlayerStartListener {
         /**
-         * 读到 rgba 数据
+         * 视频 2D 纹理
+         *
+         * @param texId
+         */
+        void onStart(int texId);
+
+        /**
+         * 视频 RGBA 数据
          *
          * @param width
          * @param height
@@ -274,5 +333,4 @@ public class VideoDecoder implements SurfaceTexture.OnFrameAvailableListener {
          */
         void onReadPixel(int width, int height, byte[] rgba);
     }
-
 }

@@ -69,7 +69,8 @@ public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBun
             recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             recyclerView.setHasFixedSize(true);
             ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-            mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer);
+            ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(mEffectType);
+            mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer, effects);
             mEffectRecyclerAdapter.setPositionSelect(0);
             recyclerView.setAdapter(mEffectRecyclerAdapter);
             mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
@@ -93,7 +94,8 @@ public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBun
             recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             recyclerView.setHasFixedSize(true);
             ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-            mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer);
+            ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(mEffectType);
+            mEffectRecyclerAdapter = new EffectRecyclerAdapter(this, mEffectType, mFURenderer, effects);
             recyclerView.setAdapter(mEffectRecyclerAdapter);
             mEffectRecyclerAdapter.setOnDescriptionChangeListener(new EffectRecyclerAdapter.OnDescriptionChangeListener() {
                 @Override
@@ -132,7 +134,7 @@ public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBun
                 .setLoadAiHumanProcessor(isActionRecognition || isPortraitSegment)
                 .maxHumans(1)
                 .setNeedFaceBeauty(!(isActionRecognition))
-                .setLoadAiGesture(isGestureRecognition)
+                .setLoadAiHandProcessor(isGestureRecognition)
                 .setOnFUDebugListener(this)
                 .setOnTrackingStatusChangedListener(this)
                 .setOnBundleLoadCompleteListener(this)
@@ -199,8 +201,10 @@ public class FUEffectActivity extends FUBaseActivity implements FURenderer.OnBun
 
     @Override
     public void onTrackStatusChanged(int type, int status) {
-        if (mEffectType == Effect.EFFECT_TYPE_GESTURE_RECOGNITION) {
-            runOnUiThread(() -> mTvTrackStatus.setVisibility(View.GONE));
+        if ((mEffectType == Effect.EFFECT_TYPE_GESTURE_RECOGNITION && type != FURenderer.TRACK_TYPE_GESTURE)
+                || (mEffectType == Effect.EFFECT_TYPE_PORTRAIT_SEGMENT && type != FURenderer.TRACK_TYPE_HUMAN)) {
+            // do nothing
+            return;
         } else {
             super.onTrackStatusChanged(type, status);
         }

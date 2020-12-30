@@ -3,10 +3,12 @@ package com.faceunity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.opengl.EGL14;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -47,7 +49,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * 2.合理调用FURenderer构造函数
  * 3.对应的时机调用onSurfaceCreated和onSurfaceDestroyed
  * 4.处理图像时调用onDrawFrame
- // TODO: 2020/9/21 0021 拆分功能模块，目标是单一职责，高内聚低耦合
  */
 public class FURenderer implements OnFUControlListener {
     private static final String TAG = FURenderer.class.getSimpleName();
@@ -128,6 +129,7 @@ public class FURenderer implements OnFUControlListener {
     private static float mCheekNarrow = 0f;//窄脸
     private static float mCheekSmall = 0f;//小脸
     private static float mEyeEnlarging = 0.4f;//大眼
+    private static float mEyeCircle = 0.0f;//圆眼
     private static float mIntensityChin = 0.3f;//下巴
     private static float mIntensityForehead = 0.3f;//额头
     private static float mIntensityMouth = 0.4f;//嘴形
@@ -221,7 +223,7 @@ public class FURenderer implements OnFUControlListener {
     /* 人脸识别方向 */
     private int mRotationMode = faceunity.FU_ROTATION_MODE_90;
 
-    private boolean mIsLoadAiGesture;
+    private boolean mIsLoadAiHandProcessor;
     private boolean mIsLoadAiHumanProcessor;
 
     /**
@@ -296,6 +298,9 @@ public class FURenderer implements OnFUControlListener {
      * @param type       faceunity.FUAITYPE_XXX
      */
     private static void loadAiModel(Context context, String bundlePath, int type) {
+        if (faceunity.fuIsAIModelLoaded(type) == 1) {
+            return;
+        }
         byte[] buffer = readFile(context, bundlePath);
         if (buffer != null) {
             int isLoaded = faceunity.fuLoadAIModelFromPackage(buffer, type);
@@ -420,7 +425,7 @@ public class FURenderer implements OnFUControlListener {
         Log.e(TAG, "onSurfaceCreated");
         mEventQueue = Collections.synchronizedList(new ArrayList<Runnable>(16));
         mGlThreadId = Thread.currentThread().getId();
-        HandlerThread handlerThread = new HandlerThread("FUItemWorker");
+        HandlerThread handlerThread = new HandlerThread("FUItemWorker", Process.THREAD_PRIORITY_BACKGROUND);
         handlerThread.start();
         Handler fuItemHandler = new FUItemHandler(handlerThread.getLooper());
         mFuItemHandler = fuItemHandler;
@@ -449,7 +454,7 @@ public class FURenderer implements OnFUControlListener {
                 }
             });
         }
-        if (mIsLoadAiGesture) {
+        if (mIsLoadAiHandProcessor) {
             fuItemHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -709,6 +714,7 @@ public class FURenderer implements OnFUControlListener {
             mEventQueue = null;
         }
         if (mVideoDecoder != null) {
+            mVideoDecoder.setOnPlayerStartListener(null);
             mVideoDecoder.release();
             mVideoDecoder = null;
         }
@@ -796,7 +802,7 @@ public class FURenderer implements OnFUControlListener {
      */
     public static final int HUMAN_TRACK_SCENE_FULL = 1;
     public static final int HUMAN_TRACK_SCENE_HALF = 0;
-    private faceunity.RotatedImage mRotatedImage = new faceunity.RotatedImage();
+    private final faceunity.RotatedImage mRotatedImage = new faceunity.RotatedImage();
     private int[] mControllerBoundItems;
     private int mHumanTrackScene = HUMAN_TRACK_SCENE_FULL;
 
@@ -893,7 +899,7 @@ public class FURenderer implements OnFUControlListener {
         });
     }
 
-    public void selectPtaItem(final String path) {
+    public void selectPtaItem(final String path, final Runnable callback) {
         if (mItemsArray[0] <= 0) {
             loadPtaController();
         }
@@ -950,6 +956,9 @@ public class FURenderer implements OnFUControlListener {
                         System.arraycopy(validBindItems, 0, newControllerBoundItems, PTA_ALWAYS_BIND_ITEM_COUNT, validBindItems.length);
                         mControllerBoundItems = newControllerBoundItems;
                         Log.i(TAG, "run: final controller bind " + Arrays.toString(newControllerBoundItems));
+                        if (callback != null) {
+                            callback.run();
+                        }
                     }
                 });
             }
@@ -1146,23 +1155,25 @@ public class FURenderer implements OnFUControlListener {
         //计算FPS等数据
         benchmarkFPS();
         // 人脸、人体、手势检测
-        if (mIsLoadAiHumanProcessor) {
+        if (faceunity.fuIsAIModelLoaded(faceunity.FUAITYPE_FACEPROCESSOR) == 1) {
+            int trackFace = faceunity.fuIsTracking();
+            if (mOnTrackingStatusChangedListener != null && mTrackFaceStatus != trackFace) {
+                mTrackFaceStatus = trackFace;
+                mOnTrackingStatusChangedListener.onTrackStatusChanged(TRACK_TYPE_FACE, trackFace);
+            }
+        }
+        if (faceunity.fuIsAIModelLoaded(faceunity.FUAITYPE_HUMAN_PROCESSOR) == 1) {
             int trackHumans = faceunity.fuHumanProcessorGetNumResults();
             if (mOnTrackingStatusChangedListener != null && mTrackHumanStatus != trackHumans) {
                 mTrackHumanStatus = trackHumans;
                 mOnTrackingStatusChangedListener.onTrackStatusChanged(TRACK_TYPE_HUMAN, trackHumans);
             }
-        } else if (mIsLoadAiGesture) {
+        }
+        if (faceunity.fuIsAIModelLoaded(faceunity.FUAITYPE_HANDGESTURE) == 1) {
             int trackGesture = faceunity.fuHandDetectorGetResultNumHands();
             if (mOnTrackingStatusChangedListener != null && mTrackGestureStatus != trackGesture) {
                 mTrackGestureStatus = trackGesture;
                 mOnTrackingStatusChangedListener.onTrackStatusChanged(TRACK_TYPE_GESTURE, trackGesture);
-            }
-        } else {
-            int trackFace = faceunity.fuIsTracking();
-            if (mOnTrackingStatusChangedListener != null && mTrackFaceStatus != trackFace) {
-                mTrackFaceStatus = trackFace;
-                mOnTrackingStatusChangedListener.onTrackStatusChanged(TRACK_TYPE_FACE, trackFace);
             }
         }
 
@@ -1209,6 +1220,7 @@ public class FURenderer implements OnFUControlListener {
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.FACE_SHAPE_LEVEL, mFaceShapeLevel);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.FACE_SHAPE, mFaceShape);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.EYE_ENLARGING, mEyeEnlarging);
+            faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.INTENSITY_EYE_CIRCLE, mEyeCircle);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.CHEEK_THINNING, mCheekThinning);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.CHEEK_NARROW, mCheekNarrow);
             faceunity.fuItemSetParam(itemFaceBeauty, BeautificationParam.CHEEK_SMALL, mCheekSmall);
@@ -1301,8 +1313,7 @@ public class FURenderer implements OnFUControlListener {
                     if (mDefaultEffect != null && (mDefaultEffect.getType() == Effect.EFFECT_TYPE_PORTRAIT_SEGMENT
                             || mDefaultEffect.getType() == Effect.EFFECT_TYPE_ANIMOJI
                             || mDefaultEffect.getType() == Effect.EFFECT_TYPE_EXPRESSION_RECOGNITION
-                            || mDefaultEffect.getType() == Effect.EFFECT_TYPE_GESTURE_RECOGNITION
-                            || mDefaultEffect.getType() == Effect.EFFECT_TYPE_PORTRAIT_DRIVE)) {
+                            || mDefaultEffect.getType() == Effect.EFFECT_TYPE_GESTURE_RECOGNITION)) {
                         resetTrackStatus();
                     }
                     int rotationMode = calculateRotationMode();
@@ -1593,6 +1604,12 @@ public class FURenderer implements OnFUControlListener {
     @Override
     public void onEyeEnlargeSelected(float level) {
         mEyeEnlarging = level;
+        mIsNeedUpdateFaceBeauty = true;
+    }
+
+    @Override
+    public void onEyeCircleSelected(float level) {
+        mEyeCircle = level;
         mIsNeedUpdateFaceBeauty = true;
     }
 
@@ -2107,7 +2124,7 @@ public class FURenderer implements OnFUControlListener {
                 public void run() {
                     int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
                     if (item > 0) {
-                        faceunity.fuDeleteTexForItem(item, "tex_bg");
+                        faceunity.fuItemSetParam(item, "tex_bg", 0);
                     }
                 }
             });
@@ -2130,24 +2147,6 @@ public class FURenderer implements OnFUControlListener {
             }
         });
     }
-
-    private VideoDecoder.OnReadPixelListener mOnReadPixelListener = new VideoDecoder.OnReadPixelListener() {
-
-        @Override
-        public void onReadPixel(final int width, final int height, final byte[] rgba) {
-            queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
-                    if (item > 0) {
-                        faceunity.fuDeleteTexForItem(item, "tex_bg");
-                        faceunity.fuCreateTexForItem(item, "tex_bg", rgba, width, height);
-//                        Log.v(TAG, "fuCreateTexForItem: tex_bg. rgba: " + rgba + ", width: " + width + ", height: " + height);
-                    }
-                }
-            });
-        }
-    };
 
     /**
      * 海报换脸，输入人脸五官，自动变形调整
@@ -2318,8 +2317,10 @@ public class FURenderer implements OnFUControlListener {
             //rotationAngle 参数是用于旋转普通道具
             faceunity.fuItemSetParam(itemHandle, "rotationAngle", mRotationMode * 90);
         }
+        // 区分相机前后置
+        faceunity.fuItemSetParam(itemHandle, "is_front_camera", mCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK ? 0 : 1);
         int back = mCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK ? 1 : 0;
-        if (effectType == Effect.EFFECT_TYPE_ANIMOJI || effectType == Effect.EFFECT_TYPE_PORTRAIT_DRIVE) {
+        if (effectType == Effect.EFFECT_TYPE_ANIMOJI) {
             // 镜像顶点
             faceunity.fuItemSetParam(itemHandle, "is3DFlipH", back);
             // 镜像表情
@@ -2357,6 +2358,8 @@ public class FURenderer implements OnFUControlListener {
         faceunity.fuItemSetParam(itemHandle, "rotationMode", rotMode);
         // for green_screen bundle
         faceunity.fuItemSetParam(itemHandle, "rotation_mode", rotMode);
+        // for guangban bundle
+        faceunity.fuItemSetParam(itemHandle, "freeRotMode", rotMode);
     }
 
     /*----------------------------------Builder---------------------------------------*/
@@ -2369,7 +2372,7 @@ public class FURenderer implements OnFUControlListener {
         private Effect defaultEffect;
         private int maxFaces = 4;
         private int maxHumans = 1;
-        private Context context;
+        private final Context context;
         private int inputTextureType = 0;
         private int inputImageFormat = 0;
         private int inputOrientation = 270;
@@ -2385,7 +2388,7 @@ public class FURenderer implements OnFUControlListener {
         private OnTrackingStatusChangedListener onTrackingStatusChangedListener;
         private OnSystemErrorListener onSystemErrorListener;
 
-        private boolean mIsLoadAiGesture;
+        private boolean mIsLoadAiHandProcessor;
         private boolean mIsLoadAiHumanProcessor;
 
         public Builder(Context context) {
@@ -2395,11 +2398,11 @@ public class FURenderer implements OnFUControlListener {
         /**
          * 是否加载手势识别 AI 模型
          *
-         * @param loadAiGesture
+         * @param loadAiHandProcessor
          * @return
          */
-        public Builder setLoadAiGesture(boolean loadAiGesture) {
-            mIsLoadAiGesture = loadAiGesture;
+        public Builder setLoadAiHandProcessor(boolean loadAiHandProcessor) {
+            mIsLoadAiHandProcessor = loadAiHandProcessor;
             return this;
         }
 
@@ -2634,7 +2637,7 @@ public class FURenderer implements OnFUControlListener {
             fuRenderer.mOnTrackingStatusChangedListener = onTrackingStatusChangedListener;
             fuRenderer.mOnSystemErrorListener = onSystemErrorListener;
             fuRenderer.mOnBundleLoadCompleteListener = onBundleLoadCompleteListener;
-            fuRenderer.mIsLoadAiGesture = mIsLoadAiGesture;
+            fuRenderer.mIsLoadAiHandProcessor = mIsLoadAiHandProcessor;
             fuRenderer.mIsLoadAiHumanProcessor = mIsLoadAiHumanProcessor;
             return fuRenderer;
         }
@@ -2684,10 +2687,45 @@ public class FURenderer implements OnFUControlListener {
                                     mVideoDecoder = new VideoDecoder();
                                     boolean external = mExternalInputType == EXTERNAL_INPUT_TYPE_IMAGE ||
                                             mExternalInputType == EXTERNAL_INPUT_TYPE_VIDEO;
-                                    mVideoDecoder.create(EGL14.eglGetCurrentContext(), !external && mCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT);
-                                    mVideoDecoder.setOnReadPixelListener(mOnReadPixelListener);
+                                    mVideoDecoder.create(EGL14.eglGetCurrentContext());
+                                    // 魅族 MX5 导入处理视频时，存在兼容性问题，不支持传纹理，采用传 RGBA 方案，特此判断
+                                    boolean cantUseTexture = external && "Meizu".equals(Build.BRAND) && "MX5".equals(Build.MODEL);
+                                    Log.w(TAG, "run: cantUseTexture " + cantUseTexture);
+                                    mVideoDecoder.setUseTexture(!cantUseTexture);
+                                    mVideoDecoder.setFrontCam(!external && mCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT);
+                                    mVideoDecoder.setOnPlayerStartListener(new VideoDecoder.OnPlayerStartListener() {
+                                        @Override
+                                        public void onStart(final int texId) {
+                                            queueEvent(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                                                    if (item > 0) {
+                                                        faceunity.fuItemSetParam(item, "tex_bg", texId);
+                                                        Log.d(TAG, "run: fuItemSetParam tex_bg:" + texId);
+                                                    }
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onReadPixel(final int width, final int height, final byte[] rgba) {
+                                            queueEvent(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    int item = mItemsArray[ITEM_ARRAYS_EFFECT_INDEX];
+                                                    if (item > 0) {
+                                                        faceunity.fuDeleteTexForItem(item, "tex_bg");
+                                                        faceunity.fuCreateTexForItem(item, "tex_bg", rgba, width, height);
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
                                 }
-                                setTexBgSource(mSourcePath);
+                                if (mSourcePath != null) {
+                                    setTexBgSource(mSourcePath);
+                                }
                                 setRunBgSegGreen(mRunBgSegGreen);
                             }
                             updateEffectItemParams(effect, itemEffect);

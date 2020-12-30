@@ -1,0 +1,9 @@
+{
+  "filter_name": "ziran5",
+  "filter_level": 0.55,
+  "color_level": 0.2,
+  "red_level": 0.65,
+  "blur_level": 0.55,
+  "cheek_thinning": 0.1,
+  "cheek_small": 0.1
+}

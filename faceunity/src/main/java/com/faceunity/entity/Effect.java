@@ -18,14 +18,13 @@ public class Effect {
     public static final int EFFECT_TYPE_PORTRAIT_SEGMENT = 5;
     public static final int EFFECT_TYPE_GESTURE_RECOGNITION = 6;
     public static final int EFFECT_TYPE_ANIMOJI = 7;
-    public static final int EFFECT_TYPE_PORTRAIT_DRIVE = 8;
-    public static final int EFFECT_TYPE_FACE_WARP = 9;
-    public static final int EFFECT_TYPE_MUSIC_FILTER = 10;
-    public static final int EFFECT_TYPE_HAIR_NORMAL = 11;
-    public static final int EFFECT_TYPE_HAIR_GRADIENT = 12;
-    public static final int EFFECT_TYPE_PTA = 13;
-    public static final int EFFECT_TYPE_BIG_HEAD = 14;
-    public static final int EFFECT_TYPE_BG_SEG_GREEN = 15;
+    public static final int EFFECT_TYPE_FACE_WARP = 8;
+    public static final int EFFECT_TYPE_MUSIC_FILTER = 9;
+    public static final int EFFECT_TYPE_HAIR_NORMAL = 10;
+    public static final int EFFECT_TYPE_HAIR_GRADIENT = 11;
+    public static final int EFFECT_TYPE_PTA = 12;
+    public static final int EFFECT_TYPE_BIG_HEAD = 13;
+    public static final int EFFECT_TYPE_BG_SEG_GREEN = 14;
 
     private String bundleName;
     private int iconId;

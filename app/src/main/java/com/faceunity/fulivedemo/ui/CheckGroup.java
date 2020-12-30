@@ -2,6 +2,7 @@ package com.faceunity.fulivedemo.ui;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -24,6 +25,7 @@ public class CheckGroup extends LinearLayout {
     private boolean mProtectFromCheckedChange = false;
     private CheckGroup.OnCheckedChangeListener mOnCheckedChangeListener;
     private PassThroughHierarchyChangeListener mPassThroughListener;
+    private OnDispatchActionUpListener mOnDispatchActionUpListener;
 
     /**
      * {@inheritDoc}
@@ -48,6 +50,10 @@ public class CheckGroup extends LinearLayout {
         super.setOnHierarchyChangeListener(mPassThroughListener);
     }
 
+    public void setOnDispatchActionUpListener(OnDispatchActionUpListener onDispatchActionUpListener) {
+        mOnDispatchActionUpListener = onDispatchActionUpListener;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -55,6 +61,16 @@ public class CheckGroup extends LinearLayout {
     public void setOnHierarchyChangeListener(OnHierarchyChangeListener listener) {
         // the user listener is delegated to our pass-through listener
         mPassThroughListener.mOnHierarchyChangeListener = listener;
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (ev.getAction() == MotionEvent.ACTION_UP) {
+            if (mOnDispatchActionUpListener != null) {
+                mOnDispatchActionUpListener.onDispatchActionUp((int) ev.getX());
+            }
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     /**
@@ -249,5 +265,14 @@ public class CheckGroup extends LinearLayout {
                 mOnHierarchyChangeListener.onChildViewRemoved(parent, child);
             }
         }
+    }
+
+    public interface OnDispatchActionUpListener {
+        /**
+         * 分发 action up 事件时回调
+         *
+         * @param x
+         */
+        void onDispatchActionUp(int x);
     }
 }

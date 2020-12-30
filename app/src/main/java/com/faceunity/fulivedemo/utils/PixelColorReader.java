@@ -1,7 +1,6 @@
 package com.faceunity.fulivedemo.utils;
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 import com.faceunity.gles.ProgramTexture2d;
 import com.faceunity.gles.core.GlUtil;
@@ -18,15 +17,14 @@ import javax.microedition.khronos.opengles.GL10;
  * @author Richie on 2020.08.19
  */
 public class PixelColorReader {
-    private static final String TAG = "PixelColorReader";
     private int mViewWidth;
     private int mViewHeight;
     private ProgramTexture2d mProgramTexture2d;
-    private ByteBuffer mByteBuffer = ByteBuffer.allocateDirect(4);
-    private byte[] mByteArray = new byte[4];
-    private int[] mTexId = new int[1];
-    private int[] mFboId = new int[1];
-    private int[] mViewport = new int[4];
+    private final ByteBuffer mByteBuffer;
+    private final byte[] mByteArray = new byte[4];
+    private final int[] mTexId = new int[1];
+    private final int[] mFboId = new int[1];
+    private final int[] mViewport = new int[4];
     private float[] mMvpMatrix;
     private float[] mTexMatrix;
     private int mCenterX;
@@ -34,7 +32,8 @@ public class PixelColorReader {
     private int mTexture;
     private OnReadRgbaListener mOnReadRgbaListener;
 
-    {
+    public PixelColorReader() {
+        mByteBuffer = ByteBuffer.allocateDirect(4);
         mByteBuffer.order(ByteOrder.LITTLE_ENDIAN);
     }
 
@@ -61,10 +60,9 @@ public class PixelColorReader {
         mOnReadRgbaListener = onReadRgbaListener;
     }
 
-    private Runnable mCreateRunnable = new Runnable() {
+    private final Runnable mCreateRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "run: create fbo");
             GlUtil.createFrameBuffers(mTexId, mFboId, mViewWidth, mViewHeight);
             mProgramTexture2d = new ProgramTexture2d();
         }
@@ -74,24 +72,28 @@ public class PixelColorReader {
         return mCreateRunnable;
     }
 
-    private Runnable mDrawRunnable = new Runnable() {
+    private final Runnable mDrawRunnable = new Runnable() {
         @Override
         public void run() {
-            GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, mViewport, 0);
+            int[] viewport = mViewport;
+            GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFboId[0]);
             GLES20.glViewport(0, 0, mViewWidth, mViewHeight);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
             mProgramTexture2d.drawFrame(mTexture, mTexMatrix, mMvpMatrix);
-            mByteBuffer.clear();
-            GLES20.glReadPixels(mCenterX, mCenterY, 1, 1, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, mByteBuffer);
-            GLES20.glViewport(mViewport[0], mViewport[1], mViewport[2], mViewport[3]);
-            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-            mByteBuffer.rewind();
-            mByteBuffer.get(mByteArray);
-            int r = ((int) mByteArray[0]) & 0xFF;
-            int g = ((int) mByteArray[1]) & 0xFF;
-            int b = ((int) mByteArray[2]) & 0xFF;
-            int a = ((int) mByteArray[3]) & 0xFF;
+            ByteBuffer byteBuffer = mByteBuffer;
+            byteBuffer.clear();
+            GLES20.glReadPixels(mCenterX, mCenterY, 1, 1, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, byteBuffer);
+            GLES20.glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, GLES20.GL_NONE);
+            GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_NONE);
+            byteBuffer.rewind();
+            byte[] byteArray = mByteArray;
+            byteBuffer.get(byteArray);
+            int r = ((int) byteArray[0]) & 0xFF;
+            int g = ((int) byteArray[1]) & 0xFF;
+            int b = ((int) byteArray[2]) & 0xFF;
+            int a = ((int) byteArray[3]) & 0xFF;
             if (mOnReadRgbaListener != null) {
                 mOnReadRgbaListener.onReadRgba(r, g, b, a);
             }
@@ -102,10 +104,9 @@ public class PixelColorReader {
         return mDrawRunnable;
     }
 
-    private Runnable mDestroyRunnable = new Runnable() {
+    private final Runnable mDestroyRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "run: delete fbo");
             mTexture = -1;
             GlUtil.deleteFrameBuffers(mFboId);
             mFboId[0] = -1;
@@ -113,6 +114,7 @@ public class PixelColorReader {
             mTexId[0] = -1;
             if (mProgramTexture2d != null) {
                 mProgramTexture2d.release();
+                mProgramTexture2d = null;
             }
         }
     };
@@ -132,5 +134,4 @@ public class PixelColorReader {
          */
         void onReadRgba(int r, int g, int b, int a);
     }
-
 }

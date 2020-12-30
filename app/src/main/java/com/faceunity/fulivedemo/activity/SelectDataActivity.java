@@ -12,11 +12,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.utils.ToastUtil;
 import com.faceunity.utils.MiscUtil;
 
 import java.io.File;
+import java.util.Iterator;
+import java.util.List;
 
 public class SelectDataActivity extends AppCompatActivity {
     public static final String TAG = SelectDataActivity.class.getSimpleName();
@@ -179,6 +182,17 @@ public class SelectDataActivity extends AppCompatActivity {
             }
             break;
             default:
+        }
+    }
+
+    public static void filterEffectList(List<Effect> effects) {
+        for (Iterator<Effect> iterator = effects.iterator(); iterator.hasNext(); ) {
+            Effect effect = iterator.next();
+            String bundleName = effect.getBundleName();
+            // 导入图片和视频不用这两个，通过 bundleName 过滤，注意 hard code！
+            if ("expression_shooting".equals(bundleName) || "zhenxinhua_damaoxian".equals(bundleName)) {
+                iterator.remove();
+            }
         }
     }
 }

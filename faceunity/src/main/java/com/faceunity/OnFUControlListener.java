@@ -10,7 +10,6 @@ import java.util.Map;
 
 /**
  * FURenderer 与界面之间的交互接口
- // TODO: 2020/9/21 0021 违反接口隔离原则，实在太臃肿了，给点时间重构吧
  */
 public interface OnFUControlListener {
     /**
@@ -120,6 +119,13 @@ public interface OnFUControlListener {
      * @param level
      */
     void onEyeEnlargeSelected(float level);
+
+    /**
+     * 圆眼
+     *
+     * @param level
+     */
+    void onEyeCircleSelected(float level);
 
     /**
      * 瘦脸

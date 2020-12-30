@@ -95,8 +95,8 @@ public class MainActivity extends AppCompatActivity {
         moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_body, R.string.home_function_name_beauty_body, "0-32", Effect.EFFECT_TYPE_NONE, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_whole_body, R.string.home_function_name_human_avatar, "0-448", Effect.EFFECT_TYPE_PTA, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_action, R.string.home_function_name_action_recognition, "2-65536", Effect.EFFECT_TYPE_ACTION_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.main_background, R.string.home_function_name_portrait_segment, "258-0", Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, ModuleEntity.UI_TYPE_MODULE));
-        moduleEntities.add(new ModuleEntity(R.drawable.main_gesture, R.string.home_function_name_gesture, "514-0", Effect.EFFECT_TYPE_GESTURE_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_background, R.string.home_function_name_portrait_segment, "256-0", Effect.EFFECT_TYPE_PORTRAIT_SEGMENT, ModuleEntity.UI_TYPE_MODULE));
+        moduleEntities.add(new ModuleEntity(R.drawable.main_gesture, R.string.home_function_name_gesture, "512-0", Effect.EFFECT_TYPE_GESTURE_RECOGNITION, ModuleEntity.UI_TYPE_MODULE));
         moduleEntities.add(new ModuleEntity(R.drawable.demo_icon_green_curtain, R.string.home_function_name_bg_seg_green, "0-512", Effect.EFFECT_TYPE_BG_SEG_GREEN, ModuleEntity.UI_TYPE_MODULE));
         return Collections.unmodifiableList(moduleEntities);
     }

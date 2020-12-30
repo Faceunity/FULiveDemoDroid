@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.faceunity.OnFUControlListener;
 import com.faceunity.entity.Effect;
 import com.faceunity.fulivedemo.R;
-import com.faceunity.fulivedemo.entity.EffectEnum;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 
 import java.io.IOException;
@@ -37,10 +36,10 @@ public class EffectRecyclerAdapter extends RecyclerView.Adapter<EffectRecyclerAd
     private OnDescriptionChangeListener mOnDescriptionChangeListener;
     private OnEffectSelectedListener mOnEffectSelectedListener;
 
-    public EffectRecyclerAdapter(Context context, int effectType, OnFUControlListener onFUControlListener) {
+    public EffectRecyclerAdapter(Context context, int effectType, OnFUControlListener onFUControlListener, List<Effect> effects) {
         mContext = context;
         mEffectType = effectType;
-        mEffects = EffectEnum.getEffectsByEffectType(mEffectType);
+        mEffects = effects;
         mOnFUControlListener = onFUControlListener;
     }
 

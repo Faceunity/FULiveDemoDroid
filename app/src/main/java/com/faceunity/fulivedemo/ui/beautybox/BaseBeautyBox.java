@@ -52,6 +52,7 @@ public class BaseBeautyBox extends LinearLayout implements Checkable {
         });
         findViews(context);
         obtainStyle(context, attrs, defStyleAttr);
+        setOpen(mIsOpen);
     }
 
     protected void findViews(Context context) {

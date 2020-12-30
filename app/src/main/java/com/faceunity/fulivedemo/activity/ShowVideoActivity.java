@@ -58,6 +58,7 @@ import com.faceunity.utils.MiscUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 
@@ -84,7 +85,6 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     private ColorPickerTouchEvent mColorPickerTouchEvent;
     private int mPickedColor;
     private boolean mIsShowColorPicker;
-    private boolean mIsLandscapeVideo;
     private BgSegGreenControlView mBgSegGreenControlView;
     private GestureTouchHandler mGestureTouchHandler;
 
@@ -120,10 +120,15 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
 
                 @Override
                 public void onTransform(float x1, float y1, float x2, float y2) {
-                    if (mIsLandscapeVideo) {
+                    int videoRotation = mVideoRenderer.getVideoRotation();
+                    if (videoRotation == 0) {
                         mFURenderer.setTransform(x1, y1, x2, y2);
-                    } else {
+                    } else if (videoRotation == 90) {
                         mFURenderer.setTransform(y1, 1 - x2, y2, 1 - x1);
+                    } else if (videoRotation == 270) {
+                        mFURenderer.setTransform(1 - y2, x1, 1 - y1, x2);
+                    } else if (videoRotation == 180) {
+                        mFURenderer.setTransform(1 - x2, 1 - y2, 1 - x1, 1 - y1);
                     }
                 }
 
@@ -181,7 +186,7 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
                 .inputTextureType(FURenderer.FU_ADM_FLAG_EXTERNAL_OES_TEXTURE)
                 .setNeedBeautyHair(isHairSeg)
                 .setNeedBodySlim(isBodySlim)
-                .setLoadAiGesture(isGestureRecognition)
+                .setLoadAiHandProcessor(isGestureRecognition)
                 .defaultEffect(isBgSegGreen ? EffectEnum.BG_SEG_GREEN.effect() : null)
                 .setNeedFaceBeauty(!isBodySlim)
                 .setCameraFacing(Camera.CameraInfo.CAMERA_FACING_BACK)
@@ -292,7 +297,10 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
             effectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             effectRecyclerView.setHasFixedSize(true);
             EffectRecyclerAdapter effectRecyclerAdapter;
-            effectRecyclerView.setAdapter(effectRecyclerAdapter = new EffectRecyclerAdapter(this, selectEffectType, mFURenderer));
+            ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(selectEffectType);
+            SelectDataActivity.filterEffectList(effects);
+            effectRecyclerAdapter = new EffectRecyclerAdapter(this, selectEffectType, mFURenderer, effects);
+            effectRecyclerView.setAdapter(effectRecyclerAdapter);
             ((SimpleItemAnimator) effectRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
             if (selectEffectType != Effect.EFFECT_TYPE_HAIR_GRADIENT) {
                 mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(selectEffectType).get(1));
@@ -365,7 +373,6 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
     @Override
     public void onSurfaceChanged(int width, int height, int videoWidth, int videoHeight, int videoRotation, boolean isSystemCameraRecord) {
         mFURenderer.setVideoParams(videoRotation, isSystemCameraRecord);
-        mIsLandscapeVideo = videoRotation % 180 == 0;
         if (mGestureTouchHandler != null) {
             mGestureTouchHandler.setViewSize(width, height);
         }
@@ -565,4 +572,5 @@ public class ShowVideoActivity extends AppCompatActivity implements VideoRendere
         int blue = Color.blue(color);
         mFURenderer.setKeyColor(new double[]{red, green, blue});
     }
+
 }

@@ -10,7 +10,7 @@ FULiveDemoDroid 是 Android 平台上，集成相芯人脸跟踪及视频特效�
 相关文档位于本项目docs目录，包括:
 
 1. [Android_Nama_Demo_运行文档.md](./docs/Android_Nama_Demo_运行文档.md) ，介绍如何运行demo。  
-2. [Android_Nama_SDK_集成文档.md](./docs/Android_Nama_SDK_集成指导文档.md) ，介绍如何在宿主App中集成Nama SDK。   
+2. [Android_Nama_SDK_集成指导文档.md](./docs/Android_Nama_SDK_集成指导文档.md) ，介绍如何在宿主App中集成Nama SDK。   
 3. [Android_Nama_Java_API_参考文档.md](./docs/Android_Nama_Java_API_参考文档.md)，Nama SDK Android接口定义。  
 
 ## English
