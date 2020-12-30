@@ -202,6 +202,13 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     }
 
     public void onPause() {
+        mBackgroundHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                closeCamera();
+            }
+        });
+        stopBackgroundThread();
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         mGlSurfaceView.queueEvent(new Runnable() {
             @Override
@@ -216,13 +223,6 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
             // ignored
         }
         mGlSurfaceView.onPause();
-        mBackgroundHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                closeCamera();
-            }
-        });
-        stopBackgroundThread();
     }
 
     public void setRenderRotatedImage(boolean renderRotatedImage) {
@@ -436,16 +436,29 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
     }
 
     private void startBackgroundThread() {
-        HandlerThread backgroundThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
-        backgroundThread.start();
-        mBackgroundHandler = new Handler(backgroundThread.getLooper());
+        if (mBackgroundHandler == null) {
+            HandlerThread backgroundThread = new HandlerThread(TAG, Process.THREAD_PRIORITY_BACKGROUND);
+            backgroundThread.start();
+            mBackgroundHandler = new Handler(backgroundThread.getLooper());
+        } else {
+            mBackgroundHandler.removeCallbacks(mQuitEvent);
+        }
     }
 
     private void stopBackgroundThread() {
         if (mBackgroundHandler != null) {
+            mBackgroundHandler.removeCallbacks(mQuitEvent);
+            // 5s 后销毁相机线程，减少快速切换前后台带来的开销
+            mBackgroundHandler.postDelayed(mQuitEvent, 5000);
+        }
+    }
+
+    private final Runnable mQuitEvent = new Runnable() {
+        @Override
+        public void run() {
             mBackgroundHandler.getLooper().quitSafely();
             mBackgroundHandler = null;
         }
-    }
+    };
 
 }

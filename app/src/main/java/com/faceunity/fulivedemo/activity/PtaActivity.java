@@ -10,8 +10,12 @@ import com.faceunity.fulivedemo.renderer.BaseCameraRenderer;
 import com.faceunity.fulivedemo.ui.adapter.EffectRecyclerAdapter;
 import com.faceunity.fulivedemo.utils.CameraUtils;
 
+/**
+ * 全身 Avatar
+ */
 public class PtaActivity extends FUEffectActivity {
     public static final String TAG = "PtaActivity";
+    private boolean mLoadedController;
 
     @Override
     protected void onCreate() {
@@ -19,11 +23,10 @@ public class PtaActivity extends FUEffectActivity {
         mInputTypeRadioGroup.setVisibility(View.GONE);
         mTakePicBtn.setVisibility(View.INVISIBLE);
         mCameraRenderer.setCameraFacing(BaseCameraRenderer.FACE_BACK);
-        mCameraRenderer.setRenderRotatedImage(true);
         mEffectRecyclerAdapter.setOnEffectSelectedListener(new EffectRecyclerAdapter.OnEffectSelectedListener() {
             @Override
             public void onEffectSelected(Effect effect) {
-                mFURenderer.selectPtaItem(effect.getBundlePath());
+                mFURenderer.selectPtaItem(effect.getBundlePath(), null);
             }
         });
     }
@@ -49,23 +52,37 @@ public class PtaActivity extends FUEffectActivity {
     public void onSurfaceCreated() {
         super.onSurfaceCreated();
         Effect effect = mEffectRecyclerAdapter.getSelectEffect();
-        mFURenderer.selectPtaItem(effect.getBundlePath());
+        mFURenderer.selectPtaItem(effect.getBundlePath(), new Runnable() {
+            @Override
+            public void run() {
+                mLoadedController = true;
+                mCameraRenderer.setRenderRotatedImage(true);
+            }
+        });
     }
 
     @Override
     public int onDrawFrame(byte[] cameraNv21Byte, int cameraTextureId, int cameraWidth, int cameraHeight, float[] mvpMatrix, float[] texMatrix, long timeStamp) {
-        return mFURenderer.onDrawFramePta(cameraNv21Byte, cameraTextureId, cameraWidth, cameraHeight);
+        int texId;
+        if (mLoadedController) {
+            texId = mFURenderer.onDrawFramePta(cameraNv21Byte, cameraTextureId, cameraWidth, cameraHeight);
+        } else {
+            texId = mFURenderer.onDrawFrame(cameraNv21Byte, cameraTextureId, cameraWidth, cameraHeight);
+        }
+        return texId;
+    }
+
+    @Override
+    public void onSurfaceDestroy() {
+        super.onSurfaceDestroy();
+        mLoadedController = false;
+        mCameraRenderer.setRenderRotatedImage(false);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mCameraRenderer.onTouchEvent((int) event.getX(), (int) event.getY(), event.getAction());
         return true;
-    }
-
-    @Override
-    public void onCameraChanged(int cameraFacing, int cameraOrientation) {
-        super.onCameraChanged(cameraFacing, cameraOrientation);
     }
 
 }

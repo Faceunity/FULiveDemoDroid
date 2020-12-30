@@ -43,6 +43,7 @@
     <string name="beauty_box_eye_bright">亮眼</string>
     <string name="beauty_box_tooth_whiten">美牙</string>
     <string name="beauty_box_eye_enlarge">大眼</string>
+    <string name="beauty_box_eye_circle">圆眼</string>
     <string name="beauty_box_cheek_thinning">瘦脸</string>
     <string name="beauty_box_cheek_v">V脸</string>
     <string name="beauty_box_cheek_narrow">窄脸</string>
@@ -56,6 +57,7 @@
     <string name="beauty_radio_skin_beauty">美肤</string>
     <string name="beauty_radio_face_shape">美型</string>
     <string name="beauty_radio_filter">滤镜</string>
+    <string name="beauty_radio_style">风格推荐</string>
     <string name="beauty_micro_pouch">去黑眼圈</string>
     <string name="beauty_micro_nasolabial">去法令纹</string>
     <string name="beauty_micro_smile">微笑嘴角</string>
@@ -64,6 +66,15 @@
     <string name="beauty_micro_long_nose">长鼻</string>
     <string name="beauty_micro_eye_space">眼距</string>
     <string name="beauty_micro_eye_rotate">眼睛角度</string>
+    <string name="beauty_face_style_none">无</string>
+    <string name="beauty_face_style_1">风格 1</string>
+    <string name="beauty_face_style_2">风格 2</string>
+    <string name="beauty_face_style_3">风格 3</string>
+    <string name="beauty_face_style_4">风格 4</string>
+    <string name="beauty_face_style_5">风格 5</string>
+    <string name="beauty_face_style_6">风格 6</string>
+    <string name="beauty_face_style_7">风格 7</string>
+    <string name="beauty_face_style_toast">使用%s先取消“风格推荐”</string>
 
     <string name="makeup_radio_lipstick">口红</string>
     <string name="makeup_radio_blusher">腮红</string>

@@ -15,6 +15,9 @@ fuItemSetParamd(1, "current_instance_id", 1.0);
 
 //获取当前角色的id
 fuItemGetParamd(1, "current_instance_id");
+
+//销毁对应参数的instance,释放对应instance占用的资源,不能释放当前正在使用的instance
+fuItemSetParamd(1, "destroy_instance", 1.0);
 ```
 
 ------
@@ -201,20 +204,36 @@ fuItemSetParamd(1, "play_camera_animation", 2);
 //从头播放句柄为2的相机动画（单次）
 fuItemSetParamd(1, "play_camera_animation_once", 2);
 
+//设置当前动画是否使用进度值，如果设置1，则动画不随时间播放，而是设置成进度值，如果设置0，则动画随时间播放
+fuItemSetParamd(1, "set_camera_animation_use_progress", 1);
+
+//设置当前动画进度
+//进度0~0.9999为第一次循环，1.0~1.9999为第二次循环，以此类推
+fuItemSetParamd(1, "set_camera_animation_progress", 0.5);
+
+//仅在当前处于过渡状态时生效
+//设置当前动画过渡是否使用进度值，如果设置1，则动画过渡不随时间播放，而是设置成进度值，如果设置0，则动画随时间播放
+fuItemSetParamd(1, "set_camera_animation_use_transition_progress", 1);
+
+//仅在当前处于过渡状态时生效（获取当前是否在过渡的接口见下文）
+//设置当前动画过渡进度
+//范围为0~1.0，0为开始，1.0为结束
+fuItemSetParamd(1, "set_camera_animation_transition_progress", 0.5);
+
 //继续播放当前相机动画，参数无意义
 fuItemSetParamd(1, "start_camera_animation", 1);
 
 //暂停播放当前相机动画，参数无意义
 fuItemSetParamd(1, "pause_camera_animation", 1);
 
-//结束播放相机动画，参数无意义
-fuItemSetParamd(1, "stop_camera_animation", 1);
-
-//重置相机动画，参数无意义，效果相当于先调用stop_camera_animation再调用start_camera_animation
+//重置相机动画，参数无意义
 fuItemSetParamd(1, "reset_camera_animation", 1);
 
+//打印当前相机动画状态的log
+fuItemSetParamd(1, "camera_clipmixer_Print", 1);
+
 //设置相机动画的过渡时间，单位为秒
-fuItemSetParamd(1, "camera_animation_transition_time", 4.0); 
+fuItemSetParamd(1, "camera_animation_transition_time", 1.5); 
 
 //1为开启，0为关闭，开启时会把25帧的相机动画插值到实际渲染帧数（如60帧）从而使得相机动画更流畅，但是某些情况下不适合插值，如有闪现操作等不希望插值的相机动画，可以主动关闭。
 //这个参数默认开启
@@ -227,10 +246,10 @@ fuItemSetParamd(1, "camera_animation_internal_lerp", 1.0);
 //即使play_animation_once，进度也会突破1.0，照常运行
 fuItemGetParamd(1, "{\"name\":\"get_camera_animation_progress\", \"anim_id\":2}"); 
 
-//获取句柄为2的相机动画的当前过渡进度
-//进度小于0时，这个相机动画没有在过渡状态，不论作为source还是target
+//获取当前的相机动画的当前过渡进度
+//进度小于0时，这个相机动画没有在过渡状态
 //进度大于等于0时，这个相机动画在过渡中，范围为0~1.0，0为开始，1.0为结束
-fuItemGetParamd(1, "{\"name\":\"get_camera_animation_transition_progress\", \"anim_id\":2}"); 
+fuItemGetParamd(1, "{\"name\":\"get_camera_animation_transition_progress\"}"); 
 
 //获取句柄为2的相机动画的总帧数
 fuItemGetParamd(1, "{\"name\":\"get_camera_animation_frame_num\", \"anim_id\":2}"); 
@@ -458,6 +477,13 @@ fuItemSetParamd(1, "set_face_processor_face_id", 0.0);
 
 //4.退出程序前，需要销毁Face Processor相关资源
 fuReleaseAIModel(FUAITYPE::FUAITYPE_FACEPROCESSOR);
+
+//5.根据面部追踪自动调整模型位置，达到近大远小的效果（AR模式下无效）
+//translation_scale_follow_face_processor 设置在XYZ三个方向上移动的敏感度
+//translation_offset_follow_face_processor 设置算法检测的参考位置
+fuItemSetParamdv(1, "translation_scale_follow_face_processor", [1.6,1.0,2.0]);
+fuItemSetParamdv(1, "translation_offset_follow_face_processor", [0.0, 0.0, -23.0]);
+
 ```
 ------
 
@@ -929,9 +955,35 @@ fuItemSetParamd(1, "low_quality_lighting", 1.0);
 //参数名为json结构
 {
     "name":"update_tex_from_data", //字符串， 固定
-    "UUID":0, //整数，目标道具的handle id，如果设置UUID = 0，则表示目标道具是头
-    "dc_name":"eyeL", //字符串，目标mesh的名字
+    "UUID":5, //整数，目标道具的handle id
+    "dc_name":"eyeL", //字符串, 目标mesh的名字, //如果是背景道具可以忽略 
 }
 
-fuCreateTexForItem(1, "{\"name\":\"update_tex_from_data\", \"UUID\":0, \"dc_name\":\"eyel\"}", __pointer data, int width, int height);
+fuCreateTexForItem(1, "{\"name\":\"update_tex_from_data\", \"UUID\":5, \"dc_name\":\"eyel\"}", __pointer data, int width, int height);
+```
+##### 更新背景贴图参数
+```C
+//参数名为json结构
+{
+    "name":"global", //字符串， 固定
+    "type":"background", // 字符串， 固定
+    "param":"size_x_tex_live", //字符串，可选参数（size_x_tex_live， size_y_tex_live， offset_x_tex_live， offset_y_tex_live， is_foreground）
+    "UUID":5, //整数，目标道具的handle id
+}
+fuItemSetParamd(1, "{\"name\":\"global\", \"type\":\"background\", \"param\":\"size_x_tex_live\", \"UUID\":5}", 1.0);
+```
+##### 对FUAI结果进行处理
+```C
+// 处理FUAI结果，对齐到给fuSetInputCameraMatrix设置的参数，要求input camera tex和input camera buffer对齐
+fuItemSetParamd(1, "fuai_align_input_camera_matrix", 1.0);
+```
+
+##### 使用低分辨率贴图资源
+```C
+fuItemSetParamd(1, "use_low_resolution_tex", 1.0);
+```
+
+##### 恢复捏脸（只对使用拼脸的捏脸方案有效）
+```C
+fuItemSetParamd(1, "reset_head", 1.0);
 ```

@@ -310,6 +310,16 @@
                         app:text_normal="@string/beauty_box_eye_enlarge" />
 
                     <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_eye_circle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_round_eye_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_round_eye_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_round_eye_sel_open"
+                        app:drawable_open_normal="@drawable/demo_icon_round_eye_nor_open"
+                        app:text_normal="@string/beauty_box_eye_circle" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
                         android:id="@+id/beauty_box_intensity_chin"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -413,6 +423,140 @@
             </HorizontalScrollView>
         </FrameLayout>
 
+        <FrameLayout
+            android:id="@+id/fl_face_style_items"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_style_none"
+                android:layout_width="@dimen/x132"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/tv_style_none"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/x30"
+                    android:text="@string/beauty_face_style_none"
+                    android:textColor="@color/beauty_control_bottom_radio_color"
+                    android:textSize="@dimen/text_size_20"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
+
+                <ImageView
+                    android:id="@+id/iv_style_none"
+                    android:layout_width="@dimen/x88"
+                    android:layout_height="@dimen/x88"
+                    android:layout_marginBottom="@dimen/x18"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/sel_style_none_image"
+                    app:layout_constraintBottom_toTopOf="@+id/tv_style_none"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:layout_width="@dimen/x1"
+                android:layout_height="@dimen/x40"
+                android:layout_gravity="left|top"
+                android:layout_marginLeft="@dimen/x133"
+                android:layout_marginTop="@dimen/x24"
+                android:background="@color/divider_line_color" />
+
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="@dimen/x134">
+
+                <com.faceunity.fulivedemo.ui.beautybox.BeautyBoxGroup
+                    android:id="@+id/beauty_group_style"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal|bottom"
+                    android:orientation="horizontal">
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_style_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_style_1_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_style_1_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_style_1_sel"
+                        app:drawable_open_normal="@drawable/demo_icon_style_1_nor"
+                        app:text_normal="@string/beauty_face_style_1" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_style_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_style_2_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_style_2_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_style_2_sel"
+                        app:drawable_open_normal="@drawable/demo_icon_style_2_nor"
+                        app:text_normal="@string/beauty_face_style_2" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_style_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_style_3_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_style_3_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_style_3_sel"
+                        app:drawable_open_normal="@drawable/demo_icon_style_3_nor"
+                        app:text_normal="@string/beauty_face_style_3" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_style_4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_style_4_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_style_4_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_style_4_sel"
+                        app:drawable_open_normal="@drawable/demo_icon_style_4_nor"
+                        app:text_normal="@string/beauty_face_style_4" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_style_5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_style_5_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_style_5_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_style_5_sel"
+                        app:drawable_open_normal="@drawable/demo_icon_style_5_nor"
+                        app:text_normal="@string/beauty_face_style_5" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_style_6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_style_6_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_style_6_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_style_6_sel"
+                        app:drawable_open_normal="@drawable/demo_icon_style_6_nor"
+                        app:text_normal="@string/beauty_face_style_6" />
+
+                    <com.faceunity.fulivedemo.ui.beautybox.BeautyBox
+                        android:id="@+id/beauty_box_style_7"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:drawable_close_checked="@drawable/demo_icon_style_7_sel"
+                        app:drawable_close_normal="@drawable/demo_icon_style_7_nor"
+                        app:drawable_open_checked="@drawable/demo_icon_style_7_sel"
+                        app:drawable_open_normal="@drawable/demo_icon_style_7_nor"
+                        app:text_normal="@string/beauty_face_style_7" />
+
+                </com.faceunity.fulivedemo.ui.beautybox.BeautyBoxGroup>
+            </HorizontalScrollView>
+        </FrameLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/filter_recycle_view"
             android:layout_width="match_parent"
@@ -465,6 +609,18 @@
             android:button="@null"
             android:gravity="center"
             android:text="@string/beauty_radio_filter"
+            android:textColor="@color/beauty_control_bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+        <com.faceunity.fulivedemo.ui.CheckBoxCompat
+            android:id="@+id/beauty_radio_style"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/beauty_radio_style"
             android:textColor="@color/beauty_control_bottom_radio_color"
             android:textSize="@dimen/text_size_26" />
 

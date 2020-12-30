@@ -3,7 +3,6 @@ package com.faceunity.utils;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.opengl.GLES20;
 import android.os.Build;
 
 import java.io.File;
@@ -33,9 +32,10 @@ public final class DeviceUtils {
                 ", Android SDK: " + Build.VERSION.SDK_INT +
                 ", Supported ABIs: " + getSupportedAbis() +
                 ", Main ABI: " + getMainAbi(context) +
-                ", GL Vendor: " + GLES20.glGetString(GLES20.GL_VENDOR) +
-                ", GL Renderer: " + GLES20.glGetString(GLES20.GL_RENDERER) +
-                ", GL Version : " + GLES20.glGetString(GLES20.GL_VERSION) +
+                // the following three gl call maybe cause fatal crash???
+//                ", GL Vendor: " + GLES20.glGetString(GLES20.GL_VENDOR) +
+//                ", GL Renderer: " + GLES20.glGetString(GLES20.GL_RENDERER) +
+//                ", GL Version : " + GLES20.glGetString(GLES20.GL_VERSION) +
                 ", App Name: " + context.getPackageManager().getApplicationLabel(context.getApplicationInfo()) +
                 ", App Package Name: " + context.getPackageName() +
                 ", App VersionName: " + getAppVersionName(context) +
@@ -47,7 +47,7 @@ public final class DeviceUtils {
             String packageName = context.getPackageName();
             PackageManager pm = context.getPackageManager();
             PackageInfo pi = pm.getPackageInfo(packageName, 0);
-            return pi == null ? null : pi.versionName;
+            return pi == null ? "" : pi.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             return "";
         }

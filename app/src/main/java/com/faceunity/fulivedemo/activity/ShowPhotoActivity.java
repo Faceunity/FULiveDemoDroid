@@ -51,6 +51,7 @@ import com.faceunity.utils.Constant;
 import com.faceunity.utils.MiscUtil;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class ShowPhotoActivity extends AppCompatActivity implements PhotoRenderer.OnRendererStatusListener,
         FURenderer.OnTrackingStatusChangedListener, SensorEventListener, ColorPickerTouchEvent.OnTouchEventListener {
@@ -142,7 +143,7 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
                 .setLoadAiHumanProcessor(loadAiHumanProcessor)
                 .setNeedBeautyHair(isHairSeg)
                 .setNeedBodySlim(isBodySlim)
-                .setLoadAiGesture(isGestureRecognition)
+                .setLoadAiHandProcessor(isGestureRecognition)
                 .defaultEffect(isBgSegGreen ? EffectEnum.BG_SEG_GREEN.effect() : null)
                 .setNeedFaceBeauty(!isBodySlim)
                 .setCameraFacing(Camera.CameraInfo.CAMERA_FACING_BACK)
@@ -259,7 +260,10 @@ public class ShowPhotoActivity extends AppCompatActivity implements PhotoRendere
             effectRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
             effectRecyclerView.setHasFixedSize(true);
             EffectRecyclerAdapter effectRecyclerAdapter;
-            effectRecyclerView.setAdapter(effectRecyclerAdapter = new EffectRecyclerAdapter(this, selectEffectType, mFURenderer));
+            ArrayList<Effect> effects = EffectEnum.getEffectsByEffectType(selectEffectType);
+            SelectDataActivity.filterEffectList(effects);
+            effectRecyclerAdapter = new EffectRecyclerAdapter(this, selectEffectType, mFURenderer, effects);
+            effectRecyclerView.setAdapter(effectRecyclerAdapter);
             ((SimpleItemAnimator) effectRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
             if (selectEffectType != Effect.EFFECT_TYPE_HAIR_GRADIENT) {
                 mFURenderer.setDefaultEffect(EffectEnum.getEffectsByEffectType(selectEffectType).get(1));

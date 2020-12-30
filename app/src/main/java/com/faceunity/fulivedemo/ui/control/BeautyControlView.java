@@ -33,16 +33,11 @@ import com.faceunity.fulivedemo.ui.seekbar.DiscreteSeekBar;
 import com.faceunity.fulivedemo.utils.DecimalUtils;
 import com.faceunity.fulivedemo.utils.OnMultiClickListener;
 import com.faceunity.fulivedemo.utils.ToastUtil;
+import com.faceunity.param.BeautificationParam;
 
 import java.util.List;
-
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.DEFAULT_FILTER_LEVEL;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.STR_FILTER_LEVEL;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.getValue;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.isOpen;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sFilter;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.sFilterLevel;
-import static com.faceunity.fulivedemo.entity.BeautyParameterModel.setValue;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 美颜
@@ -51,8 +46,10 @@ import static com.faceunity.fulivedemo.entity.BeautyParameterModel.setValue;
 public class BeautyControlView extends FrameLayout implements TouchStateImageView.OnTouchStateListener {
     private static final String TAG = "BeautyControlView";
     private Context mContext;
-
     private OnFUControlListener mOnFUControlListener;
+    private BeautyBoxGroup mBbgStyle;
+    private View mClStyleNone;
+    private BeautyBoxGroup.OnCheckedChangeListener mOnFaceStyleCheckedChangeListener;
 
     public void setOnFUControlListener(@NonNull OnFUControlListener onFUControlListener) {
         mOnFUControlListener = onFUControlListener;
@@ -63,6 +60,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
     private BeautyBoxGroup mSkinBeautyBoxGroup;
     private BeautyBoxGroup mShapeBeautyBoxGroup;
     private FrameLayout mFlFaceShapeItems;
+    private FrameLayout mFlFaceStyleItems;
     private ImageView mIvRecoverFaceShape;
     private TextView mTvRecoverFaceShape;
     private ImageView mIvRecoverFaceSkin;
@@ -73,9 +71,10 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
     private DiscreteSeekBar mBeautySeekBar;
     private TouchStateImageView mIvCompare;
     private boolean isShown;
-    private List<Filter> mFilters;
+    private final List<Filter> mFilters;
     // 默认选中第三个粉嫩
     private int mFilterPositionSelect = 2;
+    private boolean mEnableBottomRationClick = true;
 
     public BeautyControlView(Context context) {
         this(context, null);
@@ -106,14 +105,17 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         initViewBottomRadio();
         initViewSkinBeauty();
         initViewFaceShape();
+        initViewFaceStyle();
         initViewFilterRecycler();
         initViewTop();
+        BeautyParameterModel.initConfigMap(mContext);
     }
 
     public void onResume() {
         updateViewSkinBeauty();
         updateViewFaceShape();
         updateViewFilterRecycler();
+        updateViewFaceStyle();
         hideBottomLayoutAnimator();
     }
 
@@ -124,6 +126,25 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
 
     private void initViewBottomRadio() {
         mBottomCheckGroup = findViewById(R.id.beauty_radio_group);
+        mBottomCheckGroup.setOnDispatchActionUpListener(new CheckGroup.OnDispatchActionUpListener() {
+
+            @Override
+            public void onDispatchActionUp(int x) {
+                if (!mEnableBottomRationClick) {
+                    int width = mBottomCheckGroup.getMeasuredWidth();
+                    if (x < width * 0.25) {
+                        String toastStr = mContext.getString(R.string.beauty_face_style_toast, mContext.getString(R.string.beauty_radio_skin_beauty));
+                        ToastUtil.showNormalToast(mContext, toastStr);
+                    } else if (x < width * 0.5) {
+                        String toastStr = mContext.getString(R.string.beauty_face_style_toast, mContext.getString(R.string.beauty_radio_face_shape));
+                        ToastUtil.showNormalToast(mContext, toastStr);
+                    } else if (x < width * 0.75f) {
+                        String toastStr = mContext.getString(R.string.beauty_face_style_toast, mContext.getString(R.string.beauty_radio_filter));
+                        ToastUtil.showNormalToast(mContext, toastStr);
+                    }
+                }
+            }
+        });
         mBottomCheckGroup.setOnCheckedChangeListener(new CheckGroup.OnCheckedChangeListener() {
             private int checkedIdOld = View.NO_ID;
 
@@ -133,23 +154,30 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
                 if (checkedId != View.NO_ID) {
                     switch (checkedId) {
                         case R.id.beauty_radio_skin_beauty: {
+                            BeautyParameterModel.sBackupParams.clear();
                             seekToSeekBar(mSkinBeautyBoxGroup.getCheckedBeautyBoxId());
                         }
                         break;
                         case R.id.beauty_radio_face_shape: {
+                            BeautyParameterModel.sBackupParams.clear();
                             seekToSeekBar(mShapeBeautyBoxGroup.getCheckedBeautyBoxId());
                         }
                         break;
                         case R.id.beauty_radio_filter: {
-                            Float valueObj = sFilterLevel.get(STR_FILTER_LEVEL + sFilter.getName());
+                            BeautyParameterModel.sBackupParams.clear();
+                            Float valueObj = BeautyParameterModel.sFilterLevel.get(BeautyParameterModel.STR_FILTER_LEVEL + BeautyParameterModel.sFilter.getName());
                             if (valueObj == null) {
-                                valueObj = DEFAULT_FILTER_LEVEL;
+                                valueObj = BeautyParameterModel.DEFAULT_FILTER_LEVEL;
                             }
                             if (mFilterPositionSelect > 0) {
                                 seekToSeekBar(valueObj);
                             } else {
                                 mBeautySeekBar.setVisibility(INVISIBLE);
                             }
+                        }
+                        break;
+                        case R.id.beauty_radio_style: {
+                            BeautyParameterModel.backupParams();
                         }
                         break;
                         default:
@@ -225,6 +253,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
 
     private void updateViewFaceShape() {
         onChangeFaceBeautyLevel(R.id.beauty_box_eye_enlarge);
+        onChangeFaceBeautyLevel(R.id.beauty_box_eye_circle);
         onChangeFaceBeautyLevel(R.id.beauty_box_cheek_thinning);
         onChangeFaceBeautyLevel(R.id.beauty_box_cheek_v);
         onChangeFaceBeautyLevel(R.id.beauty_box_cheekbones);
@@ -252,10 +281,25 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
     }
 
     private void updateViewFilterRecycler() {
-        mFilterRecyclerAdapter.setFilter(sFilter);
-        mOnFUControlListener.onFilterNameSelected(sFilter.getName());
-        float filterLevel = getFilterLevel(sFilter.getName());
+        mFilterRecyclerAdapter.setFilter(BeautyParameterModel.sFilter);
+        mOnFUControlListener.onFilterNameSelected(BeautyParameterModel.sFilter.getName());
+        float filterLevel = getFilterLevel(BeautyParameterModel.sFilter.getName());
         mOnFUControlListener.onFilterLevelSelected(filterLevel);
+    }
+
+    private boolean mReadyForClear;
+
+    private void updateViewFaceStyle() {
+        int checkFaceStyleId = BeautyParameterModel.sCheckFaceStyleId;
+        if (checkFaceStyleId != View.NO_ID) {
+            mBbgStyle.check(checkFaceStyleId);
+            mOnFaceStyleCheckedChangeListener.onCheckedChanged(mBbgStyle, checkFaceStyleId);
+        } else {
+            mReadyForClear = true;
+            mBbgStyle.clearCheck();
+            mClStyleNone.setSelected(true);
+            setBottomCheckRatioEnable(true);
+        }
     }
 
     private void initViewFaceShape() {
@@ -295,6 +339,186 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         checkFaceShapeChanged();
     }
 
+    private void initViewFaceStyle() {
+        mFlFaceStyleItems = findViewById(R.id.fl_face_style_items);
+        mClStyleNone = mFlFaceStyleItems.findViewById(R.id.cl_style_none);
+        mClStyleNone.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.isSelected()) {
+                    return;
+                }
+                mBbgStyle.clearCheck();
+                boolean selected = !v.isSelected();
+                v.setSelected(selected);
+                BeautyParameterModel.sCheckFaceStyleId = View.NO_ID;
+                setBottomCheckRatioEnable(selected);
+                applyConfigMap(BeautyParameterModel.sBackupParams);
+            }
+        });
+        mBbgStyle = mFlFaceStyleItems.findViewById(R.id.beauty_group_style);
+        mOnFaceStyleCheckedChangeListener = new BeautyBoxGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(BeautyBoxGroup group, int checkedId) {
+                if (mReadyForClear) {
+                    mReadyForClear = false;
+                    return;
+                }
+                if (checkedId != NO_ID && group.getCheckedBeautyBoxId() == checkedId) {
+                    applyConfigMap(BeautyParameterModel.sDefaultConfigMap.get(BeautyParameterModel.CONFIG_NONE));
+                    BeautyParameterModel.sCheckFaceStyleId = checkedId;
+                    mClStyleNone.setSelected(false);
+                    setBottomCheckRatioEnable(false);
+                    Map<String, Object> configMap = null;
+                    switch (checkedId) {
+                        case R.id.beauty_box_style_1:
+                            configMap = BeautyParameterModel.sDefaultConfigMap.get(BeautyParameterModel.CONFIG_KUAISHOU);
+                            break;
+                        case R.id.beauty_box_style_2:
+                            configMap = BeautyParameterModel.sDefaultConfigMap.get(BeautyParameterModel.CONFIG_QINGYAN);
+                            break;
+                        case R.id.beauty_box_style_3:
+                            configMap = BeautyParameterModel.sDefaultConfigMap.get(BeautyParameterModel.CONFIG_ZIJIETIAODONG);
+                            break;
+                        case R.id.beauty_box_style_4:
+                            configMap = BeautyParameterModel.sDefaultConfigMap.get(BeautyParameterModel.CONFIG_HUAJIAO);
+                            break;
+                        case R.id.beauty_box_style_5:
+                            configMap = BeautyParameterModel.sDefaultConfigMap.get(BeautyParameterModel.CONFIG_YINGKE);
+                            break;
+                        case R.id.beauty_box_style_6:
+                            configMap = BeautyParameterModel.sDefaultConfigMap.get(BeautyParameterModel.CONFIG_SHANGTANG);
+                            break;
+                        case R.id.beauty_box_style_7:
+                            configMap = BeautyParameterModel.sDefaultConfigMap.get(BeautyParameterModel.CONFIG_BIAOZHUN);
+                            break;
+                        default:
+                    }
+                    if (configMap != null) {
+                        applyConfigMap(configMap);
+                    }
+                }
+            }
+        };
+        mBbgStyle.setOnCheckedChangeListener(mOnFaceStyleCheckedChangeListener);
+    }
+
+    private void setBottomCheckRatioEnable(boolean enable) {
+        mEnableBottomRationClick = enable;
+        for (int i = 0, childCount = mBottomCheckGroup.getChildCount(); i < childCount; i++) {
+            View view = mBottomCheckGroup.getChildAt(i);
+            if (view.getId() != R.id.beauty_radio_style) {
+                view.setAlpha(enable ? 1f : 0.6f);
+                view.setEnabled(enable);
+            }
+        }
+    }
+
+    private void applyConfigMap(Map<String, Object> map) {
+        if (mOnFUControlListener == null) {
+            return;
+        }
+        Set<Map.Entry<String, Object>> entries = map.entrySet();
+        for (Map.Entry<String, Object> entry : entries) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            float fVaule = 0f;
+            if (value instanceof Double) {
+                double dValue = (Double) value;
+                fVaule = (float) dValue;
+            } else if (value instanceof Float) {
+                fVaule = (float) value;
+            }
+            switch (key) {
+                case BeautificationParam.FILTER_NAME:
+                    mOnFUControlListener.onFilterNameSelected((String) value);
+                    break;
+                case BeautificationParam.FILTER_LEVEL:
+                    mOnFUControlListener.onFilterLevelSelected(fVaule);
+                    break;
+                case BeautificationParam.BLUR_LEVEL:
+                    mOnFUControlListener.onBlurLevelSelected(fVaule);
+                    break;
+                case BeautificationParam.COLOR_LEVEL:
+                    mOnFUControlListener.onColorLevelSelected(fVaule);
+                    break;
+                case BeautificationParam.RED_LEVEL:
+                    mOnFUControlListener.onRedLevelSelected(fVaule);
+                    break;
+                case BeautificationParam.SHARPEN:
+                    mOnFUControlListener.onSharpenLevelSelected(fVaule);
+                    break;
+                case BeautificationParam.EYE_BRIGHT:
+                    mOnFUControlListener.onEyeBrightSelected(fVaule);
+                    break;
+                case BeautificationParam.TOOTH_WHITEN:
+                    mOnFUControlListener.onToothWhitenSelected(fVaule);
+                    break;
+                case BeautificationParam.REMOVE_POUCH_STRENGTH:
+                    mOnFUControlListener.setRemovePouchStrength(fVaule);
+                    break;
+                case BeautificationParam.REMOVE_NASOLABIAL_FOLDS_STRENGTH:
+                    mOnFUControlListener.setRemoveNasolabialFoldsStrength(fVaule);
+                    break;
+                case BeautificationParam.CHEEK_THINNING:
+                    mOnFUControlListener.onCheekThinningSelected(fVaule);
+                    break;
+                case BeautificationParam.CHEEK_V:
+                    mOnFUControlListener.onCheekVSelected(fVaule);
+                    break;
+                case BeautificationParam.CHEEK_NARROW:
+                    mOnFUControlListener.onCheekNarrowSelected(fVaule);
+                    break;
+                case BeautificationParam.CHEEK_SMALL:
+                    mOnFUControlListener.onCheekSmallSelected(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_CHEEKBONES:
+                    mOnFUControlListener.setCheekbonesIntensity(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_LOW_JAW:
+                    mOnFUControlListener.setLowerJawIntensity(fVaule);
+                    break;
+                case BeautificationParam.EYE_ENLARGING:
+                    mOnFUControlListener.onEyeEnlargeSelected(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_EYE_CIRCLE:
+                    mOnFUControlListener.onEyeCircleSelected(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_CHIN:
+                    mOnFUControlListener.onIntensityChinSelected(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_FOREHEAD:
+                    mOnFUControlListener.onIntensityForeheadSelected(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_NOSE:
+                    mOnFUControlListener.onIntensityNoseSelected(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_MOUTH:
+                    mOnFUControlListener.onIntensityMouthSelected(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_EYE_SPACE:
+                    mOnFUControlListener.setEyeSpaceIntensity(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_CANTHUS:
+                    mOnFUControlListener.setCanthusIntensity(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_EYE_ROTATE:
+                    mOnFUControlListener.setEyeRotateIntensity(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_LONG_NOSE:
+                    mOnFUControlListener.setLongNoseIntensity(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_PHILTRUM:
+                    mOnFUControlListener.setPhiltrumIntensity(fVaule);
+                    break;
+                case BeautificationParam.INTENSITY_SMILE:
+                    mOnFUControlListener.setSmileIntensity(fVaule);
+                    break;
+                default:
+            }
+        }
+    }
+
     private void setRecoverFaceShapeEnable(boolean enable) {
         if (enable) {
             mIvRecoverFaceShape.setAlpha(1f);
@@ -325,7 +549,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         }
         View view = findViewById(viewId);
         if (view instanceof BaseBeautyBox) {
-            boolean open = isOpen(viewId);
+            boolean open = BeautyParameterModel.isOpen(viewId);
             ((BaseBeautyBox) view).setOpen(open);
         }
         if (mOnFUControlListener == null) {
@@ -333,79 +557,82 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         }
         switch (viewId) {
             case R.id.beauty_box_blur_level:
-                mOnFUControlListener.onBlurLevelSelected(getValue(viewId));
+                mOnFUControlListener.onBlurLevelSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_color_level:
-                mOnFUControlListener.onColorLevelSelected(getValue(viewId));
+                mOnFUControlListener.onColorLevelSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_red_level:
-                mOnFUControlListener.onRedLevelSelected(getValue(viewId));
+                mOnFUControlListener.onRedLevelSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_sharpen:
-                mOnFUControlListener.onSharpenLevelSelected(getValue(viewId));
+                mOnFUControlListener.onSharpenLevelSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_pouch:
-                mOnFUControlListener.setRemovePouchStrength(getValue(viewId));
+                mOnFUControlListener.setRemovePouchStrength(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_nasolabial:
-                mOnFUControlListener.setRemoveNasolabialFoldsStrength(getValue(viewId));
+                mOnFUControlListener.setRemoveNasolabialFoldsStrength(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_eye_bright:
-                mOnFUControlListener.onEyeBrightSelected(getValue(viewId));
+                mOnFUControlListener.onEyeBrightSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_tooth_whiten:
-                mOnFUControlListener.onToothWhitenSelected(getValue(viewId));
+                mOnFUControlListener.onToothWhitenSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_eye_enlarge:
-                mOnFUControlListener.onEyeEnlargeSelected(getValue(viewId));
+                mOnFUControlListener.onEyeEnlargeSelected(BeautyParameterModel.getValue(viewId));
+                break;
+            case R.id.beauty_box_eye_circle:
+                mOnFUControlListener.onEyeCircleSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_cheek_thinning:
-                mOnFUControlListener.onCheekThinningSelected(getValue(viewId));
+                mOnFUControlListener.onCheekThinningSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_cheek_narrow:
-                mOnFUControlListener.onCheekNarrowSelected(getValue(viewId));
+                mOnFUControlListener.onCheekNarrowSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_cheekbones:
-                mOnFUControlListener.setCheekbonesIntensity(getValue(viewId));
+                mOnFUControlListener.setCheekbonesIntensity(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_lower_jaw:
-                mOnFUControlListener.setLowerJawIntensity(getValue(viewId));
+                mOnFUControlListener.setLowerJawIntensity(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_cheek_v:
-                mOnFUControlListener.onCheekVSelected(getValue(viewId));
+                mOnFUControlListener.onCheekVSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_cheek_small:
-                mOnFUControlListener.onCheekSmallSelected(getValue(viewId));
+                mOnFUControlListener.onCheekSmallSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_intensity_chin:
-                mOnFUControlListener.onIntensityChinSelected(getValue(viewId));
+                mOnFUControlListener.onIntensityChinSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_intensity_forehead:
-                mOnFUControlListener.onIntensityForeheadSelected(getValue(viewId));
+                mOnFUControlListener.onIntensityForeheadSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_intensity_nose:
-                mOnFUControlListener.onIntensityNoseSelected(getValue(viewId));
+                mOnFUControlListener.onIntensityNoseSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_intensity_mouth:
-                mOnFUControlListener.onIntensityMouthSelected(getValue(viewId));
+                mOnFUControlListener.onIntensityMouthSelected(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_canthus:
-                mOnFUControlListener.setCanthusIntensity(getValue(viewId));
+                mOnFUControlListener.setCanthusIntensity(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_eye_space:
-                mOnFUControlListener.setEyeSpaceIntensity(getValue(viewId));
+                mOnFUControlListener.setEyeSpaceIntensity(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_eye_rotate:
-                mOnFUControlListener.setEyeRotateIntensity(getValue(viewId));
+                mOnFUControlListener.setEyeRotateIntensity(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_long_nose:
-                mOnFUControlListener.setLongNoseIntensity(getValue(viewId));
+                mOnFUControlListener.setLongNoseIntensity(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_philtrum:
-                mOnFUControlListener.setPhiltrumIntensity(getValue(viewId));
+                mOnFUControlListener.setPhiltrumIntensity(BeautyParameterModel.getValue(viewId));
                 break;
             case R.id.beauty_box_smile:
-                mOnFUControlListener.setSmileIntensity(getValue(viewId));
+                mOnFUControlListener.setSmileIntensity(BeautyParameterModel.getValue(viewId));
                 break;
             default:
         }
@@ -424,11 +651,11 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
                 int checkedCheckBoxId = mBottomCheckGroup.getCheckedCheckBoxId();
                 if (checkedCheckBoxId == R.id.beauty_radio_skin_beauty) {
                     int skinCheckedId = mSkinBeautyBoxGroup.getCheckedBeautyBoxId();
-                    setValue(skinCheckedId, valueF);
+                    BeautyParameterModel.setValue(skinCheckedId, valueF);
                     onChangeFaceBeautyLevel(skinCheckedId);
                     checkFaceSkinChanged();
                 } else if (checkedCheckBoxId == R.id.beauty_radio_face_shape) {
-                    setValue(mShapeBeautyBoxGroup.getCheckedBeautyBoxId(), valueF);
+                    BeautyParameterModel.setValue(mShapeBeautyBoxGroup.getCheckedBeautyBoxId(), valueF);
                     onChangeFaceBeautyLevel(mShapeBeautyBoxGroup.getCheckedBeautyBoxId());
                     checkFaceShapeChanged();
                 } else if (checkedCheckBoxId == R.id.beauty_radio_filter) {
@@ -463,6 +690,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         mFlFaceShapeItems.setVisibility(GONE);
         mFlFaceSkinItems.setVisibility(GONE);
         mFilterRecyclerView.setVisibility(GONE);
+        mFlFaceStyleItems.setVisibility(GONE);
         mBeautySeekBar.setVisibility(GONE);
         if (viewId == R.id.beauty_radio_skin_beauty) {
             mFlFaceSkinItems.setVisibility(VISIBLE);
@@ -475,6 +703,9 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
         } else if (viewId == R.id.beauty_radio_filter) {
             mFilterRecyclerView.setVisibility(VISIBLE);
             mFilterRecyclerAdapter.setFilterProgress();
+            mIvCompare.setVisibility(VISIBLE);
+        } else if (viewId == R.id.beauty_radio_style) {
+            mFlFaceStyleItems.setVisibility(VISIBLE);
             mIvCompare.setVisibility(VISIBLE);
         }
     }
@@ -495,7 +726,7 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
             return;
         }
 
-        float value = getValue(checkedId);
+        float value = BeautyParameterModel.getValue(checkedId);
         int min = 0;
         int max = 100;
         if (checkedId == R.id.beauty_box_intensity_chin || checkedId == R.id.beauty_box_intensity_forehead
@@ -565,18 +796,18 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
     }
 
     public void setFilterLevel(String filterName, float faceBeautyFilterLevel) {
-        sFilterLevel.put(STR_FILTER_LEVEL + filterName, faceBeautyFilterLevel);
+        BeautyParameterModel.sFilterLevel.put(BeautyParameterModel.STR_FILTER_LEVEL + filterName, faceBeautyFilterLevel);
         if (mOnFUControlListener != null) {
             mOnFUControlListener.onFilterLevelSelected(faceBeautyFilterLevel);
         }
     }
 
     public float getFilterLevel(String filterName) {
-        String key = STR_FILTER_LEVEL + filterName;
-        Float level = sFilterLevel.get(key);
+        String key = BeautyParameterModel.STR_FILTER_LEVEL + filterName;
+        Float level = BeautyParameterModel.sFilterLevel.get(key);
         if (level == null) {
             level = BeautyParameterModel.DEFAULT_FILTER_LEVEL;
-            sFilterLevel.put(key, level);
+            BeautyParameterModel.sFilterLevel.put(key, level);
         }
         setFilterLevel(filterName, level);
         return level;
@@ -608,9 +839,9 @@ public class BeautyControlView extends FrameLayout implements TouchStateImageVie
                     setFilterProgress();
                     notifyDataSetChanged();
                     if (mOnFUControlListener != null) {
-                        sFilter = filters.get(mFilterPositionSelect);
-                        mOnFUControlListener.onFilterNameSelected(sFilter.getName());
-                        ToastUtil.showNormalToast(mContext, sFilter.getNameId());
+                        BeautyParameterModel.sFilter = filters.get(mFilterPositionSelect);
+                        mOnFUControlListener.onFilterNameSelected(BeautyParameterModel.sFilter.getName());
+                        ToastUtil.showNormalToast(mContext, BeautyParameterModel.sFilter.getNameId());
                     }
                 }
             });

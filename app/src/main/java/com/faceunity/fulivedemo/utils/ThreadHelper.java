@@ -3,6 +3,7 @@ package com.faceunity.fulivedemo.utils;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Process;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -49,7 +50,7 @@ public final class ThreadHelper {
 
     private synchronized void ensureSubHandler() {
         if (mWorkHandler == null) {
-            HandlerThread handlerThread = new HandlerThread("WorkHandler");
+            HandlerThread handlerThread = new HandlerThread("WorkHandler", Process.THREAD_PRIORITY_BACKGROUND);
             handlerThread.start();
             mWorkHandler = new Handler(handlerThread.getLooper());
         }

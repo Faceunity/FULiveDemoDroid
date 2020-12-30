@@ -16,12 +16,20 @@ public enum EffectEnum {
     /**
      * 道具贴纸
      */
-    Effect_sdlu("sdlu", R.drawable.sdlu, "effect/normal/sdlu.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_nihongdeng("nihongdeng", R.drawable.nihongdeng, "effect/normal/nihongdeng.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_cat_sparks("cat_sparks", R.drawable.cat_sparks, "effect/normal/cat_sparks.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_face_half("face_half", R.drawable.face_half, "effect/normal/face_half.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_fu_zh_fenshu("fu_zh_fenshu", R.drawable.fu_zh_fenshu, "effect/normal/fu_zh_fenshu.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_zhenxinhua_damaoxian("zhenxinhua_damaoxian", R.drawable.zhenxinhua_damaoxian, "effect/normal/zhenxinhua_damaoxian.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_sdlr("sdlr", R.drawable.sdlr, "effect/normal/sdlr.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_xlong_zh_fu("xlong_zh_fu", R.drawable.xlong_zh_fu, "effect/normal/xlong_zh_fu.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_expression_shooting("expression_shooting", R.drawable.expression_shooting, "effect/normal/expression_shooting.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_newy1("newy1", R.drawable.newy1, "effect/normal/newy1.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_guangban("guangban", R.drawable.guangban, "effect/normal/guangban.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_redribbt("redribbt", R.drawable.redribbt, "effect/normal/redribbt.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
     Effect_daisypig("daisypig", R.drawable.daisypig, "effect/normal/daisypig.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
-    Effect_fashi("fashi", R.drawable.fashi, "effect/normal/fashi.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
-    Effect_xueqiu_lm_fu("xueqiu_lm_fu", R.drawable.xueqiu_lm_fu, "effect/normal/xueqiu_lm_fu.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
-    Effect_wobushi("wobushi", R.drawable.wobushi, "effect/normal/wobushi.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
-    Effect_gaoshiqing("gaoshiqing", R.drawable.gaoshiqing, "effect/normal/gaoshiqing.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+    Effect_sdlu("sdlu", R.drawable.sdlu, "effect/normal/sdlu.bundle", 4, Effect.EFFECT_TYPE_STICKER, 0),
+
     /**
      * AR面具
      */
@@ -74,12 +82,6 @@ public enum EffectEnum {
     Effect_hashiqi_Animoji("hashiqi_Animoji", R.drawable.hashiqi_animoji, "effect/animoji/hashiqi_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_baimao_Animoji("baimao_Animoji", R.drawable.baimao_animoji, "effect/animoji/baimao_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
     Effect_kuloutou_Animoji("kuloutou_Animoji", R.drawable.kuloutou_animoji, "effect/animoji/kuloutou_Animoji.bundle", 4, Effect.EFFECT_TYPE_ANIMOJI, 0),
-    /**
-     * 人像驱动
-     */
-    Effect_picasso_e1("picasso_e1", R.drawable.picasso_e1, "effect/portrait_drive/picasso_e1.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_DRIVE, 0),
-    Effect_picasso_e2("picasso_e2", R.drawable.picasso_e2, "effect/portrait_drive/picasso_e2.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_DRIVE, 0),
-    Effect_picasso_e3("picasso_e3", R.drawable.picasso_e3, "effect/portrait_drive/picasso_e3.bundle", 1, Effect.EFFECT_TYPE_PORTRAIT_DRIVE, 0),
     /**
      * 哈哈镜
      */

@@ -1,0 +1,10 @@
+{
+  "color_level": 0.5,
+  "blur_level": 0.6,
+  "eye_bright": 0.35,
+  "tooth_whiten": 0.25,
+  "cheek_thinning": 0.45,
+  "cheek_v": 0.08,
+  "cheek_small": 0.1,
+  "eye_enlarging": 0.3
+}

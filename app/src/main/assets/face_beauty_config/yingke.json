@@ -1,0 +1,8 @@
+{
+  "filter_name": "fennen2",
+  "filter_level": 0.5,
+  "color_level": 0.6,
+  "blur_level": 0.5,
+  "cheek_thinning": 0.5,
+  "eye_enlarging": 0.65
+}

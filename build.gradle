@@ -7,7 +7,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
+        classpath 'com.android.tools.build:gradle:3.4.3'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -32,7 +32,7 @@ ext {
     minSdkVersion = 19
     targetSdkVersion = 28
     // update info when release new version
-    namaSdkVersionCode = 720
-    namaSdkVersionName = "7.2.0"
-    namaSdkCommitId = "7.2.0_phy_2e6e581e_bb3045b"
+    namaSdkVersionCode = 730
+    namaSdkVersionName = "7.3.0"
+    namaSdkCommitId = "7.3.0_phy_505b959b_bf80f59"
 }

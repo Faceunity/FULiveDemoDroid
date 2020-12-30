@@ -1,20 +1,33 @@
 package com.faceunity.fulivedemo.entity;
 
 
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.util.Log;
+import android.view.View;
+
 import com.faceunity.entity.Filter;
 import com.faceunity.fulivedemo.R;
 import com.faceunity.fulivedemo.utils.DecimalUtils;
+import com.faceunity.param.BeautificationParam;
+import com.faceunity.utils.FileUtils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
  * 美颜参数SharedPreferences记录,目前仅以保存数据，可改造为以SharedPreferences保存数据
  * Created by tujh on 2018/3/7.
  */
-public abstract class BeautyParameterModel {
-    public static final String TAG = BeautyParameterModel.class.getSimpleName();
+public final class BeautyParameterModel {
+    private static final String TAG = "BeautyParameterModel";
     /**
      * 滤镜默认强度 0.4
      */
@@ -70,6 +83,7 @@ public abstract class BeautyParameterModel {
     public static float sCheekNarrow = 0f;//窄脸
     public static float sCheekSmall = 0f;//小脸
     public static float sEyeEnlarging = 0.4f;//大眼
+    public static float sEyeCircle = 0.0f;//圆眼
     public static float sIntensityChin = 0.3f;//下巴
     public static float sIntensityForehead = 0.3f;//额头
     public static float sIntensityNose = 0.5f;//瘦鼻
@@ -84,6 +98,7 @@ public abstract class BeautyParameterModel {
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_small, sCheekSmall);
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_cheek_v, sCheekV);
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_eye_enlarge, sEyeEnlarging);
+        FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_eye_circle, sEyeCircle);
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_intensity_chin, sIntensityChin);
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_intensity_forehead, sIntensityForehead);
         FACE_SHAPE_DEFAULT_PARAMS.put(R.id.beauty_box_intensity_nose, sIntensityNose);
@@ -104,6 +119,82 @@ public abstract class BeautyParameterModel {
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_nasolabial, sMicroNasolabialFolds);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_eye_bright, sEyeBright);
         FACE_SKIN_DEFAULT_PARAMS.put(R.id.beauty_box_tooth_whiten, sToothWhiten);
+    }
+
+    public static int sCheckFaceStyleId = View.NO_ID;
+
+    // 参数备份
+    public static final Map<String, Object> sBackupParams = new HashMap<>();
+
+    public static void backupParams() {
+        sBackupParams.clear();
+        sBackupParams.put(BeautificationParam.FILTER_NAME, sFilter.getName());
+        Float filterLevel = sFilterLevel.get(BeautyParameterModel.STR_FILTER_LEVEL + BeautyParameterModel.sFilter.getName());
+        sBackupParams.put(BeautificationParam.FILTER_LEVEL, filterLevel != null ? filterLevel : DEFAULT_FILTER_LEVEL);
+
+        sBackupParams.put(BeautificationParam.BLUR_LEVEL, sBlurLevel);
+        sBackupParams.put(BeautificationParam.COLOR_LEVEL, sColorLevel);
+        sBackupParams.put(BeautificationParam.RED_LEVEL, sRedLevel);
+        sBackupParams.put(BeautificationParam.SHARPEN, sSharpen);
+        sBackupParams.put(BeautificationParam.EYE_BRIGHT, sEyeBright);
+        sBackupParams.put(BeautificationParam.TOOTH_WHITEN, sToothWhiten);
+        sBackupParams.put(BeautificationParam.REMOVE_POUCH_STRENGTH, sMicroPouch);
+        sBackupParams.put(BeautificationParam.REMOVE_NASOLABIAL_FOLDS_STRENGTH, sMicroNasolabialFolds);
+
+        sBackupParams.put(BeautificationParam.CHEEK_THINNING, sCheekThinning);
+        sBackupParams.put(BeautificationParam.CHEEK_V, sCheekV);
+        sBackupParams.put(BeautificationParam.CHEEK_NARROW, sCheekNarrow);
+        sBackupParams.put(BeautificationParam.CHEEK_SMALL, sCheekSmall);
+        sBackupParams.put(BeautificationParam.INTENSITY_CHEEKBONES, sCheekBones);
+        sBackupParams.put(BeautificationParam.INTENSITY_LOW_JAW, sLowerJaw);
+        sBackupParams.put(BeautificationParam.EYE_ENLARGING, sEyeEnlarging);
+        sBackupParams.put(BeautificationParam.INTENSITY_EYE_CIRCLE, sEyeCircle);
+        sBackupParams.put(BeautificationParam.INTENSITY_CHIN, sIntensityChin);
+        sBackupParams.put(BeautificationParam.INTENSITY_FOREHEAD, sIntensityForehead);
+        sBackupParams.put(BeautificationParam.INTENSITY_NOSE, sIntensityNose);
+        sBackupParams.put(BeautificationParam.INTENSITY_MOUTH, sIntensityMouth);
+        sBackupParams.put(BeautificationParam.INTENSITY_CANTHUS, sMicroCanthus);
+        sBackupParams.put(BeautificationParam.INTENSITY_EYE_SPACE, sMicroEyeSpace);
+        sBackupParams.put(BeautificationParam.INTENSITY_EYE_ROTATE, sMicroEyeRotate);
+        sBackupParams.put(BeautificationParam.INTENSITY_LONG_NOSE, sMicroLongNose);
+        sBackupParams.put(BeautificationParam.INTENSITY_PHILTRUM, sMicroPhiltrum);
+        sBackupParams.put(BeautificationParam.INTENSITY_SMILE, sMicroSmile);
+    }
+
+    public static final Map<String, Map<String, Object>> sDefaultConfigMap = new HashMap<>();
+    public static final String CONFIG_BIAOZHUN = "biaozhun.json";
+    public static final String CONFIG_HUAJIAO = "huajiao.json";
+    public static final String CONFIG_KUAISHOU = "kuaishou.json";
+    public static final String CONFIG_NONE = "none.json";
+    public static final String CONFIG_QINGYAN = "qingyan.json";
+    public static final String CONFIG_SHANGTANG = "shangtang.json";
+    public static final String CONFIG_YINGKE = "yingke.json";
+    public static final String CONFIG_ZIJIETIAODONG = "zijietiaodong.json";
+
+    // 初始化预置风格美颜
+    public static void initConfigMap(Context context) {
+        if (!sDefaultConfigMap.isEmpty()) {
+            return;
+        }
+        AssetManager assets = context.getAssets();
+        String dir = "face_beauty_config";
+        try {
+            String[] list = assets.list(dir);
+            if (list != null) {
+                for (String s : list) {
+                    String jsonStr = FileUtils.readStringFromAssetsFile(context, dir + File.separator + s);
+                    JSONObject jsonObject = new JSONObject(jsonStr);
+                    Map<String, Object> configMap = new HashMap<>();
+                    sDefaultConfigMap.put(s, configMap);
+                    for (Iterator<String> keys = jsonObject.keys(); keys.hasNext(); ) {
+                        String key = keys.next();
+                        configMap.put(key, jsonObject.opt(key));
+                    }
+                }
+            }
+        } catch (IOException | JSONException e) {
+            Log.e(TAG, "initConfigMap: ", e);
+        }
     }
 
     /**
@@ -132,6 +223,8 @@ public abstract class BeautyParameterModel {
                 return sToothWhiten != 0;
             case R.id.beauty_box_eye_enlarge:
                 return sEyeEnlarging > 0;
+            case R.id.beauty_box_eye_circle:
+                return sEyeCircle > 0;
             case R.id.beauty_box_cheek_thinning:
                 return sCheekThinning > 0;
             case R.id.beauty_box_cheekbones:
@@ -195,6 +288,8 @@ public abstract class BeautyParameterModel {
                 return sToothWhiten;
             case R.id.beauty_box_eye_enlarge:
                 return sEyeEnlarging;
+            case R.id.beauty_box_eye_circle:
+                return sEyeCircle;
             case R.id.beauty_box_cheek_thinning:
                 return sCheekThinning;
             case R.id.beauty_box_cheekbones:
@@ -266,6 +361,9 @@ public abstract class BeautyParameterModel {
                 break;
             case R.id.beauty_box_eye_enlarge:
                 sEyeEnlarging = value;
+                break;
+            case R.id.beauty_box_eye_circle:
+                sEyeCircle = value;
                 break;
             case R.id.beauty_box_cheek_thinning:
                 sCheekThinning = value;
@@ -346,6 +444,9 @@ public abstract class BeautyParameterModel {
         if (Float.compare(sEyeEnlarging, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_eye_enlarge)) != 0) {
             return true;
         }
+        if (Float.compare(sEyeCircle, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_eye_circle)) != 0) {
+            return true;
+        }
         if (Float.compare(sIntensityNose, FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_nose)) != 0) {
             return true;
         }
@@ -423,6 +524,7 @@ public abstract class BeautyParameterModel {
         sCheekBones = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_cheekbones);
         sLowerJaw = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_lower_jaw);
         sEyeEnlarging = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_eye_enlarge);
+        sEyeCircle = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_eye_circle);
         sIntensityNose = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_nose);
         sIntensityMouth = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_mouth);
         sIntensityForehead = FACE_SHAPE_DEFAULT_PARAMS.get(R.id.beauty_box_intensity_forehead);

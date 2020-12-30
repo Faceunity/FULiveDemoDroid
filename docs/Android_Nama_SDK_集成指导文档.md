@@ -1,24 +1,28 @@
 # Android Nama SDK 集成指导文档  
 级别：Public
 
-更新日期：2020-09-25
+更新日期：2020-12-29
 
-SDK版本: 7.2.0
+SDK版本: 7.3.0
 
 ------
 ## 最新更新内容：
 
-**2020-9-24 v7.2.0:**
+**2020-12-29 v7.3.0:**
 
-1. 新增绿幕抠像功能，支持替换图片、视频背景等。
-2. 美颜模块新增瘦颧骨、瘦下颌骨功能。
-3. 优化美颜性能以及功耗，解决集成入第三方推流服务时易发热掉帧问题。
-4. 优化手势识别功能的效果以及性能，提升识别稳定性和手势跟随性效果，优化手势识别时cpu占有率。
-5. 优化PC版各个功能性能，帧率提升显著。美发、美体、背景分割帧率提升30%以上，美颜、Animoji、美妆、手势等功能也有10%以上的帧率提升。
-6. 优化包增量，SDK分为lite版，和全功能版本。lite版体积更小，包含人脸相关的功能(海报换脸除外)。
-7. 优化人脸跟踪稳定性，提升贴纸的稳定性。
-8. 提供独立核心算法SDK，接口文档详见算法SDK文档。
-9. 人脸算法能力接口封装，算法demo中新增包括人脸特征点位、表情识别和舌头动作3项核心人脸能力。
+- 优化美妆性能，和V7.2比，标准美妆Android端帧率提升29%，iOS端帧率提升17%；标准美颜+标准美妆，集成入第三方推流1小时后，在低端机上帧率高于15fps，可流畅运行。
+- 优化美体性能，和V7.2比，性能显著提升，Android端帧率提升26%，CPU降低32%；iOS端帧率提升11%，CPU降低46%，内存降低45%。
+- 优化背景分割性能，和V7.2比，性能显著提升，Android端帧率提升64%，CPU降低25%；iOS端帧率提升41%，CPU降低47%，内存降低44%。请使用ai_human_processor_mb_fast.bundle。
+- 优化美体功能效果，优化大幅度运动时，头部和肩部位置附近物体变形幅度大的问题；人体在画面中出现消失时过渡更自然；遮挡情况美体效果更加稳定，不会有高频持续抖动情况。
+- 优化表情识别功能，提高识别准确性，共能识别17种表情动作，对应新增FUAITYPE_FACEPROCESSOR_EXPRESSION_RECOGNIZER。
+- 优化绿幕抠像效果，提高边缘准确度。
+- 优化人脸表情跟踪驱动效果，优化首帧检测模型显示较慢问题，加强细微表情跟踪，优化人脸转动时模型明显变小问题。
+- 优化全身Avatar跟踪驱动效果，针对做连续高频大幅度运动的情况，如跳舞等场景，整体模型稳定性，尤其手臂稳定性提升，抖动情况显著改善。
+- 优化美颜亮眼下眼睑溢色问题。
+- 新增人脸拖拽变形功能，可使用FUCreator 2.1.0进行变形效果编辑。
+- 新增美颜美型模块瘦圆眼功能，效果为使眼睛整体放大，尤其是纵向放大明显。
+- 新增支持手势回调接口fuSetHandGestureCallBack，详见接口文档。
+- 控花、控雨、控雪道具重新制作，优化跟踪效果不连贯的问题。
 
 **各功能模块的相关文档：**
 
@@ -78,6 +82,7 @@ SDK版本: 7.2.0
             +portrait_drive                // 人像驱动
             +segment                       // 人像分割
             -actiongame_android.bundle     // 动作识别
+          +face_beauty_config              // 美颜风格推荐
           +light_makeup                    // 轻美妆
             +blusher...                    // 腮红等资源
             -light_makeup.bundle           // 轻美妆道具
@@ -130,13 +135,13 @@ SDK版本: 7.2.0
 全功能版本（支持物理特效）：
 
 ```groovy
-implementation 'com.faceunity:nama:7.2.0'
+implementation 'com.faceunity:nama:7.3.0'
 ```
 
 lite 版（体积更小，包含人脸相关的功能(海报换脸除外)）：
 
 ```groovy
-implementation 'com.faceunity:nama:7.2.0-lite'
+implementation 'com.faceunity:nama:7.3.0-lite'
 ```
 
 推荐通过该方式集成，方便后续升级维护。
@@ -199,7 +204,7 @@ android {
             doLast {
                 delete(fileTree(dir: outputDir,
                         includes: ['model/ai_face_processor_lite.bundle',
-                                   'model/ai_gesture.bundle',
+                                   'model/ai_hand_processor.bundle',
                                    'graphics/controller.bundle',
                                    'graphics/fuzzytoonfilter.bundle',
                                    'graphics/fxaa.bundle',
@@ -213,9 +218,9 @@ android {
 
 #### 3.1.2 GitHub 下载
 
-- 全功能版本（支持物理特效）：[Faceunity-Android-v7.2.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.2/Faceunity-Android-v7.2.zip)
+- 全功能版本（支持物理特效）：[FaceUnity-Android-v7.3.0.tar.gz](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.3.0/FaceUnity-Android-v7.3.0.tar.gz)
 
-- lite 版（体积更小，包含人脸相关的功能(海报换脸除外)）：[Faceunity-Android-v7.2-lite.zip](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.2/Faceunity-Android-v7.2-lite.zip)
+- lite 版（体积更小，包含人脸相关的功能(海报换脸除外)）：[FaceUnity-Android-v7.3.0-lite.tar.gz](https://github.com/Faceunity/FULiveDemoDroid/releases/download/v7.3.0/FaceUnity-Android-v7.3.0-lite.tar.gz)
 
 **库文件说明：**
 
@@ -927,7 +932,7 @@ Nama SDK 从 7.0.0 开始支持全身 Avatar 功能。支持虚拟形象的全�
 
 ```
 -keep class com.faceunity.wrapper.faceunity {*;}
--keep class com.faceunity.wrapper.faceunity$RotatedImage {*;}
+-keep class com.faceunity.wrapper.faceunity$* {*;}
 ```
 
 **如有使用问题，请联系技术支持。**

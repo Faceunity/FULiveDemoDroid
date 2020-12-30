@@ -84,6 +84,10 @@ public class BeautificationParam {
      */
     public static final String INTENSITY_CHEEKBONES = "intensity_cheekbones";
     /**
+     * 圆眼，范围 [0-1]，默认 0.5
+     */
+    public static final String INTENSITY_EYE_CIRCLE = "intensity_eye_circle";
+    /**
      * 大眼程度，范围 [0-1]，默认 0.5
      */
     public static final String EYE_ENLARGING = "eye_enlarging";

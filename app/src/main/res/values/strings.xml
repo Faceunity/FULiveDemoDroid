@@ -43,6 +43,7 @@
     <string name="beauty_box_eye_bright">Eye Brighten</string>
     <string name="beauty_box_tooth_whiten">Tooth Whiten</string>
     <string name="beauty_box_eye_enlarge">Eye Enlarge</string>
+    <string name="beauty_box_eye_circle">Eye Round</string>
     <string name="beauty_box_cheek_thinning">Cheek Thin</string>
     <string name="beauty_box_cheek_v">V Face</string>
     <string name="beauty_box_cheekbones">Cheekbone</string>
@@ -56,6 +57,7 @@
     <string name="beauty_radio_skin_beauty">Skin</string>
     <string name="beauty_radio_face_shape">Reshape</string>
     <string name="beauty_radio_filter">Filter</string>
+    <string name="beauty_radio_style">Presets</string>
     <string name="makeup_radio_lipstick">Lipstick</string>
     <string name="makeup_radio_blusher">Blush</string>
     <string name="makeup_radio_eyebrow">Eyebrow</string>
@@ -80,6 +82,15 @@
     <string name="beauty_micro_long_nose">Length</string>
     <string name="beauty_micro_eye_space">Eye distance</string>
     <string name="beauty_micro_eye_rotate">Slant</string>
+    <string name="beauty_face_style_none">None</string>
+    <string name="beauty_face_style_1">Style 1</string>
+    <string name="beauty_face_style_2">Style 2</string>
+    <string name="beauty_face_style_3">Style 3</string>
+    <string name="beauty_face_style_4">Style 4</string>
+    <string name="beauty_face_style_5">Style 5</string>
+    <string name="beauty_face_style_6">Style 6</string>
+    <string name="beauty_face_style_7">Style 7</string>
+    <string name="beauty_face_style_toast">To use %s, cancel \'Presets\' first.</string>
 
     <string name="select_data_photo">Photo</string>
     <string name="select_data_video">Video</string>

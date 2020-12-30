@@ -60,4 +60,11 @@ public class BeautifyBodyActivity extends FUBaseActivity {
         intent.putExtra(SelectDataActivity.SELECT_DATA_KEY, BeautifyBodyActivity.TAG);
         startActivity(intent);
     }
+
+    @Override
+    public void onTrackStatusChanged(int type, int status) {
+        if (type == FURenderer.TRACK_TYPE_HUMAN) {
+            super.onTrackStatusChanged(type, status);
+        }
+    }
 }
