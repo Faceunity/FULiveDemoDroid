@@ -139,11 +139,14 @@ public class BaseCameraRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        if (mProgramTexture2d == null || mSurfaceTexture == null) {
+        if (mProgramTexture2d == null) {
             return;
         }
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         if (mShotBitmap == null) {
+            if (mSurfaceTexture == null) {
+                return;
+            }
             try {
                 mSurfaceTexture.updateTexImage();
                 mSurfaceTexture.getTransformMatrix(mTexMatrix);
