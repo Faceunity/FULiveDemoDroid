@@ -34,5 +34,5 @@ ext {
     // update info when release new version
     namaSdkVersionCode = 732
     namaSdkVersionName = "7.3.2"
-    namaSdkCommitId = "7.3.2_phy_9c5d3f05_c34ada4"
+    namaSdkCommitId = "7.3.2_phy_de688a8b_c34ada4"
 }

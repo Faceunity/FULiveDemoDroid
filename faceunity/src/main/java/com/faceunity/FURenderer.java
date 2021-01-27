@@ -925,12 +925,14 @@ public class FURenderer implements OnFUControlListener {
                     bindItems[i] = item;
                 }
                 final int[] validBindItems = validateItems(bindItems);
+                if (validBindItems.length == 0) {
+                    return;
+                }
                 queueEvent(new Runnable() {
                     @Override
                     public void run() {
                         //  follow sequence: unbind --> bind --> destroy
                         int controllerItem = mItemsArray[0];
-                        int[] validUnbindItems = null;
                         int[] controllerBoundItems = mControllerBoundItems;
                         int[] toUnbindItems = new int[controllerBoundItems.length];
                         int validItemCount = 0;
@@ -939,7 +941,7 @@ public class FURenderer implements OnFUControlListener {
                                 toUnbindItems[validItemCount++] = controllerBoundItems[i];
                             }
                         }
-                        validUnbindItems = Arrays.copyOfRange(toUnbindItems, 0, validItemCount);
+                        int[] validUnbindItems = Arrays.copyOfRange(toUnbindItems, 0, validItemCount);
                         faceunity.fuUnBindItems(controllerItem, validUnbindItems);
                         Log.d(TAG, "run: controller unbind " + Arrays.toString(validUnbindItems));
 
