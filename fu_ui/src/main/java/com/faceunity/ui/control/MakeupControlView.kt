@@ -243,8 +243,6 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                 val requestOptions = RequestOptions().transform(CenterCrop(), RoundedCorners(resources.getDimensionPixelSize(R.dimen.x5)))
                 Glide.with(mContext).applyDefaultRequestOptions(requestOptions).load(item.drawable).into(helper.getView(R.id.iv_control)!!)
                 val current = mDataFactory.getCurrentCustomItemIndex(mCurrentCustomClassKey)
-                Log.e("ECRP","current:"+current)
-                Log.e("ECRP","mCurrentCustomClassKey:"+mCurrentCustomClassKey)
                 helper.itemView.isSelected = position == current
             }
 
