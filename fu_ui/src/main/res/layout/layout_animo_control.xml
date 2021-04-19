@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lyt_bottom"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x266"
+    android:background="@color/primary_list"
+    android:gravity="bottom"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x167"
+        android:layout_gravity="center_vertical"
+        android:background="@color/primary_list"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x1"
+        android:background="@color/divider_line_color" />
+
+    <com.faceunity.ui.checkbox.CheckGroup
+        android:id="@+id/rg_anim"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x98"
+        android:background="@color/primary_list">
+
+        <com.faceunity.ui.checkbox.CheckBoxCompat
+            android:id="@+id/cb_animoji"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="@string/animoji_filter"
+            android:textColor="@color/bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+        <com.faceunity.ui.checkbox.CheckBoxCompat
+            android:id="@+id/cb_filter"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/cartoon_filter"
+            android:textColor="@color/bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+    </com.faceunity.ui.checkbox.CheckGroup>
+
+</LinearLayout>

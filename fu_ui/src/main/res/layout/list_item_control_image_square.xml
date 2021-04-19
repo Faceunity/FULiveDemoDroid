@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/x138"
+    android:layout_height="@dimen/x116">
+
+    <ImageView
+        android:id="@+id/iv_control"
+        android:layout_width="@dimen/x116"
+        android:layout_height="@dimen/x116"
+        android:background="@drawable/bg_control_square_selector"
+        android:padding="@dimen/x4"
+        android:scaleType="centerInside"  />
+
+</LinearLayout>

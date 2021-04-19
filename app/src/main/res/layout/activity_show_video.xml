@@ -1,146 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cyt_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <android.opengl.GLSurfaceView
-        android:id="@+id/show_gl_surface"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <ImageView
-        android:id="@+id/back"
-        android:layout_width="@dimen/x93"
-        android:layout_height="@dimen/x90"
-        android:layout_marginTop="@dimen/x40"
-        android:onClick="onClick"
-        android:paddingLeft="@dimen/x32"
-        android:paddingTop="@dimen/x20"
-        android:paddingRight="@dimen/x32"
-        android:paddingBottom="@dimen/x20"
-        android:scaleType="centerInside"
-        android:src="@drawable/back_show"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/show_play_btn"
-        android:layout_width="@dimen/x128"
-        android:layout_height="@dimen/x128"
-        android:onClick="onClick"
-        android:src="@drawable/show_video_play"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/show_save_btn"
-        android:layout_width="@dimen/x130"
-        android:layout_height="@dimen/x130"
-        android:layout_marginBottom="@dimen/x150"
-        android:onClick="onClick"
-        android:src="@drawable/show_save_btn"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <TextView
-        android:id="@+id/fu_base_effect_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/x550"
-        android:gravity="center"
-        android:text=""
-        android:textColor="@color/colorWhite"
-        android:textSize="@dimen/text_size_26"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <com.faceunity.fulivedemo.ui.control.BeautyControlView
-        android:id="@+id/fu_beauty_control"
+        android:id="@+id/gl_surface"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:layout_height="match_parent" />
 
-    <com.faceunity.fulivedemo.ui.control.MakeupControlView
-        android:id="@+id/fu_makeup_control"
+
+    <RelativeLayout
+        android:id="@+id/ryt_custom_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:layout_height="match_parent">
 
-    <com.faceunity.fulivedemo.ui.control.AnimojiControlView
-        android:id="@+id/fu_anim_control"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/x98"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <com.faceunity.fulivedemo.ui.control.BeautyHairControlView
-        android:id="@+id/fu_beauty_hair"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="47dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="20dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="10dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="10dp"
+            android:scaleType="centerInside"
+            android:src="@mipmap/icon_arrow_back" />
 
-    <com.faceunity.fulivedemo.ui.control.BeautifyBodyControlView
-        android:id="@+id/fu_beautify_body"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/x268"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        <ImageButton
+            android:id="@+id/btn_save"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/icon_show_save_selector"
+            android:onClick="onClick"
+            android:visibility="gone" />
 
-    <com.faceunity.fulivedemo.ui.control.LightMakeupControlView
-        android:id="@+id/fu_light_makeup"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        <com.faceunity.ui.widget.CustomImageButton
+            android:id="@+id/btn_play"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_centerInParent="true"
+            android:background="@mipmap/icon_show_video_replay"
+            android:onClick="onClick"
+            android:visibility="gone" />
 
-    <com.faceunity.fulivedemo.ui.control.BgSegGreenControlView
-        android:id="@+id/fu_bg_seg_green"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/fu_effect_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#99050f14"
-        android:padding="@dimen/x14"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        <TextView
+            android:id="@+id/tv_tracking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="280dp"
+            android:gravity="center"
+            android:text="@string/fu_base_is_tracking_text"
+            android:textColor="@android:color/white"
+            android:textSize="13sp"
+            android:visibility="invisible" />
 
-    <TextView
-        android:id="@+id/fu_base_is_tracking_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/x558"
-        android:gravity="center"
-        android:text="@string/fu_base_is_tracking_text"
-        android:textColor="@color/colorWhite"
-        android:textSize="@dimen/text_size_26"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/tv_effect_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/tv_tracking"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="78dp"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="13sp"
+            android:visibility="invisible" />
+
+
+        <ViewStub
+            android:id="@+id/stub_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+
+    </RelativeLayout>
+
+</FrameLayout>

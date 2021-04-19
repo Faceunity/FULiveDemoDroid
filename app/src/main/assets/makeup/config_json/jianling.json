@@ -17,7 +17,7 @@
   ],
   "tex_eyeLiner": "eyeLiner.png",
   "makeup_intensity_eyeLiner": 1.0,
-  "makeup_eyeLash_color": [
+  "makeup_eyelash_color": [
     0.0,
     0.0,
     0.0,
@@ -25,7 +25,7 @@
   ],
   "tex_eyeLash": "eyeLash.png",
   "makeup_intensity_eyelash": 0.699999988079071,
-  "makeup_brow_color": [
+  "makeup_eyeBrow_color": [
     0.0,
     0.0,
     0.0,

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x244"
+    android:layout_marginLeft="@dimen/x24"
+    android:layout_marginTop="@dimen/x20"
+    android:layout_marginRight="@dimen/x24"
+    android:background="@drawable/main_recycler_item_background">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/bg_card_small_elements" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/home_recycler_meteor"
+        android:layout_width="@dimen/x202"
+        android:layout_height="@dimen/x244"
+        android:scaleType="centerCrop"
+        android:layout_gravity="top|center_horizontal"
+        android:background="@drawable/frame_animation" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/home_recycler_lottie"
+        android:layout_width="@dimen/x202"
+        android:layout_height="@dimen/x244"
+        android:layout_gravity="top|center_horizontal"
+        android:scaleType="centerCrop"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="animation/animation_data.json"
+        app:lottie_loop="true" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/home_recycler_text"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x62"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_fun_text_selector"
+        android:gravity="center"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/x26"
+        tools:text="@string/home_function_name_fine_sticker" />
+</FrameLayout>

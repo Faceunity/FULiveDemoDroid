@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/gl_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="@dimen/x84"
+            android:layout_height="@dimen/x84"
+            android:layout_marginLeft="@dimen/x30"
+            android:layout_marginTop="@dimen/x26"
+            android:scaleType="centerInside"
+            android:src="@mipmap/icon_poster_back" />
+
+        <ImageView
+            android:id="@+id/iv_save"
+            android:layout_width="@dimen/x84"
+            android:layout_height="@dimen/x84"
+            android:layout_alignTop="@id/iv_back"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="@dimen/x30"
+            android:src="@mipmap/icon_poster_save"
+            android:visibility="gone" />
+
+
+        <com.faceunity.ui.control.PosterChangeFaceControlView
+            android:id="@+id/control_poster"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x168"
+            android:layout_alignParentBottom="true"
+            android:background="#050F14" />
+
+        <FrameLayout
+            android:id="@+id/fyt_loading_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/transparent"
+            android:visibility="invisible">
+
+            <ImageView
+                android:id="@+id/iv_loading"
+                android:layout_width="@dimen/x126"
+                android:layout_height="@dimen/x126"
+                android:layout_gravity="center" />
+        </FrameLayout>
+
+        <com.faceunity.ui.widget.FaceMaskView
+            android:id="@+id/face_mask"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+</FrameLayout>

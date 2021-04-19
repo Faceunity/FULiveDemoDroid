@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/meteor_00036"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00037"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00038"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00039"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00040"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00041"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00042"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00043"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00044"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00045"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00046"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00047"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00048"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00049"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00050"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00051"
+        android:duration="@integer/frame_animation_duration" />
+    <item
+        android:drawable="@drawable/meteor_00052"
+        android:duration="@integer/frame_animation_duration" />
+</animation-list>

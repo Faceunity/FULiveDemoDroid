@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="228dp"
+    android:layout_height="38dp"
+    android:background="@mipmap/bg_poster_tip_dual_face"
+    android:gravity="center_horizontal|top"
+    android:paddingTop="13dp"
+    android:text="@string/tip_dual_face"
+    android:textColor="@color/colorWhite"
+    android:textSize="11sp" />

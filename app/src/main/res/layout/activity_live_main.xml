@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fyt_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.opengl.GLSurfaceView
+        android:id="@+id/gl_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:id="@+id/cyt_custom_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="@dimen/x60"
+            android:layout_height="@dimen/x58"
+            android:layout_marginLeft="@dimen/x31"
+            android:layout_marginTop="@dimen/x39"
+            android:scaleType="centerInside"
+            android:src="@mipmap/icon_live_back" />
+
+        <RadioGroup
+            android:id="@+id/radio_render_input"
+            android:layout_width="@dimen/x240"
+            android:layout_height="@dimen/x52"
+            android:layout_marginTop="@dimen/x42"
+            android:layout_marginStart="@dimen/x36"
+            android:layout_toEndOf="@+id/iv_back"
+            android:background="@drawable/bg_popup_resolution"
+            android:orientation="horizontal">
+
+
+            <com.faceunity.ui.radio.XfermodeRadioButton
+                android:id="@+id/rb_render_dual"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_radio_left_selector"
+                android:button="@null"
+                android:maxLines="2"
+                android:checked="true"
+                android:gravity="center"
+                app:text_size_xfermode="@dimen/text_size_22"
+                app:text_xfermode="@string/fu_base_input_type_double" />
+
+
+            <com.faceunity.ui.radio.XfermodeRadioButton
+                android:id="@+id/rb_render_tex"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_radio_right_selector"
+                android:button="@null"
+                android:maxLines="2"
+                android:gravity="center"
+                app:text_size_xfermode="@dimen/text_size_22"
+                app:text_xfermode="@string/fu_base_input_type_single" />
+
+
+        </RadioGroup>
+
+
+        <ImageButton
+            android:id="@+id/btn_camera_change"
+            android:layout_width="@dimen/x66"
+            android:layout_height="@dimen/x54"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/x41"
+            android:layout_marginEnd="@dimen/x31"
+            android:background="@mipmap/icon_live_camera_change" />
+
+        <ImageButton
+            android:id="@+id/btn_debug"
+            android:layout_width="@dimen/x60"
+            android:layout_height="@dimen/x56"
+            android:layout_marginTop="@dimen/x39"
+            android:layout_marginEnd="@dimen/x68"
+            android:layout_toStartOf="@id/btn_camera_change"
+            android:background="@mipmap/icon_live_debug"
+            android:button="@null"
+            android:checked="false" />
+
+
+        <ImageButton
+            android:id="@+id/btn_more"
+            android:layout_width="@dimen/x60"
+            android:layout_height="@dimen/x60"
+            android:layout_marginEnd="@dimen/x76"
+            android:layout_marginTop="@dimen/x38"
+            android:layout_toStartOf="@id/btn_debug"  />
+
+
+
+        <TextView
+            android:id="@+id/tv_debug"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_back"
+            android:layout_marginStart="@dimen/x30"
+            android:layout_marginTop="@dimen/x30"
+            android:background="@drawable/bg_live_debug_text"
+            android:padding="@dimen/x10"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_size_28"
+            android:visibility="gone" />
+
+
+        <LinearLayout
+            android:id="@+id/lyt_photograph_light"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/x460"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/x278"
+            android:layout_marginEnd="@dimen/x35"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="invisible">
+
+            <ImageView
+                android:layout_width="@dimen/x40"
+                android:layout_height="@dimen/x38"
+                android:scaleType="centerInside"
+                android:src="@mipmap/icon_live_light_sun" />
+
+            <com.faceunity.ui.seekbar.VerticalSeekBar
+                android:id="@+id/seek_photograph_light"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:progressDrawable="@drawable/bg_seek_bar"
+                android:thumb="@mipmap/icon_live_light_thumb" />
+
+            <ImageView
+                android:layout_width="@dimen/x40"
+                android:layout_height="@dimen/x38"
+                android:scaleType="centerInside"
+                android:src="@mipmap/icon_live_light_moon" />
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/tv_tracking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/x558"
+            android:text="@string/fu_base_is_tracking_text"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_size_26"
+            android:visibility="invisible" />
+
+
+        <TextView
+            android:id="@+id/tv_effect_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_tracking"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/x156"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_size_26" />
+
+
+        <com.faceunity.ui.button.RecordBtn
+            android:id="@+id/btn_take_pic"
+            android:layout_width="@dimen/x174"
+            android:layout_height="@dimen/x174"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+        <com.faceunity.ui.widget.CameraFocus
+            android:id="@+id/focus"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:scaleType="centerInside"
+            android:src="@mipmap/icon_live_photograph_focus"
+            app:focus_height="@dimen/x150"
+            app:focus_scale="0.666"
+            app:focus_width="@dimen/x150"
+            tools:ignore="MissingConstraints" />
+
+        <ViewStub
+            android:id="@+id/stub_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+</FrameLayout>

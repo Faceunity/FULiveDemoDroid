@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/beauty_box_img"
-    android:layout_width="@dimen/x88"
-    android:layout_height="@dimen/x88"
-    android:scaleType="centerInside" />

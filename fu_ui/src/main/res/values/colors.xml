@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!--fulive demo 主配色-->
+    <color name="primary_background">#050F14</color>
+    <color name="primary_text">#2C2E30</color>
+    <color name="primary_list">#BD050F14</color>
+    <color name="primary_disable_state">#C6C6C6</color>
+    <color name="primary_border_background">#8A797A7B</color>
+    <color name="primary_border_background_old">#5C040B0E</color>
+    <color name="primary_selected">#1FB2FF</color>
+    <color name="primary_selected_old">#5EC7FE</color>
+
+    <color name="transparent">#00000000</color>
+    <color name="percent50translucentBlack">#80000000</color>
+    <color name="percent60translucentBlack">#99000000</color>
+    <color name="colorWhite">#FFFFFFFF</color>
+    <color name="main_color">#1FB2FF</color>
+    <color name="main_color_79CDF9">#FF79CDF9</color>
+    <color name="main_color_gray">#FFA8A8A8</color>
+    <color name="main_color_c5c5c5">#FFC5C5C5</color>
+    <color name="main_color_090017">#FF090017</color>
+    <color name="divider_line_color">#33FFFFFF</color>
+    <color name="divider_line_color2">#FFE5E5E5</color>
+    <color name="line_302D33">#FF302D33</color>
+    <color name="black_dialog_text">#31373E</color>
+    <color name="btn_live_photo_text">#2C2E30</color>
+
+    <!--For DiscreteSeekBar-->
+    <color name="dsb_progress_color">#ff009688</color>
+    <color name="dsb_track_color">#ff939393</color>
+    <color name="dsb_disabled_color">#66939393</color>
+    <color name="dsb_ripple_color_pressed">#77939393</color>
+    <color name="dsb_ripple_color_focused">#99999999</color>
+    <color name="bg_switch_button">#BBBBBB</color>
+    <color name="main_classification_gradient_start">#FFF661FF</color>
+    <color name="main_classification_gradient_end">#FF7755FC</color>
+
+    <color name="green">#FF00FF00</color>
+    <color name="blue">#FF0000FF</color>
+</resources>

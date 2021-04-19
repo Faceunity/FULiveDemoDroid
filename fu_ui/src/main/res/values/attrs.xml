@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="xfermode_radio_btn">
+        <attr name="text_xfermode" format="string" />
+        <attr name="text_size_xfermode" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="camera_focus">
+        <attr name="focus_width" format="integer|dimension" />
+        <attr name="focus_height" format="integer|dimension" />
+        <attr name="focus_scale" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="Theme">
+        <attr name="discreteSeekBarStyle" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="DiscreteSeekBar">
+        <attr name="dsb_min" format="integer|dimension" />
+        <attr name="dsb_max" format="integer|dimension" />
+        <attr name="dsb_value" format="integer|dimension" />
+        <attr name="dsb_mirrorForRtl" format="boolean" />
+        <attr name="dsb_allowTrackClickToDrag" format="boolean" />
+        <attr name="dsb_progressColor" format="color|reference" />
+        <attr name="dsb_trackColor" format="color|reference" />
+        <attr name="dsb_indicatorTextAppearance" format="reference" />
+        <attr name="dsb_indicatorColor" format="color|reference" />
+        <attr name="dsb_indicatorElevation" format="dimension" />
+        <attr name="dsb_indicatorFormatter" format="string|reference" />
+        <attr name="dsb_rippleColor" format="color|reference" />
+        <attr name="dsb_indicatorPopupEnabled" format="boolean" />
+        <attr name="dsb_trackHeight" format="integer|dimension" />
+        <attr name="dsb_trackBaseHeight" format="integer|dimension" />
+        <attr name="dsb_scrubberHeight" format="integer|dimension" />
+        <attr name="dsb_thumbSize" format="integer|dimension" />
+        <attr name="dsb_indicatorSeparation" format="integer|dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="BeautyBox">
+        <attr name="checked" format="boolean" />
+        <attr name="open" format="boolean" />
+        <attr name="checked_model" format="integer">
+            <flag name="radio" value="1" />
+            <flag name="open" value="2" />
+            <flag name="open_double" value="3" />
+        </attr>
+        <attr name="drawable_open_normal" format="reference" />
+        <attr name="drawable_open_checked" format="reference" />
+        <attr name="drawable_close_normal" format="reference" />
+        <attr name="drawable_close_checked" format="reference" />
+        <attr name="text_normal" format="string" />
+        <attr name="text_double" format="string" />
+        <attr name="textColor_normal" format="reference|color" />
+        <attr name="textColor_checked" format="reference|color" />
+    </declare-styleable>
+
+    <declare-styleable name="ColorfulCircleView">
+        <attr name="fill_color_1" format="color" />
+        <attr name="fill_color_2" format="color" />
+        <attr name="fill_color_3" format="color" />
+        <attr name="fill_color_4" format="color" />
+        <attr name="fill_mode" format="enum">
+            <enum name="single" value="0" />
+            <enum name="dual" value="1" />
+            <enum name="triple" value="2" />
+            <enum name="quadruple" value="3" />
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="RingCircleView">
+        <attr name="inner_padding" format="dimension" />
+    </declare-styleable>
+</resources>
