@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="281dp"
+    android:layout_height="147dp"
+    android:background="@drawable/bg_confirm_dialog">
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="39dp"
+        android:gravity="center"
+        android:text="@string/dialog_confirm_delete"
+        android:textColor="@color/btn_live_photo_text"
+        android:layout_centerHorizontal="true"
+        android:textSize="15sp"  />
+
+    <View
+        android:layout_width="265dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="97dp"
+        android:background="@color/divider_line_color"
+        android:layout_centerHorizontal="true"/>
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="34dp"
+        android:layout_marginBottom="7dp"
+        android:background="@color/divider_line_color"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"  />
+
+    <TextView
+        android:id="@+id/tv_cancel"
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="@string/cancel"
+        android:textColor="@color/btn_live_photo_text"
+        android:textSize="16sp"
+        android:layout_alignParentBottom="true"/>
+
+    <TextView
+        android:id="@+id/tv_confirm"
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="@string/confirm"
+        android:textColor="@color/main_color"
+        android:textSize="16sp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

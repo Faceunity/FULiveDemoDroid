@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="wrap_content">
+
+
+    <com.kyleduo.switchbutton.SwitchButton
+        android:id="@+id/btn_switch_pta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x32"
+        android:layout_marginBottom="@dimen/x32"
+        android:checked="true"
+        android:textColor="@color/tv_switch_button"
+        android:textSize="@dimen/text_size_24"
+        app:kswBackDrawable="@drawable/bg_switch_button_white"
+        app:kswTextExtra="@dimen/x48"
+        app:kswTextOff="@string/pta_human_half_body"
+        app:kswTextOn="@string/pta_human_full_body"
+        app:kswTextThumbInset="@dimen/x20"
+        app:kswThumbDrawable="@mipmap/icon_avatar_circle_dot"
+        app:kswThumbHeight="@dimen/x88"
+        app:kswThumbWidth="@dimen/x88"
+        tools:kswThumbMarginBottom="-11dp"
+        tools:kswThumbMarginLeft="-7dp"
+        tools:kswThumbMarginRight="-7dp"
+        tools:kswThumbMarginTop="-4dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x168"
+        android:padding="@dimen/x14"
+        android:background="#99050f14"
+        android:layout_centerHorizontal="true" />
+</LinearLayout>

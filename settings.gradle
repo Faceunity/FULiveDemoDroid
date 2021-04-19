@@ -1,1 +1,3 @@
-include ':app', ':faceunity'
+include ':app'
+include ':fu_ui'
+rootProject.name='Kotlin_FaceUnity_Demo'

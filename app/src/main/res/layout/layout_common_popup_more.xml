@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/x682"
+    android:layout_height="wrap_content"
+    android:background="@mipmap/bg_popup"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+
+    <RadioGroup
+        android:id="@+id/rg_resolutions"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/x64"
+        android:layout_marginTop="@dimen/x40"
+        android:background="@drawable/bg_popup_resolution"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.faceunity.ui.radio.XfermodeRadioButton
+            android:id="@+id/rb_resolution_480p"
+            android:layout_width="@dimen/x194"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_radio_left_selector"
+            android:button="@null"
+            android:gravity="center"
+            app:text_size_xfermode="@dimen/text_size_26"
+            app:text_xfermode="@string/resolution_480p" />
+
+        <com.faceunity.ui.radio.XfermodeRadioButton
+            android:id="@+id/rb_resolution_720p"
+            android:layout_width="@dimen/x194"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_radio_middle"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            app:text_size_xfermode="@dimen/text_size_26"
+            app:text_xfermode="@string/resolution_720p" />
+
+        <com.faceunity.ui.radio.XfermodeRadioButton
+            android:id="@+id/rb_resolution_1080p"
+            android:layout_width="@dimen/x194"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_radio_right_selector"
+            android:button="@null"
+            android:gravity="center"
+            app:text_size_xfermode="@dimen/text_size_26"
+            app:text_xfermode="@string/resolution_1080p" />
+
+    </RadioGroup>
+
+
+    <RelativeLayout
+        android:id="@+id/rly_select_photo"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/x44"
+        android:layout_height="@dimen/x104"
+        android:layout_marginLeft="@dimen/x50"
+        android:layout_marginRight="@dimen/x50"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/select_data_photo_or_video"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/x26"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/icon_arrow_next" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x1"
+            android:layout_centerHorizontal="true"
+            android:background="@color/divider_line_color" />
+    </RelativeLayout>
+</LinearLayout>
+
+
+
+
+

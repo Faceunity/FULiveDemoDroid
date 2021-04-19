@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@mipmap/icon_beauty_box_face_narrow_open_checked" android:state_selected="true" />
+    <item android:drawable="@mipmap/icon_beauty_box_face_narrow_open_normal" />
+</selector>

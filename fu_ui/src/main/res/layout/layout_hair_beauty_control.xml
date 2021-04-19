@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cyt_main"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x252"
+    android:orientation="vertical"
+    android:background="#99050f14">
+
+    <com.faceunity.ui.seekbar.DiscreteSeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="@dimen/x528"
+        android:layout_height="@dimen/x48"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/x24"
+        android:layout_marginBottom="@dimen/x12"
+        android:visibility="invisible"
+        app:dsb_indicatorColor="@color/main_color"
+        app:dsb_indicatorElevation="0dp"
+        app:dsb_indicatorPopupEnabled="true"
+        app:dsb_max="100"
+        app:dsb_min="0"
+        app:dsb_progressColor="@color/main_color"
+        app:dsb_rippleColor="@color/main_color"
+        app:dsb_scrubberHeight="@dimen/x4"
+        app:dsb_thumbSize="@dimen/x32"
+        app:dsb_trackBaseHeight="@dimen/x16"
+        app:dsb_trackColor="@color/colorWhite"
+        app:dsb_trackHeight="@dimen/x4" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_gravity="bottom"
+        android:layout_height="@dimen/x168"
+        android:padding="@dimen/x14"  />
+</LinearLayout>

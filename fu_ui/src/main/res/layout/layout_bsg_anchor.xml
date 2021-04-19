@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:orientation="vertical"
+    android:layout_height="wrap_content">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_bsg_picked_color"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:src="@drawable/icon_bsg_pick_color" />
+
+    <RelativeLayout
+        android:id="@+id/cl_bsg_anchor"
+        android:layout_width="36dp"
+        android:layout_height="30dp">
+
+        <ImageView
+            android:id="@+id/iv_bsg_anchor_top"
+            android:layout_width="2dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="9dp"
+            android:src="@drawable/icon_bsg_anchor"
+            android:layout_centerHorizontal="true"
+            />
+
+        <ImageView
+            android:layout_width="2dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="4dp"
+            android:src="@drawable/icon_bsg_anchor"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/iv_bsg_anchor_top"  />
+
+        <ImageView
+            android:id="@+id/iv_bsg_anchor_left"
+            android:layout_width="4dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginRight="1dp"
+            android:src="@drawable/icon_bsg_anchor"
+            android:layout_toLeftOf="@+id/iv_bsg_anchor_top"
+            android:layout_below="@+id/iv_bsg_anchor_top" />
+
+        <ImageView
+            android:layout_width="4dp"
+            android:layout_height="2dp"
+            android:layout_marginLeft="4dp"
+            android:src="@drawable/icon_bsg_anchor"
+            android:layout_toRightOf="@+id/iv_bsg_anchor_left"
+            android:layout_alignTop="@+id/iv_bsg_anchor_left"  />
+    </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x367"
+    android:gravity="bottom"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/lyt_bottom_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x269"
+        android:background="@color/primary_list"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/ryt_action"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x268">
+
+            <LinearLayout
+                android:id="@+id/lyt_recover"
+                android:layout_width="@dimen/x132"
+                android:layout_height="@dimen/x180"
+                android:layout_alignParentBottom="true"
+                android:gravity="center_horizontal|bottom"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/iv_recover"
+                    android:layout_width="@dimen/x88"
+                    android:layout_height="@dimen/x88"
+                    android:layout_marginBottom="@dimen/x18"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/icon_control_recover" />
+
+
+                <TextView
+                    android:id="@+id/tv_recover"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/x30"
+                    android:text="@string/recover"
+                    android:textColor="@color/tv_main_color_selector"
+                    android:textSize="@dimen/text_size_20" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/iv_line"
+                android:layout_width="@dimen/x1"
+                android:layout_height="@dimen/x40"
+                android:layout_alignTop="@+id/lyt_recover"
+                android:layout_marginTop="@dimen/x40"
+                android:layout_toRightOf="@+id/lyt_recover"
+                android:background="@color/divider_line_color" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x180"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="bottom"
+                android:layout_toRightOf="@+id/iv_line" />
+
+            <LinearLayout
+                android:id="@+id/lyt_palette"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/recycler_view"
+                android:layout_marginStart="@dimen/x16"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.faceunity.ui.circle.RingCircleView
+                    android:id="@+id/iv_palette_pick"
+                    android:layout_width="@dimen/x88"
+                    android:layout_height="@dimen/x88"
+                    android:padding="@dimen/x16"
+                    app:inner_padding="@dimen/x20" />
+
+                <com.faceunity.ui.circle.RingCircleView
+                    android:id="@+id/iv_palette_green"
+                    android:layout_width="@dimen/x88"
+                    android:layout_height="@dimen/x88"
+                    android:padding="@dimen/x16"
+                    app:inner_padding="@dimen/x20" />
+
+                <com.faceunity.ui.circle.RingCircleView
+                    android:id="@+id/iv_palette_blue"
+                    android:layout_width="@dimen/x88"
+                    android:layout_height="@dimen/x88"
+                    android:padding="@dimen/x16"
+                    app:inner_padding="@dimen/x20" />
+
+            </LinearLayout>
+
+            <com.faceunity.ui.seekbar.DiscreteSeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="@dimen/x528"
+                android:layout_height="@dimen/x48"
+                android:layout_above="@+id/recycler_view"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="@dimen/x16"
+                app:dsb_indicatorColor="@color/main_color"
+                app:dsb_indicatorElevation="0dp"
+                app:dsb_indicatorPopupEnabled="true"
+                app:dsb_max="100"
+                app:dsb_min="0"
+                app:dsb_progressColor="@color/main_color"
+                app:dsb_rippleColor="@color/main_color"
+                app:dsb_scrubberHeight="@dimen/x4"
+                app:dsb_thumbSize="@dimen/x32"
+                app:dsb_trackBaseHeight="@dimen/x16"
+                app:dsb_trackColor="@color/colorWhite"
+                app:dsb_trackHeight="@dimen/x4"
+                app:dsb_value="0"  />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/ryt_background"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x268"
+            android:visibility="gone">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_background"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:scrollbars="none" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x1"
+            android:background="@color/divider_line_color" />
+
+    </LinearLayout>
+
+
+    <com.faceunity.ui.checkbox.CheckGroup
+        android:id="@+id/check_group"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x98"
+        android:layout_gravity="bottom"
+        android:background="@color/primary_list">
+
+        <com.faceunity.ui.checkbox.CheckBoxCompat
+            android:id="@+id/checkbox_graphic"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="@string/bg_seg_green_graphic"
+            android:textColor="@color/bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+        <com.faceunity.ui.checkbox.CheckBoxCompat
+            android:id="@+id/checkbox_background"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/bg_seg_green_background"
+            android:textColor="@color/bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+    </com.faceunity.ui.checkbox.CheckGroup>
+
+
+</LinearLayout>

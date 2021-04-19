@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/x140"
+    android:layout_height="@dimen/x140"
+    android:orientation="vertical"
+    android:padding="@dimen/x10">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_control"
+        android:layout_width="@dimen/x120"
+        android:layout_height="@dimen/x120"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_control_oval_selector"
+        android:padding="@dimen/x6" />
+
+</LinearLayout>

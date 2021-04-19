@@ -16,7 +16,7 @@
   "tex_blusher": "zhuangrong_sh.png",
   "tex_blusher2": "zhuangrong_sh2.png",
   "makeup_intensity_blusher": 1.0,
-  "makeup_brow_color": [
+  "makeup_eyeBrow_color": [
     0.0,
     0.0,
     0.0,
@@ -26,7 +26,7 @@
   "brow_warp": 1.0,
   "brow_warp_type": 5,
   "makeup_intensity_eyeBrow": 0.699999988079071,
-  "makeup_eyeLash_color": [
+  "makeup_eyelash_color": [
     0.0,
     0.0,
     0.0,

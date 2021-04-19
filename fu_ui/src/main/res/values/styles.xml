@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--For DiscreteSeekBar-->
+    <style name="Widget.DiscreteSeekBar" parent="android:Widget">
+        <item name="dsb_indicatorTextAppearance">@style/Widget.DiscreteIndicatorTextAppearance
+        </item>
+        <item name="dsb_progressColor">@color/dsb_progress_color_list</item>
+        <item name="dsb_trackColor">@color/dsb_track_color_list</item>
+        <item name="dsb_rippleColor">@color/dsb_ripple_color_list</item>
+        <item name="dsb_indicatorColor">@color/dsb_progress_color</item>
+        <item name="dsb_indicatorElevation">4dp</item>
+        <item name="dsb_mirrorForRtl">true</item>
+    </style>
+
+    <style name="Widget.DiscreteIndicatorTextAppearance" parent="android:TextAppearance.Small">
+        <item name="android:textColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="android:padding">6dp</item>
+    </style>
+    <style name="photo_more_popup_anim_style">
+        <item name="android:windowEnterAnimation">@anim/photo_more_popup_in</item>
+        <item name="android:windowExitAnimation">@anim/photo_more_popup_out</item>
+    </style>
+    <style name="photo_tip_popup_anim_style">
+        <item name="android:windowEnterAnimation">@anim/popup_tip_in</item>
+        <item name="android:windowExitAnimation">@anim/popup_tip_out</item>
+    </style>
+</resources>

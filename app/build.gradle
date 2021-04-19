@@ -1,61 +1,57 @@
-apply plugin: 'com.android.application'
-/**
- * 应用名称，是否重命名 apk
- */
-def appName = 'FULiveDemo'
-def renameApk = false
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+
     defaultConfig {
-        applicationId "com.faceunity.${appName}".toLowerCase()
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.namaSdkVersionCode
-        versionName rootProject.ext.namaSdkVersionName
-        manifestPlaceholders = ['appName': appName]
+        applicationId "com.faceunity.app"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "7.4.0"
+        multiDexEnabled true
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    if (renameApk) {
-        // eg: FULiveDemo_7.0.0_debug_20200603_095632.apk
-        applicationVariants.all { variant ->
-            variant.outputs.all {
-                def releaseTime = new Date().format("yyyyMMdd_HHmmss", TimeZone.getDefault())
-                outputFileName = "${appName}_${versionName}_${variant.buildType.name}_${releaseTime}.apk"
-            }
-        }
-    }
+
     buildTypes {
         release {
-            minifyEnabled true
-            zipAlignEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
-        abortOnError false
-    }
-    // for exoplayer lib
     compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
-    implementation project(':faceunity')
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation "androidx.cardview:cardview:1.0.0"
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-    implementation 'com.wuyr:pathlayoutmanager:1.0.3'
-    implementation 'com.kyleduo.switchbutton:library:2.0.0'
-    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    //精品贴纸导入网络相关库
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation ('com.squareup.okhttp3:okhttp:3.12.12') {
+        force = true //API 19 support
+    }
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.12'
+    implementation 'com.airbnb.android:lottie:3.6.0'
+    implementation 'org.jetbrains:annotations:15.0'
+    //UI库
+    implementation project(path: ':fu_ui')
+    //exoplayer视频
     implementation 'com.google.android.exoplayer:exoplayer-core:2.11.3'
+    //分包
+    implementation 'com.android.support:multidex:1.0.3'
+    //调测支持
+    implementation 'com.tencent.bugly:crashreport:3.3.3'//其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.2.0
+//    debugImplementation 'com.didichuxing.doraemonkit:dokitx:3.3.5'
+//    releaseImplementation 'com.didichuxing.doraemonkit:dokitx-no-op:3.3.5'
+//    implementation 'com.github.smarxpan:NotchScreenTool:0.0.1'
 }

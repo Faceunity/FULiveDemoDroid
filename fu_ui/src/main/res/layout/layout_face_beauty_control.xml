@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x472"
+    android:gravity="bottom"
+    android:orientation="vertical">
+
+    <com.faceunity.ui.widget.TouchStateImageView
+        android:id="@+id/iv_compare"
+        android:layout_width="@dimen/x72"
+        android:layout_height="@dimen/x72"
+        android:layout_marginStart="@dimen/x34"
+        android:layout_marginBottom="@dimen/x34"
+        android:src="@mipmap/icon_beauty_face_contrast"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/fyt_bottom_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/primary_list"
+        android:orientation="vertical">
+
+        <com.faceunity.ui.seekbar.DiscreteSeekBar
+            android:id="@+id/beauty_seek_bar"
+            android:layout_width="@dimen/x528"
+            android:layout_height="@dimen/x48"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/x24"
+            android:layout_marginBottom="@dimen/x15"
+            app:dsb_indicatorColor="@color/main_color"
+            app:dsb_indicatorElevation="0dp"
+            app:dsb_indicatorPopupEnabled="true"
+            app:dsb_max="100"
+            app:dsb_min="0"
+            app:dsb_progressColor="@color/main_color"
+            app:dsb_rippleColor="@color/main_color"
+            app:dsb_scrubberHeight="@dimen/x4"
+            app:dsb_thumbSize="@dimen/x32"
+            app:dsb_trackBaseHeight="@dimen/x16"
+            app:dsb_trackColor="@color/colorWhite"
+            app:dsb_trackHeight="@dimen/x4"
+            app:dsb_value="0" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x180"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/lyt_beauty_recover"
+                android:layout_width="@dimen/x132"
+                android:layout_height="@dimen/x180"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/iv_beauty_recover"
+                    android:layout_width="@dimen/x88"
+                    android:layout_height="@dimen/x88"
+                    android:layout_marginBottom="@dimen/x18"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/icon_control_recover" />
+
+
+                <TextView
+                    android:id="@+id/tv_beauty_recover"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/x30"
+                    android:text="@string/recover"
+                    android:textColor="@color/tv_main_color_selector"
+                    android:textSize="@dimen/text_size_20" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/lyt_style_recover"
+                android:layout_width="@dimen/x132"
+                android:layout_height="@dimen/x180"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="@dimen/x88"
+                    android:layout_height="@dimen/x88"
+                    android:layout_marginBottom="@dimen/x18"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/icon_beauty_style_none_selector" />
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/x30"
+                    android:text="@string/beauty_face_style_none"
+                    android:textColor="@color/tv_main_color_selector"
+                    android:textSize="@dimen/text_size_20" />
+            </LinearLayout>
+
+
+            <View
+                android:id="@+id/iv_line"
+                android:layout_width="@dimen/x1"
+                android:layout_height="@dimen/x40"
+                android:layout_marginTop="@dimen/x24"
+                android:background="@color/divider_line_color" />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x180"
+                android:layout_gravity="bottom" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x1"
+            android:background="@color/divider_line_color" />
+    </LinearLayout>
+
+
+    <com.faceunity.ui.checkbox.CheckGroup
+        android:id="@+id/beauty_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x98"
+        android:background="#BD050F14"
+        android:orientation="horizontal">
+
+        <com.faceunity.ui.checkbox.CheckBoxCompat
+            android:id="@+id/beauty_radio_skin_beauty"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/beauty_radio_skin_beauty"
+            android:textColor="@color/bottom_radio_color"
+            android:textSize="@dimen/text_size_26"/>
+
+        <com.faceunity.ui.checkbox.CheckBoxCompat
+            android:id="@+id/beauty_radio_face_shape"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/beauty_radio_face_shape"
+            android:textColor="@color/bottom_radio_color"
+            android:textSize="@dimen/text_size_26"/>
+
+        <com.faceunity.ui.checkbox.CheckBoxCompat
+            android:id="@+id/beauty_radio_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/beauty_radio_filter"
+            android:textColor="@color/bottom_radio_color"
+            android:textSize="@dimen/text_size_26" />
+
+        <com.faceunity.ui.checkbox.CheckBoxCompat
+            android:id="@+id/beauty_radio_style"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/transparent"
+            android:button="@null"
+            android:gravity="center"
+            android:text="@string/beauty_radio_style"
+            android:textColor="@color/bottom_radio_color"
+            android:textSize="@dimen/text_size_26"/>
+
+    </com.faceunity.ui.checkbox.CheckGroup>
+</LinearLayout>

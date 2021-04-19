@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cyt_parent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/cyt_makeup_color"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/x360"
+        android:visibility="invisible">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_makeup_color"
+            android:layout_width="@dimen/x80"
+            android:layout_height="@dimen/x540"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/x34" />
+
+        <com.faceunity.ui.circle.ShadowCircleRingView
+            android:layout_width="@dimen/x96"
+            android:layout_height="@dimen/x96"
+            android:layout_alignTop="@+id/recycler_makeup_color"
+            android:layout_alignBottom="@+id/recycler_makeup_color"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/x28" />
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/cyt_custom_makeup"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="bottom"
+        android:background="#BD050F14"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+
+        <com.faceunity.ui.seekbar.DiscreteSeekBar
+            android:id="@+id/seek_bar_custom"
+            android:layout_width="@dimen/x528"
+            android:layout_height="@dimen/x48"
+            android:layout_marginTop="@dimen/x24"
+            android:layout_marginBottom="@dimen/x34"
+            app:dsb_indicatorColor="@color/main_color"
+            app:dsb_indicatorElevation="0dp"
+            app:dsb_indicatorPopupEnabled="true"
+            app:dsb_max="100"
+            app:dsb_min="0"
+            app:dsb_progressColor="@color/main_color"
+            app:dsb_rippleColor="@color/main_color"
+            app:dsb_scrubberHeight="@dimen/x4"
+            app:dsb_thumbSize="@dimen/x32"
+            app:dsb_trackBaseHeight="@dimen/x16"
+            app:dsb_trackColor="@color/colorWhite"
+            app:dsb_trackHeight="@dimen/x4" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x116"
+            android:layout_marginBottom="@dimen/x45"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/iv_custom_back"
+                android:layout_width="@dimen/x108"
+                android:layout_height="@dimen/x108"
+                android:layout_marginLeft="@dimen/x34"
+                android:background="@mipmap/icon_control_return"
+                android:scaleType="centerInside" />
+
+            <View
+                android:id="@+id/iv_custom_back_line"
+                android:layout_width="@dimen/x1"
+                android:layout_height="@dimen/x80"
+                android:layout_marginLeft="@dimen/x20"
+                android:background="#33E5E5E5" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_custom"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x116"
+                android:paddingLeft="@dimen/x6"
+                android:paddingRight="@dimen/x6"
+                android:scrollbars="none" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/iv_custom_class_line"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x1"
+            android:background="#33E5E5E5" />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_custom_class"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x98"
+            android:scrollbars="none" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/cyt_combination_makeup"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x290"
+        android:layout_gravity="bottom"
+        android:background="#BD050F14"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.faceunity.ui.seekbar.DiscreteSeekBar
+            android:id="@+id/seek_bar_combination"
+            android:layout_width="@dimen/x528"
+            android:layout_height="@dimen/x48"
+            android:layout_marginTop="@dimen/x24"
+            android:layout_marginBottom="@dimen/x38"
+            android:visibility="invisible"
+            app:dsb_indicatorColor="@color/main_color"
+            app:dsb_indicatorElevation="0dp"
+            app:dsb_indicatorPopupEnabled="true"
+            app:dsb_max="100"
+            app:dsb_min="0"
+            app:dsb_progressColor="@color/main_color"
+            app:dsb_rippleColor="@color/main_color"
+            app:dsb_scrubberHeight="@dimen/x4"
+            app:dsb_thumbSize="@dimen/x32"
+            app:dsb_trackBaseHeight="@dimen/x16"
+            app:dsb_trackColor="@color/colorWhite"
+            app:dsb_trackHeight="@dimen/x4"
+            app:dsb_value="0" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x180"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/x180"
+                android:layout_marginLeft="@dimen/x34"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/iv_combination_makeup"
+                    android:layout_width="@dimen/x108"
+                    android:layout_height="@dimen/x108"
+                    android:background="@drawable/bg_control_square_selector"
+                    android:padding="@dimen/x4"
+                    android:src="@mipmap/icon_control_edit" />
+
+                <TextView
+                    android:id="@+id/tv_combination_makeup"
+                    android:layout_width="@dimen/x108"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/x16"
+                    android:gravity="center_horizontal"
+                    android:text="@string/makeup_customize"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="@dimen/text_size_20" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/iv_combination_line"
+                android:layout_width="@dimen/x1"
+                android:layout_height="@dimen/x80"
+                android:layout_marginStart="@dimen/x20"
+                android:layout_marginTop="@dimen/x14"
+                android:background="#33E5E5E5" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_combination"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/x180" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</FrameLayout>

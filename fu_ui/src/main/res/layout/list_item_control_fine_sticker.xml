@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/x146"
+    android:layout_height="@dimen/x146">
+
+    <ImageView
+        android:layout_gravity="center"
+        android:layout_width="@dimen/x102"
+        android:layout_height="@dimen/x102"
+        android:layout_centerInParent="true"
+        android:src="@drawable/bg_rv_item_fine_sticker" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_fine_sticker"
+        android:layout_width="@dimen/x88"
+        android:layout_height="@dimen/x88"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_download"
+        android:layout_width="@dimen/x24"
+        android:layout_height="@dimen/x24"
+        android:layout_alignEnd="@id/iv_fine_sticker"
+        android:layout_alignBottom="@id/iv_fine_sticker"
+        android:src="@mipmap/icon_control_download"/>
+
+    <ImageView
+        android:id="@+id/iv_loading"
+        android:layout_gravity="center"
+        android:layout_width="@dimen/x46"
+        android:layout_height="@dimen/x46"
+        android:layout_centerInParent="true"
+        android:src="@mipmap/icon_control_loading" />
+
+</RelativeLayout>
