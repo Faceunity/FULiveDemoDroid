@@ -17,6 +17,7 @@ import com.faceunity.app.data.BodyBeautyDataFactory;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.core.callback.OnColorReadCallback;
 import com.faceunity.core.entity.FUCoordinate2DData;
+import com.faceunity.core.entity.FURenderFrameData;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.entity.FURenderOutputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
@@ -44,6 +45,8 @@ import com.faceunity.ui.control.PropControlView;
 import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
 import com.faceunity.ui.widget.ColorPickerView;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * DESC：
@@ -280,15 +283,14 @@ public class ShowPhotoActivity extends BaseActivity {
 
         }
 
-
         @Override
-        public void onRenderAfter(FURenderOutputData outputData, float[] texMatrix, float[] mvpMatrix) {
-            trackStatus();
-            recordingData(outputData, texMatrix);
+        public void onRenderAfter(@NotNull FURenderOutputData outputData, @NotNull FURenderFrameData frameData) {
+            recordingData(outputData, frameData.getTexMatrix());
         }
 
         @Override
         public void onDrawFrameAfter() {
+            trackStatus();
             if (isReadRGBA) {
                 RGBAPicker.readRgba(anchorX, anchorY, mOnReadRgbaListener);
             }

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.faceunity.app.base.BaseActivity;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.core.callback.OnColorReadCallback;
+import com.faceunity.core.entity.FURenderFrameData;
 import com.faceunity.core.media.rgba.RGBAPicker;
 import com.faceunity.core.media.video.OnVideoRecordingListener;
 import com.faceunity.core.media.video.VideoPlayHelper;
@@ -44,6 +45,8 @@ import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
 import com.faceunity.ui.widget.ColorPickerView;
 import com.faceunity.ui.widget.CustomImageButton;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -282,16 +285,14 @@ public class ShowVideoActivity extends BaseActivity {
 
     /*GLRender 回调  */
     private final OnGlRendererListener mOnGlRendererListener = new OnGlRendererListener() {
-
         private int currentFrame = 0;
 
         @Override
-        public void onRenderAfter(FURenderOutputData outputData, float[] texMatrix, float[] mvpMatrix) {
+        public void onRenderAfter(@NotNull FURenderOutputData outputData, @NotNull FURenderFrameData frameData) {
             mVideoWidth = outputData.getTexture().getWidth();
             mVideoHeight = outputData.getTexture().getHeight();
-            trackStatus();
             if (isSendRecordingData) {
-                mVideoRecordHelper.frameAvailableSoon(outputData.getTexture().getTexId(), texMatrix, GlUtil.IDENTITY_MATRIX);
+                mVideoRecordHelper.frameAvailableSoon(outputData.getTexture().getTexId(), frameData.getTexMatrix(), GlUtil.IDENTITY_MATRIX);
             }
             if (currentFrame++ == 5) {
                 mVideoRecordHelper.startRecording(mSurfaceView, mVideoWidth, mVideoHeight, mVideoPath);
@@ -301,6 +302,7 @@ public class ShowVideoActivity extends BaseActivity {
 
         @Override
         public void onDrawFrameAfter() {
+            trackStatus();
             if (isReadRGBA) {
                 RGBAPicker.readRgba(anchorX, anchorY, mOnReadRgbaListener);
             }

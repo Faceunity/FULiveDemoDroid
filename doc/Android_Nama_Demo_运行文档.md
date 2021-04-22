@@ -170,15 +170,15 @@ Android 端发放的证书为 authpack.java 文件，如果您已经获取到鉴
 
 - 点击 Sync 按钮，同步一下工程。或者 Build-->Make Projects。
 
-![AS-Make-Project](imgs/as-make-project.png)
+![AS-Make-Project](nama/imgs/as-make-project.png)
 
 - 点击 Run 按钮运行，部署到手机上。
 
-![AS-Run](imgs/as-run.png)
+![AS-Run](nama/imgs/as-run.png)
 
 - Demo 运行效果。
 
-![fulivedemo](imgs/fulivedemo.png)
+![fulivedemo](nama/imgs/fulivedemo.png)
 
 ------
 ### 4. 常见问题 
