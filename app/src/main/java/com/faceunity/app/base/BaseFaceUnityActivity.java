@@ -31,6 +31,7 @@ import com.faceunity.app.utils.FileUtils;
 import com.faceunity.app.view.SelectDataActivity;
 import com.faceunity.core.camera.FUCamera;
 import com.faceunity.core.entity.FUCameraConfig;
+import com.faceunity.core.entity.FURenderFrameData;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.entity.FURenderOutputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
@@ -50,6 +51,8 @@ import com.faceunity.core.utils.GlUtil;
 import com.faceunity.ui.button.RecordBtn;
 import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.widget.CameraFocus;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -358,15 +361,16 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
             BaseFaceUnityActivity.this.onRenderBefore(inputData);
         }
 
+
         @Override
-        public void onRenderAfter(@NonNull FURenderOutputData outputData, @NonNull float[] texMatrix, @NonNull float[] mvpMatrix) {
-            trackStatus();
-            benchmarkFPS();
-            recordingData(outputData, texMatrix);
+        public void onRenderAfter(@NonNull FURenderOutputData outputData, @NotNull FURenderFrameData frameData) {
+            recordingData(outputData, frameData.getTexMatrix());
         }
 
         @Override
         public void onDrawFrameAfter() {
+            trackStatus();
+            benchmarkFPS();
             BaseFaceUnityActivity.this.onDrawFrameAfter();
         }
 

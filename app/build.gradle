@@ -7,10 +7,10 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.faceunity.app"
+        applicationId "com.faceunity.fulivedemo"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 1
+        versionCode 740
         versionName "7.4.0"
         multiDexEnabled true
         ndk {
@@ -32,21 +32,23 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    //核心库)
+    implementation 'com.faceunity:core:7.4.0.0'
+    //UI库
+    implementation project(path: ':fu_ui')
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     //精品贴纸导入网络相关库
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation ('com.squareup.okhttp3:okhttp:3.12.12') {
+    implementation('com.squareup.okhttp3:okhttp:3.12.12') {
         force = true //API 19 support
     }
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.12'
     implementation 'com.airbnb.android:lottie:3.6.0'
     implementation 'org.jetbrains:annotations:15.0'
-    //UI库
-    implementation project(path: ':fu_ui')
-    //exoplayer视频
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.11.3'
+
     //分包
     implementation 'com.android.support:multidex:1.0.3'
     //调测支持

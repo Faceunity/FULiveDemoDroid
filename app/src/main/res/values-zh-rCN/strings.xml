@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">特效版Demo</string>
+    <string name="app_name">FULiveDemo</string>
     <string name="fu_live_demo">FU Live Demo 特效版</string>
 
     <string name="main_classification_face">人脸特效</string>
