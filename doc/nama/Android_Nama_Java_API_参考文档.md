@@ -1,11 +1,17 @@
 # Android Nama Java API 参考文档
 
 级别：Public
-更新日期：2021-04-19
-SDK版本: 7.4.0
+更新日期：2021-07-13
+SDK版本: 7.4.1
 
 ------
 ### 最新更新内容：
+
+**2021-07-13 v7.4.1:**
+- 更新精品贴纸8款，包含2款PK游戏，5款装饰及互动贴纸，1款全身驱动道具
+- 更新2款中国风Animoji模型
+- 修复人像分割贴纸效果问题，修复后人像分割结果和贴纸效果会同时出现
+- 修复一些bug，包括高分辨率磨皮效果问题，人脸检测与贴纸绘制的时序问题
 
 **2021-04-19 v7.4.0:**
 
@@ -16,7 +22,7 @@ SDK版本: 7.4.0
  - 优化情绪识别，支持8种基本情绪识。
  - 新增接口fuSetUseAsyncAIInference，支持异步模式，开启异步模式，帧率提升，可改善客户在一些低端设备上帧率不足问题。
  - 新增fuRender接口，为所有业务统一渲染接口，详见接口定义。
- - 新增接口 fuSetInputCameraBufferMatrix，fuSetInputCameraBufferMatrixState，fuSetInputCameraTextureMatrix，fuSetInputCameraTextureMatrixState，fuSetOutputMatrix，fuSetOutputMatrixState，用于设置图像转换矩阵，用于调整输出图像方向，详见接口定义。
+ - 新增接口 fuSetInputBufferMatrix，fuSetInputCameraBufferMatrixState，fuSetInputTextureMatrix，fuSetInputCameraTextureMatrixState，fuSetOutputMatrix，fuSetOutputMatrixState，用于设置图像转换矩阵，用于调整输出图像方向，详见接口定义。
 
 
 **2021-01-25 v7.3.2:**
@@ -1347,6 +1353,24 @@ CCROT90_FLIPHORIZONTAL：7
 
 __备注:__  
 当使用`fuSetInputCameraTextureMatrix`,`fuSetInputCameraBufferMatrix`设置TransformMatrix后，如需要再调整输出图像buffer，可以`fuSetOutputMatrix`进一步调整输出方向。 
+
+------
+
+##### fuSetOutputMatrixState 函数
+```java
+/**
+ \brief set additional transform matrix state, turn on or turn off
+ */
+public static native void fuSetOutputMatrixState(int enable);
+```
+
+**接口说明：**
+设置由`fuSetOutputMatrix`设置的TransformMatrix是否生效。
+
+
+**参数说明：**
+
+`enable`: 1 生效，0 不生效
 
 ------
 

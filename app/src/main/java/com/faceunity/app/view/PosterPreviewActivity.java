@@ -19,13 +19,12 @@ import com.faceunity.core.callback.OnPosterRenderCallback;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.enumeration.FUFaceProcessorDetectModeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FUPosterKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.media.photo.OnPhotoRecordingListener;
 import com.faceunity.core.media.photo.PhotoRecordHelper;
 import com.faceunity.core.program.ProgramTexture2d;
-import com.faceunity.core.utils.BitmapUtils;
-import com.faceunity.core.utils.DecimalUtils;
 import com.faceunity.core.utils.GlUtil;
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
@@ -69,7 +68,7 @@ public class PosterPreviewActivity extends BaseActivity {
     private PosterChangeFaceDataFactory mPosterChangeFaceDataFactory;
     private FUPosterKit mFUPosterKit;
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
-
+    private FUAIKit mFUAIKit = FUAIKit.getInstance();
 
     private boolean isActivityPaused = true; // Activity生命周期，用于异步回调返回时候切换UI线程控制
     private boolean isFaceMaskFirst = true;
@@ -123,8 +122,8 @@ public class PosterPreviewActivity extends BaseActivity {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void bindListener() {
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
-        mFURenderKit.getFUAIController().setFaceProcessorDetectMode(FUFaceProcessorDetectModeEnum.IMAGE);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
+        mFUAIKit.faceProcessorSetDetectMode(FUFaceProcessorDetectModeEnum.IMAGE);
         mPosterChangeFaceControlView.bindDataFactory(mPosterChangeFaceDataFactory);
         mLoadingViewRoot.setOnTouchListener((view, event) -> true);
         findViewById(R.id.iv_back).setOnClickListener(view -> onBackPressed());

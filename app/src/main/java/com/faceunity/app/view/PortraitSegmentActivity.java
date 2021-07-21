@@ -67,10 +67,6 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
     @Override
     public void onResume() {
         super.onResume();
-        PropCustomBean bean = mPortraitSegmentDataFactory.getCurrentPropCustomBean();
-        if (bean.getType() == FunctionEnum.BG_SEG_CUSTOM) {
-            mVideoPlayHelper.playVideo(bean.getPath());
-        }
     }
 
 

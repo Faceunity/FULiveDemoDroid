@@ -102,9 +102,9 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
      */
     fun onGetToolList(tag: FineStickerTagEntity, fineStickerEntity: FineStickerEntity) {
         if (tag.tag == null) return
-        val rv: RecyclerView = vp_fine_sticker.findViewWithTag(tag.tag)
-        val adapter = rv.adapter as BaseListAdapter<DocsBean>
-        adapter.setData(fineStickerEntity.docs)
+        val rv: RecyclerView? = safeFindViewWithTag(tag.tag)
+        val adapter = rv?.adapter as BaseListAdapter<DocsBean>?
+        adapter?.setData(fineStickerEntity.docs)
     }
 
     /**
@@ -113,9 +113,9 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
      */
     fun onDownload(entity: DocsBean) {
         entity.isDownloading = false
-        val rv: RecyclerView = vp_fine_sticker.findViewWithTag(entity.tag)
-        val adapter = rv.adapter as BaseListAdapter<DocsBean>
-        adapter.notifyDataSetChanged()
+        val rv: RecyclerView? = safeFindViewWithTag(entity.tag)
+        val adapter = rv?.adapter as BaseListAdapter<DocsBean>?
+        adapter?.notifyDataSetChanged()
         if (currentSticker == entity) {
             entity.filePath.let {
                 dataFactory.onItemSelected(entity)
@@ -129,9 +129,9 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
      */
     fun onDownloadError(entity: DocsBean, msg: String) {
         entity.isDownloading = false
-        val rv: RecyclerView = vp_fine_sticker.findViewWithTag(entity.tag)
-        val adapter = rv.adapter as BaseListAdapter<DocsBean>
-        adapter.notifyDataSetChanged()
+        val rv: RecyclerView? = safeFindViewWithTag(entity.tag)
+        val adapter = rv?.adapter as BaseListAdapter<DocsBean>?
+        adapter?.notifyDataSetChanged()
         ToastHelper.showNormalToast(mContext, R.string.download_error)
     }
 
@@ -301,31 +301,40 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
      */
     private fun updateAdapterView(tag: String?, position: Int, sticker: DocsBean?) {
         currentSticker = sticker
-        if (currentTag != null) {
-            val rv: RecyclerView = vp_fine_sticker.findViewWithTag(currentTag)
-            val adapter = rv.adapter as BaseListAdapter<DocsBean>
-            adapter.notifyItemChanged(currentPosition)
-        }
+        val rv: RecyclerView? = safeFindViewWithTag(currentTag)
+        val adapter = rv?.adapter as BaseListAdapter<DocsBean>?
+        adapter?.notifyItemChanged(currentPosition)
+
         currentPosition = position
         currentTag = tag
-        if (tag != null) {
-            val currentRecyclerView: RecyclerView = vp_fine_sticker.findViewWithTag(tag)
-            val currentAdapter = currentRecyclerView.adapter as BaseListAdapter<DocsBean>
-            currentAdapter.notifyItemChanged(position)
-        }
-    }
 
+        val currentRecyclerView: RecyclerView? = safeFindViewWithTag(tag)
+        val currentAdapter = currentRecyclerView?.adapter as BaseListAdapter<DocsBean>?
+        currentAdapter?.notifyItemChanged(position)
+    }
 
     /**
      * 状态刷新
      */
     private fun updateCurrentAdapterView() {
         if (currentTag != null) {
-            val rv: RecyclerView = vp_fine_sticker.findViewWithTag(currentTag)
-            val adapter = rv.adapter as BaseListAdapter<DocsBean>
-            adapter.notifyItemChanged(currentPosition)
+            val rv: RecyclerView? = safeFindViewWithTag(currentTag)
+            val adapter = rv?.adapter as BaseListAdapter<DocsBean>?
+            adapter?.notifyItemChanged(currentPosition)
         }
     }
 
-
+    /**
+     * 安全的findViewWithTag
+     */
+    private fun safeFindViewWithTag(tag: String?): RecyclerView? {
+        try {
+            tag?.let {
+                return vp_fine_sticker?.findViewWithTag(it)
+            }
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+        }
+        return null
+    }
 }

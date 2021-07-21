@@ -6,6 +6,7 @@ import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.app.data.source.MakeupSource;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUColorRGBData;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.makeup.Makeup;
 import com.faceunity.core.model.makeup.MakeupBrowWarpEnum;
@@ -843,7 +844,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         mFURenderKit.setFaceBeauty(FaceBeautySource.clone(FaceBeautyDataFactory.faceBeauty));
         mFURenderKit.getFaceBeauty().setFilterName(currentFilterName);
         mFURenderKit.getFaceBeauty().setFilterIntensity(currentFilterIntensity);
-        mFURenderKit.getFUAIController().setMaxFaces(4);
+        FUAIKit.getInstance().setMaxFaces(4);
         mFURenderKit.setMakeup(currentMakeup);
     }
 }

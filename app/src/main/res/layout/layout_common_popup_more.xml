@@ -13,6 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/x64"
         android:layout_marginTop="@dimen/x40"
+        android:layout_marginBottom="@dimen/x40"
         android:background="@drawable/bg_popup_resolution"
         android:orientation="horizontal"
         android:visibility="gone">
@@ -54,7 +55,7 @@
     <RelativeLayout
         android:id="@+id/rly_select_photo"
         android:layout_width="match_parent"
-        android:layout_marginTop="@dimen/x44"
+        android:layout_marginTop="@dimen/x4"
         android:layout_height="@dimen/x104"
         android:layout_marginLeft="@dimen/x50"
         android:layout_marginRight="@dimen/x50"

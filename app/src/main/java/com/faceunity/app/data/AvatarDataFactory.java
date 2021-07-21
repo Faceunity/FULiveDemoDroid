@@ -7,7 +7,9 @@ import com.faceunity.core.avatar.model.PTAScene;
 import com.faceunity.core.avatar.scene.SceneHumanProcessor;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUCoordinate3DData;
+import com.faceunity.core.entity.FUTranslationScale;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.antialiasing.Antialiasing;
 import com.faceunity.ui.entity.AvatarBean;
@@ -23,6 +25,7 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
 
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
+    private FUAIKit mFUAIKit = FUAIKit.getInstance();
     /*3D抗锯齿*/
     public final Antialiasing antialiasing;
 
@@ -39,6 +42,10 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
     private PTAAvatar boyAvatarModel;
     /* 女孩对象  */
     private PTAAvatar girlAvatarModel;
+    /* 熊对象 */
+    private PTAAvatar bearAvatarModel;
+    /*当前对象*/
+    private PTAAvatar currentAvatarModel;
 
 
     public AvatarDataFactory(int index, boolean isFull) {
@@ -46,9 +53,19 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
         currentMemberIndex = index;
         members = AvatarSource.buildMembers();
         antialiasing = new Antialiasing(new FUBundleData(DemoConfig.BUNDLE_ANTI_ALIASING));
+        bearAvatarModel = AvatarSource.buildBearData();
         boyAvatarModel = AvatarSource.buildBoyData(isFull);
         girlAvatarModel = AvatarSource.buildGirlData(isFull);
-        sceneModel = AvatarSource.buildSceneModel(index == 0 ? girlAvatarModel : boyAvatarModel);
+
+        if (index == 0) {
+            currentAvatarModel = bearAvatarModel;
+        } else if (index == 1) {
+            currentAvatarModel = girlAvatarModel;
+        } else if (index == 2) {
+            currentAvatarModel = boyAvatarModel;
+        }
+
+        sceneModel = AvatarSource.buildSceneModel(currentAvatarModel);
     }
 
 
@@ -117,21 +134,46 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
      */
     @Override
     public void onMemberSelected(AvatarBean bean) {
-        if (bean.getDes().equals(AvatarSource.GIRL)) {
-            sceneModel.replaceAvatar(boyAvatarModel, girlAvatarModel);
+        if (mAvatarChoiceListener != null)
+            mAvatarChoiceListener.choiceAvatar(bean);
+
+        if (bean.getDes().equals(AvatarSource.GIRL) || bean.getDes().equals(AvatarSource.BOY)) {
+            if (currentAvatarModel == bearAvatarModel) {
+                sceneModel.removeAvatar(currentAvatarModel);
+                sceneModel.getMSceneHumanProcessor().setHumanProcessorTranslationScale(new FUTranslationScale(0f, 0f, 0f));
+                setHumanTrackSceneFull(isHumanTrackSceneFull);
+                AvatarSource.setSceneBackGround(sceneModel, true);
+                currentAvatarModel = bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel;
+                sceneModel.addAvatar(currentAvatarModel);
+            } else {
+                sceneModel.replaceAvatar(currentAvatarModel, bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel);
+                currentAvatarModel = bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel;
+            }
         } else {
-            sceneModel.replaceAvatar(girlAvatarModel, boyAvatarModel);
+            sceneModel.removeAvatar(currentAvatarModel);
+            sceneModel.getMSceneHumanProcessor().setHumanProcessorTranslationScale(new FUTranslationScale(0.5f, 0f, 0.1f));
+            sceneModel.getMSceneHumanProcessor().setTrackScene(SceneHumanProcessor.TrackScene.SceneFull);
+            AvatarSource.setSceneBackGround(sceneModel, false);
+            currentAvatarModel = bearAvatarModel;
+            sceneModel.addAvatar(currentAvatarModel);
         }
     }
 
-
     public void bindCurrentRenderer() {
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
-        mFURenderKit.getFUAIController().setMaxFaces(1);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        mFUAIKit.setMaxFaces(1);
         mFURenderKit.setAntialiasing(antialiasing);
         mFURenderKit.getAvatarContainer().addScene(sceneModel);
-        sceneModel.getMSceneHumanProcessor().setEnableHumanProcessor(true);
         setHumanTrackSceneFull(isHumanTrackSceneFull);
     }
 
+    public AvatarChoiceListener mAvatarChoiceListener;
+
+    public interface AvatarChoiceListener {
+        void choiceAvatar(AvatarBean avatarBean);
+    }
+
+    public void setAvatarChoiceListener(AvatarChoiceListener avatarChoiceListener) {
+        this.mAvatarChoiceListener = avatarChoiceListener;
+    }
 }

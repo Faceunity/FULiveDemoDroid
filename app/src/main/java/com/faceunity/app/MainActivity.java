@@ -3,7 +3,6 @@ package com.faceunity.app;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -13,11 +12,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.faceunity.app.base.BaseActivity;
-import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.entity.FunctionType;
 import com.faceunity.app.entity.HomeFunctionModuleData;
-import com.faceunity.app.utils.FileUtils;
 import com.faceunity.app.view.ActionRecognitionActivity;
 import com.faceunity.app.view.AnimoActivity;
 import com.faceunity.app.view.AvatarActivity;
@@ -102,7 +99,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void initView() {
-         RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {

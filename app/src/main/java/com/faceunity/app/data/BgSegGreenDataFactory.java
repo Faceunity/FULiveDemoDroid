@@ -7,6 +7,7 @@ import com.faceunity.app.data.source.BgSegGreenSource;
 import com.faceunity.core.controller.bgSegGreen.BgSegGreenParam;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUColorRGBData;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.bgSegGreen.BgSegGreen;
 import com.faceunity.app.DemoConfig;
@@ -246,9 +247,10 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
      * FURenderKit加载当前特效
      */
     public void bindCurrentRenderer() {
-        mFURenderKit.getFUAIController().setMaxFaces(1);
+        FUAIKit.getInstance().setMaxFaces(1);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         mFURenderKit.setBgSegGreen(bgSegGreen);
+        mBgSegGreenListener.onBackgroundSelected(bgSegGreenBackgroundBeans.get(currentBackgroundIndex));
     }
 
 }

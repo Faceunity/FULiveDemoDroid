@@ -25,9 +25,10 @@ import java.util.Map;
  */
 public final class StickerDownloadHelper {
     private static final String TAG = "StickerDownloadHelper";
-    private static final String URL_TAGS = "https://items.faceunity.com:4006/api/guest/tags?platform=mobile";
-    private static final String URL_TOOLS = "https://items.faceunity.com:4006/api/guest/tools";
-    private static final String URL_DOWNLOAD = "https://items.faceunity.com:4006/api/guest/download?id=";
+    private static final String URL_HOST = "https://items.faceunity.com:4006";
+    private static final String URL_TAGS = URL_HOST + "/api/guest/tags?platform=mobile";
+    private static final String URL_TOOLS = URL_HOST + "/api/guest/tools";
+    private static final String URL_DOWNLOAD = URL_HOST + "/api/guest/download?id=";
     public static final String STICKER_DIR_PATH = FileUtils.getExternalFileDir(DemoApplication.mApplication) + "/fine_sticker";
 
     private Gson gson;

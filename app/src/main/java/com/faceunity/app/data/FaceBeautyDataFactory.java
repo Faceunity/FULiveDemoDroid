@@ -6,6 +6,7 @@ import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.core.controller.facebeauty.FaceBeautyParam;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.facebeauty.FaceBeauty;
 import com.faceunity.ui.entity.FaceBeautyBean;
@@ -336,7 +337,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
      */
     public void bindCurrentRenderer() {
         mFURenderKit.setFaceBeauty(faceBeauty);
-        mFURenderKit.getFUAIController().setMaxFaces(4);
+        FUAIKit.getInstance().setMaxFaces(4);
     }
 
 }

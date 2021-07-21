@@ -1,19 +1,14 @@
 package com.faceunity.app.view;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FineStickerDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
-import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.ui.control.FineStickerView;
-
-import java.util.Arrays;
+import com.faceunity.ui.radio.XfermodeRadioButton;
 
 public class FineStickerActivity extends BaseFaceUnityActivity {
 
@@ -84,5 +79,13 @@ public class FineStickerActivity extends BaseFaceUnityActivity {
     public void onDestroy() {
         fineStickerDataFactory.releaseAIProcessor();
         super.onDestroy();
+    }
+
+    @Override
+    public void showHideMoreWindowView(View view) {
+        if (view != null) {
+            XfermodeRadioButton rbResolution480p = view.findViewById(R.id.rb_resolution_480p);
+            rbResolution480p.setVisibility(View.GONE);
+        }
     }
 }

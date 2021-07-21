@@ -3,5 +3,5 @@
     android:id="@+id/recycler_view"
     android:layout_width="match_parent"
     android:layout_height="@dimen/x172"
-    android:background="#99050f14"
+    android:background="@color/primary_list"
     android:padding="@dimen/x16" />

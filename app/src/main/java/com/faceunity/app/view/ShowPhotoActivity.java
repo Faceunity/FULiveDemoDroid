@@ -3,6 +3,7 @@ package com.faceunity.app.view;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,8 +13,14 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.faceunity.app.base.BaseActivity;
+import com.faceunity.app.data.AnimojiDataFactory;
 import com.faceunity.app.data.BodyBeautyDataFactory;
+import com.faceunity.app.data.MakeupDataFactory;
+import com.faceunity.app.data.PortraitSegmentDataFactory;
+import com.faceunity.app.data.source.PortraitSegmentSource;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.core.callback.OnColorReadCallback;
 import com.faceunity.core.entity.FUCoordinate2DData;
@@ -22,6 +29,7 @@ import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.entity.FURenderOutputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.listener.OnGlRendererListener;
 import com.faceunity.core.media.photo.OnPhotoRecordingListener;
@@ -29,6 +37,8 @@ import com.faceunity.core.media.photo.PhotoRecordHelper;
 import com.faceunity.core.media.rgba.RGBAPicker;
 import com.faceunity.core.media.video.VideoPlayHelper;
 import com.faceunity.core.model.bgSegGreen.BgSegGreen;
+import com.faceunity.core.model.prop.Prop;
+import com.faceunity.core.model.prop.bgSegCustom.BgSegCustom;
 import com.faceunity.core.renderer.PhotoRenderer;
 import com.faceunity.core.utils.GestureTouchHandler;
 import com.faceunity.app.DemoConfig;
@@ -38,12 +48,16 @@ import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.PropDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.utils.GlUtil;
+import com.faceunity.ui.control.AnimojiControlView;
 import com.faceunity.ui.control.BgSegGreenControlView;
 import com.faceunity.ui.control.BodyBeautyControlView;
 import com.faceunity.ui.control.FaceBeautyControlView;
+import com.faceunity.ui.control.MakeupControlView;
 import com.faceunity.ui.control.PropControlView;
+import com.faceunity.ui.control.PropCustomControlView;
 import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
+import com.faceunity.ui.entity.PropCustomBean;
 import com.faceunity.ui.widget.ColorPickerView;
 
 import org.jetbrains.annotations.NotNull;
@@ -67,10 +81,6 @@ public class ShowPhotoActivity extends BaseActivity {
     //region 生命周期绑定
     @Override
     public void onResume() {
-        if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
-            BgSegGreenBackgroundBean bean = mBgSegGreenDataFactory.getBgSegGreenBackgrounds().get(mBgSegGreenDataFactory.getBackgroundIndex());
-            mVideoPlayHelper.playAssetsVideo(this, bean.getFilePath());
-        }
         super.onResume();
         mPhotoRenderer.onResume();
     }
@@ -79,6 +89,11 @@ public class ShowPhotoActivity extends BaseActivity {
     public void onPause() {
         if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
             mVideoPlayHelper.pausePlay();
+        } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+            PropCustomBean bean = mPortraitSegmentFactory.getCurrentPropCustomBean();
+            if (bean.getType() == FunctionEnum.BG_SEG_CUSTOM) {
+                mVideoPlayHelper.pausePlay();
+            }
         }
         super.onPause();
         mPhotoRenderer.onPause();
@@ -88,6 +103,9 @@ public class ShowPhotoActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
+            mVideoPlayHelper.release();
+        } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+            mPortraitSegmentFactory.releaseAIProcessor();
             mVideoPlayHelper.release();
         }
         mPhotoRenderer.onDestroy();
@@ -133,7 +151,13 @@ public class ShowPhotoActivity extends BaseActivity {
         mTrackingView = findViewById(R.id.tv_tracking);
         mEffectDescription = findViewById(R.id.tv_effect_description);
         mCustomView = findViewById(R.id.ryt_custom_view);
-        changeTakePicButtonMargin(mFunctionType == FunctionEnum.FACE_BEAUTY ? getResources().getDimensionPixelSize(R.dimen.x156) : getResources().getDimensionPixelSize(R.dimen.x200));
+        if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
+            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x156));
+        } else if (mFunctionType == FunctionEnum.MAKE_UP) {
+            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x350));
+        } else {
+            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x200));
+        }
 
     }
 
@@ -157,6 +181,14 @@ public class ShowPhotoActivity extends BaseActivity {
 
     private FaceBeautyDataFactory mFaceBeautyDataFactory;//美颜
     private FaceBeautyControlView mFaceBeautyControlView;//美颜
+
+    private MakeupDataFactory mMakeupDataFactory;//美妆
+
+    private AnimojiDataFactory mAnimojiFactory;//Animoji
+    private AnimojiControlView mAnimojiControlView;//美颜
+
+    private PortraitSegmentDataFactory mPortraitSegmentFactory;//人像分割
+    private PropCustomControlView mPortraitSegmentControlView;//人像分割
 
     private BgSegGreenDataFactory mBgSegGreenDataFactory;//绿幕抠像
     private BgSegGreenControlView mBgSegGreenControlView;//绿幕抠像
@@ -193,11 +225,27 @@ public class ShowPhotoActivity extends BaseActivity {
         } else if (mFunctionType == FunctionEnum.BODY_BEAUTY) {
             mBodyBeautyDataFactory = new BodyBeautyDataFactory();
             ((BodyBeautyControlView) mStubView).bindDataFactory(mBodyBeautyDataFactory);
+        } else if (mFunctionType == FunctionEnum.MAKE_UP) {
+            mMakeupDataFactory = new MakeupDataFactory(1);
+            ((MakeupControlView) mStubView).bindDataFactory(mMakeupDataFactory);
+        } else if (mFunctionType == FunctionEnum.ANIMOJI) {
+            mAnimojiControlView = ((AnimojiControlView) mStubView);
+            mAnimojiFactory = new AnimojiDataFactory(0, 0);
+            ((AnimojiControlView) mStubView).bindDataFactory(mAnimojiFactory);
+            mAnimojiControlView.setOnBottomAnimatorChangeListener(showRate -> {
+                // 收起 1-->0，弹出 0-->1
+                mSaveView.setAlpha(1 - showRate);
+            });
+            mSaveView.setAlpha(0f);
+        } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+            mPortraitSegmentControlView = ((PropCustomControlView) mStubView);
+            mPortraitSegmentFactory = new PortraitSegmentDataFactory(mPortraitSegmentListener);
+            mPortraitSegmentControlView.bindDataFactory(mPortraitSegmentFactory);
         }
     }
 
     private void configureFURenderKit() {
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
+        FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
             mFaceBeautyDataFactory.bindCurrentRenderer();
         } else if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
@@ -206,6 +254,12 @@ public class ShowPhotoActivity extends BaseActivity {
             mPropDataFactory.bindCurrentRenderer();
         } else if (mFunctionType == FunctionEnum.BODY_BEAUTY) {
             mBodyBeautyDataFactory.bindCurrentRenderer();
+        } else if (mFunctionType == FunctionEnum.ANIMOJI) {
+            mAnimojiFactory.bindCurrentRenderer();
+        } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+            mPortraitSegmentFactory.bindCurrentRenderer();
+        } else if (mFunctionType == FunctionEnum.MAKE_UP) {
+            mMakeupDataFactory.bindCurrentRenderer();
         }
     }
 
@@ -219,6 +273,12 @@ public class ShowPhotoActivity extends BaseActivity {
             return R.layout.layout_control_bsg;
         } else if (mFunctionType == FunctionEnum.BODY_BEAUTY) {
             return R.layout.layout_control_body_beauty;
+        } else if (mFunctionType == FunctionEnum.MAKE_UP) {
+            return R.layout.layout_control_makeup;
+        } else if (mFunctionType == FunctionEnum.ANIMOJI) {
+            return R.layout.layout_control_animo;
+        } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+            return R.layout.layout_control_prop_custom;
         }
         return 0;
     }
@@ -229,7 +289,7 @@ public class ShowPhotoActivity extends BaseActivity {
      * @return
      */
     protected FUAIProcessorEnum getFURenderKitTrackingType() {
-        if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+        if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT||mFunctionType ==FunctionEnum.BODY_BEAUTY) {
             return FUAIProcessorEnum.HUMAN_PROCESSOR;
         } else if (mFunctionType == FunctionEnum.GESTURE_RECOGNITION) {
             return FUAIProcessorEnum.HAND_GESTURE_PROCESSOR;
@@ -306,11 +366,11 @@ public class ShowPhotoActivity extends BaseActivity {
             int trackStatus;
             FUAIProcessorEnum fuaiProcessorEnum = getFURenderKitTrackingType();
             if (fuaiProcessorEnum == FUAIProcessorEnum.HAND_GESTURE_PROCESSOR) {
-                trackStatus = mFURenderKit.getFUAIController().handProcessorGetNumResults();
+                trackStatus = FUAIKit.getInstance().handProcessorGetNumResults();
             } else if (fuaiProcessorEnum == FUAIProcessorEnum.HUMAN_PROCESSOR) {
-                trackStatus = mFURenderKit.getFUAIController().humanProcessorGetNumResults();
+                trackStatus = FUAIKit.getInstance().humanProcessorGetNumResults();
             } else {
-                trackStatus = mFURenderKit.getFUAIController().isTracking();
+                trackStatus = FUAIKit.getInstance().isTracking();
             }
             if (mTrackStatus != trackStatus) {
                 mTrackStatus = trackStatus;
@@ -333,11 +393,18 @@ public class ShowPhotoActivity extends BaseActivity {
     };
 
     private VideoPlayHelper.VideoDecoderListener mVideoDecoderListener = (bytes, width, height) -> {
-        BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
-        if (bgSegGreen == null) {
-            return;
+        if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
+            BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
+            if (bgSegGreen == null) {
+                return;
+            }
+            bgSegGreen.createBgSegment(bytes, width, height);
+        } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+            Prop prop = mPortraitSegmentFactory.getCurrentProp();
+            if (prop instanceof BgSegCustom) {
+                ((BgSegCustom) prop).createBgSegment(bytes, width, height);
+            }
         }
-        bgSegGreen.createBgSegment(bytes, width, height);
     };
 
     //endregion PhotoRenderer
@@ -546,5 +613,54 @@ public class ShowPhotoActivity extends BaseActivity {
     };
     //endregion
 
+    //region 人像分割
+    PortraitSegmentDataFactory.PortraitSegmentListener mPortraitSegmentListener = new PortraitSegmentDataFactory.PortraitSegmentListener() {
 
+
+        @Override
+        public void onItemSelected(PropCustomBean bean) {
+            if (bean.getType() == FunctionEnum.BG_SEG_CUSTOM) {
+                mVideoPlayHelper.playVideo(bean.getIconPath());
+            } else {
+                mVideoPlayHelper.pausePlay();
+            }
+        }
+
+        @Override
+        public void onCustomPropAdd() {
+            SelectDataActivity.startActivityForResult(ShowPhotoActivity.this);
+        }
+
+        @Override
+        public void onProcessTrackChanged(boolean needShow) {
+
+        }
+
+    };
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK || data == null) {
+            return;
+        }
+        Uri uri = data.getData();
+        String path = FileUtils.getFilePathByUri(this, uri);
+        PropCustomBean customBean = PortraitSegmentSource.buildPropCustomBean(path);
+        if (customBean == null) {
+            return;
+        }
+        PropCustomBean bean = mPortraitSegmentFactory.getPropCustomBeans().get(2);
+        if (bean.getType() == FunctionEnum.BG_SEG_CUSTOM) {
+            mPortraitSegmentControlView.replaceProp(customBean, 2);
+        } else {
+            mPortraitSegmentControlView.addProp(customBean, 2);
+
+        }
+        mPortraitSegmentFactory.setCurrentPropIndex(2);
+        mPortraitSegmentFactory.onItemSelected(customBean);
+    }
+
+    //endregion
 }
