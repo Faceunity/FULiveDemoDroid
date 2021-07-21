@@ -2,6 +2,7 @@ package com.faceunity.app.data;
 
 import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.app.data.source.LightMakeupSource;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.ui.entity.LightMakeupBean;
 import com.faceunity.ui.infe.AbstractLightMakeupDataFactory;
@@ -107,7 +108,7 @@ public class LightMakeupDataFactory extends AbstractLightMakeupDataFactory {
      */
     public void bindCurrentRenderer() {
         mFURenderKit.setFaceBeauty(FaceBeautySource.clone(FaceBeautyDataFactory.faceBeauty));
-        mFURenderKit.getFUAIController().setMaxFaces(4);
+        FUAIKit.getInstance().setMaxFaces(4);
         LightMakeupBean lightMakeupBean = lightMakeupBeans.get(currentLightMakeupIndex);
         onLightMakeupSelected(lightMakeupBean);
     }

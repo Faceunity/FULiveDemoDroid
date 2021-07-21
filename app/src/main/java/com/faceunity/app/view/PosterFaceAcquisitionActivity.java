@@ -18,6 +18,7 @@ import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.utils.FileUtils;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.utils.ThreadHelper;
 import com.faceunity.ui.dialog.ToastHelper;
 
@@ -103,7 +104,7 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
     protected void configureFURenderKit() {
         super.configureFURenderKit();
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-        mFURenderKit.getFUAIController().setMaxFaces(4);
+        FUAIKit.getInstance().setMaxFaces(4);
     }
 
     @Override

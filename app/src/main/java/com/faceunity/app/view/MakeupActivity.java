@@ -6,6 +6,7 @@ import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.MakeupDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
+import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.ui.control.MakeupControlView;
 import com.faceunity.ui.listener.OnBottomAnimatorChangeListener;
 
@@ -55,8 +56,14 @@ public class MakeupActivity extends BaseFaceUnityActivity {
     }
 
     @Override
+    protected void onRenderBefore(FURenderInputData inputData) {
+        //美妆模块，设置为单纹理输入。
+        inputData.setImageBuffer(null);
+        inputData.getRenderConfig().setNeedBufferReturn(false);
+    }
+
+    @Override
     protected int getFunctionType() {
         return FunctionEnum.MAKE_UP;
     }
-
 }

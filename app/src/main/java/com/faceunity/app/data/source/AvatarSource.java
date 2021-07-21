@@ -4,8 +4,11 @@ import com.faceunity.app.R;
 import com.faceunity.core.avatar.avatar.AvatarTransForm;
 import com.faceunity.core.avatar.model.PTAAvatar;
 import com.faceunity.core.avatar.model.PTAScene;
+import com.faceunity.core.entity.FUAvatarAnimFilterParams;
+import com.faceunity.core.entity.FUAvatarOffset;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUCoordinate3DData;
+import com.faceunity.core.entity.FUTranslationScale;
 import com.faceunity.ui.entity.AvatarBean;
 
 import java.io.File;
@@ -23,6 +26,7 @@ public class AvatarSource {
 
     public static String BOY = "boy";
     public static String GIRL = "girl";
+    public static String BEAR = "bear";
 
     /**
      * 构造成员列表
@@ -31,21 +35,28 @@ public class AvatarSource {
      */
     public static ArrayList<AvatarBean> buildMembers() {
         ArrayList<AvatarBean> avatarBeans = new ArrayList<>();
+        avatarBeans.add(new AvatarBean(R.mipmap.icon_avatar_bear, BEAR));
         avatarBeans.add(new AvatarBean(R.mipmap.icon_avatar_female, GIRL));
         avatarBeans.add(new AvatarBean(R.mipmap.icon_avatar_male, BOY));
         return avatarBeans;
     }
 
+    /**
+     * 构造场景
+     *
+     * @param avatar
+     * @return
+     */
     public static PTAScene buildSceneModel(PTAAvatar avatar) {
         FUBundleData controlBundle = new FUBundleData(BUNDLE_AVATAR_CONTROLLER);
         FUBundleData avatarConfig = new FUBundleData(BUNDLE_AVATAR_CONFIG);
         ArrayList<PTAAvatar> avatars = new ArrayList<PTAAvatar>();
         avatars.add(avatar);
         PTAScene sceneModel = new PTAScene(controlBundle, avatarConfig, avatars);
-        sceneModel.getMSceneBackground().setBackgroundBundle(new FUBundleData(BUNDLE_AVATAR_BACKGROUND));
+        sceneModel.getMSceneHumanProcessor().setEnableHumanProcessor(true);
+        sceneModel.getMSceneHumanProcessor().setHumanProcessorTranslationScale(new FUTranslationScale(0.5f, 0f, 0.1f));
         return sceneModel;
     }
-
 
     /**
      * 获取男孩对象
@@ -66,7 +77,7 @@ public class AvatarSource {
         ArrayList<FUBundleData> animations = buildAnimations();
         PTAAvatar model = new PTAAvatar(components, animations);
         AvatarTransForm avatarTransForm = model.getMAvatarTransForm();
-        avatarTransForm.setPosition(isFull ? new FUCoordinate3DData(0.0, 58.14, -618.94) : new FUCoordinate3DData(0.0,11.76, -183.89));
+        avatarTransForm.setPosition(isFull ? new FUCoordinate3DData(0.0, 58.14, -618.94) : new FUCoordinate3DData(0.0, 11.76, -183.89));
         return model;
     }
 
@@ -88,7 +99,27 @@ public class AvatarSource {
         ArrayList<FUBundleData> animations = buildAnimations();
         PTAAvatar model = new PTAAvatar(components, animations);
         AvatarTransForm avatarTransForm = model.getMAvatarTransForm();
-        avatarTransForm.setPosition(isFull ? new FUCoordinate3DData(0.0, 58.14, -618.94) : new FUCoordinate3DData(0.0,11.76, -183.89));
+        avatarTransForm.setPosition(isFull ? new FUCoordinate3DData(0.0, 58.14, -618.94) : new FUCoordinate3DData(0.0, 11.76, -183.89));
+        return model;
+    }
+
+    /**
+     * 获取熊对象
+     *
+     * @return
+     */
+    public static PTAAvatar buildBearData() {
+        String ptaBearDir = "pta/bear/";
+        ArrayList<FUBundleData> components = new ArrayList();
+        components.add(new FUBundleData(ptaBearDir + "bear.bundle"));
+        components.add(new FUBundleData(ptaBearDir + "bear_light.bundle"));
+        ArrayList<FUBundleData> animations = buildBearAnimations();
+        PTAAvatar model = new PTAAvatar(components, animations);
+        AvatarTransForm avatarTransForm = model.getMAvatarTransForm();
+        avatarTransForm.setHumanProcessorSetAvatarScale(1.15f);
+        avatarTransForm.setHumanProcessorSetAvatarGlobalOffset(new FUAvatarOffset(0, 40, 0));
+        avatarTransForm.setHumanProcessorSetAvatarAnimFilterParams(new FUAvatarAnimFilterParams(8, 0.09f, 0.120f));
+        avatarTransForm.setPosition(new FUCoordinate3DData(20, 45, -618.94));
         return model;
     }
 
@@ -116,6 +147,22 @@ public class AvatarSource {
         animations.add(new FUBundleData(animDir + "anim_six.bundle"));
         animations.add(new FUBundleData(animDir + "anim_thumb.bundle"));
         animations.add(new FUBundleData(animDir + "anim_two.bundle"));
+        return animations;
+    }
+
+    public static void setSceneBackGround(PTAScene sceneModel, boolean hasBackGround) {
+        sceneModel.getMSceneBackground().setBackgroundBundle(hasBackGround ? new FUBundleData(BUNDLE_AVATAR_BACKGROUND) : null);
+    }
+
+    /**
+     * 构造动画参数
+     *
+     * @return
+     */
+    public static ArrayList<FUBundleData> buildBearAnimations() {
+        String animDir = "pta/gesture/";
+        ArrayList<FUBundleData> animations = new ArrayList();
+        animations.add(new FUBundleData(animDir + "anim_bear_smile.bundle"));
         return animations;
     }
 

@@ -6,19 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import com.faceunity.app.R;
+import com.faceunity.app.base.BaseFaceUnityActivity;
+import com.faceunity.app.data.BgSegGreenDataFactory;
+import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.callback.OnColorReadCallback;
 import com.faceunity.core.entity.FUCoordinate2DData;
-import com.faceunity.core.entity.FURenderInputData;
-import com.faceunity.core.enumeration.CameraFacingEnum;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.media.rgba.RGBAPicker;
 import com.faceunity.core.media.video.VideoPlayHelper;
 import com.faceunity.core.model.bgSegGreen.BgSegGreen;
 import com.faceunity.core.utils.GestureTouchHandler;
-import com.faceunity.app.R;
-import com.faceunity.app.base.BaseFaceUnityActivity;
-import com.faceunity.app.data.BgSegGreenDataFactory;
-import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.ui.control.BgSegGreenControlView;
 import com.faceunity.ui.dialog.PromptDialogFragment;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
@@ -34,7 +32,6 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     private BgSegGreenDataFactory mBgSegGreenDataFactory;
     private VideoPlayHelper mVideoPlayHelper;
 
-    private boolean isVideoDecoderFlip = true;
 
     /*手势动作*/
     private GestureTouchHandler mGestureTouchHandler;
@@ -83,7 +80,7 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     public void bindListener() {
         super.bindListener();
         /*VideoDecoderHelper 需要在Surface初始化之后*/
-        mVideoPlayHelper = new VideoPlayHelper(mVideoDecoderListener, mSurfaceView, isVideoDecoderFlip);
+        mVideoPlayHelper = new VideoPlayHelper(mVideoDecoderListener, mSurfaceView, false);
         mBgSegGreenControlView.bindDataFactory(mBgSegGreenDataFactory);
         mBgSegGreenControlView.setOnBottomAnimatorChangeListener(showRate -> {
             updateTakePicButton(getResources().getDimensionPixelSize(R.dimen.x166), showRate, getResources().getDimensionPixelSize(R.dimen.x128),
@@ -108,8 +105,6 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
 
     @Override
     public void onResume() {
-        BgSegGreenBackgroundBean bean = mBgSegGreenDataFactory.getBgSegGreenBackgrounds().get(mBgSegGreenDataFactory.getBackgroundIndex());
-        mVideoPlayHelper.playAssetsVideo(this, bean.getFilePath());
         super.onResume();
     }
 
@@ -145,19 +140,6 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
 
     }
 
-    @Override
-    protected void onRenderBefore(FURenderInputData inputData) {
-        super.onRenderBefore(inputData);
-        CameraFacingEnum cameraFacingEnum = inputData.getRenderConfig().getCameraFacing();
-        if (cameraFacingEnum == CameraFacingEnum.CAMERA_FRONT && !isVideoDecoderFlip) {
-            isVideoDecoderFlip = true;
-            mVideoPlayHelper.setFlip(isVideoDecoderFlip);
-        } else if (cameraFacingEnum == CameraFacingEnum.CAMERA_BACK && isVideoDecoderFlip) {
-            isVideoDecoderFlip = false;
-            mVideoPlayHelper.setFlip(isVideoDecoderFlip);
-        }
-
-    }
 
     @Override
     protected void onDrawFrameAfter() {

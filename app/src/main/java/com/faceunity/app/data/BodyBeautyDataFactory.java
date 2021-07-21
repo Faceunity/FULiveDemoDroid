@@ -4,6 +4,7 @@ import com.faceunity.app.data.source.BodyBeautySource;
 import com.faceunity.core.controller.bodyBeauty.BodyBeautyParam;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.bodyBeauty.BodyBeauty;
 import com.faceunity.app.DemoConfig;
@@ -32,6 +33,7 @@ public class BodyBeautyDataFactory extends AbstractBodyBeautyDataFactory {
 
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
+    private FUAIKit mFUAIKit = FUAIKit.getInstance();
 
     /*美体数据模型*/
     public final BodyBeauty bodyBeauty;
@@ -132,8 +134,8 @@ public class BodyBeautyDataFactory extends AbstractBodyBeautyDataFactory {
      * FURenderKit加载当前特效
      */
     public void bindCurrentRenderer() {
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
-        mFURenderKit.getFUAIController().setMaxFaces(1);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        mFUAIKit.setMaxFaces(1);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         mFURenderKit.setBodyBeauty(bodyBeauty);
     }
@@ -142,7 +144,7 @@ public class BodyBeautyDataFactory extends AbstractBodyBeautyDataFactory {
      * 结束需要释放AI驱动
      */
     public void releaseAIProcessor() {
-        mFURenderKit.getFUAIController().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        mFUAIKit.releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
     }
 
 

@@ -7,6 +7,7 @@ import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.PropSource;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.prop.Prop;
 import com.faceunity.core.model.prop.arMask.ARMask;
@@ -127,7 +128,6 @@ public class PropDataFactory extends AbstractPropDataFactory {
             case FunctionEnum.GESTURE_RECOGNITION:
                 prop = new GestureRecognition(new FUBundleData(path));
                 break;
-
         }
         mFURenderKit.getPropContainer().replaceProp(currentProp, prop);
         currentProp = prop;
@@ -139,12 +139,12 @@ public class PropDataFactory extends AbstractPropDataFactory {
      */
     public void bindCurrentRenderer() {
         if (propType == FunctionEnum.GESTURE_RECOGNITION) {
-            mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_HAND, FUAITypeEnum.FUAITYPE_HANDGESTURE);
+            FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_HAND, FUAITypeEnum.FUAITYPE_HANDGESTURE);
         }
         if (propType == FunctionEnum.BIG_HEAD) {
-            mFURenderKit.getFUAIController().setMaxFaces(1);
+            FUAIKit.getInstance().setMaxFaces(1);
         } else {
-            mFURenderKit.getFUAIController().setMaxFaces(4);
+            FUAIKit.getInstance().setMaxFaces(4);
         }
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         PropBean propBean = propBeans.get(currentPropIndex);
@@ -156,7 +156,7 @@ public class PropDataFactory extends AbstractPropDataFactory {
      */
     public void releaseAIProcessor() {
         if (propType == FunctionEnum.GESTURE_RECOGNITION) {
-            mFURenderKit.getFUAIController().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HANDGESTURE);
+            FUAIKit.getInstance().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HANDGESTURE);
         }
     }
 }

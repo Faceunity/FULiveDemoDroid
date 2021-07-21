@@ -5,6 +5,7 @@ import com.faceunity.app.data.source.PortraitSegmentSource;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.prop.bgSegCustom.BgSegCustom;
 import com.faceunity.core.model.prop.Prop;
@@ -172,8 +173,9 @@ public class PortraitSegmentDataFactory extends AbstractPropCustomDataFactory {
      * FURenderKit加载当前特效
      */
     public void bindCurrentRenderer() {
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
-        mFURenderKit.getFUAIController().setMaxFaces(1);
+        FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        FUAIKit.getInstance().setMaxFaces(4);
+        FUAIKit.getInstance().setMaxHumans(4);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         PropCustomBean propBean = propCustomBeans.get(currentPropIndex);
         onItemSelected(propBean);
@@ -183,7 +185,7 @@ public class PortraitSegmentDataFactory extends AbstractPropCustomDataFactory {
      * 结束需要释放AI驱动
      */
     public void releaseAIProcessor() {
-        mFURenderKit.getFUAIController().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        FUAIKit.getInstance().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
     }
 
 

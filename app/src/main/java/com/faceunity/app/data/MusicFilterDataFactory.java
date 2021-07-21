@@ -2,6 +2,7 @@ package com.faceunity.app.data;
 
 import com.faceunity.app.data.source.MusicFilterSource;
 import com.faceunity.core.entity.FUBundleData;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.facebeauty.FaceBeauty;
 import com.faceunity.core.model.musicFilter.MusicFilter;
@@ -96,7 +97,7 @@ public class MusicFilterDataFactory extends AbstractMusicFilterDataFactory {
      */
     public void bindCurrentRenderer() {
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-        mFURenderKit.getFUAIController().setMaxFaces(4);
+        FUAIKit.getInstance().setMaxFaces(4);
         MusicFilterBean musicFilterBean = musicFilterBeans.get(currentFilterIndex);
         onMusicFilterSelected(musicFilterBean);
     }

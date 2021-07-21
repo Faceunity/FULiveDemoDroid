@@ -7,7 +7,7 @@ import com.faceunity.ui.entity.PropBean;
 import java.util.ArrayList;
 
 /**
- * DESC：道具数据构造：道具贴图、AR面具、搞笑大头、表情识别、哈哈镜、手势识别
+ * DESC：道具数据构造：道具贴图、AR面具、搞笑大头、表情识别、哈哈镜、手势识别、游戏
  * Created on 2021/3/28
  */
 public class PropSource {
@@ -73,8 +73,6 @@ public class PropSource {
                 propBeans.add(new PropBean(R.mipmap.icon_gesture_six, "effect/gesture/ssd_thread_six.bundle", R.string.ssd_thread_six));
                 propBeans.add(new PropBean(R.mipmap.icon_gesture_cute, "effect/gesture/ssd_thread_cute.bundle", R.string.ssd_thread_cute));
                 break;
-
-
         }
         return propBeans;
     }

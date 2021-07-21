@@ -51,7 +51,7 @@ public class HomeFunctionModuleData {
         data.add(new HomeFunctionModuleData(FunctionType.Title, R.string.main_classification_human));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_beauty_body, R.string.home_function_name_beauty_body));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_human_avatar, R.string.home_function_name_human_avatar));
-        data.add(new HomeFunctionModuleData(R.mipmap.ico_home_action_recognition, R.string.home_function_name_action_recognition));
+//        data.add(new HomeFunctionModuleData(R.mipmap.ico_home_action_recognition, R.string.home_function_name_action_recognition));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_portrait_segment, R.string.home_function_name_portrait_segment));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_gesture, R.string.home_function_name_gesture));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_green_curtain, R.string.home_function_name_green_curtain));

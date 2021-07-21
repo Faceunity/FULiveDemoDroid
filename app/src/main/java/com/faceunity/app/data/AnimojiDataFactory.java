@@ -4,6 +4,7 @@ import com.faceunity.app.data.source.AnimojiSource;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.animationFilter.AnimationFilter;
 import com.faceunity.core.model.animationFilter.AnimationFilterTypeEnum;
@@ -28,6 +29,7 @@ public class AnimojiDataFactory extends AbstractAnimojiDataFactory {
 
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
+    private FUAIKit mFUAIKit = FUAIKit.getInstance();
     /*3D抗锯齿*/
     public final Antialiasing antialiasing;
     /*动漫滤镜模型*/
@@ -151,8 +153,8 @@ public class AnimojiDataFactory extends AbstractAnimojiDataFactory {
      * FURenderKit加载当前特效
      */
     public void bindCurrentRenderer() {
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_TONGUE, FUAITypeEnum.FUAITYPE_TONGUETRACKING);
-        mFURenderKit.getFUAIController().setMaxFaces(4);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_TONGUE, FUAITypeEnum.FUAITYPE_TONGUETRACKING);
+        mFUAIKit.setMaxFaces(4);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         mFURenderKit.setAntialiasing(antialiasing);
         mFURenderKit.setAnimationFilter(animationFilter);
@@ -164,6 +166,6 @@ public class AnimojiDataFactory extends AbstractAnimojiDataFactory {
      * 结束需要释放AI驱动
      */
     public void releaseAIProcessor() {
-        mFURenderKit.getFUAIController().releaseAIProcessor(FUAITypeEnum.FUAITYPE_TONGUETRACKING);
+        mFUAIKit.releaseAIProcessor(FUAITypeEnum.FUAITYPE_TONGUETRACKING);
     }
 }

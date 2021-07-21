@@ -6,6 +6,7 @@ import com.faceunity.app.DemoConfig;
 import com.faceunity.app.utils.net.StickerDownloadHelper;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.prop.sticker.FineSticker;
 import com.faceunity.ui.control.FineStickerView;
@@ -27,6 +28,7 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
 
     /*渲染控制器*/
     private final FURenderKit mFURenderKit = FURenderKit.getInstance();
+    private FUAIKit mFUAIKit = FUAIKit.getInstance();
     /*当前选中道具模型*/
     private FineSticker currentProp;
     /*菜单视图*/
@@ -66,7 +68,7 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
         mFURenderKit.getPropContainer().removeAllProp();
         currentProp = null;
         currentSticker = bean;
-        if (bean!=null&&bean.getFilePath()!=null&&bean.getFilePath().trim().length()>0){
+        if (bean != null && bean.getFilePath() != null && bean.getFilePath().trim().length() > 0) {
             adapterMaxFace();
             FineSticker prop = adapterBean(bean.getFilePath());
             mFURenderKit.getPropContainer().addProp(prop);
@@ -89,14 +91,14 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
     private FineSticker adapterBean(String path) {
         String adapter = currentSticker.getTool().getAdapter();
         if (adapter == null || !adapter.contains("1")) {
-            mFURenderKit.getFUAIController().setMaxFaces(4);
+            mFUAIKit.setMaxFaces(4);
         } else {
-            mFURenderKit.getFUAIController().setMaxFaces(1);
+            mFUAIKit.setMaxFaces(1);
         }
         if (adapter != null && adapter.trim().length() > 0) {
-            Boolean isFlipPoints = adapter.contains("2");
-            Boolean is3DFlipH = adapter.contains("4");
-            Boolean isClick = adapter.contains("3");
+            boolean isFlipPoints = adapter.contains("2");
+            boolean is3DFlipH = adapter.contains("4");
+            boolean isClick = adapter.contains("3");
             return new FineSticker(new FUBundleData(path), isFlipPoints, is3DFlipH, isClick);
         } else {
             return new FineSticker(new FUBundleData(path));
@@ -183,10 +185,10 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
      * FURenderKit加载当前特效
      */
     public void bindCurrentRenderer() {
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_HAND, FUAITypeEnum.FUAITYPE_HANDGESTURE);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HAND, FUAITypeEnum.FUAITYPE_HANDGESTURE);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-        mFURenderKit.getFUAIController().setMaxFaces(1);
+        mFUAIKit.setMaxFaces(1);
         onItemSelected(currentSticker);
     }
 
@@ -195,8 +197,8 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
      * 结束需要释放AI驱动
      */
     public void releaseAIProcessor() {
-        mFURenderKit.getFUAIController().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
-        mFURenderKit.getFUAIController().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HANDGESTURE);
+        mFUAIKit.releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        mFUAIKit.releaseAIProcessor(FUAITypeEnum.FUAITYPE_HANDGESTURE);
     }
 
 
@@ -204,14 +206,14 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
         if (currentSticker == null) return;
         String adapter = currentSticker.getTool().getAdapter();
         if (adapter == null || !adapter.contains("1")) {
-            mFURenderKit.getFUAIController().setMaxFaces(4);
+            mFUAIKit.setMaxFaces(4);
         } else {
-            mFURenderKit.getFUAIController().setMaxFaces(1);
+            mFUAIKit.setMaxFaces(1);
         }
     }
 
     public void onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_UP && currentProp != null&&currentProp.isClick()) {
+        if (event.getAction() == MotionEvent.ACTION_UP && currentProp != null && currentProp.isClick()) {
             currentProp.onClick();
         }
     }

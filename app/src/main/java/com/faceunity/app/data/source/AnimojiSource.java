@@ -22,8 +22,11 @@ public class AnimojiSource {
     public static ArrayList<AnimojiBean> buildAnimojis() {
         ArrayList<AnimojiBean> array = new ArrayList<>();
         array.add(new AnimojiBean(R.mipmap.icon_control_delete_all, null));
+        array.add(new AnimojiBean(R.mipmap.icon_animoji_cartoon_princess, "animoji/cartoon_princess_Animoji.bundle"));
         array.add(new AnimojiBean(R.mipmap.icon_animoji_qgirl, "animoji/qgirl_Animoji.bundle"));
         array.add(new AnimojiBean(R.mipmap.icon_animoji_kaola, "animoji/kaola_Animoji.bundle"));
+        array.add(new AnimojiBean(R.mipmap.icon_animoji_wuxia, "animoji/wuxia_Animoji.bundle"));
+        array.add(new AnimojiBean(R.mipmap.icon_animoji_baihu, "animoji/baihu_Animoji.bundle"));
         array.add(new AnimojiBean(R.mipmap.icon_animoji_frog_st, "animoji/frog_Animoji.bundle"));
         array.add(new AnimojiBean(R.mipmap.icon_animoji_huangya, "animoji/huangya_Animoji.bundle"));
         array.add(new AnimojiBean(R.mipmap.icon_animoji_hetun, "animoji/hetun_Animoji.bundle"));

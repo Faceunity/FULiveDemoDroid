@@ -379,7 +379,6 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                 }
                 View.NO_ID -> {
                     changeBottomLayoutAnimator(false)
-                    iv_compare.visibility = View.INVISIBLE
                     mDataFactory.enableFaceBeauty(true)
                 }
 

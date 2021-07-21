@@ -9,7 +9,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -24,6 +27,7 @@ import com.faceunity.ui.utils.BitmapUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -62,7 +66,7 @@ public class FileUtils {
         } else {
             photoFilePath = videoFilePath = DCIM_FILE_PATH + File.separator + "Camera" + File.separator;
         }
-        exportVideoDir = DCIM_FILE_PATH + File.separator + "FacuUnity" + File.separator;
+        exportVideoDir = DCIM_FILE_PATH + File.separator + "FaceUnity" + File.separator;
         createFileDir(photoFilePath);
         createFileDir(videoFilePath);
         createFileDir(exportVideoDir);
@@ -320,39 +324,7 @@ public class FileUtils {
      */
     public static String getFilePathByUri(Context context, Uri uri) {
         if (uri == null) return null;
-        if (Objects.equals(uri.getAuthority(), "com.android.externalstorage.documents")) {
-            String docId = DocumentsContract.getDocumentId(uri);
-            String[] split = docId.split(":");
-            String type = split[0];
-            if ("primary".equals(type)) {
-                return Environment.getExternalStorageDirectory().toString() + "/" + split[1];
-            }
-        } else if (Objects.equals(uri.getAuthority(), "com.android.providers.downloads.documents")) {
-            String id = DocumentsContract.getDocumentId(uri);
-            Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
-            return getDataColumn(context, contentUri, null, null);
-
-        } else if (Objects.equals(uri.getAuthority(), "com.android.providers.media.documents")) {
-            String docId = DocumentsContract.getDocumentId(uri);
-            String[] split = docId.split(":");
-            String type = split[0];
-            Uri contentUri = null;
-            switch (type) {
-                case "image":
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                    break;
-                case "video":
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                    break;
-                case "audio":
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                    break;
-            }
-            String selection = MediaStore.Images.Media._ID + "=?";
-            String[] selectionArgs = new String[]{split[1]};
-            return getDataColumn(context, contentUri, selection, selectionArgs);
-        }
-        return null;
+        return Uri2PathUtil.getRealPathFromUri(context, uri);
     }
 
     private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
@@ -531,6 +503,22 @@ public class FileUtils {
             }
         }
         return inputStream;
+    }
+
+    /**
+     * 相机byte转bitmap
+     *
+     * @param buffer
+     * @param width
+     * @param height
+     * @return
+     */
+    public static Bitmap bytes2Bitmap(byte[] buffer, int width, int height) {
+        YuvImage yuvimage = new YuvImage(buffer, ImageFormat.NV21, width, height, null);//20、20分别是图的宽度与高度
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        yuvimage.compressToJpeg(new Rect(0, 0, width, height), 80, baos);//80--JPG图片的质量[0-100],100最高
+        byte[] jdata = baos.toByteArray();
+        return BitmapFactory.decodeByteArray(baos.toByteArray(), 0, jdata.length);
     }
 
 

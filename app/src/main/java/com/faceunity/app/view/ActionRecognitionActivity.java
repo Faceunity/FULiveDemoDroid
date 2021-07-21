@@ -9,6 +9,7 @@ import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.model.action.ActionRecognition;
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
@@ -38,8 +39,8 @@ public class ActionRecognitionActivity extends BaseFaceUnityActivity {
     @Override
     protected void configureFURenderKit() {
         super.configureFURenderKit();
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
-        mFURenderKit.getFUAIController().setMaxFaces(1);
+        FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        FUAIKit.getInstance().setMaxFaces(1);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         mFURenderKit.setActionRecognition(actionRecognition);
     }
@@ -64,7 +65,7 @@ public class ActionRecognitionActivity extends BaseFaceUnityActivity {
 
     @Override
     public void onDestroy() {
-        mFURenderKit.getFUAIController().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        FUAIKit.getInstance().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
         super.onDestroy();
     }
 

@@ -40,7 +40,7 @@ public class FunctionConfigModel {
             this.put(PORTRAIT_SEGMENT, new FunctionConfigModel(true, false, false, true));
             this.put(GESTURE_RECOGNITION, new FunctionConfigModel(true, false, false, true));
             this.put(BG_SEG_GREEN, new FunctionConfigModel(true, false, true, false));
-            this.put(FINE_STICKER, new FunctionConfigModel(true, false, false, false));
+            this.put(FINE_STICKER, new FunctionConfigModel(true, true, false, false));
             this.put(AVATAR, new FunctionConfigModel(false, false, false, false));
         }
 

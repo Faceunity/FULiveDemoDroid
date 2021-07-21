@@ -3,6 +3,7 @@ package com.faceunity.app.data;
 import com.faceunity.app.data.source.HairBeautySource;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.facebeauty.FaceBeauty;
 import com.faceunity.core.model.hairBeauty.HairBeautyGradient;
@@ -22,7 +23,7 @@ public class HairBeautyDataFactory extends AbstractHairBeautyDataFactory {
 
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
-
+    private FUAIKit mFUAIKit = FUAIKit.getInstance();
     /*普通美发数据模型*/
     private HairBeautyNormal normalHair;
     /*渐变美发数据模型*/
@@ -116,8 +117,8 @@ public class HairBeautyDataFactory extends AbstractHairBeautyDataFactory {
      */
     public void bindCurrentRenderer() {
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_HAIR_SEG, FUAITypeEnum.FUAITYPE_HAIRSEGMENTATION);
-        mFURenderKit.getFUAIController().setMaxFaces(4);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HAIR_SEG, FUAITypeEnum.FUAITYPE_HAIRSEGMENTATION);
+        mFUAIKit.setMaxFaces(4);
         HairBeautyBean hairBeautyBean = hairBeautyBeans.get(currentHairIndex);
         onHairSelected(hairBeautyBean);
     }
@@ -127,7 +128,7 @@ public class HairBeautyDataFactory extends AbstractHairBeautyDataFactory {
      * 结束需要释放AI驱动
      */
     public void releaseAIProcessor() {
-        mFURenderKit.getFUAIController().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HAIRSEGMENTATION);
+        mFUAIKit.releaseAIProcessor(FUAITypeEnum.FUAITYPE_HAIRSEGMENTATION);
     }
 
 

@@ -5,13 +5,12 @@ import android.view.View;
 
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
-import com.faceunity.app.data.AnimojiDataFactory;
 import com.faceunity.app.data.AvatarDataFactory;
+import com.faceunity.app.data.source.AvatarSource;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUCameraConfig;
 import com.faceunity.core.enumeration.CameraFacingEnum;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
-import com.faceunity.ui.control.AnimojiControlView;
 import com.faceunity.ui.control.AvatarControlView;
 
 /**
@@ -54,12 +53,18 @@ public class AvatarActivity extends BaseFaceUnityActivity {
     public void bindListener() {
         super.bindListener();
         mAvatarControlView.bindDataFactory(mAvatarDataFactory);
-        mCameraRenderer.drawSmallViewport(true);
+        mAvatarDataFactory.setAvatarChoiceListener((avatarBean) -> {
+            if (AvatarSource.BEAR.equals(avatarBean.getDes())) {
+                mCameraRenderer.drawSmallViewport(false);
+            } else {
+                mCameraRenderer.drawSmallViewport(true);
+            }
+        });
     }
 
     @Override
     protected FUCameraConfig getCameraConfig() {
-        FUCameraConfig cameraConfig = new FUCameraConfig();
+        FUCameraConfig cameraConfig = super.getCameraConfig();
         cameraConfig.setCameraFacing(CameraFacingEnum.CAMERA_BACK);
         return cameraConfig;
     }

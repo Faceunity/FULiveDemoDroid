@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'fulive'
+            keyPassword '120266Xiangxin!'
+            storeFile file('../FULive.jks')
+            storePassword '120266Xiangxin!'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
@@ -10,8 +18,8 @@ android {
         applicationId "com.faceunity.fulivedemo"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 740
-        versionName "7.4.0"
+        versionCode 741
+        versionName "7.4.1"
         multiDexEnabled true
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a'
@@ -20,9 +28,18 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false //是否混淆
+            shrinkResources false //是否去除无效的资源文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable false
+            minifyEnabled true //是否混淆
+            shrinkResources true //是否去除无效的资源文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -32,8 +49,9 @@ android {
 }
 
 dependencies {
-    //核心库)
-    implementation 'com.faceunity:core:7.4.0.0'
+    //核心库
+    implementation 'com.faceunity:core:7.4.1.0'
+    implementation 'com.faceunity:model:7.4.1.0'
     //UI库
     implementation project(path: ':fu_ui')
 

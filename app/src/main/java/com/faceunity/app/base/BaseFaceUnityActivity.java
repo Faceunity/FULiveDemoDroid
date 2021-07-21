@@ -26,18 +26,23 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.faceunity.app.DemoConfig;
+import com.faceunity.app.R;
 import com.faceunity.app.entity.FunctionConfigModel;
 import com.faceunity.app.utils.FileUtils;
+import com.faceunity.app.utils.SystemUtil;
 import com.faceunity.app.view.SelectDataActivity;
 import com.faceunity.core.camera.FUCamera;
 import com.faceunity.core.entity.FUCameraConfig;
 import com.faceunity.core.entity.FURenderFrameData;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.entity.FURenderOutputData;
+import com.faceunity.core.enumeration.CameraFacingEnum;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.enumeration.FUTransformMatrixEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
-import com.faceunity.core.infe.IFaceUnityCamera;
 import com.faceunity.core.listener.OnGlRendererListener;
 import com.faceunity.core.media.photo.OnPhotoRecordingListener;
 import com.faceunity.core.media.photo.PhotoRecordHelper;
@@ -45,8 +50,6 @@ import com.faceunity.core.media.video.OnVideoRecordingListener;
 import com.faceunity.core.media.video.VideoRecordHelper;
 import com.faceunity.core.renderer.CameraRenderer;
 import com.faceunity.core.utils.CameraUtils;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.R;
 import com.faceunity.core.utils.GlUtil;
 import com.faceunity.ui.button.RecordBtn;
 import com.faceunity.ui.dialog.ToastHelper;
@@ -116,6 +119,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     };
 
     private FunctionConfigModel mFunctionConfigModel;
+    private boolean isSpecialDevice = false;
 
 
     @Override
@@ -133,6 +137,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
     @Override
     public void initView() {
+        isSpecialDevice = SystemUtil.isSpeDevice();
         mStubBottom = findViewById(R.id.stub_bottom);
         mStubBottom.setInflatedId(R.id.stub_bottom);
         if (getStubBottomLayoutResID() != 0) {
@@ -150,7 +155,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
         mDebugView = findViewById(R.id.tv_debug);
         mDebugView.setText(String.format(getString(R.string.fu_base_debug), 0, 0, 0, 0));
         mMoreView = findViewById(R.id.btn_more);
-        if (mFunctionConfigModel.isOpenResolutionChange && mFunctionConfigModel.isOpenPhotoVideo) {
+        if (mFunctionConfigModel.isOpenResolutionChange) {
             mMoreView.setBackgroundResource(R.mipmap.icon_live_more);
         } else if (mFunctionConfigModel.isOpenPhotoVideo) {
             mMoreView.setBackgroundResource(R.mipmap.icon_live_photo);
@@ -221,7 +226,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
                 }
                 break;
             case R.id.btn_more:
-                if (mFunctionConfigModel.isOpenResolutionChange && mFunctionConfigModel.isOpenPhotoVideo) {
+                if (mFunctionConfigModel.isOpenResolutionChange) {
                     showMorePopupWindow();
                 } else if (mFunctionConfigModel.isOpenPhotoVideo) {
                     onSelectPhotoVideoClick();
@@ -234,6 +239,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
     //region CameraRenderer
     protected FURenderKit mFURenderKit = FURenderKit.getInstance();
+    protected FUAIKit mFUAIKit = FUAIKit.getInstance();
     protected CameraRenderer mCameraRenderer;
     private int cameraRenderType = 0;
 
@@ -249,7 +255,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
      * 特效配置
      */
     protected void configureFURenderKit() {
-        mFURenderKit.getFUAIController().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
     }
 
     /**
@@ -352,6 +358,13 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
         @Override
         public void onRenderBefore(FURenderInputData inputData) {
+            if (isSpecialDevice) {
+                //目前这个是Nexus 6P
+                if (inputData.getRenderConfig().getCameraFacing() == CameraFacingEnum.CAMERA_FRONT) {
+                    inputData.getRenderConfig().setInputTextureMatrix(FUTransformMatrixEnum.CCROT90_FLIPVERTICAL);
+                    inputData.getRenderConfig().setInputBufferMatrix(FUTransformMatrixEnum.CCROT90_FLIPVERTICAL);
+                }
+            }
             width = inputData.getWidth();
             height = inputData.getHeight();
             mFuCallStartTime = System.nanoTime();
@@ -388,11 +401,11 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
             FUAIProcessorEnum fuaiProcessorEnum = getFURenderKitTrackingType();
             int trackCount;
             if (fuaiProcessorEnum == FUAIProcessorEnum.HAND_GESTURE_PROCESSOR) {
-                trackCount = mFURenderKit.getFUAIController().handProcessorGetNumResults();
+                trackCount = mFUAIKit.handProcessorGetNumResults();
             } else if (fuaiProcessorEnum == FUAIProcessorEnum.HUMAN_PROCESSOR) {
-                trackCount = mFURenderKit.getFUAIController().humanProcessorGetNumResults();
+                trackCount = mFUAIKit.humanProcessorGetNumResults();
             } else {
-                trackCount = mFURenderKit.getFUAIController().isTracking();
+                trackCount = mFUAIKit.isTracking();
             }
             if (aIProcessTrackStatus != trackCount) {
                 aIProcessTrackStatus = trackCount;
@@ -531,10 +544,14 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
             mPopupWindow.setOutsideTouchable(true);
             mPopupWindow.setTouchable(true);
             mPopupWindow.setAnimationStyle(R.style.photo_more_popup_anim_style);
+            showHideMoreWindowView(view);
         }
         int xOffset = getResources().getDimensionPixelSize(R.dimen.x386);
         int yOffset = getResources().getDimensionPixelSize(R.dimen.x12);
         mPopupWindow.showAsDropDown(mMoreView, -xOffset + mMoreView.getWidth() / 2, yOffset);
+    }
+
+    public void showHideMoreWindowView(View view) {
     }
 
     @SuppressLint("NonConstantResourceId")
