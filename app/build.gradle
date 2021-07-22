@@ -3,14 +3,6 @@ plugins {
 }
 
 android {
-    signingConfigs {
-        release {
-            keyAlias 'fulive'
-            keyPassword '120266Xiangxin!'
-            storeFile file('../FULive.jks')
-            storePassword '120266Xiangxin!'
-        }
-    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
@@ -28,18 +20,9 @@ android {
     }
 
     buildTypes {
-        debug {
-            debuggable true
-            minifyEnabled false //是否混淆
-            shrinkResources false //是否去除无效的资源文件
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
         release {
-            debuggable false
-            minifyEnabled true //是否混淆
-            shrinkResources true //是否去除无效的资源文件
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
