@@ -1,20 +1,16 @@
 package com.faceunity.app.data;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.AnimojiSource;
-import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.animationFilter.AnimationFilter;
-import com.faceunity.core.model.animationFilter.AnimationFilterTypeEnum;
 import com.faceunity.core.model.antialiasing.Antialiasing;
-import com.faceunity.core.model.facebeauty.FaceBeauty;
 import com.faceunity.core.model.prop.Prop;
 import com.faceunity.core.model.prop.PropContainer;
 import com.faceunity.core.model.prop.animoji.Animoji;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.R;
 import com.faceunity.ui.entity.AnimationFilterBean;
 import com.faceunity.ui.entity.AnimojiBean;
 import com.faceunity.ui.infe.AbstractAnimojiDataFactory;
@@ -44,7 +40,6 @@ public class AnimojiDataFactory extends AbstractAnimojiDataFactory {
     private ArrayList<AnimojiBean> animojiBeans;
     /*Animoji滤镜数据*/
     private ArrayList<AnimationFilterBean> animationFilterBeans;
-
 
     /**
      * 构造 AnimojiDataFactory

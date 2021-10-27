@@ -7,13 +7,15 @@ import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FineStickerDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
+import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.ui.control.FineStickerView;
 import com.faceunity.ui.radio.XfermodeRadioButton;
 
 public class FineStickerActivity extends BaseFaceUnityActivity {
+    private FUAIProcessorEnum mFUAIProcessorEnum = FUAIProcessorEnum.FACE_PROCESSOR;
 
     private FineStickerView fineStickerView;
-    private FineStickerDataFactory fineStickerDataFactory;
+    private FineStickerDataFactory mFineStickerDataFactory;
 
     @Override
     protected int getStubBottomLayoutResID() {
@@ -23,13 +25,13 @@ public class FineStickerActivity extends BaseFaceUnityActivity {
     @Override
     public void initData() {
         super.initData();
-        fineStickerDataFactory = new FineStickerDataFactory();
+        mFineStickerDataFactory = new FineStickerDataFactory();
     }
 
     @Override
     protected void configureFURenderKit() {
         super.configureFURenderKit();
-        fineStickerDataFactory.bindCurrentRenderer();
+        mFineStickerDataFactory.bindCurrentRenderer();
     }
 
     @Override
@@ -42,12 +44,27 @@ public class FineStickerActivity extends BaseFaceUnityActivity {
     @Override
     public void bindListener() {
         super.bindListener();
-        fineStickerView.bindDataFactory(fineStickerDataFactory);
-        fineStickerDataFactory.bindView(fineStickerView);
+        fineStickerView.bindDataFactory(mFineStickerDataFactory);
+        mFineStickerDataFactory.bindView(fineStickerView);
         fineStickerView.setOnBottomAnimatorChangeListener(showRate -> {
             // 收起 1-->0，弹出 0-->1
             updateTakePicButton(getResources().getDimensionPixelSize(R.dimen.x166), showRate,
                     getResources().getDimensionPixelSize(R.dimen.x156), getResources().getDimensionPixelSize(R.dimen.x364), true);
+        });
+
+        mFineStickerDataFactory.setBundleTypeListener(bundleType -> {
+            if (bundleType != null) {
+                if (bundleType == FineStickerDataFactory.BundleType.AVATAR_BUNDLE) {
+                    runOnUiThread(()-> mTrackingView.setText(R.string.toast_not_detect_body));
+                    mFUAIProcessorEnum = FUAIProcessorEnum.HUMAN_PROCESSOR;
+                } else {
+                    runOnUiThread(()-> mTrackingView.setText(R.string.fu_base_is_tracking_text));
+                    mFUAIProcessorEnum = FUAIProcessorEnum.FACE_PROCESSOR;
+                }
+            } else {
+                runOnUiThread(()-> mTrackingView.setText(R.string.fu_base_is_tracking_text));
+                mFUAIProcessorEnum = FUAIProcessorEnum.FACE_PROCESSOR;
+            }
         });
     }
 
@@ -59,25 +76,25 @@ public class FineStickerActivity extends BaseFaceUnityActivity {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         fineStickerView.hideControlView();
-        fineStickerDataFactory.onTouchEvent(event);
+        mFineStickerDataFactory.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        fineStickerDataFactory.acceptEvent();
+        mFineStickerDataFactory.acceptEvent();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        fineStickerDataFactory.refuseEvent();
+        mFineStickerDataFactory.refuseEvent();
     }
 
     @Override
     public void onDestroy() {
-        fineStickerDataFactory.releaseAIProcessor();
+        mFineStickerDataFactory.releaseAIProcessor();
         super.onDestroy();
     }
 
@@ -87,5 +104,10 @@ public class FineStickerActivity extends BaseFaceUnityActivity {
             XfermodeRadioButton rbResolution480p = view.findViewById(R.id.rb_resolution_480p);
             rbResolution480p.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected FUAIProcessorEnum getFURenderKitTrackingType() {
+        return mFUAIProcessorEnum;
     }
 }

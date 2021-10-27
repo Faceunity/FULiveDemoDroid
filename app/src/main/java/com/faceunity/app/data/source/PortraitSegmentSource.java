@@ -6,11 +6,9 @@ import com.faceunity.app.DemoApplication;
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.entity.FunctionEnum;
-import com.faceunity.app.utils.FileUtils;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUColorRGBData;
 import com.faceunity.core.model.prop.humanOutline.HumanOutline;
-import com.faceunity.core.utils.MediaFileUtil;
 import com.faceunity.ui.entity.PropCustomBean;
 import com.faceunity.ui.infe.AbstractPropCustomDataFactory;
 

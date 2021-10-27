@@ -7,7 +7,6 @@ import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedOutputStream;
@@ -205,36 +204,59 @@ public final class OkHttpUtils {
     }
 
     /**
-     * 下载文件
+     * 下载文件，并且回调到主线程
      *
      * @param url
      * @param file
      * @param callback
      */
     public void downloadFile(@NonNull String url, @NonNull final File file, @NonNull final OkHttpCallback<File> callback) {
+        realDownloadFile(url, file, callback, true);
+    }
+
+    /**
+     * 下载文件，回调再同一线程
+     *
+     * @param url
+     * @param file
+     * @param callback
+     */
+    public void downloadFileCallBackExecute(@NonNull String url, @NonNull final File file, @NonNull final OkHttpCallback<File> callback) {
+        realDownloadFile(url, file, callback, false);
+    }
+
+    /**
+     * 下载文件 回调同步线程
+     *
+     * @param url
+     * @param file
+     * @param callback
+     */
+    public void realDownloadFile(@NonNull String url, @NonNull final File file, @NonNull final OkHttpCallback<File> callback, Boolean callBackInUIThread) {
         if (file.exists()) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+            if (callBackInUIThread) {
+                runOnUiThread(() -> {
                     callback.onStart();
                     callback.onSuccess(file);
                     callback.onFinish();
-                }
-            });
+                });
+            } else {
+                callback.onStart();
+                callback.onSuccess(file);
+                callback.onFinish();
+            }
             return;
         }
         Request request = buildGetRequest(url);
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                callback.onStart();
-            }
-        });
+        callback.onStart();
         mOkHttpClient.newCall(request)
                 .enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
-                        onRequestFailure(e, callback);
+                        if (callBackInUIThread)
+                            onRequestFailure(e, callback);
+                        else
+                            onRequestFailureCallBackExecute(e, callback);
                     }
 
                     @Override
@@ -251,20 +273,18 @@ public final class OkHttpUtils {
                                     bos.write(bytes, 0, len);
                                 }
                                 bos.flush();
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        callback.onSuccess(file);
-                                    }
-                                });
+                                if (callBackInUIThread) {
+                                    runOnUiThread(() -> callback.onSuccess(file));
+                                } else {
+                                    callback.onSuccess(file);
+                                }
                             } catch (Exception e) {
                                 OkLogger.printStackTrace(e);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        callback.onFailure(DOWNLOAD_FAILURE_MESSAGE);
-                                    }
-                                });
+                                if (callBackInUIThread) {
+                                    runOnUiThread(() -> callback.onFailure(DOWNLOAD_FAILURE_MESSAGE));
+                                } else {
+                                    callback.onFailure(DOWNLOAD_FAILURE_MESSAGE);
+                                }
                             } finally {
                                 if (bos != null) {
                                     try {
@@ -280,15 +300,11 @@ public final class OkHttpUtils {
                                         // ignored
                                     }
                                 }
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        callback.onFinish();
-                                    }
-                                });
+                                callback.onFinish();
                             }
                         } else {
-                            onResponseFailure(response, callback);
+                            if (callBackInUIThread) onResponseFailure(response, callback);
+                            else onResponseFailureCallBackExecute(response, callback);
                         }
                     }
                 });
@@ -484,6 +500,12 @@ public final class OkHttpUtils {
         });
     }
 
+    private <T> void onRequestFailureCallBackExecute(IOException e, @NonNull final OkHttpCallback<T> callback) {
+        OkLogger.printStackTrace(e);
+        callback.onFailure(NETWORK_FAILURE_MESSAGE);
+        callback.onFinish();
+    }
+
     @NonNull
     private Request buildGetRequest(@NonNull String url) {
         return new Request.Builder()
@@ -632,6 +654,11 @@ public final class OkHttpUtils {
                 callback.onFinish();
             }
         });
+    }
+
+    private <T> void onResponseFailureCallBackExecute(final Response response, @NonNull final OkHttpCallback<T> callback) {
+        callback.onFailure(RESPONSE_FAILURE_MESSAGE + response.code() + ":" + response.message());
+        callback.onFinish();
     }
 
     private static class OkHttpUtilsHolder {

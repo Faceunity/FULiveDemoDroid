@@ -1,8 +1,5 @@
 package com.faceunity.app.view;
 
-import com.faceunity.app.data.FaceBeautyDataFactory;
-import com.faceunity.core.enumeration.FUAITypeEnum;
-import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.HairBeautyDataFactory;

@@ -24,6 +24,8 @@
     <string name="home_function_name_action_recognition">动作识别</string>
     <string name="home_function_name_green_curtain">绿幕抠像</string>
     <string name="home_function_name_fine_sticker">精品贴纸</string>
+    <string name="please_select_the_correct_picture_file">请选择正确的图片文件</string>
+    <string name="please_select_the_correct_video_file">请选择正确的视频文件</string>
 
     <string name="resolution_480p">480x640</string>
     <string name="resolution_720p">720x1280</string>

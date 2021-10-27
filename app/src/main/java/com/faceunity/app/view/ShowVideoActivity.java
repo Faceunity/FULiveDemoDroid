@@ -15,39 +15,42 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.faceunity.app.DemoConfig;
+import com.faceunity.app.R;
 import com.faceunity.app.base.BaseActivity;
 import com.faceunity.app.data.AnimojiDataFactory;
+import com.faceunity.app.data.BgSegGreenDataFactory;
 import com.faceunity.app.data.BodyBeautyDataFactory;
+import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.MakeupDataFactory;
 import com.faceunity.app.data.PortraitSegmentDataFactory;
+import com.faceunity.app.data.PropDataFactory;
+import com.faceunity.app.data.source.BgSegGreenSource;
 import com.faceunity.app.data.source.PortraitSegmentSource;
+import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.utils.FileUtils;
+import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.core.callback.OnColorReadCallback;
-import com.faceunity.core.entity.FURenderFrameData;
-import com.faceunity.core.faceunity.FUAIKit;
-import com.faceunity.core.media.rgba.RGBAPicker;
-import com.faceunity.core.media.video.OnVideoRecordingListener;
-import com.faceunity.core.media.video.VideoPlayHelper;
-import com.faceunity.core.media.video.VideoRecordHelper;
 import com.faceunity.core.entity.FUCoordinate2DData;
+import com.faceunity.core.entity.FURenderFrameData;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.entity.FURenderOutputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.enumeration.FUAITypeEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.listener.OnGlRendererListener;
 import com.faceunity.core.listener.OnVideoPlayListener;
+import com.faceunity.core.media.rgba.RGBAPicker;
+import com.faceunity.core.media.video.OnVideoRecordingListener;
+import com.faceunity.core.media.video.VideoPlayHelper;
+import com.faceunity.core.media.video.VideoRecordHelper;
 import com.faceunity.core.model.bgSegGreen.BgSegGreen;
+import com.faceunity.core.model.facebeauty.FaceBeautyBlurTypeEnum;
 import com.faceunity.core.model.prop.Prop;
 import com.faceunity.core.model.prop.bgSegCustom.BgSegCustom;
 import com.faceunity.core.renderer.VideoRenderer;
 import com.faceunity.core.utils.GestureTouchHandler;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.R;
-import com.faceunity.app.data.BgSegGreenDataFactory;
-import com.faceunity.app.data.FaceBeautyDataFactory;
-import com.faceunity.app.data.PropDataFactory;
-import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.utils.GlUtil;
 import com.faceunity.ui.control.AnimojiControlView;
 import com.faceunity.ui.control.BgSegGreenControlView;
@@ -58,6 +61,7 @@ import com.faceunity.ui.control.PropControlView;
 import com.faceunity.ui.control.PropCustomControlView;
 import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
+import com.faceunity.ui.entity.BgSegGreenSafeAreaBean;
 import com.faceunity.ui.entity.PropCustomBean;
 import com.faceunity.ui.widget.ColorPickerView;
 import com.faceunity.ui.widget.CustomImageButton;
@@ -73,6 +77,7 @@ import java.io.File;
 public class ShowVideoActivity extends BaseActivity {
     public static final String TYPE = "type";
     public static final String PATH = "path";
+    private static final int REQUEST_CODE_PHOTO = 1000;
 
     public static void startActivity(Context context, int type, String path) {
         context.startActivity(new Intent(context, ShowVideoActivity.class).putExtra(TYPE, type).putExtra(PATH, path));
@@ -140,7 +145,6 @@ public class ShowVideoActivity extends BaseActivity {
     private String mVideoPath;
 
     private View mStubView;
-    ;
     private CustomImageButton mPlayView;
     protected GLSurfaceView mSurfaceView;
     protected TextView mTrackingView;
@@ -264,7 +268,9 @@ public class ShowVideoActivity extends BaseActivity {
             mGestureTouchHandler = new GestureTouchHandler(this);
             mGestureTouchHandler.setOnTouchResultListener(mOnTouchResultListener);
             addColorPickerView();
-        } else if (mFunctionType == FunctionEnum.STICKER) {
+        } else if (mFunctionType == FunctionEnum.STICKER || mFunctionType == FunctionEnum.AR_MASK
+                || mFunctionType == FunctionEnum.BIG_HEAD || mFunctionType == FunctionEnum.EXPRESSION_RECOGNITION
+                || mFunctionType == FunctionEnum.FACE_WARP || mFunctionType == FunctionEnum.GESTURE_RECOGNITION) {
             mPropDataFactory = new PropDataFactory(mPropListener, mFunctionType, 1);
             ((PropControlView) mStubView).bindDataFactory(mPropDataFactory);
         } else if (mFunctionType == FunctionEnum.BODY_BEAUTY) {
@@ -291,11 +297,14 @@ public class ShowVideoActivity extends BaseActivity {
 
     private void configureFURenderKit() {
         FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
+        FUAIKit.getInstance().faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
             mFaceBeautyDataFactory.bindCurrentRenderer();
         } else if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
             mBgSegGreenDataFactory.bindCurrentRenderer();
-        } else if (mFunctionType == FunctionEnum.STICKER) {
+        } else if (mFunctionType == FunctionEnum.STICKER || mFunctionType == FunctionEnum.AR_MASK
+                || mFunctionType == FunctionEnum.BIG_HEAD || mFunctionType == FunctionEnum.EXPRESSION_RECOGNITION
+                || mFunctionType == FunctionEnum.FACE_WARP || mFunctionType == FunctionEnum.GESTURE_RECOGNITION) {
             mPropDataFactory.bindCurrentRenderer();
         } else if (mFunctionType == FunctionEnum.BODY_BEAUTY) {
             mBodyBeautyDataFactory.bindCurrentRenderer();
@@ -311,7 +320,9 @@ public class ShowVideoActivity extends BaseActivity {
     private int getBottomLayout() {
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
             return R.layout.layout_control_face_beauty;
-        } else if (mFunctionType == FunctionEnum.STICKER) {
+        } else if (mFunctionType == FunctionEnum.STICKER || mFunctionType == FunctionEnum.AR_MASK
+                || mFunctionType == FunctionEnum.BIG_HEAD || mFunctionType == FunctionEnum.EXPRESSION_RECOGNITION
+                || mFunctionType == FunctionEnum.FACE_WARP || mFunctionType == FunctionEnum.GESTURE_RECOGNITION) {
             return R.layout.layout_control_prop;
         } else if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
             return R.layout.layout_control_bsg;
@@ -381,7 +392,8 @@ public class ShowVideoActivity extends BaseActivity {
 
         @Override
         public void onRenderBefore(FURenderInputData inputData) {
-
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
+                cheekFaceNum();
         }
 
         @Override
@@ -421,6 +433,26 @@ public class ShowVideoActivity extends BaseActivity {
     };
 
     /**
+     * 检查当前人脸数量
+     */
+    private void cheekFaceNum() {
+        //根据有无人脸 + 设备性能 判断开启的磨皮类型
+        float faceProcessorGetConfidenceScore = FUAIKit.getInstance().getFaceProcessorGetConfidenceScore(0);
+        if (faceProcessorGetConfidenceScore >= 0.95) {
+            //高端手机并且检测到人脸开启均匀磨皮
+            if (mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.EquallySkin) {
+                mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.EquallySkin);
+                mFURenderKit.getFaceBeauty().setEnableBlurUseMask(true);
+            }
+        } else {
+            if (mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.FineSkin) {
+                mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.FineSkin);
+                mFURenderKit.getFaceBeauty().setEnableBlurUseMask(false);
+            }
+        }
+    }
+
+    /**
      * 检测类型
      *
      * @return
@@ -450,17 +482,32 @@ public class ShowVideoActivity extends BaseActivity {
         }
     }
 
-    private VideoPlayHelper.VideoDecoderListener mVideoDecoderListener = (bytes, width, height) -> {
-        if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
-            BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
-            if (bgSegGreen == null) {
-                return;
+    private VideoPlayHelper.VideoDecoderListener mVideoDecoderListener = new VideoPlayHelper.VideoDecoderListener() {
+        @Override
+        public void onReadVideoPixel(byte[] bytes, int width, int height) {
+            if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
+                BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
+                if (bgSegGreen == null) {
+                    return;
+                }
+
+                bgSegGreen.createBgSegment(bytes, width, height);
             }
-            bgSegGreen.createBgSegment(bytes, width, height);
-        } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
-            Prop prop = mPortraitSegmentFactory.getCurrentProp();
-            if (prop instanceof BgSegCustom) {
-                ((BgSegCustom) prop).createBgSegment(bytes, width, height);
+        }
+
+        @Override
+        public void onReadImagePixel(byte[] bytes, int width, int height) {
+            if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+                Prop prop = mPortraitSegmentFactory.getCurrentProp();
+                if (prop instanceof BgSegCustom) {
+                    ((BgSegCustom) prop).createBgSegment(bytes, width, height);
+                }
+            } else if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
+                BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
+                if (bgSegGreen == null) {
+                    return;
+                }
+                bgSegGreen.createSafeAreaSegment(bytes, width, height);
             }
         }
     };
@@ -602,6 +649,26 @@ public class ShowVideoActivity extends BaseActivity {
                 }
             }
         }
+
+        @Override
+        public void onSafeAreaAdd() {
+            FileUtils.pickImageFile(ShowVideoActivity.this, REQUEST_CODE_PHOTO);
+        }
+
+        @Override
+        public void onSafeAreaSelected(BgSegGreenSafeAreaBean bean) {
+            if (bean != null && bean.getFilePath() != null) {
+                if (bean.isAssetFile())
+                    mVideoPlayHelper.playVideo(ShowVideoActivity.this, bean.getFilePath());
+                else
+                    mVideoPlayHelper.playVideo(bean.getFilePath());
+            } else {
+                BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
+                if (bgSegGreen != null) {
+                    bgSegGreen.removeSafeAreaSegment();
+                }
+            }
+        }
     };
 
     /**
@@ -733,15 +800,31 @@ public class ShowVideoActivity extends BaseActivity {
         if (customBean == null) {
             return;
         }
-        PropCustomBean bean = mPortraitSegmentFactory.getPropCustomBeans().get(2);
-        if (bean.getType() == FunctionEnum.BG_SEG_CUSTOM) {
-            mPortraitSegmentControlView.replaceProp(customBean, 2);
-        } else {
-            mPortraitSegmentControlView.addProp(customBean, 2);
+        if (mPortraitSegmentFactory != null) {
+            PropCustomBean bean = mPortraitSegmentFactory.getPropCustomBeans().get(2);
+            if (bean.getType() == FunctionEnum.BG_SEG_CUSTOM) {
+                mPortraitSegmentControlView.replaceProp(customBean, 2);
+            } else {
+                mPortraitSegmentControlView.addProp(customBean, 2);
 
+            }
+            mPortraitSegmentFactory.setCurrentPropIndex(2);
+            mPortraitSegmentFactory.onItemSelected(customBean);
+        } else if (mBgSegGreenDataFactory != null) {
+            if (!FileUtils.checkIsImage(path)) {
+                ToastHelper.showNormalToast(this, getString(R.string.please_select_the_correct_picture_file));
+                return;
+            }
+            BgSegGreenSafeAreaBean bean = mBgSegGreenDataFactory.getBgSegGreenSafeAreas().get(3);
+            BgSegGreenSafeAreaBean bgSegGreenSafeAreaBean = BgSegGreenSource.buildSafeAreaCustomBean(path);
+            if (BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON == bean.getType() && !bean.isAssetFile()) {
+                mBgSegGreenControlView.replaceSegGreenSafeAreaCustom(bgSegGreenSafeAreaBean, 3);
+            } else {
+                mBgSegGreenControlView.addSegGreenSafeAreaCustom(bgSegGreenSafeAreaBean, 3);
+            }
+            mBgSegGreenDataFactory.setBgSafeAreaIndex(3);
+            mBgSegGreenDataFactory.onSafeAreaSelected(bgSegGreenSafeAreaBean);
         }
-        mPortraitSegmentFactory.setCurrentPropIndex(2);
-        mPortraitSegmentFactory.onItemSelected(customBean);
     }
 
     //endregion

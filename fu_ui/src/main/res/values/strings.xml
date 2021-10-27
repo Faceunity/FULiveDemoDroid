@@ -23,11 +23,16 @@
     <string name="beauty_box_tooth_whiten">Tooth whiten</string>
     <string name="beauty_box_eye_enlarge">Eye enlarge</string>
     <string name="beauty_box_eye_circle">Eye round</string>
-    <string name="beauty_box_cheek_thinning">Cheek thin</string>
-    <string name="beauty_box_cheek_v">V face</string>
+    <string name="beauty_box_cheek_natural">Natural</string>
+    <string name="beauty_box_cheek_goddess">Goddess</string>
+    <string name="beauty_box_cheek_long_face">Long face</string>
+    <string name="beauty_box_cheek_round_face">Round face</string>
     <string name="beauty_box_cheekbones">Cheekbone</string>
     <string name="beauty_box_lower_jaw">Jawbone</string>
+    <string name="beauty_box_cheek_thinning">Cheek thin</string>
+    <string name="beauty_box_cheek_v">V face</string>
     <string name="beauty_box_cheek_narrow">CheekNarrow</string>
+    <string name="beauty_box_cheek_short">Cheek short</string>
     <string name="beauty_box_cheek_small">Cheek small</string>
     <string name="beauty_box_intensity_chin">Chin</string>
     <string name="beauty_box_intensity_forehead">Forehead</string>
@@ -213,8 +218,9 @@
     <string name="recover">Recover</string>
 
     <string name="makeup_lip_fog">Matte</string>
+    <string name="makeup_lip_moist1">Moist</string>
+    <string name="makeup_lip_moist2">Water</string>
     <string name="makeup_lip_pearl">Pearl</string>
-    <string name="makeup_lip_moist">Moist</string>
     <string name="makeup_lip_bitelip">Bitelip</string>
     <string name="makeup_blusher_apple">Apple muscle</string>
     <string name="makeup_blusher_fan">Sector</string>
@@ -256,6 +262,10 @@
     <string name="makeup_eye_linear_pull_close">Shorten Eye distance</string>
     <string name="makeup_eye_linear_long">Long eye</string>
     <string name="makeup_eye_linear_circular">Round eye</string>
+    <string name="makeup_combination_diadiatu">diadiatu</string>
+    <string name="makeup_combination_dongling">Freezing age</string>
+    <string name="makeup_combination_guofeng">National style</string>
+    <string name="makeup_combination_hunxie">Mixed race</string>
     <string name="makeup_combination_sexy">Sexy</string>
     <string name="makeup_combination_sweet">Sweet</string>
     <string name="makeup_combination_neighbor">Next-door</string>
@@ -296,6 +306,7 @@
     <string name="bg_seg_green_similarity">Similarity</string>
     <string name="bg_seg_green_smooth">Smoothness</string>
     <string name="bg_seg_green_alpha">Transparency</string>
+    <string name="bg_seg_green_safe_area">Safe Area</string>
     <string name="bg_seg_green_science">Technology</string>
     <string name="bg_seg_green_beach">Sand</string>
     <string name="bg_seg_green_classroom">Classroom</string>
@@ -305,4 +316,7 @@
     <string name="dialog_i_know">I know</string>
 
     <string name="download_error">Download failed, please check the network and try again</string>
+    <string name="back">back</string>
+
+    <string name="safe_area_tips">The white area is a safe area and does not participate in green screen matting</string>
 </resources>

@@ -1,9 +1,6 @@
 package com.faceunity.app.utils;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,27 +15,20 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.util.Log;
-
-import com.faceunity.ui.utils.BitmapUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -481,7 +471,6 @@ public class FileUtils {
         activity.startActivityForResult(intent, requestCode);
     }
 
-
     /**
      * 根据路径获取InputStream
      *
@@ -521,5 +510,58 @@ public class FileUtils {
         return BitmapFactory.decodeByteArray(baos.toByteArray(), 0, jdata.length);
     }
 
+    /**
+     * 遍历一个文件夹获取改文件夹下所有文件名
+     * @param path
+     * @return
+     */
+    public static ArrayList<String> getFileList(String path) {
+        ArrayList<String> fileList = new ArrayList<>();
+        File dir = new File(path);
+        // 该文件目录下文件全部放入数组
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (int i = 0; i < files.length; i++) {
+                // 判断是文件还是文件夹
+                if (files[i].isDirectory()) {
+                    // 获取文件绝对路径
+                    getFileList(files[i].getAbsolutePath());
+                    // 判断文件名是否以.jpg结尾
+                } else {
+                    fileList.add(files[i].getName());
+                }
+            }
+        }
+        return fileList;
+    }
 
+    /**
+     * 校验文件是否是图片
+     *
+     * @param path String
+     * @return Boolean
+     */
+    public static Boolean checkIsImage(String path) {
+        String name = new File(path).getName().toLowerCase();
+        return (name.endsWith(IMAGE_FORMAT_PNG) || name.endsWith(IMAGE_FORMAT_JPG)
+                || name.endsWith(IMAGE_FORMAT_JPEG));
+    }
+
+    /**
+     * 校验文件是否是视频
+     *
+     * @param path String
+     * @return Boolean
+     */
+    public static Boolean checkIsVideo(Context context,String path) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(context, Uri.fromFile(new File(path)));
+            String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
+            return "yes".equals(hasVideo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

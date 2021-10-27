@@ -39,8 +39,8 @@
                     android:id="@+id/tv_recover"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:gravity="center_vertical"
                     android:layout_marginBottom="@dimen/x30"
+                    android:gravity="center_vertical"
                     android:text="@string/recover"
                     android:textColor="@color/tv_main_color_selector"
                     android:textSize="@dimen/text_size_20" />
@@ -114,7 +114,7 @@
                 app:dsb_trackBaseHeight="@dimen/x16"
                 app:dsb_trackColor="@color/colorWhite"
                 app:dsb_trackHeight="@dimen/x4"
-                app:dsb_value="0"  />
+                app:dsb_value="0" />
         </RelativeLayout>
 
 
@@ -129,6 +129,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
+                android:scrollbars="none" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ryt_safe_area"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x268"
+            android:layout_marginLeft="@dimen/x20"
+            android:visibility="gone">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_safe_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:scrollbars="none" />
         </RelativeLayout>
 

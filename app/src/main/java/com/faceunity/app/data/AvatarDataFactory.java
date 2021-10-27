@@ -2,15 +2,16 @@ package com.faceunity.app.data;
 
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.AvatarSource;
-import com.faceunity.core.avatar.model.PTAAvatar;
-import com.faceunity.core.avatar.model.PTAScene;
-import com.faceunity.core.avatar.scene.SceneHumanProcessor;
+import com.faceunity.core.avatar.model.Avatar;
+import com.faceunity.core.avatar.model.Scene;
+import com.faceunity.core.avatar.scene.ProcessorConfig;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUCoordinate3DData;
 import com.faceunity.core.entity.FUTranslationScale;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
+import com.faceunity.core.faceunity.FUSceneKit;
 import com.faceunity.core.model.antialiasing.Antialiasing;
 import com.faceunity.ui.entity.AvatarBean;
 import com.faceunity.ui.infe.AbstractAvatarDataFactory;
@@ -37,15 +38,15 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
     private Boolean isHumanTrackSceneFull;
 
     /* 场景  */
-    private PTAScene sceneModel;
+    private Scene sceneModel;
     /* 男孩对象  */
-    private PTAAvatar boyAvatarModel;
+    private Avatar boyAvatarModel;
     /* 女孩对象  */
-    private PTAAvatar girlAvatarModel;
+    private Avatar girlAvatarModel;
     /* 熊对象 */
-    private PTAAvatar bearAvatarModel;
+    private Avatar bearAvatarModel;
     /*当前对象*/
-    private PTAAvatar currentAvatarModel;
+    private Avatar currentAvatarModel;
 
 
     public AvatarDataFactory(int index, boolean isFull) {
@@ -53,19 +54,21 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
         currentMemberIndex = index;
         members = AvatarSource.buildMembers();
         antialiasing = new Antialiasing(new FUBundleData(DemoConfig.BUNDLE_ANTI_ALIASING));
-        bearAvatarModel = AvatarSource.buildBearData();
+//        bearAvatarModel = AvatarSource.buildBearData();
         boyAvatarModel = AvatarSource.buildBoyData(isFull);
         girlAvatarModel = AvatarSource.buildGirlData(isFull);
 
-        if (index == 0) {
+        /*if (index == 0) {
             currentAvatarModel = bearAvatarModel;
-        } else if (index == 1) {
+        } else */
+        if (index == 0) {
             currentAvatarModel = girlAvatarModel;
-        } else if (index == 2) {
+        } else if (index == 1) {
             currentAvatarModel = boyAvatarModel;
         }
 
         sceneModel = AvatarSource.buildSceneModel(currentAvatarModel);
+        AvatarSource.setSceneBackGround(sceneModel, true);
     }
 
 
@@ -117,13 +120,13 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
     @Override
     public void setHumanTrackSceneFull(boolean isFull) {
         isHumanTrackSceneFull = isFull;
-        sceneModel.getMSceneHumanProcessor().setTrackScene(isFull ? SceneHumanProcessor.TrackScene.SceneFull : SceneHumanProcessor.TrackScene.SceneHalf);
+        sceneModel.processorConfig.setTrackScene(isFull ? ProcessorConfig.TrackScene.SceneFull : ProcessorConfig.TrackScene.SceneHalf);
         if (isFull) {
-            boyAvatarModel.getMAvatarTransForm().setPosition(new FUCoordinate3DData(0.0, 58.14, -618.94));
-            girlAvatarModel.getMAvatarTransForm().setPosition(new FUCoordinate3DData(0.0, 58.14, -618.94));
+            boyAvatarModel.transForm.setPosition(new FUCoordinate3DData(0.0, 58.14, -618.94));
+            girlAvatarModel.transForm.setPosition(new FUCoordinate3DData(0.0, 58.14, -618.94));
         } else {
-            boyAvatarModel.getMAvatarTransForm().setPosition(new FUCoordinate3DData(0.0, 11.76, -183.89));
-            girlAvatarModel.getMAvatarTransForm().setPosition(new FUCoordinate3DData(0.0, 11.76, -183.89));
+            boyAvatarModel.transForm.setPosition(new FUCoordinate3DData(0.0, 11.76, -183.89));
+            girlAvatarModel.transForm.setPosition(new FUCoordinate3DData(0.0, 11.76, -183.89));
         }
     }
 
@@ -140,7 +143,7 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
         if (bean.getDes().equals(AvatarSource.GIRL) || bean.getDes().equals(AvatarSource.BOY)) {
             if (currentAvatarModel == bearAvatarModel) {
                 sceneModel.removeAvatar(currentAvatarModel);
-                sceneModel.getMSceneHumanProcessor().setHumanProcessorTranslationScale(new FUTranslationScale(0f, 0f, 0f));
+                sceneModel.processorConfig.setHumanProcessorTranslationScale(new FUTranslationScale(0f, 0f, 0f));
                 setHumanTrackSceneFull(isHumanTrackSceneFull);
                 AvatarSource.setSceneBackGround(sceneModel, true);
                 currentAvatarModel = bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel;
@@ -151,8 +154,8 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
             }
         } else {
             sceneModel.removeAvatar(currentAvatarModel);
-            sceneModel.getMSceneHumanProcessor().setHumanProcessorTranslationScale(new FUTranslationScale(0.5f, 0f, 0.1f));
-            sceneModel.getMSceneHumanProcessor().setTrackScene(SceneHumanProcessor.TrackScene.SceneFull);
+            sceneModel.processorConfig.setHumanProcessorTranslationScale(new FUTranslationScale(0.5f, 0f, 0.1f));
+            sceneModel.processorConfig.setTrackScene(ProcessorConfig.TrackScene.SceneFull);
             AvatarSource.setSceneBackGround(sceneModel, false);
             currentAvatarModel = bearAvatarModel;
             sceneModel.addAvatar(currentAvatarModel);
@@ -163,7 +166,8 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
         mFUAIKit.setMaxFaces(1);
         mFURenderKit.setAntialiasing(antialiasing);
-        mFURenderKit.getAvatarContainer().addScene(sceneModel);
+        FUSceneKit.getInstance().addSceneGL(sceneModel);
+        FUSceneKit.getInstance().setCurrentSceneGL(sceneModel);
         setHumanTrackSceneFull(isHumanTrackSceneFull);
     }
 

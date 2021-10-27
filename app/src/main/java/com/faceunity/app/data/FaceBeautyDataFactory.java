@@ -5,10 +5,12 @@ import androidx.annotation.NonNull;
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.core.controller.facebeauty.FaceBeautyParam;
+import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.facebeauty.FaceBeauty;
+import com.faceunity.core.model.prop.expression.ExpressionRecognition;
 import com.faceunity.ui.entity.FaceBeautyBean;
 import com.faceunity.ui.entity.FaceBeautyFilterBean;
 import com.faceunity.ui.entity.FaceBeautyStyleBean;
@@ -65,6 +67,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     private static final FaceBeauty defaultFaceBeauty = FaceBeautySource.getDefaultFaceBeauty();
     /*当前生效美颜数据模型*/
     public static FaceBeauty faceBeauty = defaultFaceBeauty;
+
     /*推荐风格标识*/
     private static int currentStyleIndex = -1;
     /*默认滤镜选中下标*/
@@ -98,6 +101,17 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     @Override
     public ArrayList<FaceBeautyBean> getShapeBeauty() {
         return FaceBeautySource.buildShapeParams();
+    }
+
+    /**
+     * 获取美型参数列表
+     *
+     * @return
+     */
+    @NonNull
+    @Override
+    public ArrayList<FaceBeautyBean> getShapeBeautySubItem() {
+        return FaceBeautySource.buildFaceShapeSubItemParams();
     }
 
 
@@ -221,6 +235,32 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         }
     }
 
+    @Override
+    public String getCurrentOneHotFaceShape() {
+        return CurrentFaceShapeUIValue.currentFaceShape == null ? FaceBeautyParam.CHEEK_V_INTENSITY : CurrentFaceShapeUIValue.currentFaceShape;
+    }
+
+    @Override
+    public void setCurrentOneHotFaceShape(String faceShape) {
+        CurrentFaceShapeUIValue.currentFaceShape = faceShape;
+    }
+
+
+    /**
+     * 设置当前脸型的UI值
+     */
+    public void setCurrentFaceShapeUIValue(HashMap<String,Double> hashMap) {
+        CurrentFaceShapeUIValue.currentFaceShapeValue.clear();
+        CurrentFaceShapeUIValue.currentFaceShapeValue.putAll(hashMap);
+    }
+
+    /**
+     * 获取当前脸型的UI值
+     */
+    public HashMap<String,Double> getCurrentFaceShapeUIValue() {
+        return CurrentFaceShapeUIValue.currentFaceShapeValue;
+    }
+
     /**
      * 切换滤镜
      *
@@ -261,7 +301,6 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
                 runnable.run();
             }
         }
-
     }
 
     /*模型映射设置模型值*/
@@ -278,16 +317,19 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::setSharpenIntensity);
         put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, defaultFaceBeauty::setCheekThinningIntensity);
         put(FaceBeautyParam.CHEEK_V_INTENSITY, defaultFaceBeauty::setCheekVIntensity);
-        put(FaceBeautyParam.CHEEK_NARROW_INTENSITY, defaultFaceBeauty::setCheekNarrowIntensity);
-        put(FaceBeautyParam.CHEEK_SMALL_INTENSITY, defaultFaceBeauty::setCheekSmallIntensity);
+        put(FaceBeautyParam.CHEEK_LONG_INTENSITY, defaultFaceBeauty::setCheekLongIntensity);
+        put(FaceBeautyParam.CHEEK_CIRCLE_INTENSITY, defaultFaceBeauty::setCheekCircleIntensity);
+        put(FaceBeautyParam.CHEEK_NARROW_INTENSITY_V2, defaultFaceBeauty::setCheekNarrowIntensityV2);
+        put(FaceBeautyParam.CHEEK_SHORT_INTENSITY, defaultFaceBeauty::setCheekShortIntensity);
+        put(FaceBeautyParam.CHEEK_SMALL_INTENSITY_V2, defaultFaceBeauty::setCheekSmallIntensityV2);
         put(FaceBeautyParam.INTENSITY_CHEEKBONES_INTENSITY, defaultFaceBeauty::setCheekBonesIntensity);
         put(FaceBeautyParam.INTENSITY_LOW_JAW_INTENSITY, defaultFaceBeauty::setLowerJawIntensity);
-        put(FaceBeautyParam.EYE_ENLARGING_INTENSITY, defaultFaceBeauty::setEyeEnlargingIntensity);
+        put(FaceBeautyParam.EYE_ENLARGING_INTENSITY_V2, defaultFaceBeauty::setEyeEnlargingIntensityV2);
         put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, defaultFaceBeauty::setEyeCircleIntensity);
         put(FaceBeautyParam.CHIN_INTENSITY, defaultFaceBeauty::setChinIntensity);
-        put(FaceBeautyParam.FOREHEAD_INTENSITY, defaultFaceBeauty::setForHeadIntensity);
-        put(FaceBeautyParam.NOSE_INTENSITY, defaultFaceBeauty::setNoseIntensity);
-        put(FaceBeautyParam.MOUTH_INTENSITY, defaultFaceBeauty::setMouthIntensity);
+        put(FaceBeautyParam.FOREHEAD_INTENSITY_V2, defaultFaceBeauty::setForHeadIntensityV2);
+        put(FaceBeautyParam.NOSE_INTENSITY_V2, defaultFaceBeauty::setNoseIntensityV2);
+        put(FaceBeautyParam.MOUTH_INTENSITY_V2, defaultFaceBeauty::setMouthIntensityV2);
         put(FaceBeautyParam.CANTHUS_INTENSITY, defaultFaceBeauty::setCanthusIntensity);
         put(FaceBeautyParam.EYE_SPACE_INTENSITY, defaultFaceBeauty::setEyeSpaceIntensity);
         put(FaceBeautyParam.EYE_ROTATE_INTENSITY, defaultFaceBeauty::setEyeRotateIntensity);
@@ -311,16 +353,19 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
             put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::getSharpenIntensity);
             put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, defaultFaceBeauty::getCheekThinningIntensity);
             put(FaceBeautyParam.CHEEK_V_INTENSITY, defaultFaceBeauty::getCheekVIntensity);
-            put(FaceBeautyParam.CHEEK_NARROW_INTENSITY, defaultFaceBeauty::getCheekNarrowIntensity);
-            put(FaceBeautyParam.CHEEK_SMALL_INTENSITY, defaultFaceBeauty::getCheekSmallIntensity);
+            put(FaceBeautyParam.CHEEK_LONG_INTENSITY, defaultFaceBeauty::getCheekLongIntensity);
+            put(FaceBeautyParam.CHEEK_CIRCLE_INTENSITY, defaultFaceBeauty::getCheekCircleIntensity);
+            put(FaceBeautyParam.CHEEK_NARROW_INTENSITY_V2, defaultFaceBeauty::getCheekNarrowIntensityV2);
+            put(FaceBeautyParam.CHEEK_SHORT_INTENSITY, defaultFaceBeauty::getCheekShortIntensity);
+            put(FaceBeautyParam.CHEEK_SMALL_INTENSITY_V2, defaultFaceBeauty::getCheekSmallIntensityV2);
             put(FaceBeautyParam.INTENSITY_CHEEKBONES_INTENSITY, defaultFaceBeauty::getCheekBonesIntensity);
             put(FaceBeautyParam.INTENSITY_LOW_JAW_INTENSITY, defaultFaceBeauty::getLowerJawIntensity);
-            put(FaceBeautyParam.EYE_ENLARGING_INTENSITY, defaultFaceBeauty::getEyeEnlargingIntensity);
+            put(FaceBeautyParam.EYE_ENLARGING_INTENSITY_V2, defaultFaceBeauty::getEyeEnlargingIntensityV2);
             put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, defaultFaceBeauty::getEyeCircleIntensity);
             put(FaceBeautyParam.CHIN_INTENSITY, defaultFaceBeauty::getChinIntensity);
-            put(FaceBeautyParam.FOREHEAD_INTENSITY, defaultFaceBeauty::getForHeadIntensity);
-            put(FaceBeautyParam.NOSE_INTENSITY, defaultFaceBeauty::getNoseIntensity);
-            put(FaceBeautyParam.MOUTH_INTENSITY, defaultFaceBeauty::getMouthIntensity);
+            put(FaceBeautyParam.FOREHEAD_INTENSITY_V2, defaultFaceBeauty::getForHeadIntensityV2);
+            put(FaceBeautyParam.NOSE_INTENSITY_V2, defaultFaceBeauty::getNoseIntensityV2);
+            put(FaceBeautyParam.MOUTH_INTENSITY_V2, defaultFaceBeauty::getMouthIntensityV2);
             put(FaceBeautyParam.CANTHUS_INTENSITY, defaultFaceBeauty::getCanthusIntensity);
             put(FaceBeautyParam.EYE_SPACE_INTENSITY, defaultFaceBeauty::getEyeSpaceIntensity);
             put(FaceBeautyParam.EYE_ROTATE_INTENSITY, defaultFaceBeauty::getEyeRotateIntensity);
@@ -338,6 +383,20 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     public void bindCurrentRenderer() {
         mFURenderKit.setFaceBeauty(faceBeauty);
         FUAIKit.getInstance().setMaxFaces(4);
+        if (DemoConfig.IS_OPEN_LAND_MARK) {
+            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData("others/landmarks.bundle"));
+            expressionRecognition.setLandmarksType(FUAITypeEnum.FUAITYPE_FACELANDMARKS239);
+            mFURenderKit.getPropContainer().addProp(expressionRecognition);
+        }
     }
 
+    /**
+     * 用于记录当前脸型的UI值 -> 用于用户下次点入的时候恢复
+     */
+    static class CurrentFaceShapeUIValue {
+        /* 当前生效的脸型 */
+        public static String currentFaceShape = FaceBeautyParam.CHEEK_V_INTENSITY;
+        /* 当前脸型的UI值 */
+        public static HashMap <String,Double> currentFaceShapeValue = new HashMap<>();
+    }
 }

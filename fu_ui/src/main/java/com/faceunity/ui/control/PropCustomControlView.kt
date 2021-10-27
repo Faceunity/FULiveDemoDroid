@@ -80,7 +80,7 @@ class PropCustomControlView @JvmOverloads constructor(mContext: Context, attrs: 
         mPropAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<PropCustomBean>() {
             override fun convert(viewType: Int, helper: BaseViewHolder, data: PropCustomBean, position: Int) {
                 if (data.iconId > 0) {
-                    helper.setImageResource(R.id.iv_control, data.iconId)
+                    Glide.with(context).asBitmap().load(data.iconId).into(helper.getView(R.id.iv_control)!!)
                 } else if (data.iconPath != null) {
                     Glide.with(context).asBitmap().load(data.iconPath).into(helper.getView(R.id.iv_control)!!)
                 }

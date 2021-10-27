@@ -38,7 +38,7 @@ class AvatarControlView @JvmOverloads constructor(private val mContext: Context,
     fun bindDataFactory(dataFactory: AbstractAvatarDataFactory) {
         mAvatarDataFactory = dataFactory
         mAvatarBeanAdapter.setData(dataFactory.members)
-        btn_switch_pta.visibility = View.GONE
+//        btn_switch_pta.visibility = View.GONE
         btn_switch_pta.isChecked = dataFactory.isHumanTrackSceneFull
     }
 
@@ -63,11 +63,11 @@ class AvatarControlView @JvmOverloads constructor(private val mContext: Context,
                     mAvatarDataFactory.currentMemberIndex = position
                     mAvatarDataFactory.onMemberSelected(data)
 
-                    if (position == 0) {
-                        btn_switch_pta.visibility = View.GONE
-                    } else {
-                        btn_switch_pta.visibility = View.VISIBLE
-                    }
+//                    if (position == 0) {
+//                        btn_switch_pta.visibility = View.GONE
+//                    } else {
+//                        btn_switch_pta.visibility = View.VISIBLE
+//                    }
                 }
             }
         }, R.layout.list_item_control_image_circle)

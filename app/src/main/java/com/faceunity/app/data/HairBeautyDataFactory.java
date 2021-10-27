@@ -1,15 +1,13 @@
 package com.faceunity.app.data;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.HairBeautySource;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
-import com.faceunity.core.model.facebeauty.FaceBeauty;
 import com.faceunity.core.model.hairBeauty.HairBeautyGradient;
 import com.faceunity.core.model.hairBeauty.HairBeautyNormal;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.R;
 import com.faceunity.ui.entity.HairBeautyBean;
 import com.faceunity.ui.infe.AbstractHairBeautyDataFactory;
 

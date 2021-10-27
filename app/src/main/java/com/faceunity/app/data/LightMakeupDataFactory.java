@@ -1,9 +1,13 @@
 package com.faceunity.app.data;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.app.data.source.LightMakeupSource;
+import com.faceunity.core.entity.FUBundleData;
+import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
+import com.faceunity.core.model.prop.expression.ExpressionRecognition;
 import com.faceunity.ui.entity.LightMakeupBean;
 import com.faceunity.ui.infe.AbstractLightMakeupDataFactory;
 
@@ -111,6 +115,12 @@ public class LightMakeupDataFactory extends AbstractLightMakeupDataFactory {
         FUAIKit.getInstance().setMaxFaces(4);
         LightMakeupBean lightMakeupBean = lightMakeupBeans.get(currentLightMakeupIndex);
         onLightMakeupSelected(lightMakeupBean);
+
+        if (DemoConfig.IS_OPEN_LAND_MARK) {
+            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData("others/landmarks.bundle"));
+            expressionRecognition.setLandmarksType(FUAITypeEnum.FUAITYPE_FACELANDMARKS239);
+            mFURenderKit.getPropContainer().addProp(expressionRecognition);
+        }
     }
 
 }

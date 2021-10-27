@@ -30,7 +30,7 @@ import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.entity.FunctionConfigModel;
 import com.faceunity.app.utils.FileUtils;
-import com.faceunity.app.utils.SystemUtil;
+import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.app.view.SelectDataActivity;
 import com.faceunity.core.camera.FUCamera;
 import com.faceunity.core.entity.FUCameraConfig;
@@ -48,6 +48,7 @@ import com.faceunity.core.media.photo.OnPhotoRecordingListener;
 import com.faceunity.core.media.photo.PhotoRecordHelper;
 import com.faceunity.core.media.video.OnVideoRecordingListener;
 import com.faceunity.core.media.video.VideoRecordHelper;
+import com.faceunity.core.model.facebeauty.FaceBeautyBlurTypeEnum;
 import com.faceunity.core.renderer.CameraRenderer;
 import com.faceunity.core.utils.CameraUtils;
 import com.faceunity.core.utils.GlUtil;
@@ -112,6 +113,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     private PopupWindow mPopupWindow;
 
     protected Handler mMainHandler;
+
     /* 对焦光标消失*/
     private final Runnable cameraFocusDismiss = () -> {
         mCameraFocusView.layout(0, 0, 0, 0);
@@ -119,8 +121,6 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     };
 
     private FunctionConfigModel mFunctionConfigModel;
-    private boolean isSpecialDevice = false;
-
 
     @Override
     public int getLayoutResID() {
@@ -137,7 +137,6 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
     @Override
     public void initView() {
-        isSpecialDevice = SystemUtil.isSpeDevice();
         mStubBottom = findViewById(R.id.stub_bottom);
         mStubBottom.setInflatedId(R.id.stub_bottom);
         if (getStubBottomLayoutResID() != 0) {
@@ -211,8 +210,8 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
                 onBackPressed();
                 break;
             case R.id.btn_camera_change:
-                if (mCameraRenderer.getFUCamera() != null) {
-                    mCameraRenderer.getFUCamera().switchCamera();
+                if (mCameraRenderer != null) {
+                    mCameraRenderer.switchCamera();
                 }
                 break;
 
@@ -250,12 +249,12 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     /*检测标识*/
     protected int aIProcessTrackStatus = 1;
 
-
     /**
      * 特效配置
      */
     protected void configureFURenderKit() {
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
+        mFUAIKit.faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
     }
 
     /**
@@ -358,19 +357,16 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
         @Override
         public void onRenderBefore(FURenderInputData inputData) {
-            if (isSpecialDevice) {
-                //目前这个是Nexus 6P
-                if (inputData.getRenderConfig().getCameraFacing() == CameraFacingEnum.CAMERA_FRONT) {
-                    inputData.getRenderConfig().setInputTextureMatrix(FUTransformMatrixEnum.CCROT90_FLIPVERTICAL);
-                    inputData.getRenderConfig().setInputBufferMatrix(FUTransformMatrixEnum.CCROT90_FLIPVERTICAL);
-                }
-            }
+            checkSpecialDevice(inputData);
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
+                cheekFaceNum();
             width = inputData.getWidth();
             height = inputData.getHeight();
             mFuCallStartTime = System.nanoTime();
             if (cameraRenderType == 1) {
                 inputData.setImageBuffer(null);
             }
+
             BaseFaceUnityActivity.this.onRenderBefore(inputData);
         }
 
@@ -444,6 +440,41 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
         }
     };
 
+    /**
+     * 检查当前人脸数量
+     */
+    private void cheekFaceNum() {
+        //根据有无人脸 + 设备性能 判断开启的磨皮类型
+        float faceProcessorGetConfidenceScore = mFUAIKit.getFaceProcessorGetConfidenceScore(0);
+        if (faceProcessorGetConfidenceScore >= 0.95) {
+            //高端手机并且检测到人脸开启均匀磨皮，人脸点位质
+            if (mFURenderKit != null && mFURenderKit.getFaceBeauty() != null && mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.EquallySkin) {
+                mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.EquallySkin);
+                mFURenderKit.getFaceBeauty().setEnableBlurUseMask(true);
+            }
+        } else {
+            if (mFURenderKit != null && mFURenderKit.getFaceBeauty() != null && mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.FineSkin) {
+                mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.FineSkin);
+                mFURenderKit.getFaceBeauty().setEnableBlurUseMask(false);
+            }
+        }
+    }
+
+    /**
+     * 检查是否特殊设备
+     *
+     * @param inputData
+     */
+    private void checkSpecialDevice(FURenderInputData inputData) {
+        if (DemoConfig.DEVICE_NAME.equals(FuDeviceUtils.Nexus_6P)) {
+            //目前这个是Nexus 6P
+            if (inputData.getRenderConfig().getCameraFacing() == CameraFacingEnum.CAMERA_FRONT) {
+                inputData.getRenderConfig().setInputTextureMatrix(FUTransformMatrixEnum.CCROT90_FLIPVERTICAL);
+                inputData.getRenderConfig().setInputBufferMatrix(FUTransformMatrixEnum.CCROT90_FLIPVERTICAL);
+            }
+        }
+    }
+
 
     //endregion CameraRenderer
 
@@ -466,9 +497,18 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
         if (mPopupWindow != null) {
             mPopupWindow.dismiss();
         }
-        SelectDataActivity.startActivity(this, getFunctionType());
+        if (isSelectPhotoVideoClickBySon)
+            onSelectPhotoVideoClickBySon();
+        else
+            SelectDataActivity.startActivity(this, getFunctionType());
     }
 
+    public boolean isSelectPhotoVideoClickBySon = false;
+
+    /**
+     * 子类实现 更多按钮点击事件
+     */
+    public void onSelectPhotoVideoClickBySon() {}
 
     /**
      * 调整拍照按钮对齐方式
@@ -508,21 +548,6 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
             return;
         }
         runOnUiThread(() -> showToast(strRes));
-    }
-
-
-    /**
-     * 显示提示描述
-     */
-    public void showToast(String msg) {
-        ToastHelper.showNormalToast(this, msg);
-    }
-
-    /**
-     * 显示提示描述
-     */
-    public void showToast(int res) {
-        ToastHelper.showWhiteTextToast(this, res);
     }
 
     /**

@@ -5,14 +5,13 @@ import androidx.annotation.NonNull;
 
 import com.faceunity.app.data.source.BgSegGreenSource;
 import com.faceunity.core.controller.bgSegGreen.BgSegGreenParam;
-import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUColorRGBData;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.bgSegGreen.BgSegGreen;
-import com.faceunity.app.DemoConfig;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
 import com.faceunity.ui.entity.BgSegGreenBean;
+import com.faceunity.ui.entity.BgSegGreenSafeAreaBean;
 import com.faceunity.ui.entity.ModelAttributeData;
 import com.faceunity.ui.infe.AbstractBgSegGreenDataFactory;
 
@@ -25,8 +24,6 @@ import java.util.Objects;
  * Created on 2021/3/4
  */
 public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
-
-
     public interface BgSegGreenListener {
         /**
          * 取色状态回调
@@ -42,6 +39,18 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
          * @param bean
          */
         void onBackgroundSelected(BgSegGreenBackgroundBean bean);
+
+        /**
+         * 添加自定义安全区域图片
+         */
+        void onSafeAreaAdd();
+
+        /**
+         * 切换安全区域图片
+         *
+         * @param bean
+         */
+        void onSafeAreaSelected(BgSegGreenSafeAreaBean bean);
     }
 
 
@@ -49,12 +58,17 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
     private final FURenderKit mFURenderKit = FURenderKit.getInstance();
 
     /*绿幕抠像特效模型*/
-    private final BgSegGreen bgSegGreen;
+    private final BgSegGreen mBgSegGreen;
 
     /*绿幕抠像背景列表*/
-    private final ArrayList<BgSegGreenBackgroundBean> bgSegGreenBackgroundBeans;
+    private final ArrayList<BgSegGreenBackgroundBean> mBgSegGreenBackgroundBeans;
     /* 绿幕抠像当前背景下标 */
-    private int currentBackgroundIndex;
+    private int mCurrentBackgroundIndex;
+
+    /*绿幕抠像安全区域列表*/
+    private ArrayList<BgSegGreenSafeAreaBean> mBgSegGreenSafeAreaBeans;
+    /* 绿幕抠像当前安全区域下标 */
+    private int mCurrentSafeAreaIndex;
 
     /* 回调 */
     private final BgSegGreenListener mBgSegGreenListener;
@@ -68,11 +82,12 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
      */
     public BgSegGreenDataFactory(BgSegGreenListener listener, int index) {
         mBgSegGreenListener = listener;
-        bgSegGreen = BgSegGreenSource.buildBgSegGreen();
-        bgSegGreenBackgroundBeans = BgSegGreenSource.buildBgSegGreenBackground();
-        currentBackgroundIndex = index;
+        mBgSegGreen = BgSegGreenSource.buildBgSegGreen();
+        mBgSegGreenBackgroundBeans = BgSegGreenSource.buildBgSegGreenBackground();
+        mBgSegGreenSafeAreaBeans = BgSegGreenSource.buildBgSegGreenSafeArea();
+        mCurrentBackgroundIndex = index;
+        mCurrentSafeAreaIndex = 1;
     }
-
 
     /**
      * 获取绿幕抠像当前背景下标
@@ -82,7 +97,7 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
     @Override
 
     public int getBackgroundIndex() {
-        return currentBackgroundIndex;
+        return mCurrentBackgroundIndex;
     }
 
     /**
@@ -92,9 +107,50 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
      */
     @Override
     public void setBackgroundIndex(int backgroundIndex) {
-        this.currentBackgroundIndex = backgroundIndex;
+        this.mCurrentBackgroundIndex = backgroundIndex;
     }
 
+    /**
+     * 获取绿幕抠像当前安全区域下标
+     *
+     * @return
+     */
+    @Override
+    public int getBgSafeAreaIndex() {
+        return mCurrentSafeAreaIndex;
+    }
+
+    /**
+     * 设置绿幕抠像安全区域下标
+     *
+     * @param currentSafeAreaIndex
+     */
+    @Override
+    public void setBgSafeAreaIndex(int currentSafeAreaIndex) {
+        this.mCurrentSafeAreaIndex = currentSafeAreaIndex;
+    }
+
+    /**
+     * 更新安全区UI
+     */
+    public boolean updateSafeAreaBeansAndIndex() {
+        ArrayList<BgSegGreenSafeAreaBean> bgSegGreenSafeAreaBeans = BgSegGreenSource.buildBgSegGreenSafeArea();
+        if (!bgSegGreenSafeAreaBeans.equals(mBgSegGreenSafeAreaBeans)) {
+            //需要刷新数据
+            //比对数据 1、数据增加 or 自定义数据修改 -> 当前应该选中的角标
+            if (bgSegGreenSafeAreaBeans.size() > mBgSegGreenSafeAreaBeans.size()) {
+                //数据增加
+                if (mCurrentSafeAreaIndex > 2) {
+                    mCurrentSafeAreaIndex++;
+                }
+            }
+
+            mBgSegGreenSafeAreaBeans = bgSegGreenSafeAreaBeans;
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * 获取绿幕抠像项目数据扩展模型
@@ -117,13 +173,23 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
     }
 
     /**
+     * 获取绿幕抠像安全区域功能列表
+     *
+     * @return
+     */
+    @Override
+    public ArrayList<BgSegGreenSafeAreaBean> getBgSegGreenSafeAreas() {
+        return mBgSegGreenSafeAreaBeans;
+    }
+
+    /**
      * 获取绿幕抠像背景列表
      *
      * @return
      */
     @Override
     public ArrayList<BgSegGreenBackgroundBean> getBgSegGreenBackgrounds() {
-        return bgSegGreenBackgroundBeans;
+        return mBgSegGreenBackgroundBeans;
     }
 
     /**
@@ -137,14 +203,37 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
     }
 
     /**
+     * 自定义安全区域
+     */
+    @Override
+    public void onSafeAreaAdd() {
+        mBgSegGreenListener.onSafeAreaAdd();
+    }
+
+    /**
+     * 安全区域变更
+     *
+     * @param data BgSegGreenBackgroundBean
+     */
+    @Override
+    public void onSafeAreaSelected(BgSegGreenSafeAreaBean data) {
+        mBgSegGreenListener.onSafeAreaSelected(data);
+    }
+
+    @Override
+    public boolean isUseTemplate() {
+        return getCurrentBgSegGreenModel().isUseTemplate() == 1.0;
+    }
+
+    /**
      * 取色锚点颜色变更
      *
      * @param array DoubleArray
      */
     @Override
     public void onColorRGBChanged(double[] array) {
-        bgSegGreen.setColorRGB(new FUColorRGBData(array[0], array[1], array[2]));
-        bgSegGreen.setEnable(true);
+        mBgSegGreen.setColorRGB(new FUColorRGBData(array[0], array[1], array[2]));
+        mBgSegGreen.setEnable(true);
     }
 
     /**
@@ -154,7 +243,7 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
      */
     @Override
     public void onBgSegGreenEnableChanged(boolean enable) {
-        bgSegGreen.setEnable(enable);
+        mBgSegGreen.setEnable(enable);
     }
 
 
@@ -218,7 +307,7 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
      * @return
      */
     private BgSegGreen getCurrentBgSegGreenModel() {
-        return bgSegGreen;
+        return mBgSegGreen;
     }
 
 
@@ -249,8 +338,9 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
     public void bindCurrentRenderer() {
         FUAIKit.getInstance().setMaxFaces(1);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-        mFURenderKit.setBgSegGreen(bgSegGreen);
-        mBgSegGreenListener.onBackgroundSelected(bgSegGreenBackgroundBeans.get(currentBackgroundIndex));
+        mFURenderKit.setBgSegGreen(mBgSegGreen);
+        mBgSegGreenListener.onBackgroundSelected(mBgSegGreenBackgroundBeans.get(mCurrentBackgroundIndex));
+        mBgSegGreenListener.onSafeAreaSelected(mBgSegGreenSafeAreaBeans.get(mCurrentSafeAreaIndex));
     }
 
 }

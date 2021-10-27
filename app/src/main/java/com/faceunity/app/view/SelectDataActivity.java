@@ -3,7 +3,6 @@ package com.faceunity.app.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
@@ -12,8 +11,6 @@ import com.faceunity.app.R;
 import com.faceunity.app.base.BaseActivity;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.ui.dialog.ToastHelper;
-
-import java.io.File;
 
 /**
  * DESC：
@@ -25,12 +22,12 @@ public class SelectDataActivity extends BaseActivity {
     private static final int REQUEST_CODE_PHOTO = 1000;
     private static final int REQUEST_CODE_VIDEO = 1001;
 
-    private static final String IMAGE_FORMAT_JPG = ".jpg";
-    private static final String IMAGE_FORMAT_JPEG = ".jpeg";
-    private static final String IMAGE_FORMAT_PNG = ".png";
-
     public static void startActivity(Context context, int type) {
         context.startActivity(new Intent(context, SelectDataActivity.class).putExtra(TYPE, type));
+    }
+
+    public static void startActivityForResult(Activity activity, int type,int requestCode) {
+        activity.startActivityForResult(new Intent(activity, SelectDataActivity.class).putExtra(TYPE, type), requestCode);
     }
 
     public static void startActivityForResult(Activity activity) {
@@ -73,57 +70,20 @@ public class SelectDataActivity extends BaseActivity {
         Uri uri = data.getData();
         String path = FileUtils.getFilePathByUri(this, uri);
         if (requestCode == REQUEST_CODE_PHOTO) {
-            if (!checkIsImage(path)) {
-                ToastHelper.showNormalToast(this, "请选择正确的图片文件");
+            if (!FileUtils.checkIsImage(path)) {
+                ToastHelper.showNormalToast(this, getString(R.string.please_select_the_correct_picture_file));
                 return;
             }
             FaceBeautyActivity.needBindDataFactory = true;
             ShowPhotoActivity.startActivity(this, mFunctionType, path);
 
         } else if (requestCode == REQUEST_CODE_VIDEO) {
-            if (!checkIsVideo(path)) {
-                ToastHelper.showNormalToast(this, "请选择正确的视频文件");
+            if (!FileUtils.checkIsVideo(this,path)) {
+                ToastHelper.showNormalToast(this, getString(R.string.please_select_the_correct_video_file));
                 return;
             }
             FaceBeautyActivity.needBindDataFactory = true;
             ShowVideoActivity.startActivity(this, mFunctionType, path);
         }
-
-
     }
-
-
-    /**
-     * 校验文件是否是图片
-     *
-     * @param path String
-     * @return Boolean
-     */
-    private Boolean checkIsImage(String path) {
-        String name = new File(path).getName().toLowerCase();
-        return (name.endsWith(IMAGE_FORMAT_PNG) || name.endsWith(IMAGE_FORMAT_JPG)
-                || name.endsWith(IMAGE_FORMAT_JPEG));
-    }
-
-    /**
-     * 校验文件是否是视频
-     *
-     * @param path String
-     * @return Boolean
-     */
-    private Boolean checkIsVideo(String path) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            retriever.setDataSource(this, Uri.fromFile(new File(path)));
-            String hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO);
-            return "yes".equals(hasVideo);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-
-
-    }
-
-
 }

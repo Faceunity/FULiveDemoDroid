@@ -11,6 +11,7 @@ package com.faceunity.ui.entity
  * @property jsonPath String 参数配置路径
  * @property filterName Double 滤镜
  * @property filterIntensity Double 滤镜强度
+ * @property filterScale Double scale 标准滤镜比率
  * @property intensity Double 强度
  * @property jsonPathParams Double 参数配置缓存
  * @constructor
@@ -23,6 +24,7 @@ data class MakeupCombinationBean @JvmOverloads constructor(
     val bundlePath: String?,
     val jsonPath: String,
     val filterName: String,
+    var filterScale: Double = 1.0,
     var filterIntensity: Double = 0.7,
     var intensity: Double = 0.7,
     var jsonPathParams: LinkedHashMap<String, Any>? = null
@@ -30,6 +32,7 @@ data class MakeupCombinationBean @JvmOverloads constructor(
     enum class TypeEnum {
         TYPE_NONE, //无
         TYPE_DAILY,//日常妆，支持自定义
-        TYPE_THEME,//主题妆
+        TYPE_THEME_SUB,//主题妆_依附于face_makeup
+        TYPE_THEME_MAIN,//主题妆_替换face_makeup
     }
 }

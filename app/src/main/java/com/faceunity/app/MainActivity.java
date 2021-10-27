@@ -29,12 +29,14 @@ import com.faceunity.app.view.MusicFilterActivity;
 import com.faceunity.app.view.PortraitSegmentActivity;
 import com.faceunity.app.view.PosterListActivity;
 import com.faceunity.app.view.PropActivity;
+import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.ui.base.BaseDelegate;
 import com.faceunity.ui.base.BaseListAdapter;
 import com.faceunity.ui.base.BaseViewHolder;
 import com.faceunity.ui.dialog.ToastHelper;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DESC：
@@ -57,6 +59,8 @@ public class MainActivity extends BaseActivity {
     @Override
     public void initData() {
         mFunctions = HomeFunctionModuleData.buildData();
+        //根据权限码判断是否开启对应功能
+        filterByModuleCode(mFunctions);
         mAdapter = new BaseListAdapter(mFunctions, new BaseDelegate<HomeFunctionModuleData>() {
 
             @Override
@@ -79,6 +83,7 @@ public class MainActivity extends BaseActivity {
                 } else if (viewType == 2) {
                     helper.setText(R.id.tv_module, data.titleRes);
                     helper.setImageResource(R.id.iv_module, data.iconRes);
+                    helper.getView(R.id.tv_module).setEnabled(data.enable);
                 } else if (viewType == 3) {
                     helper.setText(R.id.home_recycler_text, data.titleRes);
                 }
@@ -87,6 +92,10 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onItemClickListener(View view, HomeFunctionModuleData data, int position) {
                 if (data.type == FunctionType.Model || data.type == FunctionType.ModelLottie) {
+                    if (!data.enable && data.type == FunctionType.Model) {
+                        ToastHelper.showNormalToast(MainActivity.this, R.string.sorry_no_permission);
+                        return;
+                    }
                     onFunctionClick(data);
                 }
             }
@@ -206,5 +215,18 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
+    private static void filterByModuleCode(List<HomeFunctionModuleData> homeFunctionModuleData) {
+        int moduleCode0 = FURenderKit.getInstance().getModuleCode(0);
+        int moduleCode1 = FURenderKit.getInstance().getModuleCode(1);
+        for (HomeFunctionModuleData moduleEntity : homeFunctionModuleData) {
+            if (moduleEntity.authCode != null) {
+                String[] codeStr = moduleEntity.authCode.split("-");
+                if (codeStr.length == 2) {
+                    int code0 = Integer.parseInt(codeStr[0]);
+                    int code1 = Integer.parseInt(codeStr[1]);
+                    moduleEntity.enable = (moduleCode0 == 0 && moduleCode1 == 0) || ((code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0);
+                }
+            }
+        }
+    }
 }

@@ -1,0 +1,96 @@
+{
+  "makeup_eyelash_color": [
+    0.6117647290229797,
+    0.4313725531101227,
+    0.12156862765550613,
+    1.0
+  ],
+  "tex_eyelash": "eyeLash03.png",
+  "makeup_intensity_eyelash": 0.550000011920929,
+  "makeup_name": "Group_1_25",
+  "makeup_eyeBrow_color": [
+    0.5254902243614197,
+    0.45098039507865906,
+    0.32156863808631897,
+    1.0
+  ],
+  "tex_eyeBrow": "brow6.png",
+  "brow_warp": 0.0,
+  "brow_warp_type": 0,
+  "use_brow_v2": 1,
+  "makeup_intensity_eyeBrow": 0.800000011920929,
+  "makeup_eyeLiner_color": [
+    0.4627451002597809,
+    0.35686275362968445,
+    0.20392157137393951,
+    1.0
+  ],
+  "tex_eyeLiner": "eyeLiner03.png",
+  "makeup_intensity_eyeLiner": 0.5,
+  "blend_type_tex_eye": 0,
+  "blend_type_tex_eye2": 0,
+  "blend_type_tex_eye3": 1,
+  "blend_type_tex_eye4": 0,
+  "makeup_eye_color": [
+    0.6705882549285889,
+    0.3529411852359772,
+    0.19607843458652496,
+    1.0
+  ],
+  "tex_eye": "eye03.png",
+  "makeup_intensity_eye": 0.8500000238418579,
+  "makeup_lip_color": [
+    0.5490196347236633,
+    0.0,
+    0.007843137718737125,
+    1.0
+  ],
+  "is_two_color": 0,
+  "tex_lip_mask_zz": "GF1015-5zz.png",
+  "tex_lip_mask_bz": "GF1015-5.png",
+  "lip_type": 0,
+  "makeup_intensity_lip": 1.0,
+  "blend_type_tex_blusher": 1,
+  "blend_type_tex_blusher2": 0,
+  "makeup_blusher_color": [
+    1.0,
+    0.2549019753932953,
+    0.27843138575553894,
+    1.0
+  ],
+  "tex_blusher": "zhuangrong_sh.png",
+  "makeup_intensity_blusher": 0.30000001192092896,
+  "makeup_highlight_color": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "tex_highlight": "mu_style_highlight_02.png",
+  "makeup_intensity_highlight": 0.550000011920929,
+  "makeup_foundation_color": [
+    0.6705882549285889,
+    0.47058823704719543,
+    0.4431372582912445,
+    1.0
+  ],
+  "tex_foundation": "zhuangrong_fd.png",
+  "makeup_intensity_foundation": 0.6000000238418579,
+  "makeup_shadow_color": [
+    0.5333333611488342,
+    0.3294117748737335,
+    0.29019609093666077,
+    1.0
+  ],
+  "tex_shadow": "zhuangrong_yy.png",
+  "makeup_intensity_shadow": 0.25,
+  "makeup_pupil_color": [
+    0.4745098054409027,
+    0.42352941632270813,
+    0.3960784375667572,
+    1.0
+  ],
+  "tex_pupil": "icon_style_eyepupil_03.png",
+  "makeup_intensity_pupil": 0.5,
+  "use_eye_v2": 1
+}
