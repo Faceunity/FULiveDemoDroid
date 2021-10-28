@@ -2,12 +2,15 @@ package com.faceunity.app.utils.net;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.ArrayMap;
 import android.util.Log;
 
 import com.faceunity.app.DemoApplication;
-import com.faceunity.ui.entity.net.FineStickerEntity;
 import com.faceunity.app.utils.FileUtils;
+import com.faceunity.app.utils.ZipUtils;
+import com.faceunity.ui.entity.net.FineStickerEntity;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -30,6 +33,7 @@ public final class StickerDownloadHelper {
     private static final String URL_TOOLS = URL_HOST + "/api/guest/tools";
     private static final String URL_DOWNLOAD = URL_HOST + "/api/guest/download?id=";
     public static final String STICKER_DIR_PATH = FileUtils.getExternalFileDir(DemoApplication.mApplication) + "/fine_sticker";
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     private Gson gson;
     private String[] mTags;
@@ -192,23 +196,53 @@ public final class StickerDownloadHelper {
      */
     private void realDownload(String url, FineStickerEntity.DocsBean entity) {
         File dest = new File(STICKER_DIR_PATH, entity.getTool().getBundle().getUid());
-        OkHttpUtils.getInstance().downloadFile(url, dest, new OkHttpUtils.OkHttpCallback<File>() {
+        OkHttpUtils.getInstance().downloadFileCallBackExecute(url, dest, new OkHttpUtils.OkHttpCallback<File>() {
             @Override
             protected void onSuccess(File result) {
-                entity.setFilePath(result.getAbsolutePath());
-                if (null != mCallback) {
-                    mCallback.onDownload(entity);
+                if (entity.getTool().getBundle().getUid().endsWith(".zip")) {
+                    //请求成功和解压是一个原子操作
+                    //zip，解压
+                    boolean unZipSuccess = true;
+                    String outPathString = STICKER_DIR_PATH + "/" + entity.getTool().getBundle().getUid().substring(0,entity.getTool().getBundle().getUid().lastIndexOf("."));
+                    try {
+                        //获取解压后的文件名赋值
+                        ArrayList<String> fileNameList = ZipUtils.unZipFolderWithFileName(STICKER_DIR_PATH + "/" + entity.getTool().getBundle().getUid(), outPathString);
+                        if (fileNameList != null && !fileNameList.isEmpty())
+                            entity.setUpZipFilePaths(fileNameList);
+                        else
+                            unZipSuccess = false;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        unZipSuccess = false;
+                    }
+
+                    if (!unZipSuccess) {
+                        if (null != mCallback)
+                            runOnUiThread(()-> mCallback.onDownloadError(entity,"unZipFolder failed"));
+                        return;
+                    }
                 }
+
+                entity.setFilePath(result.getAbsolutePath());
+                if (null != mCallback)
+                    runOnUiThread(()-> mCallback.onDownload(entity));
             }
 
             @Override
             protected void onFailure(String errorMsg) {
                 Log.e(TAG, url + "  " + errorMsg);
-                if (null != mCallback) {
-                    mCallback.onDownloadError(entity,errorMsg);
-                }
+                if (null != mCallback)
+                    runOnUiThread(()-> mCallback.onDownloadError(entity,errorMsg));
             }
         });
+    }
+
+    private void runOnUiThread(Runnable runnable) {
+        if (Thread.currentThread() == mMainHandler.getLooper().getThread()) {
+            runnable.run();
+        } else {
+            mMainHandler.post(runnable);
+        }
     }
 
     /************************** 缓存相关 **************************/
@@ -235,6 +269,11 @@ public final class StickerDownloadHelper {
         for (FineStickerEntity.DocsBean fineSticker : fineStickerEntity.getDocs()) {
             if (bundleSet.contains(fineSticker.getTool().getBundle().getUid())) {
                 fineSticker.setFilePath(STICKER_DIR_PATH + "/" + fineSticker.getTool().getBundle().getUid());
+                if (fineSticker.getTool().getBundle().getUid().endsWith(".zip")) {
+                    //遍历解压文件地址
+                    String path = STICKER_DIR_PATH + "/" + fineSticker.getTool().getBundle().getUid().substring(0,fineSticker.getTool().getBundle().getUid().lastIndexOf("."));
+                    fineSticker.setUpZipFilePaths(FileUtils.getFileList(path));
+                }
             }
         }
     }

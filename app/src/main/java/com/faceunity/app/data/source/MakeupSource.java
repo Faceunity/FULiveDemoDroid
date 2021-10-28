@@ -46,114 +46,29 @@ public class MakeupSource {
         ArrayList<MakeupCombinationBean> combinations = new ArrayList<MakeupCombinationBean>();
         String jsonDir = DemoConfig.MAKEUP_RESOURCE_JSON_DIR;
         String bundleDir = DemoConfig.MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR;
-        combinations.add(new MakeupCombinationBean("origin", TypeEnum.TYPE_NONE, R.mipmap.icon_control_none, R.string.makeup_radio_remove, null, "", FaceBeautyFilterEnum.ZIRAN_2,0.4));
-        combinations.add(
-                new MakeupCombinationBean(
-                        "jianling", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_age, R.string.makeup_combination_jianling,
-                        bundleDir + "jianling.bundle", jsonDir + "jianling.json", FaceBeautyFilterEnum.ZHIGANHUI_1
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "nuandong", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_warm_winter, R.string.makeup_combination_nuandong,
-                        bundleDir + "nuandong.bundle", jsonDir + "nuandong.json", FaceBeautyFilterEnum.ZHIGANHUI_2
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "hongfeng", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_red_maple, R.string.makeup_combination_hongfeng,
-                        bundleDir + "hongfeng.bundle", jsonDir + "hongfeng.json", FaceBeautyFilterEnum.ZHIGANHUI_3)
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "rose", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_rose, R.string.makeup_combination_rose,
-                        bundleDir + "rose.bundle", jsonDir + "rose.json", FaceBeautyFilterEnum.ZHIGANHUI_2
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "shaonv", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_girl, R.string.makeup_combination_shaonv,
-                        bundleDir + "shaonv.bundle", jsonDir + "shaonv.json", FaceBeautyFilterEnum.ZHIGANHUI_4
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "ziyun", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_purple_rhyme, R.string.makeup_combination_ziyun,
-                        bundleDir + "ziyun.bundle", jsonDir + "ziyun.json", FaceBeautyFilterEnum.ZHIGANHUI_1
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "yanshimao", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_bored_cat, R.string.makeup_combination_yanshimao,
-                        bundleDir + "yanshimao.bundle", jsonDir + "yanshimao.json", FaceBeautyFilterEnum.ZHIGANHUI_5
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "renyu", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_mermaid, R.string.makeup_combination_renyu,
-                        bundleDir + "renyu.bundle", jsonDir + "renyu.json", FaceBeautyFilterEnum.ZHIGANHUI_1
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "chuqiu", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_early_autumn, R.string.makeup_combination_chuqiu,
-                        bundleDir + "chuqiu.bundle", jsonDir + "chuqiu.json", FaceBeautyFilterEnum.ZHIGANHUI_6
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "qianzhihe", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_paper_cranes, R.string.makeup_combination_qianzhihe,
-                        bundleDir + "qianzhihe.bundle", jsonDir + "qianzhihe.json", FaceBeautyFilterEnum.ZHIGANHUI_2
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "chaomo", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_supermodel, R.string.makeup_combination_chaomo,
-                        bundleDir + "chaomo.bundle", jsonDir + "chaomo.json", FaceBeautyFilterEnum.ZHIGANHUI_7
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "chuju", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_daisy, R.string.makeup_combination_chuju,
-                        bundleDir + "chuju.bundle", jsonDir + "chuju.json", FaceBeautyFilterEnum.ZHIGANHUI_8
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "gangfeng", TypeEnum.TYPE_THEME, R.mipmap.icon_makeup_combination_harbour_wind, R.string.makeup_combination_gangfeng,
-                        bundleDir + "gangfeng.bundle", jsonDir + "gangfeng.json", FaceBeautyFilterEnum.ZIRAN_8
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "xinggan", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_sexy, R.string.makeup_combination_sexy,
-                        bundleDir + "xinggan.bundle", jsonDir + "xinggan.json", FaceBeautyFilterEnum.ZIRAN_2
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "tianmei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_sweet, R.string.makeup_combination_sweet,
-                        bundleDir + "tianmei.bundle", jsonDir + "tianmei.json", FaceBeautyFilterEnum.ZIRAN_2
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "linjia", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_neighbor_girl, R.string.makeup_combination_neighbor,
-                        bundleDir + "linjia.bundle", jsonDir + "linjia.json", FaceBeautyFilterEnum.ZIRAN_2
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "oumei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_occident, R.string.makeup_combination_occident,
-                        bundleDir + "oumei.bundle", jsonDir + "oumei.json", FaceBeautyFilterEnum.ZIRAN_2
-                )
-        );
-        combinations.add(
-                new MakeupCombinationBean(
-                        "wumei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_charming, R.string.makeup_combination_charming,
-                        bundleDir + "wumei.bundle", jsonDir + "wumei.json", FaceBeautyFilterEnum.ZIRAN_2
-                )
-        );
+        combinations.add(new MakeupCombinationBean("origin", TypeEnum.TYPE_NONE, R.mipmap.icon_control_none, R.string.makeup_radio_remove, null, "", FaceBeautyFilterEnum.ZIRAN_2, 1.0,0.0));
+        combinations.add(new MakeupCombinationBean("diadiatu", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_diadiatu, R.string.makeup_combination_diadiatu, bundleDir + "diadiatu.bundle", jsonDir + "diadiatu.json", FaceBeautyFilterEnum.ORIGIN, 0.68));
+        combinations.add(new MakeupCombinationBean("dongling", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_freezing_age, R.string.makeup_combination_dongling, bundleDir + "dongling.bundle", jsonDir + "dongling.json", FaceBeautyFilterEnum.ORIGIN, 0.68));
+        combinations.add(new MakeupCombinationBean("guofeng", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_guo_feng, R.string.makeup_combination_guofeng, bundleDir + "guofeng.bundle", jsonDir + "guofeng.json", FaceBeautyFilterEnum.ORIGIN, 0.6));
+        combinations.add(new MakeupCombinationBean("hunxie", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_mixed_race, R.string.makeup_combination_hunxie, bundleDir + "hunxie.bundle", jsonDir + "hunxie.json", FaceBeautyFilterEnum.ORIGIN, 0.6));
+        combinations.add(new MakeupCombinationBean("jianling", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_age, R.string.makeup_combination_jianling, bundleDir + "jianling.bundle", jsonDir + "jianling.json", FaceBeautyFilterEnum.ZHIGANHUI_1));
+        combinations.add(new MakeupCombinationBean("nuandong", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_warm_winter, R.string.makeup_combination_nuandong, bundleDir + "nuandong.bundle", jsonDir + "nuandong.json", FaceBeautyFilterEnum.ZHIGANHUI_2));
+        combinations.add(new MakeupCombinationBean("hongfeng", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_red_maple, R.string.makeup_combination_hongfeng, bundleDir + "hongfeng.bundle", jsonDir + "hongfeng.json", FaceBeautyFilterEnum.ZHIGANHUI_3));
+        combinations.add(new MakeupCombinationBean("rose", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_rose, R.string.makeup_combination_rose, bundleDir + "rose.bundle", jsonDir + "rose.json", FaceBeautyFilterEnum.ZHIGANHUI_2));
+        combinations.add(new MakeupCombinationBean("shaonv", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_girl, R.string.makeup_combination_shaonv, bundleDir + "shaonv.bundle", jsonDir + "shaonv.json", FaceBeautyFilterEnum.ZHIGANHUI_4));
+        combinations.add(new MakeupCombinationBean("ziyun", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_purple_rhyme, R.string.makeup_combination_ziyun, bundleDir + "ziyun.bundle", jsonDir + "ziyun.json", FaceBeautyFilterEnum.ZHIGANHUI_1));
+        combinations.add(new MakeupCombinationBean("yanshimao", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_bored_cat, R.string.makeup_combination_yanshimao, bundleDir + "yanshimao.bundle", jsonDir + "yanshimao.json", FaceBeautyFilterEnum.ZHIGANHUI_5));
+        combinations.add(new MakeupCombinationBean("renyu", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_mermaid, R.string.makeup_combination_renyu, bundleDir + "renyu.bundle", jsonDir + "renyu.json", FaceBeautyFilterEnum.ZHIGANHUI_1));
+        combinations.add(new MakeupCombinationBean("chuqiu", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_early_autumn, R.string.makeup_combination_chuqiu, bundleDir + "chuqiu.bundle", jsonDir + "chuqiu.json", FaceBeautyFilterEnum.ZHIGANHUI_6));
+        combinations.add(new MakeupCombinationBean("qianzhihe", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_paper_cranes, R.string.makeup_combination_qianzhihe, bundleDir + "qianzhihe.bundle", jsonDir + "qianzhihe.json", FaceBeautyFilterEnum.ZHIGANHUI_2));
+        combinations.add(new MakeupCombinationBean("chaomo", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_supermodel, R.string.makeup_combination_chaomo, bundleDir + "chaomo.bundle", jsonDir + "chaomo.json", FaceBeautyFilterEnum.ZHIGANHUI_7));
+        combinations.add(new MakeupCombinationBean("chuju", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_daisy, R.string.makeup_combination_chuju, bundleDir + "chuju.bundle", jsonDir + "chuju.json", FaceBeautyFilterEnum.ZHIGANHUI_8));
+        combinations.add(new MakeupCombinationBean("gangfeng", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_harbour_wind, R.string.makeup_combination_gangfeng, bundleDir + "gangfeng.bundle", jsonDir + "gangfeng.json", FaceBeautyFilterEnum.ZIRAN_8));
+        combinations.add(new MakeupCombinationBean("xinggan", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_sexy, R.string.makeup_combination_sexy, bundleDir + "xinggan.bundle", jsonDir + "xinggan.json", FaceBeautyFilterEnum.ZIRAN_2));
+        combinations.add(new MakeupCombinationBean("tianmei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_sweet, R.string.makeup_combination_sweet, bundleDir + "tianmei.bundle", jsonDir + "tianmei.json", FaceBeautyFilterEnum.ZIRAN_2));
+        combinations.add(new MakeupCombinationBean("linjia", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_neighbor_girl, R.string.makeup_combination_neighbor, bundleDir + "linjia.bundle", jsonDir + "linjia.json", FaceBeautyFilterEnum.ZIRAN_2));
+        combinations.add(new MakeupCombinationBean("oumei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_occident, R.string.makeup_combination_occident, bundleDir + "oumei.bundle", jsonDir + "oumei.json", FaceBeautyFilterEnum.ZIRAN_2));
+        combinations.add(new MakeupCombinationBean("wumei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_charming, R.string.makeup_combination_charming, bundleDir + "wumei.bundle", jsonDir + "wumei.json", FaceBeautyFilterEnum.ZIRAN_2));
         return combinations;
     }
 
@@ -164,13 +79,22 @@ public class MakeupSource {
      * @return
      */
     public static Makeup getMakeupModel(MakeupCombinationBean bean) {
-        Makeup makeupModel = new Makeup(new FUBundleData(DemoConfig.BUNDLE_FACE_MAKEUP));
+        Makeup makeupModel;
+        if (TypeEnum.TYPE_THEME_MAIN == bean.getType() && bean.getBundlePath() != null && bean.getBundlePath().trim().length() > 0) {
+            makeupModel = new Makeup(new FUBundleData(bean.getBundlePath()));
+            //新的组合妆容设置滤镜scale
+            makeupModel.setCurrentFilterScale(bean.getFilterScale());
+        } else {
+            makeupModel = new Makeup(new FUBundleData(DemoConfig.BUNDLE_FACE_MAKEUP));
+        }
+
         if (bean.getKey().equals("origin")) {
             return makeupModel;
         }
-        if (bean.getBundlePath() != null && bean.getBundlePath().trim().length() > 0) {
+
+        if ((TypeEnum.TYPE_THEME_SUB == bean.getType() || TypeEnum.TYPE_DAILY == bean.getType()) && bean.getBundlePath() != null && bean.getBundlePath().trim().length() > 0)
             makeupModel.setCombinedConfig(new FUBundleData(bean.getBundlePath()));
-        }
+
         makeupModel.setMakeupIntensity(bean.getIntensity());
         if (bean.getJsonPathParams() == null) {
             bean.setJsonPathParams(getLocalParams(bean.getJsonPath()));
@@ -250,6 +174,8 @@ public class MakeupSource {
         {
             put(MakeupParam.LIP_TYPE, (makeup, value) -> makeup.setLipType((int) value));
             put(MakeupParam.IS_TWO_COLOR, (makeup, value) -> makeup.setEnableTwoLipColor((int) value == 1));
+            put(MakeupParam.MAKEUP_LIP_HIGH_LIGHT_ENABLE, (makeup, value) -> makeup.setLipHighLightEnable((int) value == 1));
+            put(MakeupParam.MAKEUP_LIP_HIGH_LIGHT_STRENGTH, (makeup, value) -> makeup.setLipHighLightStrength((double) value));
             put(MakeupParam.BROW_WARP, (makeup, value) -> makeup.setEnableBrowWarp((double) value == 1.0));
             put(MakeupParam.BROW_WARP_TYPE, (makeup, value) -> makeup.setBrowWarpType((int) value));
             /*强度*/
@@ -265,6 +191,7 @@ public class MakeupSource {
             put(MakeupParam.HIGHLIGHT_INTENSITY, (makeup, value) -> makeup.setHeightLightIntensity((double) value));
             put(MakeupParam.SHADOW_INTENSITY, (makeup, value) -> makeup.setShadowIntensity((double) value));
             /*子项妆容贴图*/
+            put(MakeupParam.TEX_LIP, (makeup, value) -> makeup.setLipBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
             put(MakeupParam.TEX_EYE_BROW, (makeup, value) -> makeup.setEyeBrowBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
             put(MakeupParam.TEX_EYE_SHADOW, (makeup, value) -> makeup.setEyeShadowBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
             put(MakeupParam.TEX_EYE_SHADOW2, (makeup, value) -> makeup.setEyeShadowBundle2(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
@@ -280,6 +207,7 @@ public class MakeupSource {
             put(MakeupParam.TEX_SHADOW, (makeup, value) -> makeup.setShadowBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
             /*子项妆容颜色*/
             put(MakeupParam.MAKEUP_LIP_COLOR, (makeup, value) -> makeup.setLipColor(buildFUColorRGBData(value)));
+            put(MakeupParam.MAKEUP_LIP_COLOR_V2, (makeup, value) -> makeup.setLipColorV2(buildFUColorRGBData(value)));
             put(MakeupParam.MAKEUP_LIP_COLOR2, (makeup, value) -> makeup.setLipColor2(buildFUColorRGBData(value)));
             put(MakeupParam.MAKEUP_EYE_LINER_COLOR, (makeup, value) -> makeup.setEyeLinerColor(buildFUColorRGBData(value)));
             put(MakeupParam.MAKEUP_EYE_LASH_COLOR, (makeup, value) -> makeup.setEyeLashColor(buildFUColorRGBData(value)));
@@ -391,10 +319,11 @@ public class MakeupSource {
         mCustomItems.put(FACE_MAKEUP_TYPE_LIP_STICK, new ArrayList<MakeupCustomBean>() {
             {
                 add(new MakeupCustomBean(R.string.makeup_radio_remove, getDrawable(R.mipmap.icon_control_none)));
-                add(new MakeupCustomBean(R.string.makeup_lip_fog, getDrawable(R.mipmap.icon_makeup_lip_01), colorMap.get("color_mu_style_lip_01")));
-                add(new MakeupCustomBean(R.string.makeup_lip_moist, getDrawable(R.mipmap.icon_makeup_lip_04), colorMap.get("color_mu_style_lip_01")));
-                add(new MakeupCustomBean(R.string.makeup_lip_pearl, getDrawable(R.mipmap.icon_makeup_lip_03), colorMap.get("color_mu_style_lip_01")));
-                add(new MakeupCustomBean(R.string.makeup_lip_bitelip, getDrawable(R.mipmap.icon_makeup_lip_05), colorMap.get("color_mu_style_lip_01")));
+                add(new MakeupCustomBean(R.string.makeup_lip_fog, getDrawable(R.mipmap.icon_makeup_lip_fog), colorMap.get("color_mu_style_lip_01")));
+                add(new MakeupCustomBean(R.string.makeup_lip_moist1, getDrawable(R.mipmap.icon_makeup_lip_moist), colorMap.get("color_mu_style_lip_01")));
+                add(new MakeupCustomBean(R.string.makeup_lip_moist2, getDrawable(R.mipmap.icon_makeup_lip_water), colorMap.get("color_mu_style_lip_01")));
+                add(new MakeupCustomBean(R.string.makeup_lip_pearl, getDrawable(R.mipmap.icon_makeup_lip_pearl), colorMap.get("color_mu_style_lip_01")));
+                add(new MakeupCustomBean(R.string.makeup_lip_bitelip, getDrawable(R.mipmap.icon_makeup_lip_beitelip), colorMap.get("color_mu_style_lip_01")));
             }
         });
 

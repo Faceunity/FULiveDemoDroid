@@ -2,7 +2,6 @@ package com.faceunity.app.view;
 
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
-import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.LightMakeupDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.ui.control.LightMakeupControlView;

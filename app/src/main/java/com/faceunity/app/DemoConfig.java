@@ -1,5 +1,7 @@
 package com.faceunity.app;
 
+import com.faceunity.app.utils.FuDeviceUtils;
+
 import java.io.File;
 
 /**
@@ -61,5 +63,13 @@ public class DemoConfig {
     // 3D抗锯齿
     public static String BUNDLE_BG_SEG_CUSTOM = "effect" + File.separator + "segment" + File.separator + "bg_segment.bundle";
 
+    //设备等级默认为中级
+    public static int DEVICE_LEVEL = FuDeviceUtils.DEVICE_LEVEL_MID;
+
+    //测试使用 -> 是否开启人脸点位，目前仅在美颜，美妆 情况下使用
+    public static boolean IS_OPEN_LAND_MARK = false;
+
+    //设备名称
+    public static String DEVICE_NAME = "";
 
 }

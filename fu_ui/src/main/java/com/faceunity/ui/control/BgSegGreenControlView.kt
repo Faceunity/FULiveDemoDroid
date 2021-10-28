@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import androidx.fragment.app.FragmentActivity
+import com.bumptech.glide.Glide
 import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
@@ -15,8 +16,10 @@ import com.faceunity.ui.base.BaseViewHolder
 import com.faceunity.ui.circle.RingCircleView
 import com.faceunity.ui.dialog.BaseDialogFragment
 import com.faceunity.ui.dialog.ConfirmDialogFragment
+import com.faceunity.ui.dialog.ToastHelper
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean
 import com.faceunity.ui.entity.BgSegGreenBean
+import com.faceunity.ui.entity.BgSegGreenSafeAreaBean
 import com.faceunity.ui.entity.ModelAttributeData
 import com.faceunity.ui.infe.AbstractBgSegGreenDataFactory
 import com.faceunity.ui.seekbar.DiscreteSeekBar
@@ -37,12 +40,18 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     private lateinit var mDataFactory: AbstractBgSegGreenDataFactory
     private lateinit var mModelAttributeRange: HashMap<String, ModelAttributeData>
 
-
+    //抠像
     private lateinit var mActionAdapter: BaseListAdapter<BgSegGreenBean>
     private var mActionIndex = 0
 
+    //背景
     private lateinit var mBackgroundAdapter: BaseListAdapter<BgSegGreenBackgroundBean>
 
+    //安全区域
+    private lateinit var mSafeAreaAdapter: BaseListAdapter<BgSegGreenSafeAreaBean>
+
+    //是否展示安全区域这个列表
+    private var isShowSafeAreaRv:Boolean = false
 
     //region 初始化
 
@@ -57,10 +66,44 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         mDataFactory = dataFactory
         mModelAttributeRange = dataFactory.modelAttributeRange
         mActionAdapter.setData(mDataFactory.bgSegGreenActions)
+        mSafeAreaAdapter.setData(mDataFactory.bgSegGreenSafeAreas)
         mBackgroundAdapter.setData(mDataFactory.bgSegGreenBackgrounds)
         showSeekBar()
         setPaletteSelected(1)
         setRecoverEnable(checkActionChanged())
+    }
+
+
+    /**
+     * 添加子项
+     * @param prop PropCustomBean
+     * @param index Int
+     */
+    fun addSegGreenSafeAreaCustom(bgSegGreenSafeAreaBean: BgSegGreenSafeAreaBean, index: Int) {
+        mDataFactory.bgSegGreenSafeAreas.add(index, bgSegGreenSafeAreaBean)
+        mSafeAreaAdapter.setData(mDataFactory.bgSegGreenSafeAreas)
+        setRecoverEnable(true)
+    }
+
+    /**
+     * 替换子项
+     * @param prop PropCustomBean
+     * @param index Int
+     */
+    fun replaceSegGreenSafeAreaCustom(bgSegGreenSafeAreaBean: BgSegGreenSafeAreaBean, index: Int) {
+        mDataFactory.bgSegGreenSafeAreas.removeAt(index)
+        mDataFactory.bgSegGreenSafeAreas.add(index, bgSegGreenSafeAreaBean)
+        mSafeAreaAdapter.setData(mDataFactory.bgSegGreenSafeAreas)
+        setRecoverEnable(true)
+    }
+
+    /**
+     * 刷新安全区UI
+     */
+    fun updateSafeAreaRc (){
+        mSafeAreaAdapter.let {
+            it.setData(mDataFactory?.bgSegGreenSafeAreas)
+        }
     }
 
     /**
@@ -73,6 +116,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     private fun initView() {
         isBottomShow = true
         initHorizontalRecycleView(recycler_view)
+        initHorizontalRecycleView(recycler_view_safe_area)
         initHorizontalRecycleView(recycler_view_background)
         iv_palette_green.setFillColor(Color.parseColor("#FF00FF00"))
         iv_palette_blue.setFillColor(Color.parseColor("#FF0000FF"))
@@ -81,10 +125,13 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
 
 
     private fun initAdapter() {
+        //绿幕抠像
         mActionAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<BgSegGreenBean>() {
             override fun convert(viewType: Int, helper: BaseViewHolder, data: BgSegGreenBean, position: Int) {
                 helper.setText(R.id.tv_control, data.desRes)
-                if (mModelAttributeRange.containsKey(data.key)) {
+                //区分按钮类型
+                if (data.type == BgSegGreenBean.ButtonType.NORMAL1_BUTTON) {
+                    //相识度、平滑、透明度
                     val value = mDataFactory.getParamIntensity(data.key)
                     val stand = mModelAttributeRange[data.key]!!.stand
                     if (DecimalUtils.doubleEquals(value, stand)) {
@@ -92,23 +139,88 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                     } else {
                         helper.setImageResource(R.id.iv_control, data.openRes)
                     }
-                } else {
+                } else if (data.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON) {
+                    //关键颜色
                     setPaletteSelected(1)
                     helper.setImageResource(R.id.iv_control, data.openRes)
+                } else {
+                    //安全区域根据安全区域的内容是否选择来确认
+                    helper.setImageResource(R.id.iv_control, if (mDataFactory.isUseTemplate()) data.openRes else data.closeRes)
                 }
                 helper.itemView.isSelected = position == mActionIndex
             }
 
             override fun onItemClickListener(view: View, data: BgSegGreenBean, position: Int) {
                 if (position != mActionIndex) {
-                    changeAdapterSelected(mActionAdapter, mActionIndex, position)
-                    mActionIndex = position
-                    showSeekBar()
+                    //根据按钮类型判断
+                    if (data.type == BgSegGreenBean.ButtonType.NORMAL1_BUTTON || data.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON) {
+                        changeAdapterSelected(mActionAdapter, mActionIndex, position)
+                        mActionIndex = position
+                        showSeekBar()
+                    } else {
+                        ToastHelper.showNormalToast(mContext,mContext.getString(R.string.safe_area_tips))
+                        //显示安全区域
+                        ryt_action.visibility = View.GONE
+                        ryt_background.visibility = View.GONE
+                        ryt_safe_area.visibility = View.VISIBLE
+                        isShowSafeAreaRv = true
+                    }
                 }
             }
         }, R.layout.list_item_control_title_image_circle)
+        //绿幕抠图
         recycler_view.adapter = mActionAdapter
 
+        //绿幕安全区域
+        mSafeAreaAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<BgSegGreenSafeAreaBean>() {
+            override fun convert(viewType: Int, helper: BaseViewHolder, data: BgSegGreenSafeAreaBean, position: Int) {
+                if (data.iconRes > 0) {
+//                    helper.setImageResource(R.id.iv_control, data.iconRes)
+                    Glide.with(context).asBitmap().load(data.iconRes).into(helper.getView(R.id.iv_control)!!)
+                } else if (data.filePath != null) {
+                    Glide.with(context).asBitmap().load(data.filePath).centerCrop().into(helper.getView(R.id.iv_control)!!)
+                }
+                helper.itemView.isSelected = position == mDataFactory.bgSafeAreaIndex
+            }
+
+            override fun onItemClickListener(view: View, data: BgSegGreenSafeAreaBean, position: Int) {
+                if (position != mDataFactory.bgSafeAreaIndex) {
+                    //根据按钮类型判断
+                    when (data.type) {
+                        BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON -> {
+                            //安全区域普通按钮
+                            changeAdapterSelected(mSafeAreaAdapter, mDataFactory.bgSafeAreaIndex, position)
+                            mDataFactory.bgSafeAreaIndex = position
+                            mDataFactory.onSafeAreaSelected(data)
+                            setRecoverEnable(true)
+                        }
+                        BgSegGreenSafeAreaBean.ButtonType.NORMAL2_BUTTON -> {
+                            //自定义按钮 -> 跳入图片界面选择一个图片
+                            mDataFactory.onSafeAreaAdd()
+                        }
+                        BgSegGreenSafeAreaBean.ButtonType.NONE_BUTTON -> {
+                            changeAdapterSelected(mSafeAreaAdapter, mDataFactory.bgSafeAreaIndex, position)
+                            //不选择
+                            mDataFactory.bgSafeAreaIndex = position
+                            mDataFactory.onSafeAreaSelected(data)
+                            setRecoverEnable(checkActionChanged())
+                        }
+                        else -> {
+                            //显示绿幕抠图功能
+                            ryt_action.visibility = View.VISIBLE
+                            ryt_background.visibility = View.GONE
+                            ryt_safe_area.visibility = View.GONE
+                            isShowSafeAreaRv = false
+                            mActionAdapter.notifyItemChanged(mDataFactory.bgSegGreenActions.size - 1)
+                        }
+                    }
+                }
+            }
+        }, R.layout.list_item_control_image_square)
+        //绿幕抠图安全区域
+        recycler_view_safe_area.adapter = mSafeAreaAdapter
+
+        //绿幕背景
         mBackgroundAdapter = BaseListAdapter(
             ArrayList(), object : BaseDelegate<BgSegGreenBackgroundBean>() {
                 override fun convert(viewType: Int, helper: BaseViewHolder, item: BgSegGreenBackgroundBean, position: Int) {
@@ -219,14 +331,14 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
      */
     private fun checkActionChanged(): Boolean {
         mDataFactory.bgSegGreenActions.forEach {
-            if (it.type == 0) {
-                if (!iv_palette_green.isSelected) {
-                    return true
-                }
-            } else {
+            if (it.type == BgSegGreenBean.ButtonType.NORMAL1_BUTTON) {
                 var value = mDataFactory.getParamIntensity(it.key)
                 var default = mModelAttributeRange[it.key]!!.default
                 if (!DecimalUtils.doubleEquals(value, default)) {
+                    return true
+                }
+            } else if (it.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON){
+                if (!iv_palette_green.isSelected) {
                     return true
                 }
             }
@@ -239,17 +351,22 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
      */
     private fun recoverData() {
         mDataFactory.bgSegGreenActions.forEach {
-            if (it.type == 0) {
-                mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 255.0, 0.0))
-            } else {
+            if (it.type == BgSegGreenBean.ButtonType.NORMAL1_BUTTON) {
                 val default = mModelAttributeRange[it.key]!!.default
                 mDataFactory.updateParamIntensity(it.key, default)
+            } else if (it.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON){
+                mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 255.0, 0.0))
             }
         }
         mDataFactory.onColorPickerStateChanged(false, Color.TRANSPARENT)
         mActionAdapter.notifyDataSetChanged()
         showSeekBar()
         setRecoverEnable(false)
+
+        //安全区域复原
+        mDataFactory.bgSafeAreaIndex = 1
+        mDataFactory.onSafeAreaSelected(null)
+        mSafeAreaAdapter.notifyDataSetChanged()
     }
 
     /**
@@ -324,12 +441,20 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         check_group.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.checkbox_graphic -> {
-                    ryt_action.visibility = View.VISIBLE
+                    if (isShowSafeAreaRv) {
+                        ryt_action.visibility = View.GONE
+                        ryt_safe_area.visibility = View.VISIBLE
+                    } else {
+                        ryt_action.visibility = View.VISIBLE
+                        ryt_safe_area.visibility = View.GONE
+                    }
+
                     ryt_background.visibility = View.GONE
                     changeBottomLayoutAnimator(true)
                 }
                 R.id.checkbox_background -> {
                     ryt_action.visibility = View.GONE
+                    ryt_safe_area.visibility = View.GONE
                     ryt_background.visibility = View.VISIBLE
                     changeBottomLayoutAnimator(true)
                 }

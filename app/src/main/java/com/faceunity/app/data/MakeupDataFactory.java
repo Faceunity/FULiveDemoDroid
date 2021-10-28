@@ -2,16 +2,18 @@ package com.faceunity.app.data;
 
 import androidx.annotation.NonNull;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.app.data.source.MakeupSource;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUColorRGBData;
+import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.makeup.Makeup;
 import com.faceunity.core.model.makeup.MakeupBrowWarpEnum;
 import com.faceunity.core.model.makeup.MakeupLipEnum;
-import com.faceunity.app.DemoConfig;
+import com.faceunity.core.model.prop.expression.ExpressionRecognition;
 import com.faceunity.ui.entity.MakeupCombinationBean;
 import com.faceunity.ui.entity.MakeupCustomBean;
 import com.faceunity.ui.entity.MakeupCustomClassBean;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-import static com.faceunity.app.data.FaceBeautyDataFactory.faceBeauty;
 import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_BLUSHER;
 import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_BROW;
 import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_LASH;
@@ -121,6 +122,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         currentMakeup = MakeupSource.getMakeupModel(bean);
         mFURenderKit.setMakeup(currentMakeup);
+        if (currentMakeup.getControlBundle().getPath() != DemoConfig.BUNDLE_FACE_MAKEUP) currentMakeup.setFilterIntensity(currentFilterIntensity);
     }
 
     /**
@@ -135,6 +137,8 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         if (mFURenderKit.getFaceBeauty() != null) {
             mFURenderKit.getFaceBeauty().setFilterIntensity(currentFilterIntensity);
         }
+
+        if (currentMakeup.getControlBundle().getPath() != DemoConfig.BUNDLE_FACE_MAKEUP) currentMakeup.setFilterIntensity(currentFilterIntensity);
     }
 
 
@@ -224,25 +228,41 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             if (index == 0) {
                 currentMakeup.setLipIntensity(0.0);
             } else {
+                currentMakeup.setLipBundle(new FUBundleData(itemDir + "mu_style_lip_0" + index + ".bundle"));
                 switch (index) {
                     case 1:
                         currentMakeup.setLipType(MakeupLipEnum.FOG);
                         currentMakeup.setEnableTwoLipColor(false);
+                        currentMakeup.setLipHighLightEnable(false);
+                        currentMakeup.setLipHighLightStrength(0.0);
                         break;
                     case 2:
                         currentMakeup.setLipType(MakeupLipEnum.MOIST);
                         currentMakeup.setEnableTwoLipColor(false);
+                        currentMakeup.setLipHighLightEnable(false);
+                        currentMakeup.setLipHighLightStrength(0.0);
                         break;
                     case 3:
-                        currentMakeup.setLipType(MakeupLipEnum.PEARL);
+                        currentMakeup.setLipType(MakeupLipEnum.WATER);
                         currentMakeup.setEnableTwoLipColor(false);
+                        currentMakeup.setLipHighLightEnable(true);
+                        currentMakeup.setLipHighLightStrength(0.8);
                         break;
                     case 4:
+                        currentMakeup.setLipType(MakeupLipEnum.PEARL);
+                        currentMakeup.setEnableTwoLipColor(false);
+                        currentMakeup.setLipHighLightEnable(false);
+                        currentMakeup.setLipHighLightStrength(0.0);
+                        break;
+                    case 5:
                         currentMakeup.setLipType(MakeupLipEnum.FOG);
                         currentMakeup.setEnableTwoLipColor(true);
+                        currentMakeup.setLipHighLightEnable(false);
+                        currentMakeup.setLipHighLightStrength(0.0);
                         currentMakeup.setLipColor2(new FUColorRGBData(0.0, 0.0, 0.0, 0.0));
                         break;
                 }
+
                 double intensity = 1.0;
                 if (mCustomIntensityMap.containsKey(FACE_MAKEUP_TYPE_LIP_STICK + "_" + index)) {
                     intensity = mCustomIntensityMap.get(FACE_MAKEUP_TYPE_LIP_STICK + "_" + index);
@@ -435,7 +455,10 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         if (key.equals(FACE_MAKEUP_TYPE_LIP_STICK)) {
             mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_" + current, index);
             double[] color = mMakeUpColorMap.get("color_mu_style_lip_01").get(index);
-            currentMakeup.setLipColor(buildFUColorRGBData(color));
+            if (current == 3)
+                currentMakeup.setLipColorV2(buildFUColorRGBData(color));
+            else
+                currentMakeup.setLipColor(buildFUColorRGBData(color));
         } else if (key.equals(FACE_MAKEUP_TYPE_BLUSHER)) {
             mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_" + current, index);
             double[] color = mMakeUpColorMap.get("color_mu_style_blush_0" + current).get(index);
@@ -510,21 +533,30 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             switch (currentMakeup.getLipType()) {
                 case MakeupLipEnum.FOG:
                     if (currentMakeup.getEnableTwoLipColor()) {
-                        current = 4;
+                        current = 5;
                     } else {
                         current = 1;
                     }
                     break;
                 case MakeupLipEnum.MOIST:
-                    current = 2;
+                    current = 3;
                     break;
                 case MakeupLipEnum.PEARL:
-                    current = 3;
+                    current = 4;
+                    break;
+                case MakeupLipEnum.WATER:
+                    current = 2;
                     break;
             }
             mCustomIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK, current);
             if (current != 0) {
-                double[] colorArray = currentMakeup.getLipColor().toScaleColorArray();
+                double[] colorArray;
+                if (currentMakeup.getLipType() == MakeupLipEnum.WATER) {
+                    colorArray = currentMakeup.getLipColorV2().toScaleColorArray();
+                } else {
+                    colorArray = currentMakeup.getLipColor().toScaleColorArray();
+                }
+
                 ArrayList<double[]> list = mMakeUpColorMap.get("color_mu_style_lip_01");
                 for (int i = 0; i < list.size(); i++) {
                     if (DecimalUtils.doubleArrayEquals(colorArray, list.get(i))) {
@@ -844,7 +876,20 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         mFURenderKit.setFaceBeauty(FaceBeautySource.clone(FaceBeautyDataFactory.faceBeauty));
         mFURenderKit.getFaceBeauty().setFilterName(currentFilterName);
         mFURenderKit.getFaceBeauty().setFilterIntensity(currentFilterIntensity);
+        if (currentMakeup.getControlBundle().getPath() != DemoConfig.BUNDLE_FACE_MAKEUP) currentMakeup.setFilterIntensity(currentFilterIntensity);
         FUAIKit.getInstance().setMaxFaces(4);
         mFURenderKit.setMakeup(currentMakeup);
+
+        //特殊有一些需要设置图层混合模式的 04双色眼影3（第2层眼影的混合模式 == 1） 06三色眼影2（第3层眼影的混合模式 == 1）
+        if (currentMakeup.getEyeShadowBundle() != null && ("mu_style_eyeshadow_0" + 4).equals(currentMakeup.getEyeShadowBundle().getName()))
+            currentMakeup.setEyeShadowTexBlend2(1);
+        else if (currentMakeup.getEyeShadowBundle() != null && ("mu_style_eyeshadow_0" + 6).equals(currentMakeup.getEyeShadowBundle().getName()))
+            currentMakeup.setEyeShadowTexBlend3(1);
+
+        if (DemoConfig.IS_OPEN_LAND_MARK) {
+            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData("others/landmarks.bundle"));
+            expressionRecognition.setLandmarksType(FUAITypeEnum.FUAITYPE_FACELANDMARKS239);
+            mFURenderKit.getPropContainer().addProp(expressionRecognition);
+        }
     }
 }

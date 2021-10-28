@@ -2,7 +2,25 @@ package com.faceunity.app.entity;
 
 import java.util.HashMap;
 
-import static com.faceunity.app.entity.FunctionEnum.*;
+import static com.faceunity.app.entity.FunctionEnum.ACTION_RECOGNITION;
+import static com.faceunity.app.entity.FunctionEnum.ANIMOJI;
+import static com.faceunity.app.entity.FunctionEnum.AR_MASK;
+import static com.faceunity.app.entity.FunctionEnum.AVATAR;
+import static com.faceunity.app.entity.FunctionEnum.BG_SEG_GREEN;
+import static com.faceunity.app.entity.FunctionEnum.BIG_HEAD;
+import static com.faceunity.app.entity.FunctionEnum.BODY_BEAUTY;
+import static com.faceunity.app.entity.FunctionEnum.EXPRESSION_RECOGNITION;
+import static com.faceunity.app.entity.FunctionEnum.FACE_BEAUTY;
+import static com.faceunity.app.entity.FunctionEnum.FACE_WARP;
+import static com.faceunity.app.entity.FunctionEnum.FINE_STICKER;
+import static com.faceunity.app.entity.FunctionEnum.GESTURE_RECOGNITION;
+import static com.faceunity.app.entity.FunctionEnum.HAIR_BEAUTY;
+import static com.faceunity.app.entity.FunctionEnum.LIGHT_MAKEUP;
+import static com.faceunity.app.entity.FunctionEnum.MAKE_UP;
+import static com.faceunity.app.entity.FunctionEnum.MUSIC_FILTER;
+import static com.faceunity.app.entity.FunctionEnum.PORTRAIT_SEGMENT;
+import static com.faceunity.app.entity.FunctionEnum.POSTER_CHANGE;
+import static com.faceunity.app.entity.FunctionEnum.STICKER;
 
 /**
  * DESC：更多控制菜单
@@ -24,7 +42,7 @@ public class FunctionConfigModel {
     public static HashMap<Integer, FunctionConfigModel> functionSwitchMap = new HashMap<Integer, FunctionConfigModel>() {
         {
             this.put(FACE_BEAUTY, new FunctionConfigModel(true, true, true, true));
-            this.put(MAKE_UP, new FunctionConfigModel(false, false, false, true));
+            this.put(MAKE_UP, new FunctionConfigModel(false, false, false, false));
             this.put(STICKER, new FunctionConfigModel(true, false, true, true));
             this.put(ANIMOJI, new FunctionConfigModel(true, false, false, true));
             this.put(HAIR_BEAUTY, new FunctionConfigModel(true, false, false, true));

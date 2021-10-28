@@ -24,6 +24,8 @@
     <string name="home_function_name_action_recognition">Action recognition</string>
     <string name="home_function_name_green_curtain">Green screen key</string>
     <string name="home_function_name_fine_sticker">Exquisite sticker</string>
+    <string name="please_select_the_correct_picture_file">Please select the correct picture file</string>
+    <string name="please_select_the_correct_video_file">Please select the correct video file</string>
 
     <string name="resolution_480p">480x640</string>
     <string name="resolution_720p">720x1280</string>

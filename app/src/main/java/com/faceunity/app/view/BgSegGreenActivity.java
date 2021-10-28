@@ -1,15 +1,21 @@
 package com.faceunity.app.view;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.Nullable;
+
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.BgSegGreenDataFactory;
+import com.faceunity.app.data.source.BgSegGreenSource;
 import com.faceunity.app.entity.FunctionEnum;
+import com.faceunity.app.utils.FileUtils;
 import com.faceunity.core.callback.OnColorReadCallback;
 import com.faceunity.core.entity.FUCoordinate2DData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
@@ -19,7 +25,9 @@ import com.faceunity.core.model.bgSegGreen.BgSegGreen;
 import com.faceunity.core.utils.GestureTouchHandler;
 import com.faceunity.ui.control.BgSegGreenControlView;
 import com.faceunity.ui.dialog.PromptDialogFragment;
+import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
+import com.faceunity.ui.entity.BgSegGreenSafeAreaBean;
 import com.faceunity.ui.widget.ColorPickerView;
 
 /**
@@ -31,6 +39,8 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     private BgSegGreenControlView mBgSegGreenControlView;
     private BgSegGreenDataFactory mBgSegGreenDataFactory;
     private VideoPlayHelper mVideoPlayHelper;
+    private static final int REQUEST_CODE_PHOTO = 1000;
+    private static final int REQUEST_CODE_MORE_SELECT = 1002;
 
 
     /*手势动作*/
@@ -62,6 +72,7 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
         super.initData();
         mBgSegGreenDataFactory = new BgSegGreenDataFactory(mBgSegGreenListener, 3);
         viewTopOffset = getResources().getDimensionPixelSize(R.dimen.x64);
+        isSelectPhotoVideoClickBySon = true;
     }
 
     @Override
@@ -101,7 +112,6 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     }
 
     //endregion
-
 
     @Override
     public void onResume() {
@@ -156,14 +166,27 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     //endregion 重写
     //region 回调
 
-    private VideoPlayHelper.VideoDecoderListener mVideoDecoderListener = (bytes, width, height) -> {
-        BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
-        if (bgSegGreen == null) {
-            return;
-        }
-        bgSegGreen.createBgSegment(bytes, width, height);
-    };
+    private VideoPlayHelper.VideoDecoderListener mVideoDecoderListener = new VideoPlayHelper.VideoDecoderListener() {
+        @Override
+        public void onReadVideoPixel(byte[] bytes, int width, int height) {
+            BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
+            if (bgSegGreen == null) {
+                return;
+            }
+            //绿幕背景
+            bgSegGreen.createBgSegment(bytes, width, height);
 
+        }
+
+        @Override
+        public void onReadImagePixel(byte[] bytes, int width, int height) {
+            BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
+            if (bgSegGreen == null) {
+                return;
+            }
+            bgSegGreen.createSafeAreaSegment(bytes, width, height);
+        }
+    };
 
     /**
      * GestureTouchHandler 触碰回调
@@ -237,6 +260,27 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
                 }
             }
         }
+
+        @Override
+        public void onSafeAreaAdd() {
+            FileUtils.pickImageFile(BgSegGreenActivity.this, REQUEST_CODE_PHOTO);
+        }
+
+        @Override
+        public void onSafeAreaSelected(BgSegGreenSafeAreaBean bean) {
+            if (bean != null && bean.getFilePath() != null) {
+                //读取assets目录下 或者 手机目录下
+                if (bean.isAssetFile())
+                    mVideoPlayHelper.playVideo(BgSegGreenActivity.this, bean.getFilePath());
+                else
+                    mVideoPlayHelper.playVideo(bean.getFilePath());
+            } else {
+                BgSegGreen bgSegGreen = mFURenderKit.getBgSegGreen();
+                if (bgSegGreen != null) {
+                    bgSegGreen.removeSafeAreaSegment();
+                }
+            }
+        }
     };
 
 
@@ -279,10 +323,41 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
         } else {
             return mGestureTouchHandler.onTouchEvent(event);
         }
-
-
     }
     //endregion
 
+    @Override
+    public void onSelectPhotoVideoClickBySon() {
+        SelectDataActivity.startActivityForResult(this, getFunctionType(), REQUEST_CODE_MORE_SELECT);//点击更多按钮
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_MORE_SELECT) {//点击更多按钮
+            //由ShowPhotoActivity or ShowVideoActivity返回 -> 需要刷新绿幕控件的安全区
+            if (mBgSegGreenDataFactory.updateSafeAreaBeansAndIndex())
+                mBgSegGreenControlView.updateSafeAreaRc();
+        } else {
+            //加入自定义安全区图片
+            if (resultCode != RESULT_OK || data == null) {
+                return;
+            }
+            Uri uri = data.getData();
+            String path = FileUtils.getFilePathByUri(this, uri);
+            if (!FileUtils.checkIsImage(path)) {
+                ToastHelper.showNormalToast(this, getString(R.string.please_select_the_correct_picture_file));
+                return;
+            }
+            BgSegGreenSafeAreaBean bean = mBgSegGreenDataFactory.getBgSegGreenSafeAreas().get(3);
+            BgSegGreenSafeAreaBean bgSegGreenSafeAreaBean = BgSegGreenSource.buildSafeAreaCustomBean(path);
+            if (BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON == bean.getType() && !bean.isAssetFile()) {
+                mBgSegGreenControlView.replaceSegGreenSafeAreaCustom(bgSegGreenSafeAreaBean, 3);
+            } else {
+                mBgSegGreenControlView.addSegGreenSafeAreaCustom(bgSegGreenSafeAreaBean, 3);
+            }
+            mBgSegGreenDataFactory.setBgSafeAreaIndex(3);
+            mBgSegGreenDataFactory.onSafeAreaSelected(bgSegGreenSafeAreaBean);
+        }
+    }
 }

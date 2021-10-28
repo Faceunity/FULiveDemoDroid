@@ -5,15 +5,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
+import com.faceunity.app.DemoConfig;
+import com.faceunity.app.R;
+import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.model.action.ActionRecognition;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.R;
-import com.faceunity.app.base.BaseFaceUnityActivity;
 
 /**
  * DESC：

@@ -56,7 +56,8 @@ public class FineStickerEntity {
         private String platform;
         private String tag;
 
-        private String filePath; //手动设置
+        private String filePath; //原始下载来的文件的存储地址，手动设置
+        private ArrayList<String> upZipFilePath;//解压的文件位置（绝对路径），手动设置
         private boolean isDownloading; //手动设置
 
 //        public Effect cast2Effect() {
@@ -111,6 +112,14 @@ public class FineStickerEntity {
             this.filePath = filePath;
         }
 
+        public ArrayList<String> getUnZipFilePaths () {
+            return upZipFilePath;
+        }
+
+        public void setUpZipFilePaths (ArrayList paths) {
+            upZipFilePath = paths;
+        }
+
         public boolean isDownloading() {
             return isDownloading;
         }
@@ -130,6 +139,7 @@ public class FineStickerEntity {
             private BundleBean bundle;
             private IconBean icon;
             private String adapter;
+            private String category;
 
             public String get_id() {
                 return _id;
@@ -161,6 +171,14 @@ public class FineStickerEntity {
 
             public void setAdapter(String adapter) {
                 this.adapter = adapter;
+            }
+
+            public String getCategory() {
+                return category;
+            }
+
+            public void setCategory(String category) {
+                this.category = category;
             }
 
             public static class BundleBean {

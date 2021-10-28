@@ -53,6 +53,7 @@ public class AvatarActivity extends BaseFaceUnityActivity {
     public void bindListener() {
         super.bindListener();
         mAvatarControlView.bindDataFactory(mAvatarDataFactory);
+        mCameraRenderer.drawSmallViewport(true);
         mAvatarDataFactory.setAvatarChoiceListener((avatarBean) -> {
             if (AvatarSource.BEAR.equals(avatarBean.getDes())) {
                 mCameraRenderer.drawSmallViewport(false);

@@ -4,10 +4,7 @@ import com.faceunity.app.data.source.MusicFilterSource;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
-import com.faceunity.core.model.facebeauty.FaceBeauty;
 import com.faceunity.core.model.musicFilter.MusicFilter;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.R;
 import com.faceunity.ui.entity.MusicFilterBean;
 import com.faceunity.ui.infe.AbstractMusicFilterDataFactory;
 

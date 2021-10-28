@@ -11,9 +11,11 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 
-
 import com.bumptech.glide.Glide;
+import com.faceunity.app.DemoConfig;
+import com.faceunity.app.R;
 import com.faceunity.app.base.BaseActivity;
+import com.faceunity.app.data.PosterChangeFaceDataFactory;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.core.callback.OnPosterRenderCallback;
 import com.faceunity.core.entity.FUBundleData;
@@ -26,9 +28,6 @@ import com.faceunity.core.media.photo.OnPhotoRecordingListener;
 import com.faceunity.core.media.photo.PhotoRecordHelper;
 import com.faceunity.core.program.ProgramTexture2d;
 import com.faceunity.core.utils.GlUtil;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.R;
-import com.faceunity.app.data.PosterChangeFaceDataFactory;
 import com.faceunity.ui.control.PosterChangeFaceControlView;
 import com.faceunity.ui.dialog.NoTrackFaceDialogFragment;
 import com.faceunity.ui.dialog.ToastHelper;

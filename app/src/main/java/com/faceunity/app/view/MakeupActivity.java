@@ -3,12 +3,10 @@ package com.faceunity.app.view;
 
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
-import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.MakeupDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.ui.control.MakeupControlView;
-import com.faceunity.ui.listener.OnBottomAnimatorChangeListener;
 
 /**
  * DESC：

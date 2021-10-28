@@ -2,6 +2,7 @@ package com.faceunity.ui.infe
 
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean
 import com.faceunity.ui.entity.BgSegGreenBean
+import com.faceunity.ui.entity.BgSegGreenSafeAreaBean
 import com.faceunity.ui.entity.ModelAttributeData
 
 
@@ -19,6 +20,15 @@ abstract class AbstractBgSegGreenDataFactory {
     /* 绿幕抠像功能列表 */
     abstract val bgSegGreenActions: ArrayList<BgSegGreenBean>
 
+    /* 绿幕抠图安全区域功能列表*/
+    abstract val bgSegGreenSafeAreas: ArrayList<BgSegGreenSafeAreaBean>
+
+    /* 安全区域下标 */
+    abstract var bgSafeAreaIndex: Int
+
+    /* 刷新安全区域UI */
+    abstract fun updateSafeAreaBeansAndIndex() :Boolean
+
     /* 绿幕抠像背景列表  */
     abstract val bgSegGreenBackgrounds: ArrayList<BgSegGreenBackgroundBean>
 
@@ -31,6 +41,22 @@ abstract class AbstractBgSegGreenDataFactory {
      * @param data BgSegGreenBackgroundBean
      */
     abstract fun onBackgroundSelected(data: BgSegGreenBackgroundBean)
+
+    /**
+     * 自定义安全区域
+     */
+    abstract fun onSafeAreaAdd()
+
+    /**
+     * 安全区域变更
+     * @param data BgSegGreenSafeAreaBean
+     */
+    abstract fun onSafeAreaSelected(data: BgSegGreenSafeAreaBean?)
+
+    /**
+     * 是否开启安全区域总开关
+     */
+    abstract fun isUseTemplate():Boolean
 
     /**
      * 取色锚点颜色变更

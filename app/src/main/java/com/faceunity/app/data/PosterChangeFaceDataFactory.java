@@ -1,16 +1,9 @@
 package com.faceunity.app.data;
 
 import com.faceunity.app.data.source.PosterChangeFaceSource;
-import com.faceunity.app.view.PosterPreviewActivity;
-import com.faceunity.core.entity.FUBundleData;
-import com.faceunity.core.model.facebeauty.FaceBeauty;
-import com.faceunity.app.DemoApplication;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.view.PosterPreviewActivity;
 import com.faceunity.ui.entity.PosterBean;
 import com.faceunity.ui.infe.AbstractPosterChangeFaceDataFactory;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**

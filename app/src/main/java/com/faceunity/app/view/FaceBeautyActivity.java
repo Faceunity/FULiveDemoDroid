@@ -1,6 +1,5 @@
 package com.faceunity.app.view;
 
-
 import android.view.MotionEvent;
 
 import com.faceunity.app.R;

@@ -4,14 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
-import com.faceunity.app.data.FaceBeautyDataFactory;
-import com.faceunity.core.enumeration.FUAIProcessorEnum;
-import com.faceunity.core.enumeration.FUAITypeEnum;
-import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.PropDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
+import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.ui.control.PropControlView;
 import com.faceunity.ui.entity.PropBean;
 

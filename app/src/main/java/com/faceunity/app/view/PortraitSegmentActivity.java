@@ -132,10 +132,21 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
     };
 
 
-    private VideoPlayHelper.VideoDecoderListener mVideoDecoderListener = (bytes, width, height) -> {
-        Prop prop = mPortraitSegmentDataFactory.getCurrentProp();
-        if (prop instanceof BgSegCustom) {
-            ((BgSegCustom) prop).createBgSegment(bytes, width, height);
+    private VideoPlayHelper.VideoDecoderListener mVideoDecoderListener = new VideoPlayHelper.VideoDecoderListener() {
+        @Override
+        public void onReadVideoPixel(byte[] bytes, int width, int height) {
+            Prop prop = mPortraitSegmentDataFactory.getCurrentProp();
+            if (prop instanceof BgSegCustom) {
+                ((BgSegCustom) prop).createBgSegment(bytes, width, height);
+            }
+        }
+
+        @Override
+        public void onReadImagePixel(byte[] bytes, int width, int height) {
+            Prop prop = mPortraitSegmentDataFactory.getCurrentProp();
+            if (prop instanceof BgSegCustom) {
+                ((BgSegCustom) prop).createBgSegment(bytes, width, height);
+            }
         }
     };
 
@@ -157,7 +168,6 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
             mPropCustomControlView.replaceProp(customBean, 2);
         } else {
             mPropCustomControlView.addProp(customBean, 2);
-
         }
         mPortraitSegmentDataFactory.setCurrentPropIndex(2);
         mPortraitSegmentDataFactory.onItemSelected(customBean);

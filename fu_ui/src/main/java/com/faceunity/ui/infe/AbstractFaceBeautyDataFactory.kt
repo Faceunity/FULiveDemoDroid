@@ -20,6 +20,9 @@ abstract class AbstractFaceBeautyDataFactory {
     /*美型底部菜单数据*/
     abstract val shapeBeauty: ArrayList<FaceBeautyBean>
 
+    /*美型脸型子项数据*/
+    abstract val shapeBeautySubItem: ArrayList<FaceBeautyBean>
+
     /* 滤镜底部菜单数据*/
     abstract val beautyFilters: ArrayList<FaceBeautyFilterBean>
 
@@ -66,6 +69,26 @@ abstract class AbstractFaceBeautyDataFactory {
      * @return Double
      */
     abstract fun getParamIntensity(key: String): Double
+
+    /**
+     * 获取one hot的脸型
+     */
+    abstract fun getCurrentOneHotFaceShape(): String
+
+    /**
+     * 设置当前one hot的脸型
+     */
+    abstract fun setCurrentOneHotFaceShape(faceShape:String)
+
+    /**
+     * 设置当前脸型的UI值
+     */
+    abstract fun setCurrentFaceShapeUIValue(hashMap:HashMap<String,Double>)
+
+    /**
+     * 获取当前脸型的UI值
+     */
+    abstract fun getCurrentFaceShapeUIValue() :HashMap<String,Double>
 
     /**
      * 设置单项强度
