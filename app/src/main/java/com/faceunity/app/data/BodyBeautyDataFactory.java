@@ -1,6 +1,5 @@
 package com.faceunity.app.data;
 
-import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.BodyBeautySource;
 import com.faceunity.core.controller.bodyBeauty.BodyBeautyParam;
 import com.faceunity.core.entity.FUBundleData;
@@ -8,6 +7,7 @@ import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.bodyBeauty.BodyBeauty;
+import com.faceunity.app.DemoConfig;
 import com.faceunity.ui.entity.BodyBeautyBean;
 import com.faceunity.ui.entity.ModelAttributeData;
 import com.faceunity.ui.infe.AbstractBodyBeautyDataFactory;
@@ -105,7 +105,7 @@ public class BodyBeautyDataFactory extends AbstractBodyBeautyDataFactory {
     /*模型映射设置模型值*/
     private final HashMap<String, BodyBeautySetParamInterface> bodyBeautySetMapping = new HashMap<String, BodyBeautySetParamInterface>() {
         {
-            put(BodyBeautyParam.BODY_SLIM_INTENSITY, value -> getCurrentBodyBeautyModel().setBodySlimIntensity(value));
+            put(BodyBeautyParam.BODY_SLIM_INTENSITY,  value -> getCurrentBodyBeautyModel().setBodySlimIntensity(value));
             put(BodyBeautyParam.LEG_STRETCH_INTENSITY, value -> getCurrentBodyBeautyModel().setLegStretchIntensity(value));
             put(BodyBeautyParam.WAIST_SLIM_INTENSITY, value -> getCurrentBodyBeautyModel().setWaistSlimIntensity(value));
             put(BodyBeautyParam.SHOULDER_SLIM_INTENSITY, value -> getCurrentBodyBeautyModel().setShoulderSlimIntensity(value));

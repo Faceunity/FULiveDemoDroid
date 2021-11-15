@@ -3,6 +3,7 @@ package com.faceunity.app.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
@@ -11,6 +12,8 @@ import com.faceunity.app.R;
 import com.faceunity.app.base.BaseActivity;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.ui.dialog.ToastHelper;
+
+import java.io.File;
 
 /**
  * DESC：

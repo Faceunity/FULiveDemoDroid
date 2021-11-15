@@ -2,6 +2,7 @@ package com.faceunity.app.view;
 
 import android.view.MotionEvent;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FaceBeautyDataFactory;

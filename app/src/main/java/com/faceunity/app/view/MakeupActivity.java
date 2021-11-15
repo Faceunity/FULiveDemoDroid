@@ -1,11 +1,15 @@
 package com.faceunity.app.view;
 
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
+import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.MakeupDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
+import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FURenderInputData;
+import com.faceunity.core.model.prop.sticker.Sticker;
 import com.faceunity.ui.control.MakeupControlView;
 
 /**
