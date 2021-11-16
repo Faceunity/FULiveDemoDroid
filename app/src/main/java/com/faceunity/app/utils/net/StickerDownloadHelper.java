@@ -8,9 +8,9 @@ import android.util.ArrayMap;
 import android.util.Log;
 
 import com.faceunity.app.DemoApplication;
-import com.faceunity.app.utils.FileUtils;
 import com.faceunity.app.utils.ZipUtils;
 import com.faceunity.ui.entity.net.FineStickerEntity;
+import com.faceunity.app.utils.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

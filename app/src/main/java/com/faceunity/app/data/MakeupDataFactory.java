@@ -14,12 +14,14 @@ import com.faceunity.core.model.makeup.Makeup;
 import com.faceunity.core.model.makeup.MakeupBrowWarpEnum;
 import com.faceunity.core.model.makeup.MakeupLipEnum;
 import com.faceunity.core.model.prop.expression.ExpressionRecognition;
+import com.faceunity.core.model.prop.sticker.Sticker;
 import com.faceunity.ui.entity.MakeupCombinationBean;
 import com.faceunity.ui.entity.MakeupCustomBean;
 import com.faceunity.ui.entity.MakeupCustomClassBean;
 import com.faceunity.ui.infe.AbstractMakeupDataFactory;
 import com.faceunity.ui.utils.DecimalUtils;
 
+import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
