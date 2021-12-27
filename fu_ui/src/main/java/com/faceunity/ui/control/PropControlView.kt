@@ -66,7 +66,6 @@ class PropControlView @JvmOverloads constructor(mContext: Context, attrs: Attrib
                     mDataFactory.currentPropIndex = position
                     mDataFactory.onItemSelected(data)
                 }
-
             }
         }, R.layout.list_item_control_image_circle)
         recycler_view.adapter = mPropAdapter

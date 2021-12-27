@@ -606,6 +606,7 @@ public class FaceBeautySource {
         cloneFaceBeauty.setPhiltrumIntensity(faceBeauty.getPhiltrumIntensity());
         cloneFaceBeauty.setSmileIntensity(faceBeauty.getSmileIntensity());
         cloneFaceBeauty.setEyeCircleIntensity(faceBeauty.getEyeCircleIntensity());
+        cloneFaceBeauty.setChangeFramesIntensity(faceBeauty.getChangeFramesIntensity());
         return cloneFaceBeauty;
     }
 
