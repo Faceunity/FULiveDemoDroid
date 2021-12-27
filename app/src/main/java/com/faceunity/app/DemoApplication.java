@@ -11,6 +11,9 @@ import com.faceunity.core.faceunity.FURenderManager;
 import com.faceunity.core.utils.FULogger;
 import com.tencent.bugly.crashreport.CrashReport;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * DESC：
  * Created on 2021/3/1
