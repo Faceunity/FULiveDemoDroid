@@ -2,12 +2,8 @@ package com.faceunity.app;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,10 +41,6 @@ import java.util.List;
 public class MainActivity extends BaseActivity {
     private ArrayList<HomeFunctionModuleData> mFunctions;
     private BaseListAdapter<HomeFunctionModuleData> mAdapter;
-    private String[] permissions = {Manifest.permission.CAMERA,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO};
-
 
     @Override
     public int getLayoutResID() {
@@ -124,31 +116,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void bindListener() {
-        checkSelfPermission();
-    }
-
-
-    private void checkSelfPermission() {
-        for (String permission : permissions) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, permissions, 10001);
-                return;
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Boolean hasPermissionDismiss = false; //有权限没有通过
-        for (int element : grantResults) {
-            if (element == -1) {
-                hasPermissionDismiss = true;
-            }
-        }
-        //如果有权限没有被允许
-        if (hasPermissionDismiss) {
-            ToastHelper.showNormalToast(this, "缺少必要权限，可能导致应用功能无法使用");
-        }
+        checkSelfPermission(permissions);
     }
 
     private void onFunctionClick(HomeFunctionModuleData data) {
@@ -228,5 +196,14 @@ public class MainActivity extends BaseActivity {
                 }
             }
         }
+    }
+
+    //鉴权
+    private String[] permissions = {Manifest.permission.CAMERA,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO};
+    @Override
+    public void checkPermissionResult(boolean permissionResult) {
+        if (!permissionResult) showToast("缺少必要权限，可能导致应用功能无法使用");
     }
 }

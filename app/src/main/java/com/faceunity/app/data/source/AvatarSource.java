@@ -7,11 +7,11 @@ import com.faceunity.core.avatar.model.Avatar;
 import com.faceunity.core.avatar.model.Scene;
 import com.faceunity.core.entity.FUAnimationData;
 import com.faceunity.core.entity.FUAvatarAnimFilterParams;
-import com.faceunity.core.entity.FUAvatarOffset;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUColorRGBData;
 import com.faceunity.core.entity.FUCoordinate3DData;
 import com.faceunity.core.entity.FUTranslationScale;
+import com.faceunity.core.entity.FUVisibleBundleData;
 import com.faceunity.ui.entity.AvatarBean;
 
 import java.io.File;
@@ -29,7 +29,6 @@ public class AvatarSource {
 
     public static String BOY = "boy";
     public static String GIRL = "girl";
-    public static String BEAR = "bear";
 
     /**
      * 构造成员列表
@@ -38,7 +37,6 @@ public class AvatarSource {
      */
     public static ArrayList<AvatarBean> buildMembers() {
         ArrayList<AvatarBean> avatarBeans = new ArrayList<>();
-//        avatarBeans.add(new AvatarBean(R.mipmap.icon_avatar_bear, BEAR));
         avatarBeans.add(new AvatarBean(R.mipmap.icon_avatar_female, GIRL));
         avatarBeans.add(new AvatarBean(R.mipmap.icon_avatar_male, BOY));
         return avatarBeans;
@@ -56,7 +54,6 @@ public class AvatarSource {
         Scene sceneModel = new Scene(controlBundle, avatarConfig);
         sceneModel.addAvatar(avatar);
         sceneModel.processorConfig.setEnableHumanProcessor(true);
-        sceneModel.processorConfig.setHumanProcessorTranslationScale(new FUTranslationScale(0.0f, 0f, 0.0f));
         return sceneModel;
     }
 
@@ -76,6 +73,8 @@ public class AvatarSource {
         components.add(new FUBundleData(ptaBoyDir + "waitao_3.bundle"));
         components.add(new FUBundleData(ptaBoyDir + "kuzi_changku_5.bundle"));
         components.add(new FUBundleData(ptaBoyDir + "xiezi_tuoxie_2.bundle"));
+        int[] invisibleList = {2,3,4};
+        components.add(new FUVisibleBundleData("",invisibleList,""));
         ArrayList<FUAnimationData> animations = buildAnimations();
         Avatar model = new Avatar(components);
         for (FUAnimationData animationData:animations){
@@ -83,6 +82,7 @@ public class AvatarSource {
         }
         model.color.setColor(Color.Skin,new FUColorRGBData(227.0,158.0,132.0));
         TransForm avatarTransForm = model.transForm;
+        avatarTransForm.setInstanceEnableHumanAnimDriver(true);
         avatarTransForm.setPosition(isFull ? new FUCoordinate3DData(0.0, 58.14, -618.94) : new FUCoordinate3DData(0.0, 11.76, -183.89));
         return model;
     }
@@ -102,6 +102,8 @@ public class AvatarSource {
         components.add(new FUBundleData(ptaGirlDir + "taozhuang_12.bundle"));
         components.add(new FUBundleData(ptaGirlDir + "facemakeup_3.bundle"));
         components.add(new FUBundleData(ptaGirlDir + "xiezi_danxie.bundle"));
+        int[] invisibleList = {2,3,4};
+        components.add(new FUVisibleBundleData("",invisibleList,""));
         ArrayList<FUAnimationData> animations = buildAnimations();
         Avatar model = new Avatar(components );
         for (FUAnimationData animationData:animations){
@@ -109,30 +111,8 @@ public class AvatarSource {
         }
         model.color.setColor(Color.Skin,new FUColorRGBData(255.0,202.0,186.0));
         TransForm avatarTransForm = model.transForm;
+        avatarTransForm.setInstanceEnableHumanAnimDriver(true);
         avatarTransForm.setPosition(isFull ? new FUCoordinate3DData(0.0, 58.14, -618.94) : new FUCoordinate3DData(0.0, 11.76, -183.89));
-        return model;
-    }
-
-    /**
-     * 获取熊对象
-     *
-     * @return
-     */
-    public static Avatar buildBearData() {
-        String ptaBearDir = "pta/bear/";
-        ArrayList<FUBundleData> components = new ArrayList();
-        components.add(new FUBundleData(ptaBearDir + "bear.bundle"));
-        components.add(new FUBundleData(ptaBearDir + "bear_light.bundle"));
-        ArrayList<FUAnimationData> animations = buildBearAnimations();
-        Avatar model = new Avatar(components);
-        for (FUAnimationData animation : animations) {
-            model.animation.addAnimation(animation);
-        }
-        TransForm avatarTransForm = model.transForm;
-        avatarTransForm.setHumanProcessorSetAvatarScale(1.15f);
-        avatarTransForm.setHumanProcessorSetAvatarGlobalOffset(new FUAvatarOffset(0, 40, 0));
-        avatarTransForm.setHumanProcessorSetAvatarAnimFilterParams(new FUAvatarAnimFilterParams(8, 0.09f, 0.120f));
-        avatarTransForm.setPosition(new FUCoordinate3DData(20, 45, -618.94));
         return model;
     }
 
@@ -155,10 +135,10 @@ public class AvatarSource {
         }
         //位置等avatar基本参数构建
         TransForm avatarTransForm = model.transForm;
-        avatarTransForm.setHumanProcessorSetAvatarScale(1.15f);
-        avatarTransForm.setHumanProcessorSetAvatarGlobalOffset(new FUAvatarOffset(0, 40, 0));
         avatarTransForm.setHumanProcessorSetAvatarAnimFilterParams(new FUAvatarAnimFilterParams(8, 0.09f, 0.120f));
         avatarTransForm.setPosition(new FUCoordinate3DData(20, 45, -618.94));
+        avatarTransForm.setTranslationScale(new FUTranslationScale(0.0f,0.0f,0.0f));
+        avatarTransForm.setInstanceEnableHumanAnimDriver(true);
         return model;
     }
 
@@ -171,40 +151,10 @@ public class AvatarSource {
         String animDir = "pta/gesture/";
         ArrayList<FUAnimationData> animations = new ArrayList();
         animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_idle.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_eight.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_fist.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_greet.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_gun.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_heart.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_hold.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_korheart.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_merge.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_ok.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_one.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_palm.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_rock.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_six.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_thumb.bundle")));
-//        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_two.bundle")));
         return animations;
     }
 
     public static void setSceneBackGround(Scene sceneModel, boolean hasBackGround) {
         sceneModel.setBackgroundBundle(hasBackGround ? new FUBundleData(BUNDLE_AVATAR_BACKGROUND) : null);
-//        sceneModel.setBackgroundColor(new FUColorRGBData(255,255,255,0));
     }
-
-    /**
-     * 构造动画参数
-     *
-     * @return
-     */
-    public static ArrayList<FUAnimationData> buildBearAnimations() {
-        String animDir = "pta/gesture/";
-        ArrayList<FUAnimationData> animations = new ArrayList();
-        animations.add(new FUAnimationData(new FUBundleData(animDir + "anim_bear_smile.bundle")));
-        return animations;
-    }
-
-
 }

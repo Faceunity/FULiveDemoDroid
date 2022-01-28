@@ -125,7 +125,7 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
                 //关闭avatar 相关的东西
                 if (mSceneModel != null && mCurrentAvatarModel != null) {
                     mSceneModel.removeAvatar(mCurrentAvatarModel);
-                  FUSceneKit.getInstance().removeScene(mSceneModel);
+                    FUSceneKit.getInstance().removeScene(mSceneModel);
                     mSceneModel = null;
                     mCurrentAvatarModel = null;
                 }
@@ -203,7 +203,7 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
             mCurrentAvatarModel = AvatarSource.buildAvatarData(strComponents,strAnimations);
             mSceneModel = AvatarSource.buildSceneModel(mCurrentAvatarModel);
             mSceneModel.processorConfig.setTrackScene(ProcessorConfig.TrackScene.SceneFull);
-            mSceneModel.processorConfig.setHumanProcessorTranslationScale(new FUTranslationScale(0.5f, 0f, 0.1f));
+            mCurrentAvatarModel.transForm.setTranslationScale(new FUTranslationScale(0.5f, 0f, 0.1f));
         } else {
             if (mCurrentAvatarModel != null)
                 mSceneModel.removeAvatar(mCurrentAvatarModel);

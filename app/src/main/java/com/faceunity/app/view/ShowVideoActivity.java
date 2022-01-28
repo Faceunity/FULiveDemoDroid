@@ -298,6 +298,9 @@ public class ShowVideoActivity extends BaseActivity {
     private void configureFURenderKit() {
         FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         FUAIKit.getInstance().faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
+        //高端机开启小脸检测
+        if (DemoConfig.DEVICE_LEVEL  > FuDeviceUtils.DEVICE_LEVEL_MID)
+            FUAIKit.getInstance().fuFaceProcessorSetDetectSmallFace(true);
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
             mFaceBeautyDataFactory.bindCurrentRenderer();
         } else if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {

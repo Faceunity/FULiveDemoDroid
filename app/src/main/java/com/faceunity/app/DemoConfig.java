@@ -57,10 +57,11 @@ public class DemoConfig {
 
     // 绿幕抠像
     public static String BUNDLE_BG_SEG_GREEN = "bg_seg_green" + File.separator + "green_screen.bundle";
+
     // 3D抗锯齿
     public static String BUNDLE_ANTI_ALIASING = "graphics" + File.separator + "fxaa.bundle";
 
-    // 3D抗锯齿
+    // 人像分割
     public static String BUNDLE_BG_SEG_CUSTOM = "effect" + File.separator + "segment" + File.separator + "bg_segment.bundle";
 
     //设备等级默认为中级
