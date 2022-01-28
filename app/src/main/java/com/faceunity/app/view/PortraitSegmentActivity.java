@@ -63,13 +63,6 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
         mPropCustomControlView.bindDataFactory(mPortraitSegmentDataFactory);
     }
 
-
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-
     @Override
     public void onPause() {
         super.onPause();
@@ -172,6 +165,4 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
         mPortraitSegmentDataFactory.setCurrentPropIndex(2);
         mPortraitSegmentDataFactory.onItemSelected(customBean);
     }
-
-
 }

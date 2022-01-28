@@ -7,7 +7,6 @@ import com.faceunity.core.avatar.model.Scene;
 import com.faceunity.core.avatar.scene.ProcessorConfig;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUCoordinate3DData;
-import com.faceunity.core.entity.FUTranslationScale;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
@@ -43,8 +42,6 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
     private Avatar boyAvatarModel;
     /* 女孩对象  */
     private Avatar girlAvatarModel;
-    /* 熊对象 */
-    private Avatar bearAvatarModel;
     /*当前对象*/
     private Avatar currentAvatarModel;
 
@@ -54,13 +51,9 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
         currentMemberIndex = index;
         members = AvatarSource.buildMembers();
         antialiasing = new Antialiasing(new FUBundleData(DemoConfig.BUNDLE_ANTI_ALIASING));
-//        bearAvatarModel = AvatarSource.buildBearData();
         boyAvatarModel = AvatarSource.buildBoyData(isFull);
         girlAvatarModel = AvatarSource.buildGirlData(isFull);
 
-        /*if (index == 0) {
-            currentAvatarModel = bearAvatarModel;
-        } else */
         if (index == 0) {
             currentAvatarModel = girlAvatarModel;
         } else if (index == 1) {
@@ -140,26 +133,8 @@ public class AvatarDataFactory extends AbstractAvatarDataFactory {
         if (mAvatarChoiceListener != null)
             mAvatarChoiceListener.choiceAvatar(bean);
 
-        if (bean.getDes().equals(AvatarSource.GIRL) || bean.getDes().equals(AvatarSource.BOY)) {
-            if (currentAvatarModel == bearAvatarModel) {
-                sceneModel.removeAvatar(currentAvatarModel);
-                sceneModel.processorConfig.setHumanProcessorTranslationScale(new FUTranslationScale(0f, 0f, 0f));
-                setHumanTrackSceneFull(isHumanTrackSceneFull);
-                AvatarSource.setSceneBackGround(sceneModel, true);
-                currentAvatarModel = bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel;
-                sceneModel.addAvatar(currentAvatarModel);
-            } else {
-                sceneModel.replaceAvatar(currentAvatarModel, bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel);
-                currentAvatarModel = bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel;
-            }
-        } else {
-            sceneModel.removeAvatar(currentAvatarModel);
-            sceneModel.processorConfig.setHumanProcessorTranslationScale(new FUTranslationScale(0.5f, 0f, 0.1f));
-            sceneModel.processorConfig.setTrackScene(ProcessorConfig.TrackScene.SceneFull);
-            AvatarSource.setSceneBackGround(sceneModel, false);
-            currentAvatarModel = bearAvatarModel;
-            sceneModel.addAvatar(currentAvatarModel);
-        }
+        sceneModel.replaceAvatar(currentAvatarModel, bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel);
+        currentAvatarModel = bean.getDes().equals(AvatarSource.GIRL) ? girlAvatarModel : boyAvatarModel;
     }
 
     public void bindCurrentRenderer() {

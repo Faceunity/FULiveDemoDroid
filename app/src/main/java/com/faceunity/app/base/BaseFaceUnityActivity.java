@@ -1,7 +1,9 @@
 package com.faceunity.app.base;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -25,6 +27,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
@@ -67,11 +71,12 @@ import java.io.File;
 public abstract class BaseFaceUnityActivity extends BaseActivity implements View.OnClickListener {
 
     //region Activity生命周期绑定
-
     @Override
     public void onResume() {
         super.onResume();
-        mCameraRenderer.onResume();
+        if (checkSelfPermission(permissions)) {
+            mCameraRenderer.onResume();
+        }
     }
 
     @Override
@@ -255,6 +260,9 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     protected void configureFURenderKit() {
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         mFUAIKit.faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
+        //高端机开启小脸检测
+        if (DemoConfig.DEVICE_LEVEL  > FuDeviceUtils.DEVICE_LEVEL_MID)
+            mFUAIKit.fuFaceProcessorSetDetectSmallFace(true);
     }
 
     /**
@@ -784,4 +792,14 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
     //endregion 拍照
 
+    //鉴权
+    private String[] permissions = {Manifest.permission.CAMERA};
+    @Override
+    public void checkPermissionResult(boolean permissionResult) {
+        if (permissionResult) {
+            mCameraRenderer.onResume();
+        } else {
+            ToastHelper.showNormalToast(this, "缺少相机权限");
+        }
+    }
 }

@@ -2,12 +2,17 @@
 
 级别：Public 
 
-更新日期：2021-12-24
+更新日期：2022-01-27
 
-SDK版本: 8.0.2
+SDK版本: 8.1.0
 
 ------
 ### 最新更新内容：
+**2022-01-27 v8.1.0:**
+- 更新人脸检测模型为全角度,高端机可自由选择是否启动小人脸检测
+- 更新PTA侧驱动相关接口
+- 解决部分已知bug
+
 **2021-12-24 v8.0.2:**
 - 解决一些bug
 
@@ -143,8 +148,6 @@ Demo新增了一个展示Faceunity产品列表的主界面，新版Demo将根据
             -ai_hairseg.bundle              // 头发识别AI能力模型
             -ai_hand_processor.bundle       // 手势识别AI能力模型
             -ai_human_processor.bundle      // 人体点位AI能力模型
-          +pta                              // 全身 Avatar
-            +bear                           // 熊效果道具
             +boy                            // 男孩效果道具
             +gesture                        // 手势算法模型
             +girl                           // 女孩效果道具
