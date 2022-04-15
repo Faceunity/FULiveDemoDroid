@@ -1,5 +1,8 @@
 package com.faceunity.app;
 
+import android.os.Environment;
+
+import com.faceunity.app.utils.FileUtils;
 import com.faceunity.app.utils.FuDeviceUtils;
 
 import java.io.File;
@@ -73,4 +76,16 @@ public class DemoConfig {
     //设备名称
     public static String DEVICE_NAME = "";
 
+    //是否开启日志重定向到文件
+    public static boolean OPEN_FILE_LOG = false;
+    //TAG
+    public static final String APP_NAME = "KotlinFaceUnityDemo";
+    //文件夹路径
+    public static String OPEN_FILE_PATH = Environment.getExternalStoragePublicDirectory("") + File.separator + "FaceUnity" + File.separator + APP_NAME + File.separator;
+    //文件夹名称
+    public static String OPEN_FILE_NAME = "openFile.txt";
+    //文件大小
+    public static int OPEN_FILE_MAX_SIZE = 100 * 1024 * 1024;
+    //文件数量
+    public static int OPEN_FILES = 100;
 }
