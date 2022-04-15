@@ -22,6 +22,7 @@ import com.faceunity.app.data.AnimojiDataFactory;
 import com.faceunity.app.data.BgSegGreenDataFactory;
 import com.faceunity.app.data.BodyBeautyDataFactory;
 import com.faceunity.app.data.FaceBeautyDataFactory;
+import com.faceunity.app.data.FineStickerDataFactory;
 import com.faceunity.app.data.MakeupDataFactory;
 import com.faceunity.app.data.PortraitSegmentDataFactory;
 import com.faceunity.app.data.PropDataFactory;
@@ -56,6 +57,7 @@ import com.faceunity.ui.control.AnimojiControlView;
 import com.faceunity.ui.control.BgSegGreenControlView;
 import com.faceunity.ui.control.BodyBeautyControlView;
 import com.faceunity.ui.control.FaceBeautyControlView;
+import com.faceunity.ui.control.FineStickerView;
 import com.faceunity.ui.control.MakeupControlView;
 import com.faceunity.ui.control.PropControlView;
 import com.faceunity.ui.control.PropCustomControlView;
@@ -94,6 +96,8 @@ public class ShowVideoActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
+        if (mFunctionType == FunctionEnum.FINE_STICKER)
+            mFineStickerDataFactory.acceptEvent();
         mVideoRenderer.onResume();
         if (isActivityPause) {
             mPlayView.setVisibility(View.VISIBLE);
@@ -111,6 +115,8 @@ public class ShowVideoActivity extends BaseActivity {
             if (bean.getType() == FunctionEnum.BG_SEG_CUSTOM) {
                 mVideoPlayHelper.pausePlay();
             }
+        } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
+            mFineStickerDataFactory.refuseEvent();
         }
         super.onPause();
         if (isSendRecordingData) {
@@ -128,6 +134,8 @@ public class ShowVideoActivity extends BaseActivity {
         } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
             mPortraitSegmentFactory.releaseAIProcessor();
             mVideoPlayHelper.release();
+        } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
+            mFineStickerDataFactory.releaseAIProcessor();
         }
         mVideoRenderer.onDestroy();
         super.onDestroy();
@@ -180,6 +188,8 @@ public class ShowVideoActivity extends BaseActivity {
             changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x156));
         } else if (mFunctionType == FunctionEnum.MAKE_UP) {
             changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x350));
+        } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
+            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x520));
         } else {
             changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x200));
         }
@@ -242,9 +252,12 @@ public class ShowVideoActivity extends BaseActivity {
     private BgSegGreenDataFactory mBgSegGreenDataFactory;//绿幕抠像
     private BgSegGreenControlView mBgSegGreenControlView;//绿幕抠像
 
-    private PropDataFactory mPropDataFactory; //道具
+    private PropDataFactory mPropDataFactory; //道具 道具贴纸 AR面具 大头 表情识别 哈哈镜 手势识别
 
     private BodyBeautyDataFactory mBodyBeautyDataFactory;//美体
+
+    private FineStickerView fineStickerView;//精品贴纸
+    private FineStickerDataFactory mFineStickerDataFactory;//精品贴纸
 
     private void bindDataFactory() {
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
@@ -292,6 +305,23 @@ public class ShowVideoActivity extends BaseActivity {
             mPortraitSegmentControlView = ((PropCustomControlView) mStubView);
             mPortraitSegmentFactory = new PortraitSegmentDataFactory(mPortraitSegmentListener);
             mPortraitSegmentControlView.bindDataFactory(mPortraitSegmentFactory);
+        } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
+            fineStickerView = ((FineStickerView) mStubView);
+            mFineStickerDataFactory = new FineStickerDataFactory();
+            fineStickerView.bindDataFactory(mFineStickerDataFactory);
+            mFineStickerDataFactory.bindView(fineStickerView);
+
+            mFineStickerDataFactory.setBundleTypeListener(bundleType -> {
+                if (bundleType != null) {
+                    if (bundleType == FineStickerDataFactory.BundleType.AVATAR_BUNDLE) {
+                        runOnUiThread(()-> mTrackingView.setText(R.string.toast_not_detect_body));
+                    } else {
+                        runOnUiThread(()-> mTrackingView.setText(R.string.fu_base_is_tracking_text));
+                    }
+                } else {
+                    runOnUiThread(()-> mTrackingView.setText(R.string.fu_base_is_tracking_text));
+                }
+            });
         }
     }
 
@@ -317,6 +347,8 @@ public class ShowVideoActivity extends BaseActivity {
             mPortraitSegmentFactory.bindCurrentRenderer();
         } else if (mFunctionType == FunctionEnum.MAKE_UP) {
             mMakeupDataFactory.bindCurrentRenderer();
+        } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
+            mFineStickerDataFactory.bindCurrentRenderer();
         }
     }
 
@@ -337,6 +369,8 @@ public class ShowVideoActivity extends BaseActivity {
             return R.layout.layout_control_animo;
         } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
             return R.layout.layout_control_prop_custom;
+        } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
+            return R.layout.layout_control_fine_sticker;
         }
         return 0;
     }

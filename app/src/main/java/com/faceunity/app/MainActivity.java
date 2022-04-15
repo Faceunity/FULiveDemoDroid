@@ -2,6 +2,7 @@ package com.faceunity.app;
 
 import android.Manifest;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -11,6 +12,7 @@ import com.faceunity.app.base.BaseActivity;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.entity.FunctionType;
 import com.faceunity.app.entity.HomeFunctionModuleData;
+import com.faceunity.app.utils.FileUtils;
 import com.faceunity.app.view.ActionRecognitionActivity;
 import com.faceunity.app.view.AnimoActivity;
 import com.faceunity.app.view.AvatarActivity;
@@ -26,11 +28,13 @@ import com.faceunity.app.view.PortraitSegmentActivity;
 import com.faceunity.app.view.PosterListActivity;
 import com.faceunity.app.view.PropActivity;
 import com.faceunity.core.faceunity.FURenderKit;
+import com.faceunity.core.faceunity.FURenderManager;
 import com.faceunity.ui.base.BaseDelegate;
 import com.faceunity.ui.base.BaseListAdapter;
 import com.faceunity.ui.base.BaseViewHolder;
 import com.faceunity.ui.dialog.ToastHelper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,7 +120,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void bindListener() {
-        checkSelfPermission(permissions);
+        if (checkSelfPermission(permissions))
+            openFileLog();
     }
 
     private void onFunctionClick(HomeFunctionModuleData data) {
@@ -204,6 +209,19 @@ public class MainActivity extends BaseActivity {
             Manifest.permission.RECORD_AUDIO};
     @Override
     public void checkPermissionResult(boolean permissionResult) {
-        if (!permissionResult) showToast("缺少必要权限，可能导致应用功能无法使用");
+        if (permissionResult)
+            openFileLog();
+        else
+            showToast("缺少必要权限，可能导致应用功能无法使用");
+    }
+
+    /**
+     * 重定向日志
+     */
+    private void openFileLog() {
+        if (DemoConfig.OPEN_FILE_LOG) {
+            FileUtils.createFileDir(DemoConfig.OPEN_FILE_PATH);
+            FURenderManager.openFileLog(DemoConfig.OPEN_FILE_PATH + DemoConfig.OPEN_FILE_NAME,DemoConfig.OPEN_FILE_MAX_SIZE,DemoConfig.OPEN_FILES);
+        }
     }
 }

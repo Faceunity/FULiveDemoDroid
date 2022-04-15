@@ -3,7 +3,6 @@ package com.faceunity.app.base;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -27,8 +26,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
@@ -793,13 +790,15 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     //endregion 拍照
 
     //鉴权
-    private String[] permissions = {Manifest.permission.CAMERA};
+    private String[] permissions = {Manifest.permission.CAMERA,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO};
     @Override
     public void checkPermissionResult(boolean permissionResult) {
         if (permissionResult) {
             mCameraRenderer.onResume();
         } else {
-            ToastHelper.showNormalToast(this, "缺少相机权限");
+            ToastHelper.showNormalToast(this, "缺少相机或录音权限");
         }
     }
 }

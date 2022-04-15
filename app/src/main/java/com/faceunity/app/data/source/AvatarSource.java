@@ -135,10 +135,10 @@ public class AvatarSource {
         }
         //位置等avatar基本参数构建
         TransForm avatarTransForm = model.transForm;
-        avatarTransForm.setHumanProcessorSetAvatarAnimFilterParams(new FUAvatarAnimFilterParams(8, 0.09f, 0.120f));
         avatarTransForm.setPosition(new FUCoordinate3DData(20, 45, -618.94));
         avatarTransForm.setTranslationScale(new FUTranslationScale(0.0f,0.0f,0.0f));
         avatarTransForm.setInstanceEnableHumanAnimDriver(true);
+        model.animation.setHumanProcessorSetAvatarAnimFilterParams(new FUAvatarAnimFilterParams(8, 0.09f, 0.120f));
         return model;
     }
 
