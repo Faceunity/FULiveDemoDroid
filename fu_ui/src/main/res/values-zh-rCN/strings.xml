@@ -13,6 +13,7 @@
     <string name="save_video_too_short">视频太短啦！</string>
     <string name="save_video_wait">视频处理中请稍等</string>
     <string name="fu_base_is_tracking_text">未检测到人脸</string>
+    <string name="fu_base_incomplete_face_text">人脸不全</string>
     <string name="fu_base_input_type_single">单输入</string>
     <string name="fu_base_input_type_double">双输入</string>
 
@@ -46,6 +47,8 @@
     <string name="beauty_micro_pouch">去黑眼圈</string>
     <string name="beauty_micro_nasolabial">去法令纹</string>
     <string name="beauty_micro_smile">微笑嘴角</string>
+    <string name="beauty_brow_height">眉毛上下</string>
+    <string name="beauty_brow_space">眉间距</string>
     <string name="beauty_micro_canthus">开眼角</string>
     <string name="beauty_micro_philtrum">缩人中</string>
     <string name="beauty_micro_long_nose">长鼻</string>
@@ -166,6 +169,7 @@
     <string name="poster_change_face_error">替换失败</string>
     <string name="poster_template_face_none">未识别模板的人脸，请重新选择模板</string>
     <string name="dialog_no_track_face">未检测到人脸，请重新拍摄</string>
+    <string name="dialog_no_incomplete_face">人脸不全，请重新拍摄</string>
     <string name="dialog_face_rotation_not_valid">人脸偏转角度过大，请正脸拍摄。</string>
     <string name="dialog_got">知道啦</string>
     <string name="tip_dual_face">检测到多人，请选择一人进行换脸</string>
@@ -239,11 +243,8 @@
     <string name="makeup_pupil_7">落目</string>
     <string name="makeup_pupil_8">极光</string>
     <string name="makeup_eyebrow_willow">柳叶眉</string>
-    <string name="makeup_eyebrow_hill">小山眉</string>
-    <string name="makeup_eyebrow_one_word">一字眉</string>
-    <string name="makeup_eyebrow_shape">扶形眉</string>
-    <string name="makeup_eyebrow_daily">日常风</string>
-    <string name="makeup_eyebrow_japan">日系风</string>
+    <string name="makeup_eyebrow_wild">野生眉</string>
+    <string name="makeup_eyebrow_classical">古典眉</string>
     <string name="makeup_eyebrow_standard">标准眉</string>
     <string name="makeup_eye_shadow_single">单色眼影</string>
     <string name="makeup_eye_shadow_double1">双色眼影 I</string>
@@ -307,7 +308,7 @@
     <string name="bg_seg_green_key_color">关键颜色</string>
     <string name="bg_seg_green_similarity">相似度</string>
     <string name="bg_seg_green_smooth">平滑</string>
-    <string name="bg_seg_green_alpha">透明度</string>
+    <string name="bg_seg_green_alpha">祛色度</string>
     <string name="bg_seg_green_safe_area">安全区域</string>
     <string name="bg_seg_green_science">科技</string>
     <string name="bg_seg_green_beach">沙滩</string>
@@ -321,4 +322,7 @@
     <string name="back">返回</string>
 
     <string name="safe_area_tips">白色区域为安全区域，不参与绿幕抠像</string>
+
+    <string name="brow_height_tips">眉毛上下功能仅支持在高端机上使用</string>
+    <string name="brow_space_tips">眉间距功能仅支持在高端机上使用</string>
 </resources>

@@ -134,7 +134,7 @@ public class BodyBeautyDataFactory extends AbstractBodyBeautyDataFactory {
      * FURenderKit加载当前特效
      */
     public void bindCurrentRenderer() {
-        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        mFUAIKit.loadAIProcessor(DemoConfig.getAIHumanBundle(), FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
         mFUAIKit.setMaxFaces(1);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         mFURenderKit.setBodyBeauty(bodyBeauty);

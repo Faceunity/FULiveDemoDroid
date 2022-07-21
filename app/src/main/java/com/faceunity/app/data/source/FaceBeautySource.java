@@ -3,6 +3,8 @@ package com.faceunity.app.data.source;
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.data.FaceBeautyDataFactory;
+import com.faceunity.app.data.disksource.FUUtils;
+import com.faceunity.app.data.disksource.FaceBeautyData;
 import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.core.controller.facebeauty.FaceBeautyParam;
 import com.faceunity.core.entity.FUBundleData;
@@ -25,32 +27,46 @@ import java.util.HashMap;
  */
 public class FaceBeautySource {
 
+    private static ArrayList<FaceBeautyFilterBean> filters = new ArrayList<>();
+    private static FaceBeautyData faceBeautyData;
+
     /**
      * 获取默认推荐美颜模型
+     * 一个app生命周期请求一次
      *
      * @return
      */
     public static FaceBeauty getDefaultFaceBeauty() {
         FaceBeauty recommendFaceBeauty = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-        recommendFaceBeauty.setFilterName(FaceBeautyFilterEnum.ZIRAN_2);
-        recommendFaceBeauty.setFilterIntensity(0.4);
-        /*美肤*/
-        recommendFaceBeauty.setSharpenIntensity(0.2);
-        recommendFaceBeauty.setColorIntensity(0.3);
-        recommendFaceBeauty.setRedIntensity(0.3);
-        recommendFaceBeauty.setBlurIntensity(4.2);
-        /*美型*/
-        recommendFaceBeauty.setFaceShapeIntensity(1.0);
-        recommendFaceBeauty.setEyeEnlargingIntensity(0.4);
-        recommendFaceBeauty.setCheekVIntensity(0.5);
-        recommendFaceBeauty.setNoseIntensity(0.5);
-        recommendFaceBeauty.setForHeadIntensity(0.3);
-        recommendFaceBeauty.setMouthIntensity(0.4);
-        recommendFaceBeauty.setChinIntensity(0.3);
-        //性能最优策略
-        if (DemoConfig.DEVICE_LEVEL  > FuDeviceUtils.DEVICE_LEVEL_MID) {
-            setFaceBeautyPropertyMode(recommendFaceBeauty);
+        if (DemoConfig.OPEN_FACE_BEAUTY_TO_FILE)
+            faceBeautyData = FUUtils.loadFaceBeautyData();
+        if (faceBeautyData != null) {
+            //有本地缓存
+            FaceBeautyDataFactory.setDiskCurrentStyleIndex(faceBeautyData.styleTypeIndex);
+            FUUtils.setFaceBeauty(faceBeautyData, recommendFaceBeauty);
+        } else {
+            //没有本地缓存
+            recommendFaceBeauty.setFilterName(FaceBeautyFilterEnum.ZIRAN_2);
+            recommendFaceBeauty.setFilterIntensity(0.4);
+            /*美肤*/
+            recommendFaceBeauty.setSharpenIntensity(0.2);
+            recommendFaceBeauty.setColorIntensity(0.3);
+            recommendFaceBeauty.setRedIntensity(0.3);
+            recommendFaceBeauty.setBlurIntensity(4.2);
+            /*美型*/
+            recommendFaceBeauty.setFaceShapeIntensity(1.0);
+            recommendFaceBeauty.setEyeEnlargingIntensity(0.4);
+            recommendFaceBeauty.setCheekVIntensity(0.5);
+            recommendFaceBeauty.setNoseIntensity(0.5);
+            recommendFaceBeauty.setForHeadIntensity(0.3);
+            recommendFaceBeauty.setMouthIntensity(0.4);
+            recommendFaceBeauty.setChinIntensity(0.3);
+            //性能最优策略
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+                setFaceBeautyPropertyMode(recommendFaceBeauty);
+            }
         }
+
         return recommendFaceBeauty;
     }
 
@@ -127,14 +143,12 @@ public class FaceBeautySource {
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.REMOVE_POUCH_INTENSITY, R.string.beauty_micro_pouch,
-                        R.drawable.icon_beauty_skin_dark_circles_close_selector, R.drawable.icon_beauty_skin_dark_circles_open_selector
-                )
+                        R.drawable.icon_beauty_skin_dark_circles_close_selector, R.drawable.icon_beauty_skin_dark_circles_open_selector)
         );
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, R.string.beauty_micro_nasolabial,
-                        R.drawable.icon_beauty_skin_wrinkle_close_selector, R.drawable.icon_beauty_skin_wrinkle_open_selector
-                )
+                        R.drawable.icon_beauty_skin_wrinkle_close_selector, R.drawable.icon_beauty_skin_wrinkle_open_selector)
         );
         return params;
     }
@@ -276,6 +290,20 @@ public class FaceBeautySource {
                         R.drawable.icon_beauty_shape_smile_close_selector, R.drawable.icon_beauty_shape_smile_open_selector
                 )
         );
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.BROW_HEIGHT_INTENSITY, R.string.beauty_brow_height,
+                        R.drawable.icon_beauty_shape_brow_height_close_selector, R.drawable.icon_beauty_shape_brow_height_open_selector,
+                        R.string.brow_height_tips,DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID
+                )
+        );
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.BROW_SPACE_INTENSITY, R.string.beauty_brow_space,
+                        R.drawable.icon_beauty_shape_brow_space_close_selector, R.drawable.icon_beauty_shape_brow_space_open_selector,
+                        R.string.brow_space_tips,DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID
+                )
+        );
         return params;
     }
 
@@ -376,6 +404,8 @@ public class FaceBeautySource {
         params.put(FaceBeautyParam.LONG_NOSE_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.PHILTRUM_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.SMILE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(FaceBeautyParam.BROW_HEIGHT_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
+        params.put(FaceBeautyParam.BROW_SPACE_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         return params;
     }
 
@@ -386,82 +416,97 @@ public class FaceBeautySource {
      * @return ArrayList<FaceBeautyFilterBean>
      */
     public static ArrayList<FaceBeautyFilterBean> buildFilters() {
-        ArrayList<FaceBeautyFilterBean> filters = new ArrayList<>();
+        if (!filters.isEmpty()) {
+            return filters;
+        }
         filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ORIGIN, R.mipmap.icon_beauty_filter_cancel, R.string.origin, 0.0));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_1, R.mipmap.icon_beauty_filter_natural_1, R.string.ziran_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_2, R.mipmap.icon_beauty_filter_natural_2, R.string.ziran_2));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_3, R.mipmap.icon_beauty_filter_natural_3, R.string.ziran_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_4, R.mipmap.icon_beauty_filter_natural_4, R.string.ziran_4));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_5, R.mipmap.icon_beauty_filter_natural_5, R.string.ziran_5));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_6, R.mipmap.icon_beauty_filter_natural_6, R.string.ziran_6));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_7, R.mipmap.icon_beauty_filter_natural_7, R.string.ziran_7));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_8, R.mipmap.icon_beauty_filter_natural_8, R.string.ziran_8));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_1, R.mipmap.icon_beauty_filter_natural_1, R.string.ziran_1,getDiskFilterValue(FaceBeautyFilterEnum.ZIRAN_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_2, R.mipmap.icon_beauty_filter_natural_2, R.string.ziran_2,getDiskFilterValue(FaceBeautyFilterEnum.ZIRAN_2)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_3, R.mipmap.icon_beauty_filter_natural_3, R.string.ziran_3,getDiskFilterValue(FaceBeautyFilterEnum.ZIRAN_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_4, R.mipmap.icon_beauty_filter_natural_4, R.string.ziran_4,getDiskFilterValue(FaceBeautyFilterEnum.ZIRAN_4)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_5, R.mipmap.icon_beauty_filter_natural_5, R.string.ziran_5,getDiskFilterValue(FaceBeautyFilterEnum.ZIRAN_5)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_6, R.mipmap.icon_beauty_filter_natural_6, R.string.ziran_6,getDiskFilterValue(FaceBeautyFilterEnum.ZIRAN_6)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_7, R.mipmap.icon_beauty_filter_natural_7, R.string.ziran_7,getDiskFilterValue(FaceBeautyFilterEnum.ZIRAN_7)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZIRAN_8, R.mipmap.icon_beauty_filter_natural_8, R.string.ziran_8,getDiskFilterValue(FaceBeautyFilterEnum.ZIRAN_8)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_1, R.mipmap.icon_beauty_filter_texture_gray_1, R.string.zhiganhui_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_2, R.mipmap.icon_beauty_filter_texture_gray_2, R.string.zhiganhui_2));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_3, R.mipmap.icon_beauty_filter_texture_gray_3, R.string.zhiganhui_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_4, R.mipmap.icon_beauty_filter_texture_gray_4, R.string.zhiganhui_4));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_5, R.mipmap.icon_beauty_filter_texture_gray_5, R.string.zhiganhui_5));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_6, R.mipmap.icon_beauty_filter_texture_gray_6, R.string.zhiganhui_6));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_7, R.mipmap.icon_beauty_filter_texture_gray_7, R.string.zhiganhui_7));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_8, R.mipmap.icon_beauty_filter_texture_gray_8, R.string.zhiganhui_8));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_1, R.mipmap.icon_beauty_filter_texture_gray_1, R.string.zhiganhui_1,getDiskFilterValue(FaceBeautyFilterEnum.ZHIGANHUI_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_2, R.mipmap.icon_beauty_filter_texture_gray_2, R.string.zhiganhui_2,getDiskFilterValue(FaceBeautyFilterEnum.ZHIGANHUI_2)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_3, R.mipmap.icon_beauty_filter_texture_gray_3, R.string.zhiganhui_3,getDiskFilterValue(FaceBeautyFilterEnum.ZHIGANHUI_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_4, R.mipmap.icon_beauty_filter_texture_gray_4, R.string.zhiganhui_4,getDiskFilterValue(FaceBeautyFilterEnum.ZHIGANHUI_4)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_5, R.mipmap.icon_beauty_filter_texture_gray_5, R.string.zhiganhui_5,getDiskFilterValue(FaceBeautyFilterEnum.ZHIGANHUI_5)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_6, R.mipmap.icon_beauty_filter_texture_gray_6, R.string.zhiganhui_6,getDiskFilterValue(FaceBeautyFilterEnum.ZHIGANHUI_6)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_7, R.mipmap.icon_beauty_filter_texture_gray_7, R.string.zhiganhui_7,getDiskFilterValue(FaceBeautyFilterEnum.ZHIGANHUI_7)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.ZHIGANHUI_8, R.mipmap.icon_beauty_filter_texture_gray_8, R.string.zhiganhui_8,getDiskFilterValue(FaceBeautyFilterEnum.ZHIGANHUI_8)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_1, R.mipmap.icon_beauty_filter_peach_1, R.string.mitao_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_2, R.mipmap.icon_beauty_filter_peach_2, R.string.mitao_2));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_3, R.mipmap.icon_beauty_filter_peach_3, R.string.mitao_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_4, R.mipmap.icon_beauty_filter_peach_4, R.string.mitao_4));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_5, R.mipmap.icon_beauty_filter_peach_5, R.string.mitao_5));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_6, R.mipmap.icon_beauty_filter_peach_6, R.string.mitao_6));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_7, R.mipmap.icon_beauty_filter_peach_7, R.string.mitao_7));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_8, R.mipmap.icon_beauty_filter_peach_8, R.string.mitao_8));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_1, R.mipmap.icon_beauty_filter_peach_1, R.string.mitao_1,getDiskFilterValue(FaceBeautyFilterEnum.MITAO_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_2, R.mipmap.icon_beauty_filter_peach_2, R.string.mitao_2,getDiskFilterValue(FaceBeautyFilterEnum.MITAO_2)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_3, R.mipmap.icon_beauty_filter_peach_3, R.string.mitao_3,getDiskFilterValue(FaceBeautyFilterEnum.MITAO_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_4, R.mipmap.icon_beauty_filter_peach_4, R.string.mitao_4,getDiskFilterValue(FaceBeautyFilterEnum.MITAO_4)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_5, R.mipmap.icon_beauty_filter_peach_5, R.string.mitao_5,getDiskFilterValue(FaceBeautyFilterEnum.MITAO_5)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_6, R.mipmap.icon_beauty_filter_peach_6, R.string.mitao_6,getDiskFilterValue(FaceBeautyFilterEnum.MITAO_6)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_7, R.mipmap.icon_beauty_filter_peach_7, R.string.mitao_7,getDiskFilterValue(FaceBeautyFilterEnum.MITAO_7)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.MITAO_8, R.mipmap.icon_beauty_filter_peach_8, R.string.mitao_8,getDiskFilterValue(FaceBeautyFilterEnum.MITAO_8)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_1, R.mipmap.icon_beauty_filter_bailiang_1, R.string.bailiang_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_2, R.mipmap.icon_beauty_filter_bailiang_2, R.string.bailiang_2));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_3, R.mipmap.icon_beauty_filter_bailiang_3, R.string.bailiang_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_4, R.mipmap.icon_beauty_filter_bailiang_4, R.string.bailiang_4));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_5, R.mipmap.icon_beauty_filter_bailiang_5, R.string.bailiang_5));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_6, R.mipmap.icon_beauty_filter_bailiang_6, R.string.bailiang_6));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_7, R.mipmap.icon_beauty_filter_bailiang_7, R.string.bailiang_7));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_1, R.mipmap.icon_beauty_filter_bailiang_1, R.string.bailiang_1,getDiskFilterValue(FaceBeautyFilterEnum.BAILIANG_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_2, R.mipmap.icon_beauty_filter_bailiang_2, R.string.bailiang_2,getDiskFilterValue(FaceBeautyFilterEnum.BAILIANG_2)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_3, R.mipmap.icon_beauty_filter_bailiang_3, R.string.bailiang_3,getDiskFilterValue(FaceBeautyFilterEnum.BAILIANG_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_4, R.mipmap.icon_beauty_filter_bailiang_4, R.string.bailiang_4,getDiskFilterValue(FaceBeautyFilterEnum.BAILIANG_4)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_5, R.mipmap.icon_beauty_filter_bailiang_5, R.string.bailiang_5,getDiskFilterValue(FaceBeautyFilterEnum.BAILIANG_5)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_6, R.mipmap.icon_beauty_filter_bailiang_6, R.string.bailiang_6,getDiskFilterValue(FaceBeautyFilterEnum.BAILIANG_6)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.BAILIANG_7, R.mipmap.icon_beauty_filter_bailiang_7, R.string.bailiang_7,getDiskFilterValue(FaceBeautyFilterEnum.BAILIANG_7)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_1, R.mipmap.icon_beauty_filter_fennen_1, R.string.fennen_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_2, R.mipmap.icon_beauty_filter_fennen_2, R.string.fennen_2));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_3, R.mipmap.icon_beauty_filter_fennen_3, R.string.fennen_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_5, R.mipmap.icon_beauty_filter_fennen_5, R.string.fennen_5));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_6, R.mipmap.icon_beauty_filter_fennen_6, R.string.fennen_6));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_7, R.mipmap.icon_beauty_filter_fennen_7, R.string.fennen_7));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_8, R.mipmap.icon_beauty_filter_fennen_8, R.string.fennen_8));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_1, R.mipmap.icon_beauty_filter_fennen_1, R.string.fennen_1,getDiskFilterValue(FaceBeautyFilterEnum.FENNEN_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_2, R.mipmap.icon_beauty_filter_fennen_2, R.string.fennen_2,getDiskFilterValue(FaceBeautyFilterEnum.FENNEN_2)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_3, R.mipmap.icon_beauty_filter_fennen_3, R.string.fennen_3,getDiskFilterValue(FaceBeautyFilterEnum.FENNEN_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_5, R.mipmap.icon_beauty_filter_fennen_5, R.string.fennen_5,getDiskFilterValue(FaceBeautyFilterEnum.FENNEN_5)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_6, R.mipmap.icon_beauty_filter_fennen_6, R.string.fennen_6,getDiskFilterValue(FaceBeautyFilterEnum.FENNEN_6)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_7, R.mipmap.icon_beauty_filter_fennen_7, R.string.fennen_7,getDiskFilterValue(FaceBeautyFilterEnum.FENNEN_7)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.FENNEN_8, R.mipmap.icon_beauty_filter_fennen_8, R.string.fennen_8,getDiskFilterValue(FaceBeautyFilterEnum.FENNEN_8)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_1, R.mipmap.icon_beauty_filter_lengsediao_1, R.string.lengsediao_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_2, R.mipmap.icon_beauty_filter_lengsediao_2, R.string.lengsediao_2));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_3, R.mipmap.icon_beauty_filter_lengsediao_3, R.string.lengsediao_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_4, R.mipmap.icon_beauty_filter_lengsediao_4, R.string.lengsediao_4));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_7, R.mipmap.icon_beauty_filter_lengsediao_7, R.string.lengsediao_7));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_8, R.mipmap.icon_beauty_filter_lengsediao_8, R.string.lengsediao_8));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_11, R.mipmap.icon_beauty_filter_lengsediao_11, R.string.lengsediao_11));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_1, R.mipmap.icon_beauty_filter_lengsediao_1, R.string.lengsediao_1,getDiskFilterValue(FaceBeautyFilterEnum.LENGSEDIAO_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_2, R.mipmap.icon_beauty_filter_lengsediao_2, R.string.lengsediao_2,getDiskFilterValue(FaceBeautyFilterEnum.LENGSEDIAO_2)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_3, R.mipmap.icon_beauty_filter_lengsediao_3, R.string.lengsediao_3,getDiskFilterValue(FaceBeautyFilterEnum.LENGSEDIAO_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_4, R.mipmap.icon_beauty_filter_lengsediao_4, R.string.lengsediao_4,getDiskFilterValue(FaceBeautyFilterEnum.LENGSEDIAO_4)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_7, R.mipmap.icon_beauty_filter_lengsediao_7, R.string.lengsediao_7,getDiskFilterValue(FaceBeautyFilterEnum.LENGSEDIAO_7)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_8, R.mipmap.icon_beauty_filter_lengsediao_8, R.string.lengsediao_8,getDiskFilterValue(FaceBeautyFilterEnum.LENGSEDIAO_8)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.LENGSEDIAO_11, R.mipmap.icon_beauty_filter_lengsediao_11, R.string.lengsediao_11,getDiskFilterValue(FaceBeautyFilterEnum.LENGSEDIAO_11)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.NUANSEDIAO_1, R.mipmap.icon_beauty_filter_nuansediao_1, R.string.nuansediao_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.NUANSEDIAO_2, R.mipmap.icon_beauty_filter_nuansediao_2, R.string.nuansediao_2));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.NUANSEDIAO_1, R.mipmap.icon_beauty_filter_nuansediao_1, R.string.nuansediao_1,getDiskFilterValue(FaceBeautyFilterEnum.NUANSEDIAO_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.NUANSEDIAO_2, R.mipmap.icon_beauty_filter_nuansediao_2, R.string.nuansediao_2,getDiskFilterValue(FaceBeautyFilterEnum.NUANSEDIAO_2)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_1, R.mipmap.icon_beauty_filter_gexing_1, R.string.gexing_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_2, R.mipmap.icon_beauty_filter_gexing_2, R.string.gexing_2));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_3, R.mipmap.icon_beauty_filter_gexing_3, R.string.gexing_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_4, R.mipmap.icon_beauty_filter_gexing_4, R.string.gexing_4));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_5, R.mipmap.icon_beauty_filter_gexing_5, R.string.gexing_5));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_7, R.mipmap.icon_beauty_filter_gexing_7, R.string.gexing_7));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_10, R.mipmap.icon_beauty_filter_gexing_10, R.string.gexing_10));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_11, R.mipmap.icon_beauty_filter_gexing_11, R.string.gexing_11));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_1, R.mipmap.icon_beauty_filter_gexing_1, R.string.gexing_1,getDiskFilterValue(FaceBeautyFilterEnum.GEXING_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_2, R.mipmap.icon_beauty_filter_gexing_2, R.string.gexing_2,getDiskFilterValue(FaceBeautyFilterEnum.GEXING_2)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_3, R.mipmap.icon_beauty_filter_gexing_3, R.string.gexing_3,getDiskFilterValue(FaceBeautyFilterEnum.GEXING_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_4, R.mipmap.icon_beauty_filter_gexing_4, R.string.gexing_4,getDiskFilterValue(FaceBeautyFilterEnum.GEXING_4)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_5, R.mipmap.icon_beauty_filter_gexing_5, R.string.gexing_5,getDiskFilterValue(FaceBeautyFilterEnum.GEXING_5)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_7, R.mipmap.icon_beauty_filter_gexing_7, R.string.gexing_7,getDiskFilterValue(FaceBeautyFilterEnum.GEXING_7)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_10, R.mipmap.icon_beauty_filter_gexing_10, R.string.gexing_10,getDiskFilterValue(FaceBeautyFilterEnum.GEXING_10)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.GEXING_11, R.mipmap.icon_beauty_filter_gexing_11, R.string.gexing_11,getDiskFilterValue(FaceBeautyFilterEnum.GEXING_11)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.XIAOQINGXIN_1, R.mipmap.icon_beauty_filter_xiaoqingxin_1, R.string.xiaoqingxin_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.XIAOQINGXIN_3, R.mipmap.icon_beauty_filter_xiaoqingxin_3, R.string.xiaoqingxin_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.XIAOQINGXIN_4, R.mipmap.icon_beauty_filter_xiaoqingxin_4, R.string.xiaoqingxin_4));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.XIAOQINGXIN_6, R.mipmap.icon_beauty_filter_xiaoqingxin_6, R.string.xiaoqingxin_6));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.XIAOQINGXIN_1, R.mipmap.icon_beauty_filter_xiaoqingxin_1, R.string.xiaoqingxin_1,getDiskFilterValue(FaceBeautyFilterEnum.XIAOQINGXIN_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.XIAOQINGXIN_3, R.mipmap.icon_beauty_filter_xiaoqingxin_3, R.string.xiaoqingxin_3,getDiskFilterValue(FaceBeautyFilterEnum.XIAOQINGXIN_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.XIAOQINGXIN_4, R.mipmap.icon_beauty_filter_xiaoqingxin_4, R.string.xiaoqingxin_4,getDiskFilterValue(FaceBeautyFilterEnum.XIAOQINGXIN_4)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.XIAOQINGXIN_6, R.mipmap.icon_beauty_filter_xiaoqingxin_6, R.string.xiaoqingxin_6,getDiskFilterValue(FaceBeautyFilterEnum.XIAOQINGXIN_6)));
 
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.HEIBAI_1, R.mipmap.icon_beauty_filter_heibai_1, R.string.heibai_1));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.HEIBAI_2, R.mipmap.icon_beauty_filter_heibai_2, R.string.heibai_2));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.HEIBAI_3, R.mipmap.icon_beauty_filter_heibai_3, R.string.heibai_3));
-        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.HEIBAI_4, R.mipmap.icon_beauty_filter_heibai_4, R.string.heibai_4));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.HEIBAI_1, R.mipmap.icon_beauty_filter_heibai_1, R.string.heibai_1,getDiskFilterValue(FaceBeautyFilterEnum.HEIBAI_1)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.HEIBAI_2, R.mipmap.icon_beauty_filter_heibai_2, R.string.heibai_2,getDiskFilterValue(FaceBeautyFilterEnum.HEIBAI_2)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.HEIBAI_3, R.mipmap.icon_beauty_filter_heibai_3, R.string.heibai_3,getDiskFilterValue(FaceBeautyFilterEnum.HEIBAI_3)));
+        filters.add(new FaceBeautyFilterBean(FaceBeautyFilterEnum.HEIBAI_4, R.mipmap.icon_beauty_filter_heibai_4, R.string.heibai_4,getDiskFilterValue(FaceBeautyFilterEnum.HEIBAI_4)));
 
         return filters;
+    }
+
+    /**
+     * 从磁盘获取所有项滤镜强度
+     * @param key
+     * @return
+     */
+    private static double getDiskFilterValue(String key) {
+        if (faceBeautyData != null) {
+            return faceBeautyData.filterMap.get(key);
+        } else {
+            return 0.4;
+        }
     }
 
     private static final String CONFIG_BIAOZHUN = "biaozhun";
@@ -640,6 +685,8 @@ public class FaceBeautySource {
         cloneFaceBeauty.setPhiltrumIntensity(faceBeauty.getPhiltrumIntensity());
         cloneFaceBeauty.setSmileIntensity(faceBeauty.getSmileIntensity());
         cloneFaceBeauty.setEyeCircleIntensity(faceBeauty.getEyeCircleIntensity());
+        cloneFaceBeauty.setBrowHeightIntensity(faceBeauty.getBrowHeightIntensity());
+        cloneFaceBeauty.setBrowSpaceIntensity(faceBeauty.getBrowSpaceIntensity());
         cloneFaceBeauty.setChangeFramesIntensity(faceBeauty.getChangeFramesIntensity());
         return cloneFaceBeauty;
     }

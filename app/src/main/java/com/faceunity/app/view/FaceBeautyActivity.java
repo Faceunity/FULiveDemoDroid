@@ -6,7 +6,11 @@ import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FaceBeautyDataFactory;
+import com.faceunity.app.data.disksource.FUUtils;
+import com.faceunity.app.data.disksource.FaceBeautyData;
+import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.app.entity.FunctionEnum;
+import com.faceunity.app.utils.FileUtils;
 import com.faceunity.ui.control.FaceBeautyControlView;
 
 /**
@@ -18,6 +22,7 @@ public class FaceBeautyActivity extends BaseFaceUnityActivity {
 
     private FaceBeautyControlView mFaceBeautyControlView;
     private FaceBeautyDataFactory mFaceBeautyDataFactory;
+    private FaceBeautyData faceBeautyData;
 
 
     public static boolean needBindDataFactory = false;
@@ -29,6 +34,15 @@ public class FaceBeautyActivity extends BaseFaceUnityActivity {
             needBindDataFactory = false;
         }
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //在美颜退出的时候序列化数据到磁盘，从真正需要的FaceBeauty数据中缓存到磁盘
+        if (DemoConfig.OPEN_FACE_BEAUTY_TO_FILE) {
+            FUUtils.saveFaceBeautyData2File(faceBeautyData,FaceBeautyDataFactory.defaultFaceBeauty,FaceBeautySource.buildFilters(),mFaceBeautyDataFactory.getCurrentStyleIndex());
+        }
     }
 
     @Override
@@ -52,7 +66,9 @@ public class FaceBeautyActivity extends BaseFaceUnityActivity {
     @Override
     public void initView() {
         super.initView();
+        faceBeautyData = new FaceBeautyData();
         mFaceBeautyControlView = (FaceBeautyControlView) mStubView;
+        mFaceBeautyControlView.setResetButton(DemoConfig.IS_SHOW_RESET_BUTTON);
         changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x156), getResources().getDimensionPixelSize(R.dimen.x166));
     }
 

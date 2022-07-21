@@ -117,7 +117,7 @@ public class LightMakeupDataFactory extends AbstractLightMakeupDataFactory {
         onLightMakeupSelected(lightMakeupBean);
 
         if (DemoConfig.IS_OPEN_LAND_MARK) {
-            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData("others/landmarks.bundle"));
+            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData(DemoConfig.BUNDLE_LANDMARKS));
             expressionRecognition.setLandmarksType(FUAITypeEnum.FUAITYPE_FACELANDMARKS239);
             mFURenderKit.getPropContainer().addProp(expressionRecognition);
         }

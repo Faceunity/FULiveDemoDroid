@@ -64,11 +64,11 @@ public class MakeupSource {
         combinations.add(new MakeupCombinationBean("chaomo", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_supermodel, R.string.makeup_combination_chaomo, bundleDir + "chaomo.bundle", jsonDir + "chaomo.json", FaceBeautyFilterEnum.ZHIGANHUI_7));
         combinations.add(new MakeupCombinationBean("chuju", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_daisy, R.string.makeup_combination_chuju, bundleDir + "chuju.bundle", jsonDir + "chuju.json", FaceBeautyFilterEnum.ZHIGANHUI_8));
         combinations.add(new MakeupCombinationBean("gangfeng", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_harbour_wind, R.string.makeup_combination_gangfeng, bundleDir + "gangfeng.bundle", jsonDir + "gangfeng.json", FaceBeautyFilterEnum.ZIRAN_8));
-        combinations.add(new MakeupCombinationBean("xinggan", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_sexy, R.string.makeup_combination_sexy, bundleDir + "xinggan.bundle", jsonDir + "xinggan.json", FaceBeautyFilterEnum.ZIRAN_2));
-        combinations.add(new MakeupCombinationBean("tianmei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_sweet, R.string.makeup_combination_sweet, bundleDir + "tianmei.bundle", jsonDir + "tianmei.json", FaceBeautyFilterEnum.ZIRAN_2));
-        combinations.add(new MakeupCombinationBean("linjia", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_neighbor_girl, R.string.makeup_combination_neighbor, bundleDir + "linjia.bundle", jsonDir + "linjia.json", FaceBeautyFilterEnum.ZIRAN_2));
-        combinations.add(new MakeupCombinationBean("oumei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_occident, R.string.makeup_combination_occident, bundleDir + "oumei.bundle", jsonDir + "oumei.json", FaceBeautyFilterEnum.ZIRAN_2));
-        combinations.add(new MakeupCombinationBean("wumei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_charming, R.string.makeup_combination_charming, bundleDir + "wumei.bundle", jsonDir + "wumei.json", FaceBeautyFilterEnum.ZIRAN_2));
+        combinations.add(new MakeupCombinationBean("xinggan", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_sexy, R.string.makeup_combination_sexy, bundleDir + "xinggan.bundle", jsonDir + "xinggan.json", FaceBeautyFilterEnum.ZIRAN_4));
+        combinations.add(new MakeupCombinationBean("tianmei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_sweet, R.string.makeup_combination_sweet, bundleDir + "tianmei.bundle", jsonDir + "tianmei.json", FaceBeautyFilterEnum.ZIRAN_4));
+        combinations.add(new MakeupCombinationBean("linjia", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_neighbor_girl, R.string.makeup_combination_neighbor, bundleDir + "linjia.bundle", jsonDir + "linjia.json", FaceBeautyFilterEnum.ZIRAN_4));
+        combinations.add(new MakeupCombinationBean("oumei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_occident, R.string.makeup_combination_occident, bundleDir + "oumei.bundle", jsonDir + "oumei.json", FaceBeautyFilterEnum.ZIRAN_4));
+        combinations.add(new MakeupCombinationBean("wumei", TypeEnum.TYPE_DAILY, R.mipmap.icon_makeup_combination_charming, R.string.makeup_combination_charming, bundleDir + "wumei.bundle", jsonDir + "wumei.json", FaceBeautyFilterEnum.ZIRAN_4));
         return combinations;
     }
 
@@ -342,12 +342,9 @@ public class MakeupSource {
             {
                 add(new MakeupCustomBean(R.string.makeup_radio_remove, getDrawable(R.mipmap.icon_control_none)));
                 add(new MakeupCustomBean(R.string.makeup_eyebrow_willow, getDrawable(R.mipmap.icon_makeup_eyebrow_01), colorMap.get("color_mu_style_eyebrow_01")));
-                add(new MakeupCustomBean(R.string.makeup_eyebrow_standard, getDrawable(R.mipmap.icon_makeup_eyebrow_02), colorMap.get("color_mu_style_eyebrow_01")));
-                add(new MakeupCustomBean(R.string.makeup_eyebrow_hill, getDrawable(R.mipmap.icon_makeup_eyebrow_03), colorMap.get("color_mu_style_eyebrow_01")));
-                add(new MakeupCustomBean(R.string.makeup_eyebrow_one_word, getDrawable(R.mipmap.icon_makeup_eyebrow_04), colorMap.get("color_mu_style_eyebrow_01")));
-                add(new MakeupCustomBean(R.string.makeup_eyebrow_shape, getDrawable(R.mipmap.icon_makeup_eyebrow_05), colorMap.get("color_mu_style_eyebrow_01")));
-                add(new MakeupCustomBean(R.string.makeup_eyebrow_daily, getDrawable(R.mipmap.icon_makeup_eyebrow_06), colorMap.get("color_mu_style_eyebrow_01")));
-                add(new MakeupCustomBean(R.string.makeup_eyebrow_japan, getDrawable(R.mipmap.icon_makeup_eyebrow_07), colorMap.get("color_mu_style_eyebrow_01")));
+                add(new MakeupCustomBean(R.string.makeup_eyebrow_wild, getDrawable(R.mipmap.icon_makeup_eyebrow_02), colorMap.get("color_mu_style_eyebrow_01")));
+                add(new MakeupCustomBean(R.string.makeup_eyebrow_classical, getDrawable(R.mipmap.icon_makeup_eyebrow_03), colorMap.get("color_mu_style_eyebrow_01")));
+                add(new MakeupCustomBean(R.string.makeup_eyebrow_standard, getDrawable(R.mipmap.icon_makeup_eyebrow_04), colorMap.get("color_mu_style_eyebrow_01")));
             }
         });
 
