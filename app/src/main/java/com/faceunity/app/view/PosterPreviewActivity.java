@@ -11,14 +11,18 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 
-
 import com.bumptech.glide.Glide;
+import com.faceunity.app.DemoConfig;
+import com.faceunity.app.R;
 import com.faceunity.app.base.BaseActivity;
+import com.faceunity.app.data.PosterChangeFaceDataFactory;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.core.callback.OnPosterRenderCallback;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.enumeration.FUFaceProcessorDetectModeEnum;
+import com.faceunity.core.enumeration.FUHumanProcessorDetectModeEnum;
+import com.faceunity.core.enumeration.PosterFaceEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FUPosterKit;
 import com.faceunity.core.faceunity.FURenderKit;
@@ -26,9 +30,6 @@ import com.faceunity.core.media.photo.OnPhotoRecordingListener;
 import com.faceunity.core.media.photo.PhotoRecordHelper;
 import com.faceunity.core.program.ProgramTexture2d;
 import com.faceunity.core.utils.GlUtil;
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.R;
-import com.faceunity.app.data.PosterChangeFaceDataFactory;
 import com.faceunity.ui.control.PosterChangeFaceControlView;
 import com.faceunity.ui.dialog.NoTrackFaceDialogFragment;
 import com.faceunity.ui.dialog.ToastHelper;
@@ -49,11 +50,12 @@ public class PosterPreviewActivity extends BaseActivity {
     public static String TEMPLATE = "template";
     public static String PHOTO = "photo";
     public static String INTENSITY = "intensity";
+    private static String POSTER_FACE_ENUM = "poster_face_enum";
 
-    public static void startActivity(Activity activity, String photo, String template, double intensity) {
+    public static void startActivity(Activity activity, String photo, String template, double intensity,PosterFaceEnum posterFaceEnum) {
         activity.startActivityForResult(
                 new Intent(activity, PosterPreviewActivity.class)
-                        .putExtra(TEMPLATE, template).putExtra(PHOTO, photo).putExtra(INTENSITY, intensity), PosterFaceAcquisitionActivity.REQ_PREVIEW
+                        .putExtra(TEMPLATE, template).putExtra(PHOTO, photo).putExtra(INTENSITY, intensity).putExtra(POSTER_FACE_ENUM,posterFaceEnum), PosterFaceAcquisitionActivity.REQ_PREVIEW
         );
     }
 
@@ -63,7 +65,6 @@ public class PosterPreviewActivity extends BaseActivity {
     private String mPhoto;
     private String mTemplate;
     private double mIntensity;
-
 
     private PosterChangeFaceDataFactory mPosterChangeFaceDataFactory;
     private FUPosterKit mFUPosterKit;
@@ -76,6 +77,8 @@ public class PosterPreviewActivity extends BaseActivity {
 
     private PhotoRecordHelper mPhotoRecordHelper;
 
+    //从外界传入的图片判断
+    private PosterFaceEnum mPosterFaceEnum;
     //region onCreate
 
     /**
@@ -102,6 +105,7 @@ public class PosterPreviewActivity extends BaseActivity {
         mPhoto = getIntent().getStringExtra(PHOTO);
         mTemplate = getIntent().getStringExtra(TEMPLATE);
         mIntensity = getIntent().getDoubleExtra(INTENSITY, 0.0);
+        mPosterFaceEnum = (PosterFaceEnum) getIntent().getSerializableExtra(POSTER_FACE_ENUM);
         mPosterChangeFaceDataFactory = new PosterChangeFaceDataFactory(mTemplate, mPosterChangeFaceListener);
         mFUPosterKit = FUPosterKit.getInstance(new FUBundleData(DemoConfig.BUNDLE_POSTER_CHANGE_FACE), mOnPosterRenderCallback);
         mMainHandler = new Handler();
@@ -124,6 +128,7 @@ public class PosterPreviewActivity extends BaseActivity {
     public void bindListener() {
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         mFUAIKit.faceProcessorSetDetectMode(FUFaceProcessorDetectModeEnum.IMAGE);
+        mFUAIKit.setHumanProcessorDetectMode(FUHumanProcessorDetectModeEnum.IMAGE);
         mPosterChangeFaceControlView.bindDataFactory(mPosterChangeFaceDataFactory);
         mLoadingViewRoot.setOnTouchListener((view, event) -> true);
         findViewById(R.id.iv_back).setOnClickListener(view -> onBackPressed());
@@ -241,20 +246,19 @@ public class PosterPreviewActivity extends BaseActivity {
 
         /**
          * 照片加载回调
-         * @param trackFace
+         * @param posterFaceEnum
          * @param array
          */
         @Override
-        public void onPhotoLoaded(int trackFace, ArrayList<float[]> array) {
-            switch (trackFace) {
-                case -1:
-                    showPromptFragment(R.string.dialog_face_rotation_not_valid);
-                    break;
-                case 0:
-                    showPromptFragment(R.string.dialog_no_track_face);
-                    break;
-                default:
-                    showFaceMaskView(array);
+        public void onPhotoLoaded(PosterFaceEnum posterFaceEnum, ArrayList<float[]> array) {
+            if (PosterFaceEnum.POSTER_ERROR_NO_FACE == posterFaceEnum) {
+                showPromptFragment(R.string.dialog_no_track_face);
+            } else if (PosterFaceEnum.POSTER_ERROR_ROTATE_FACE == posterFaceEnum) {
+                showPromptFragment(R.string.dialog_face_rotation_not_valid);
+            } else if (PosterFaceEnum.POSTER_ERROR_INCOMPLETE_FACE == posterFaceEnum) {
+                showPromptFragment(R.string.fu_base_incomplete_face_text);
+            } else {
+                showFaceMaskView(array);
             }
         }
     };
@@ -381,9 +385,17 @@ public class PosterPreviewActivity extends BaseActivity {
             }
             if (isFirstRender) {
                 isFirstRender = false;
-                mFUPosterKit.renderPoster(mPhotoBitmap, mPhotoTextureId, mTemplate, mIntensity);
+                //先通过外界的传入判断一次
+                if (PosterFaceEnum.POSTER_ERROR_NO_FACE == mPosterFaceEnum) {
+                    showPromptFragment(R.string.dialog_no_track_face);
+                } else if (PosterFaceEnum.POSTER_ERROR_ROTATE_FACE == mPosterFaceEnum) {
+                    showPromptFragment(R.string.dialog_face_rotation_not_valid);
+                } else if (PosterFaceEnum.POSTER_ERROR_INCOMPLETE_FACE == mPosterFaceEnum) {
+                    showPromptFragment(R.string.dialog_no_incomplete_face);
+                } else {
+                    mFUPosterKit.renderPoster(mPhotoBitmap, mPhotoTextureId, mTemplate, mIntensity);
+                }
             }
-
         }
     };
 

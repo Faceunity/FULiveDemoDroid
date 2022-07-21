@@ -18,6 +18,8 @@ import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.utils.FileUtils;
+import com.faceunity.core.entity.FURenderInputData;
+import com.faceunity.core.enumeration.PosterFaceEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.utils.ThreadHelper;
 import com.faceunity.ui.dialog.ToastHelper;
@@ -42,6 +44,8 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
 
     private String mTempPath;
     private Double mIntensity;
+    //仅用于判断相机视频流的海报换脸人脸情况
+    private volatile PosterFaceEnum mPosterFaceEnum = PosterFaceEnum.POSTER_RIGHT_FACE;
 
     private View mTakeOptionView;
 
@@ -92,7 +96,7 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
                     runOnUiThread(() -> ToastHelper.showNormalToast(PosterFaceAcquisitionActivity.this, "图片保存失败"));
                 } else {
                     mFURenderKit.release();
-                    PosterPreviewActivity.startActivity(this, photoPath, mTempPath, mIntensity);
+                    PosterPreviewActivity.startActivity(this, photoPath, mTempPath, mIntensity, mPosterFaceEnum);
                 }
             });
         });
@@ -147,7 +151,7 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
             Uri uri = data.getData();
             String photoPath = FileUtils.getFilePathByUri(this, uri);
             mFURenderKit.release();
-            PosterPreviewActivity.startActivity(this, photoPath, mTempPath, mIntensity);
+            PosterPreviewActivity.startActivity(this, photoPath, mTempPath, mIntensity,PosterFaceEnum.POSTER_RIGHT_FACE);
         } else if (requestCode == REQ_PREVIEW) {
             if (resultCode == Activity.RESULT_OK) {
                 mShotBitmap = null;
@@ -157,11 +161,6 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
                 onBackPressed();
             }
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     /**
@@ -174,5 +173,41 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
         mTakeOptionView.setVisibility(isShowCustom ? View.GONE : View.VISIBLE);
     }
 
+    @Override
+    protected void onRenderBefore(FURenderInputData inputData) {
+        mPosterFaceEnum = PosterFaceEnum.POSTER_RIGHT_FACE;
+        int faceCount = FUAIKit.getInstance().isTracking();
+        if (faceCount < 1) {
+            mPosterFaceEnum = PosterFaceEnum.POSTER_ERROR_NO_FACE;
+            runOnUiThread(()->{
+                mTrackingView.setVisibility(View.VISIBLE);
+                mTrackingView.setText(R.string.fu_base_is_tracking_text);
+            });
+        } else if (faceCount > 1){} else {
+            //一张人脸
+            float[] faceArray = new float[4];
+            FUAIKit.getInstance().getFaceInfo(0,faceArray);
+            boolean canUseFace = true;
+            //检测人脸是否完整
+            if (faceArray[0] < 0 || faceArray[2] > inputData.getWidth()
+                    || faceArray[1] <0 || faceArray[3] > inputData.getHeight()) {
+                canUseFace = false;
+                mPosterFaceEnum = PosterFaceEnum.POSTER_ERROR_INCOMPLETE_FACE;
+            }
+            //检测角度
+            if (FUAIKit.getInstance().checkRotation()) {
+                mPosterFaceEnum = PosterFaceEnum.POSTER_ERROR_ROTATE_FACE;
+            }
 
+            boolean finalCanUseFace = canUseFace;
+            runOnUiThread(()-> {
+                if (finalCanUseFace) {
+                    mTrackingView.setVisibility(View.GONE);
+                } else {
+                    mTrackingView.setVisibility(View.VISIBLE);
+                    mTrackingView.setText(R.string.fu_base_incomplete_face_text);
+                }
+            });
+        }
+    }
 }

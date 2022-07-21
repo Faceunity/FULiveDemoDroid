@@ -120,6 +120,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         initHorizontalRecycleView(recycler_view_background)
         iv_palette_green.setFillColor(Color.parseColor("#FF00FF00"))
         iv_palette_blue.setFillColor(Color.parseColor("#FF0000FF"))
+        iv_palette_white.setFillColor(Color.parseColor("#FFFFFFFF"))
         iv_palette_pick.setDrawType(RingCircleView.TYPE_PICK_TRANSPARENT)
     }
 
@@ -141,7 +142,6 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                     }
                 } else if (data.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON) {
                     //关键颜色
-                    setPaletteSelected(1)
                     helper.setImageResource(R.id.iv_control, data.openRes)
                 } else {
                     //安全区域根据安全区域的内容是否选择来确认
@@ -264,26 +264,37 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         iv_palette_green.setOnClickListener {
             if (!iv_palette_green.isSelected) {
                 mDataFactory.onColorPickerStateChanged(false, Color.TRANSPARENT)
-                setPaletteSelected(1)
                 mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 255.0, 0.0))
                 setRecoverEnable(checkActionChanged())
+                mActionAdapter.notifyDataSetChanged()
+                setPaletteSelected(1)
             }
-
         }
         iv_palette_blue.setOnClickListener {
             if (!iv_palette_blue.isSelected) {
                 mDataFactory.onColorPickerStateChanged(false, Color.TRANSPARENT)
-                setPaletteSelected(2)
                 mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 0.0, 255.0))
                 setRecoverEnable(checkActionChanged())
+                mActionAdapter.notifyDataSetChanged()
+                setPaletteSelected(2)
+            }
+        }
+        iv_palette_white.setOnClickListener {
+            if (!iv_palette_white.isSelected) {
+                mDataFactory.onColorPickerStateChanged(false, Color.TRANSPARENT)
+                mDataFactory.onColorRGBChanged(doubleArrayOf(255.0, 255.0, 255.0))
+                setRecoverEnable(checkActionChanged())
+                mActionAdapter.notifyDataSetChanged()
+                setPaletteSelected(3)
             }
         }
         iv_palette_pick.setOnClickListener {
             mDataFactory.onBgSegGreenEnableChanged(false)
-            setPaletteSelected(0)
             iv_palette_pick.setDrawType(RingCircleView.TYPE_TRANSPARENT)
             setRecoverEnable(true)
             mDataFactory.onColorPickerStateChanged(true, Color.TRANSPARENT)
+            mActionAdapter.notifyDataSetChanged()
+            setPaletteSelected(0)
         }
     }
 
@@ -361,12 +372,15 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         mDataFactory.onColorPickerStateChanged(false, Color.TRANSPARENT)
         mActionAdapter.notifyDataSetChanged()
         showSeekBar()
-        setRecoverEnable(false)
-
         //安全区域复原
         mDataFactory.bgSafeAreaIndex = 1
         mDataFactory.onSafeAreaSelected(null)
         mSafeAreaAdapter.notifyDataSetChanged()
+
+        //绿幕 蓝幕 白慕 还原回绿幕
+        iv_palette_green.performClick()
+
+        setRecoverEnable(false)
     }
 
     /**
@@ -392,12 +406,14 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     private fun setPaletteSelected(index: Int) {
         iv_palette_green.isSelected = false
         iv_palette_blue.isSelected = false
+        iv_palette_white.isSelected = false
         iv_palette_pick.isSelected = false
         iv_palette_pick.setDrawType(RingCircleView.TYPE_PICK_TRANSPARENT)
         when (index) {
             0 -> iv_palette_pick.isSelected = true
             1 -> iv_palette_green.isSelected = true
             2 -> iv_palette_blue.isSelected = true
+            3 -> iv_palette_white.isSelected = true
 
         }
     }

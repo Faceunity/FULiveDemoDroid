@@ -24,7 +24,7 @@ public class FunctionConfigModel {
     public static HashMap<Integer, FunctionConfigModel> functionSwitchMap = new HashMap<Integer, FunctionConfigModel>() {
         {
             this.put(FACE_BEAUTY, new FunctionConfigModel(true, true, true, true));
-            this.put(MAKE_UP, new FunctionConfigModel(false, false, false, false));
+            this.put(MAKE_UP, new FunctionConfigModel(false, false, false, true));
             this.put(STICKER, new FunctionConfigModel(true, false, true, true));
             this.put(ANIMOJI, new FunctionConfigModel(true, false, false, true));
             this.put(HAIR_BEAUTY, new FunctionConfigModel(true, false, false, true));
@@ -37,13 +37,12 @@ public class FunctionConfigModel {
             this.put(FACE_WARP, new FunctionConfigModel(true, false, false, true));
             this.put(ACTION_RECOGNITION, new FunctionConfigModel(true, false, false, true));
             this.put(BODY_BEAUTY, new FunctionConfigModel(true, false, false, true));
-            this.put(PORTRAIT_SEGMENT, new FunctionConfigModel(true, false, false, true));
+            this.put(PORTRAIT_SEGMENT, new FunctionConfigModel(false, false, false, true));
             this.put(GESTURE_RECOGNITION, new FunctionConfigModel(true, false, false, true));
-            this.put(BG_SEG_GREEN, new FunctionConfigModel(true, false, true, false));
+            this.put(BG_SEG_GREEN, new FunctionConfigModel(true, true, true, false));
             this.put(FINE_STICKER, new FunctionConfigModel(true, true, false, false));
             this.put(AVATAR, new FunctionConfigModel(false, false, false, false));
         }
-
     };
 
 }

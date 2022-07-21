@@ -3,9 +3,14 @@ package com.faceunity.app.utils;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.opengl.GLES20;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.faceunity.app.DemoApplication;
+import com.faceunity.core.faceunity.OffLineRenderHandler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,10 +21,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class FuDeviceUtils {
 
     public static final String TAG = "FuDeviceUtils";
+    public static final String DEVICE_LEVEL = "device_level";
 
     public static final int DEVICE_LEVEL_HIGH = 2;
     public static final int DEVICE_LEVEL_MID = 1;
@@ -325,7 +335,6 @@ public class FuDeviceUtils {
         return Build.HARDWARE;
     }
 
-
     /**
      * Level judgement based on current memory and CPU.
      *
@@ -333,6 +342,12 @@ public class FuDeviceUtils {
      * @return
      */
     public static int judgeDeviceLevel(Context context) {
+        //加一个sp读取 和 设置
+        int cacheDeviceLevel = getCacheDeviceLevel();
+        if (cacheDeviceLevel > -1) {
+            return cacheDeviceLevel;
+        }
+
         int level;
         //有一些设备不符合下述的判断规则，则走一个机型判断模式
         int specialDevice = judgeDeviceLevelInDeviceName();
@@ -350,7 +365,107 @@ public class FuDeviceUtils {
             }
         }
         Log.d(TAG,"DeviceLevel: " + level);
+        saveCacheDeviceLevel(level);
         return level;
+    }
+
+    /**
+     * Level judgement based on current GPU.
+     * 需要GL环境
+     * @return
+     */
+    public static int judgeDeviceLevelGPU() {
+        int cacheDeviceLevel = getCacheDeviceLevel();
+        if (cacheDeviceLevel > -1) {
+            return cacheDeviceLevel;
+        }
+
+        OffLineRenderHandler.getInstance().onResume();
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        //加一个sp读取 和 设置
+        final int[] level = {-1};
+        //有一些设备不符合下述的判断规则，则走一个机型判断模式
+        OffLineRenderHandler.getInstance().queueEvent(() -> {
+            try {
+                //高低端名单
+                int specialDevice = judgeDeviceLevelInDeviceName();
+                level[0] = specialDevice;
+                if (specialDevice >= 0) return;
+
+                String glRenderer = GLES20.glGetString(GLES20.GL_RENDERER);      //GPU 渲染器
+                String glVendor = GLES20.glGetString(GLES20.GL_VENDOR);          //GPU 供应商
+                int GPUVersion;
+                if ("Qualcomm".equals(glVendor)) {
+                    //高通
+                    if (glRenderer != null && glRenderer.startsWith("Adreno")) {
+                        //截取后面的数字
+                        String GPUVersionStr = glRenderer.substring(glRenderer.lastIndexOf(" ") + 1);
+                        try {
+                            GPUVersion = Integer.parseInt(GPUVersionStr);
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                            //可能是后面还包含了非数字的东西，那么截取三位
+                            String GPUVersionStrNew = GPUVersionStr.substring(0,3);
+                            GPUVersion = Integer.parseInt(GPUVersionStrNew);
+                        }
+
+                        if (GPUVersion >= 512) {
+                            level[0] = DEVICE_LEVEL_HIGH;
+                        } else {
+                            level[0] = DEVICE_LEVEL_MID;
+                        }
+                        countDownLatch.countDown();
+                    }
+                } else if ("ARM".equals(glVendor)) {
+                    //ARM
+                    if (glRenderer != null && glRenderer.startsWith("Mali")) {
+                        //截取-后面的东西
+                        String GPUVersionStr = glRenderer.substring(glRenderer.lastIndexOf("-") + 1);
+                        String strStart = GPUVersionStr.substring(0, 1);
+                        String strEnd = GPUVersionStr.substring(1);
+                        try {
+                            GPUVersion = Integer.parseInt(strEnd);
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                            //可能是后面还包含了非数字的东西，那么截取三位
+                            String strEndNew = strEnd.substring(0,2);
+                            GPUVersion = Integer.parseInt(strEndNew);
+                        }
+
+                        if ("G".equals(strStart)) {
+                            if (GPUVersion >= 51) {
+                                level[0] = DEVICE_LEVEL_HIGH;
+                            } else {
+                                level[0] = DEVICE_LEVEL_MID;
+                            }
+                        } else if ("T".equals(strStart)) {
+                            if (GPUVersion > 880) {
+                                level[0] = DEVICE_LEVEL_HIGH;
+                            } else {
+                                level[0] = DEVICE_LEVEL_MID;
+                            }
+                        }
+                        countDownLatch.countDown();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                level[0] = -1;
+                countDownLatch.countDown();
+            }
+        });
+
+        try {
+            countDownLatch.await(200,TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        OffLineRenderHandler.getInstance().onPause();
+
+        //存储设备等级
+        saveCacheDeviceLevel(level[0]);
+        Log.d(TAG,"DeviceLevel: " + level);
+        return level[0];
     }
 
     /**
@@ -579,5 +694,25 @@ public class FuDeviceUtils {
         if (Build.MODEL != null) deviceName = Build.MODEL;
         Log.d(TAG,"deviceName: " + deviceName);
         return deviceName;
+    }
+
+    /**
+     * 缓存设备等级
+     *
+     * @param level
+     */
+    public static void saveCacheDeviceLevel(int level) {
+        SharedPreferences sp = DemoApplication.mApplication.getSharedPreferences(DEVICE_LEVEL, MODE_PRIVATE);
+        sp.edit().putInt(DEVICE_LEVEL, level).apply();
+    }
+
+    /**
+     * 获取设备等级
+     *
+     * @return
+     */
+    public static int getCacheDeviceLevel() {
+        SharedPreferences sp = DemoApplication.mApplication.getSharedPreferences(DEVICE_LEVEL, MODE_PRIVATE);
+        return sp.getInt(DEVICE_LEVEL, -1);
     }
 }

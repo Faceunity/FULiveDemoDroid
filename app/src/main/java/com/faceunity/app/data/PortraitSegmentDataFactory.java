@@ -173,7 +173,7 @@ public class PortraitSegmentDataFactory extends AbstractPropCustomDataFactory {
      * FURenderKit加载当前特效
      */
     public void bindCurrentRenderer() {
-        FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        FUAIKit.getInstance().loadAIProcessor(DemoConfig.getAIHumanBundle(), FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
         FUAIKit.getInstance().setMaxFaces(4);
         FUAIKit.getInstance().setMaxHumans(4);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);

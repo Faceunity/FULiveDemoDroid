@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
+import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +20,16 @@ import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseActivity;
 import com.faceunity.app.data.AnimojiDataFactory;
+import com.faceunity.app.data.AvatarDataFactory;
 import com.faceunity.app.data.BgSegGreenDataFactory;
 import com.faceunity.app.data.BodyBeautyDataFactory;
 import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.FineStickerDataFactory;
+import com.faceunity.app.data.HairBeautyDataFactory;
 import com.faceunity.app.data.MakeupDataFactory;
+import com.faceunity.app.data.MakeupDataFactory;
+import com.faceunity.app.data.MakeupDataFactory;
+import com.faceunity.app.data.MusicFilterDataFactory;
 import com.faceunity.app.data.PortraitSegmentDataFactory;
 import com.faceunity.app.data.PropDataFactory;
 import com.faceunity.app.data.source.BgSegGreenSource;
@@ -39,26 +45,32 @@ import com.faceunity.core.entity.FURenderOutputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.enumeration.FUFaceProcessorDetectModeEnum;
+import com.faceunity.core.enumeration.FUHumanProcessorDetectModeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.listener.OnGlRendererListener;
+import com.faceunity.core.media.midea.MediaPlayerHelper;
 import com.faceunity.core.media.photo.OnPhotoRecordingListener;
 import com.faceunity.core.media.photo.PhotoRecordHelper;
 import com.faceunity.core.media.rgba.RGBAPicker;
 import com.faceunity.core.media.video.VideoPlayHelper;
 import com.faceunity.core.model.bgSegGreen.BgSegGreen;
 import com.faceunity.core.model.facebeauty.FaceBeautyBlurTypeEnum;
+import com.faceunity.core.model.musicFilter.MusicFilter;
 import com.faceunity.core.model.prop.Prop;
 import com.faceunity.core.model.prop.bgSegCustom.BgSegCustom;
 import com.faceunity.core.renderer.PhotoRenderer;
 import com.faceunity.core.utils.GestureTouchHandler;
 import com.faceunity.core.utils.GlUtil;
 import com.faceunity.ui.control.AnimojiControlView;
+import com.faceunity.ui.control.AvatarControlView;
 import com.faceunity.ui.control.BgSegGreenControlView;
 import com.faceunity.ui.control.BodyBeautyControlView;
 import com.faceunity.ui.control.FaceBeautyControlView;
 import com.faceunity.ui.control.FineStickerView;
+import com.faceunity.ui.control.HairBeautyControlView;
 import com.faceunity.ui.control.MakeupControlView;
+import com.faceunity.ui.control.MusicFilterControlView;
 import com.faceunity.ui.control.PropControlView;
 import com.faceunity.ui.control.PropCustomControlView;
 import com.faceunity.ui.dialog.ToastHelper;
@@ -105,6 +117,8 @@ public class ShowPhotoActivity extends BaseActivity {
             }
         } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
             mFineStickerDataFactory.refuseEvent();
+        } else if (mFunctionType == FunctionEnum.MUSIC_FILTER) {
+            mediaPlayerHelper.pausePlay();
         }
         super.onPause();
         mPhotoRenderer.onPause();
@@ -120,6 +134,8 @@ public class ShowPhotoActivity extends BaseActivity {
             mVideoPlayHelper.release();
         } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
             mFineStickerDataFactory.releaseAIProcessor();
+        } else if (mFunctionType == FunctionEnum.MUSIC_FILTER) {
+            mediaPlayerHelper.release();
         }
         mPhotoRenderer.onDestroy();
         super.onDestroy();
@@ -170,6 +186,8 @@ public class ShowPhotoActivity extends BaseActivity {
             changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x350));
         } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
             changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x520));
+        } else if (mFunctionType == FunctionEnum.HAIR_BEAUTY) {
+            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x350));
         } else {
             changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x200));
         }
@@ -193,13 +211,13 @@ public class ShowPhotoActivity extends BaseActivity {
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
     private PhotoRenderer mPhotoRenderer;
 
-    private FaceBeautyDataFactory mFaceBeautyDataFactory;//美颜
+    private FaceBeautyDataFactory mFaceBeautyDataFactory;//美颜a
     private FaceBeautyControlView mFaceBeautyControlView;//美颜
 
-    private MakeupDataFactory mMakeupDataFactory;//美妆
+    private com.faceunity.app.data.MakeupDataFactory mMakeupDataFactory;//美妆
 
     private AnimojiDataFactory mAnimojiFactory;//Animoji
-    private AnimojiControlView mAnimojiControlView;//美颜
+    private AnimojiControlView mAnimojiControlView;//Animoji
 
     private PortraitSegmentDataFactory mPortraitSegmentFactory;//人像分割
     private PropCustomControlView mPortraitSegmentControlView;//人像分割
@@ -214,6 +232,32 @@ public class ShowPhotoActivity extends BaseActivity {
     private FineStickerView fineStickerView;//精品贴纸
     private FineStickerDataFactory mFineStickerDataFactory;//精品贴纸
 
+    //美发
+    private HairBeautyControlView mHairBeautyControlView;
+    private HairBeautyDataFactory mHairBeautyDataFactory;
+
+    //音乐滤镜
+    private MusicFilterControlView mMusicFilterControlView;
+    private MusicFilterDataFactory mMusicFilterDataFactory;
+    private MediaPlayerHelper mediaPlayerHelper;
+    private boolean isMusicPlaying = false;
+    private Handler mHandler;
+    private final Runnable mMusicRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isMusicPlaying) {
+                MusicFilter musicFilter = mFURenderKit.getMusicFilter();
+                if (musicFilter!=null){
+                    musicFilter.setMusicTime(mediaPlayerHelper.getMusicCurrentPosition());
+                }
+                mHandler.postDelayed(this, 50L);
+            }
+        }
+    };
+
+    //Avatar
+    private AvatarDataFactory mAvatarDataFactory;
+    private AvatarControlView mAvatarControlView;
 
     private void bindDataFactory() {
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
@@ -246,7 +290,7 @@ public class ShowPhotoActivity extends BaseActivity {
             mBodyBeautyDataFactory = new BodyBeautyDataFactory();
             ((BodyBeautyControlView) mStubView).bindDataFactory(mBodyBeautyDataFactory);
         } else if (mFunctionType == FunctionEnum.MAKE_UP) {
-            mMakeupDataFactory = new MakeupDataFactory(1);
+            mMakeupDataFactory = new com.faceunity.app.data.MakeupDataFactory(1);
             ((MakeupControlView) mStubView).bindDataFactory(mMakeupDataFactory);
         } else if (mFunctionType == FunctionEnum.ANIMOJI) {
             mAnimojiControlView = ((AnimojiControlView) mStubView);
@@ -278,12 +322,55 @@ public class ShowPhotoActivity extends BaseActivity {
                     runOnUiThread(()-> mTrackingView.setText(R.string.fu_base_is_tracking_text));
                 }
             });
+        } else if (mFunctionType == FunctionEnum.HAIR_BEAUTY) {
+            mHairBeautyControlView = ((HairBeautyControlView) mStubView);
+            mHairBeautyDataFactory = new HairBeautyDataFactory(1);
+            mHairBeautyControlView.bindDataFactory(mHairBeautyDataFactory);
+        } else if (mFunctionType == FunctionEnum.MUSIC_FILTER) {
+            mMusicFilterControlView = ((MusicFilterControlView) mStubView);
+            mHandler = new Handler();
+            mMusicFilterDataFactory = new MusicFilterDataFactory(1, data -> {
+                String path = data.getMusic();
+                if (path != null) {
+                    mediaPlayerHelper.playMusic(path, true);
+                } else {
+                    mediaPlayerHelper.stopPlay();
+                }
+            });
+            mMusicFilterControlView.bindDataFactory(mMusicFilterDataFactory);
+            mediaPlayerHelper = new MediaPlayerHelper(this, new MediaPlayerHelper.MediaPlayerListener() {
+                @Override
+                public void onStart() {
+                    isMusicPlaying = true;
+                    mHandler.post(mMusicRunnable);
+                }
+
+                @Override
+                public void onPause() {
+                    isMusicPlaying = false;
+                }
+
+                @Override
+                public void onStop() {
+                    isMusicPlaying = false;
+                }
+
+                @Override
+                public void onCompletion() {
+                    isMusicPlaying = false;
+                }
+            });
+        } else if (mFunctionType == FunctionEnum.AVATAR) {
+            mAvatarControlView = (AvatarControlView) mStubView;
+            mAvatarDataFactory = new AvatarDataFactory(0, true);
+            mAvatarControlView.bindDataFactory(mAvatarDataFactory);
         }
     }
 
     private void configureFURenderKit() {
         FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         FUAIKit.getInstance().faceProcessorSetDetectMode(FUFaceProcessorDetectModeEnum.IMAGE);
+        FUAIKit.getInstance().setHumanProcessorDetectMode(FUHumanProcessorDetectModeEnum.IMAGE);
         FUAIKit.getInstance().faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
         //高端机开启小脸检测
         if (DemoConfig.DEVICE_LEVEL  > FuDeviceUtils.DEVICE_LEVEL_MID)
@@ -306,6 +393,12 @@ public class ShowPhotoActivity extends BaseActivity {
             mMakeupDataFactory.bindCurrentRenderer();
         } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
             mFineStickerDataFactory.bindCurrentRenderer();
+        } else if (mFunctionType == FunctionEnum.HAIR_BEAUTY) {
+            mHairBeautyDataFactory.bindCurrentRenderer();
+        } else if (mFunctionType == FunctionEnum.MUSIC_FILTER) {
+            mMusicFilterDataFactory.bindCurrentRenderer();
+        } else if (mFunctionType == FunctionEnum.AVATAR) {
+            mAvatarDataFactory.bindCurrentRenderer();
         }
     }
 
@@ -329,6 +422,12 @@ public class ShowPhotoActivity extends BaseActivity {
             return R.layout.layout_control_prop_custom;
         } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
             return R.layout.layout_control_fine_sticker;
+        } else if (mFunctionType == FunctionEnum.HAIR_BEAUTY) {
+            return R.layout.layout_control_hair_beauty;
+        } else if (mFunctionType == FunctionEnum.MUSIC_FILTER) {
+            return R.layout.layout_control_music_filter;
+        } else if (mFunctionType == FunctionEnum.AVATAR) {
+            return R.layout.layout_control_avatar;
         }
         return 0;
     }
@@ -391,7 +490,7 @@ public class ShowPhotoActivity extends BaseActivity {
         @Override
         public void onRenderBefore(FURenderInputData inputData) {
             if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
-                cheekFaceNum();
+                cheekFaceConfidenceScore();
         }
 
         @Override
@@ -410,6 +509,7 @@ public class ShowPhotoActivity extends BaseActivity {
         @Override
         public void onSurfaceDestroy() {
             FUAIKit.getInstance().faceProcessorSetDetectMode(FUFaceProcessorDetectModeEnum.VIDEO);
+            FUAIKit.getInstance().setHumanProcessorDetectMode(FUHumanProcessorDetectModeEnum.VIDEO);
             mFURenderKit.release();
         }
 
@@ -492,21 +592,23 @@ public class ShowPhotoActivity extends BaseActivity {
     }
 
     /**
-     * 检查当前人脸数量
+     * 检查当前人脸置信度
      */
-    private void cheekFaceNum() {
+    private void cheekFaceConfidenceScore() {
         //根据有无人脸 + 设备性能 判断开启的磨皮类型
         float faceProcessorGetConfidenceScore = FUAIKit.getInstance().getFaceProcessorGetConfidenceScore(0);
-        if (faceProcessorGetConfidenceScore >= 0.95) {
-            //高端手机并且检测到人脸开启均匀磨皮
-            if (mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.EquallySkin) {
-                mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.EquallySkin);
-                mFURenderKit.getFaceBeauty().setEnableBlurUseMask(true);
-            }
-        } else {
-            if (mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.FineSkin) {
-                mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.FineSkin);
-                mFURenderKit.getFaceBeauty().setEnableBlurUseMask(false);
+        if (mFURenderKit.getFaceBeauty() != null) {
+            if (faceProcessorGetConfidenceScore >= DemoConfig.FACE_CONFIDENCE_SCORE) {
+                //高端手机并且检测到人脸开启均匀磨皮
+                if (mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.EquallySkin) {
+                    mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.EquallySkin);
+                    mFURenderKit.getFaceBeauty().setEnableBlurUseMask(true);
+                }
+            } else {
+                if (mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.FineSkin) {
+                    mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.FineSkin);
+                    mFURenderKit.getFaceBeauty().setEnableBlurUseMask(false);
+                }
             }
         }
     }
@@ -754,11 +856,11 @@ public class ShowPhotoActivity extends BaseActivity {
         }
         Uri uri = data.getData();
         String path = FileUtils.getFilePathByUri(this, uri);
-        PropCustomBean customBean = PortraitSegmentSource.buildPropCustomBean(path);
-        if (customBean == null) {
-            return;
-        }
         if (mPortraitSegmentFactory != null) {
+            PropCustomBean customBean = PortraitSegmentSource.buildPropCustomBean(path);
+            if (customBean == null) {
+                return;
+            }
             PropCustomBean bean = mPortraitSegmentFactory.getPropCustomBeans().get(2);
             if (bean.getType() == FunctionEnum.BG_SEG_CUSTOM) {
                 mPortraitSegmentControlView.replaceProp(customBean, 2);
