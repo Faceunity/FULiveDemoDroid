@@ -10,6 +10,7 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.BgSegGreenDataFactory;
@@ -92,6 +93,7 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
         super.bindListener();
         /*VideoDecoderHelper 需要在Surface初始化之后*/
         mVideoPlayHelper = new VideoPlayHelper(mVideoDecoderListener, mSurfaceView, false);
+        mVideoPlayHelper.setFilterFrame(DemoConfig.BG_GREEN_FILTER_FRAME);
         mBgSegGreenControlView.bindDataFactory(mBgSegGreenDataFactory);
         mBgSegGreenControlView.setOnBottomAnimatorChangeListener(showRate -> {
             updateTakePicButton(getResources().getDimensionPixelSize(R.dimen.x166), showRate, getResources().getDimensionPixelSize(R.dimen.x128),

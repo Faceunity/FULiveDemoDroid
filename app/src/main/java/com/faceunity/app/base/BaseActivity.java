@@ -1,6 +1,5 @@
 package com.faceunity.app.base;
 
-import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -26,9 +25,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (getLayoutResID() > 0) {
             setContentView(getLayoutResID());
         }
-        //检查设备基本情况，并记录在app生命周期内。
-        DemoConfig.DEVICE_LEVEL = FuDeviceUtils.judgeDeviceLevel(BaseActivity.this);
-        DemoConfig.DEVICE_NAME = FuDeviceUtils.getDeviceName();
         initData();
         initView();
         bindListener();

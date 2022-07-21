@@ -39,7 +39,7 @@ public class ActionRecognitionActivity extends BaseFaceUnityActivity {
     @Override
     protected void configureFURenderKit() {
         super.configureFURenderKit();
-        FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        FUAIKit.getInstance().loadAIProcessor(DemoConfig.getAIHumanBundle(), FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
         FUAIKit.getInstance().setMaxFaces(1);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         mFURenderKit.setActionRecognition(actionRecognition);

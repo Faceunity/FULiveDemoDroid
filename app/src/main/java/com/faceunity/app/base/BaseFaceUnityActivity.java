@@ -362,9 +362,10 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
         @Override
         public void onRenderBefore(FURenderInputData inputData) {
+            mEnableFaceRender = true;
             checkSpecialDevice(inputData);
             if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
-                cheekFaceNum();
+                cheekFaceConfidenceScore();
             width = inputData.getWidth();
             height = inputData.getHeight();
             mFuCallStartTime = System.nanoTime();
@@ -414,12 +415,19 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
             }
         }
 
+        private boolean mEnableFaceRender = false; //是否使用sdk渲染，该变量只在一个线程使用不需要volatile
+
         /*渲染FPS日志*/
         private void benchmarkFPS() {
             if (!isShowBenchmark) {
                 return;
             }
-            mOneHundredFrameFUTime += System.nanoTime() - mFuCallStartTime;
+
+            if (mEnableFaceRender)
+                mOneHundredFrameFUTime += System.nanoTime() - mFuCallStartTime;
+            else
+                mOneHundredFrameFUTime = 0;
+
             if (++mCurrentFrameCnt == mMaxFrameCnt) {
                 mCurrentFrameCnt = 0;
                 double fps = ((double) mMaxFrameCnt) * 1000000000L / (System.nanoTime() - mLastOneHundredFrameTimeStamp);
@@ -428,6 +436,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
                 mOneHundredFrameFUTime = 0;
                 runOnUiThread(() -> onBenchmarkFPSChanged(width, height, fps, renderTime));
             }
+            mEnableFaceRender = false;
         }
 
         /*录制保存*/
@@ -448,10 +457,10 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     /**
      * 检查当前人脸数量
      */
-    private void cheekFaceNum() {
+    private void cheekFaceConfidenceScore() {
         //根据有无人脸 + 设备性能 判断开启的磨皮类型
         float faceProcessorGetConfidenceScore = mFUAIKit.getFaceProcessorGetConfidenceScore(0);
-        if (faceProcessorGetConfidenceScore >= 0.95) {
+        if (faceProcessorGetConfidenceScore >= DemoConfig.FACE_CONFIDENCE_SCORE) {
             //高端手机并且检测到人脸开启均匀磨皮，人脸点位质
             if (mFURenderKit != null && mFURenderKit.getFaceBeauty() != null && mFURenderKit.getFaceBeauty().getBlurType() != FaceBeautyBlurTypeEnum.EquallySkin) {
                 mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.EquallySkin);

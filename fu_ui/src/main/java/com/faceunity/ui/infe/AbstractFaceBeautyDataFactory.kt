@@ -26,7 +26,7 @@ abstract class AbstractFaceBeautyDataFactory {
     /* 滤镜底部菜单数据*/
     abstract val beautyFilters: ArrayList<FaceBeautyFilterBean>
 
-    /* 滤镜底部菜单数据*/
+    /* 风格底部菜单数据*/
     abstract val beautyStyles: ArrayList<FaceBeautyStyleBean>
 
     /*系统推荐配置滤镜对应下标*/
@@ -97,5 +97,8 @@ abstract class AbstractFaceBeautyDataFactory {
      */
     abstract fun updateParamIntensity(key: String, value: Double)
 
-
+    /**
+     * 将所有效果置空 -> 变成标准值
+     */
+    abstract fun resetParamIntensity()
 }

@@ -12,6 +12,7 @@ import com.faceunity.app.data.PortraitSegmentDataFactory;
 import com.faceunity.app.data.source.PortraitSegmentSource;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.utils.FileUtils;
+import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.media.video.VideoPlayHelper;
 import com.faceunity.core.model.prop.Prop;
@@ -164,5 +165,12 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
         }
         mPortraitSegmentDataFactory.setCurrentPropIndex(2);
         mPortraitSegmentDataFactory.onItemSelected(customBean);
+    }
+
+    @Override
+    protected void onRenderBefore(FURenderInputData inputData) {
+        //人像分割模块，设置为单纹理输入。
+        inputData.setImageBuffer(null);
+        inputData.getRenderConfig().setNeedBufferReturn(false);
     }
 }

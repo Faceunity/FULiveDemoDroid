@@ -10,6 +10,7 @@ import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.facebeauty.FaceBeauty;
+import com.faceunity.core.model.facebeauty.FaceBeautyFilterEnum;
 import com.faceunity.core.model.prop.expression.ExpressionRecognition;
 import com.faceunity.ui.entity.FaceBeautyBean;
 import com.faceunity.ui.entity.FaceBeautyFilterBean;
@@ -63,13 +64,16 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
 
-    /*美颜缓存数据模型 用于风格切换*/
-    private static final FaceBeauty defaultFaceBeauty = FaceBeautySource.getDefaultFaceBeauty();
-    /*当前生效美颜数据模型*/
-    public static FaceBeauty faceBeauty = defaultFaceBeauty;
-
     /*推荐风格标识*/
     private static int currentStyleIndex = -1;
+
+    /*美颜缓存数据模型 用于普通美颜*/
+    public static final FaceBeauty defaultFaceBeauty = FaceBeautySource.getDefaultFaceBeauty();
+
+    /*当前生效美颜数据模型 普通 or 风格的*/
+    public static FaceBeauty faceBeauty = defaultFaceBeauty;
+
+
     /*默认滤镜选中下标*/
     private int currentFilterIndex = 0;
     /*业务回调*/
@@ -137,11 +141,10 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     public ArrayList<FaceBeautyFilterBean> getBeautyFilters() {
         ArrayList<FaceBeautyFilterBean> filterBeans = FaceBeautySource.buildFilters();
         for (int i = 0; i < filterBeans.size(); i++) {
-            if (filterBeans.get(i).getKey().equals(faceBeauty.getFilterName())) {
-                filterBeans.get(i).setIntensity(faceBeauty.getFilterIntensity());
+            if (filterBeans.get(i).getKey().equals(defaultFaceBeauty.getFilterName())) {
+                filterBeans.get(i).setIntensity(defaultFaceBeauty.getFilterIntensity());
                 currentFilterIndex = i;
             }
-
         }
         return filterBeans;
     }
@@ -199,6 +202,15 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     }
 
     /**
+     * 设置风格推荐标识 来自于硬盘
+     *
+     * @param styleIndex
+     */
+    public static void setDiskCurrentStyleIndex(int styleIndex) {
+        currentStyleIndex = styleIndex;
+    }
+
+    /**
      * 美颜开关设置
      *
      * @param enable
@@ -233,6 +245,43 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         if (faceBeautySetMapping.containsKey(key)) {
             faceBeautySetMapping.get(key).setValue(value);
         }
+    }
+
+    /**
+     * 将所有效果制空
+     */
+    @Override
+    public void resetParamIntensity() {
+        if (faceBeauty != defaultFaceBeauty) {
+            faceBeauty = defaultFaceBeauty;
+            FURenderKit.getInstance().setFaceBeauty(faceBeauty);
+        }
+
+        ArrayList<FaceBeautyBean> skinBeauty = getSkinBeauty();
+        ArrayList<FaceBeautyBean> shapeBeauty = getShapeBeauty();
+        HashMap<String, ModelAttributeData> modelAttributeRange = getModelAttributeRange();
+
+        //还原美肤
+        for (FaceBeautyBean faceBeautyBean:skinBeauty) {
+            String key = faceBeautyBean.getKey();
+            ModelAttributeData modelAttributeData = modelAttributeRange.get(key);
+            updateParamIntensity(key,modelAttributeData.getStand());
+        }
+
+        //还原美型
+        for (FaceBeautyBean faceBeautyBean:shapeBeauty) {
+            String key = faceBeautyBean.getKey();
+            ModelAttributeData modelAttributeData = modelAttributeRange.get(key);
+            updateParamIntensity(key,modelAttributeData.getStand());
+        }
+
+        //还原滤镜
+        defaultFaceBeauty.setFilterName(FaceBeautyFilterEnum.ORIGIN);
+        defaultFaceBeauty.setFilterIntensity(0.0);
+        setCurrentFilterIndex(0);
+
+        //设置风格角标
+        setCurrentStyleIndex(-1);
     }
 
     @Override
@@ -270,8 +319,8 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
      */
     @Override
     public void onFilterSelected(@NonNull String name, double intensity, int resID) {
-        faceBeauty.setFilterName(name);
-        faceBeauty.setFilterIntensity(intensity);
+        defaultFaceBeauty.setFilterName(name);
+        defaultFaceBeauty.setFilterIntensity(intensity);
         mFaceBeautyListener.onFilterSelected(resID);
     }
 
@@ -282,7 +331,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
      */
     @Override
     public void updateFilterIntensity(double intensity) {
-        faceBeauty.setFilterIntensity(intensity);
+        defaultFaceBeauty.setFilterIntensity(intensity);
     }
 
     /**
@@ -326,6 +375,8 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         put(FaceBeautyParam.INTENSITY_LOW_JAW_INTENSITY, defaultFaceBeauty::setLowerJawIntensity);
         put(FaceBeautyParam.EYE_ENLARGING_INTENSITY, defaultFaceBeauty::setEyeEnlargingIntensity);
         put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, defaultFaceBeauty::setEyeCircleIntensity);
+        put(FaceBeautyParam.BROW_HEIGHT_INTENSITY, defaultFaceBeauty::setBrowHeightIntensity);
+        put(FaceBeautyParam.BROW_SPACE_INTENSITY, defaultFaceBeauty::setBrowSpaceIntensity);
         put(FaceBeautyParam.CHIN_INTENSITY, defaultFaceBeauty::setChinIntensity);
         put(FaceBeautyParam.FOREHEAD_INTENSITY, defaultFaceBeauty::setForHeadIntensity);
         put(FaceBeautyParam.NOSE_INTENSITY, defaultFaceBeauty::setNoseIntensity);
@@ -362,6 +413,8 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
             put(FaceBeautyParam.INTENSITY_LOW_JAW_INTENSITY, defaultFaceBeauty::getLowerJawIntensity);
             put(FaceBeautyParam.EYE_ENLARGING_INTENSITY, defaultFaceBeauty::getEyeEnlargingIntensity);
             put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, defaultFaceBeauty::getEyeCircleIntensity);
+            put(FaceBeautyParam.BROW_HEIGHT_INTENSITY, defaultFaceBeauty::getBrowHeightIntensity);
+            put(FaceBeautyParam.BROW_SPACE_INTENSITY, defaultFaceBeauty::getBrowSpaceIntensity);
             put(FaceBeautyParam.CHIN_INTENSITY, defaultFaceBeauty::getChinIntensity);
             put(FaceBeautyParam.FOREHEAD_INTENSITY, defaultFaceBeauty::getForHeadIntensity);
             put(FaceBeautyParam.NOSE_INTENSITY, defaultFaceBeauty::getNoseIntensity);
@@ -384,7 +437,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         mFURenderKit.setFaceBeauty(faceBeauty);
         FUAIKit.getInstance().setMaxFaces(4);
         if (DemoConfig.IS_OPEN_LAND_MARK) {
-            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData("others/landmarks.bundle"));
+            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData(DemoConfig.BUNDLE_LANDMARKS));
             expressionRecognition.setLandmarksType(FUAITypeEnum.FUAITYPE_FACELANDMARKS239);
             mFURenderKit.getPropContainer().addProp(expressionRecognition);
         }

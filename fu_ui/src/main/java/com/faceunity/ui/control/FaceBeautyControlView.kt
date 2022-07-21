@@ -10,9 +10,8 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.AnimationSet
 import android.view.animation.TranslateAnimation
+import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.core.view.forEach
-import androidx.core.view.get
 import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
@@ -26,6 +25,7 @@ import com.faceunity.ui.infe.AbstractFaceBeautyDataFactory
 import com.faceunity.ui.seekbar.DiscreteSeekBar
 import com.faceunity.ui.utils.DecimalUtils
 import kotlinx.android.synthetic.main.layout_face_beauty_control.view.*
+import kotlin.collections.set
 
 
 /**
@@ -86,6 +86,8 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
         if (dataFactory.currentStyleIndex > -1) {
             lyt_style_recover.isSelected = false
             setBottomCheckRatioEnable(false)
+            var data = mStyles[dataFactory.currentStyleIndex]
+            mDataFactory.onStyleSelected(data.key)
         } else {
             lyt_style_recover.isSelected = true
             setBottomCheckRatioEnable(true)
@@ -203,6 +205,13 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                         } else {
                             helper.setImageResource(R.id.iv_control, data.openRes)
                         }
+                        if (!data.canUseFunction) {
+                            val ivControl = helper.getView<ImageView>(R.id.iv_control)
+                            ivControl?.imageAlpha = 154
+                        } else {
+                            val ivControl = helper.getView<ImageView>(R.id.iv_control)
+                            ivControl?.imageAlpha = 255
+                        }
 
                         if (openEnterAnimation && needEnterAnimation && position != 0) {
                             enterAnimation(helper.itemView)
@@ -219,6 +228,10 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                 if ((isShinSelected && position == mSkinIndex) || (!isShinSelected && position == mShapeIndex)) {
                     return
                 }
+                if (!data.canUseFunction) {
+                    ToastHelper.showNormalToast(mContext,data.toastDesRes)
+                    return
+                }
                 if (isShinSelected) {
                     changeAdapterSelected(mBeautyAdapter, mSkinIndex, position)
                     val value = mDataFactory.getParamIntensity(data.key)
@@ -227,7 +240,6 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                     seekToSeekBar(value, stand, maxRange)
                     mSkinIndex = position
                 } else {
-                    //点击了美型，查询按钮类型
                     when (data.buttonType) {
                         FaceBeautyBean.ButtonType.BACK_BUTTON -> {
                             //返回按钮
@@ -349,6 +361,36 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
             setBottomCheckRatioEnable(true)
             mDataFactory.onStyleSelected(null)
         }
+
+        iv_reset.setOnClickListener {
+            mDataFactory.resetParamIntensity()
+            var item:FaceBeautyBean? = null
+            when (beauty_radio_group.checkedCheckBoxId) {
+                R.id.beauty_radio_skin_beauty -> {
+                    mBeautyAdapter.notifyDataSetChanged()
+                    item = mSkinBeauty[mSkinIndex]
+                    setRecoverFaceSkinEnable(true)
+                }
+                R.id.beauty_radio_face_shape -> {
+                    mBeautyAdapter.notifyDataSetChanged()
+                    item = mShapeBeauty[mShapeIndex]
+                    setRecoverFaceSkinEnable(true)
+                }
+                R.id.beauty_radio_filter -> {
+                    mFiltersAdapter.notifyDataSetChanged()
+                    beauty_seek_bar.visibility = View.INVISIBLE
+                }
+                R.id.beauty_radio_style -> {
+                    mStylesAdapter.notifyDataSetChanged()
+                }
+            }
+            item?.let {
+                val value = mDataFactory.getParamIntensity(it.key)
+                val stand = mModelAttributeRange[it.key]!!.stand
+                val maxRange = mModelAttributeRange[it.key]!!.maxRange
+                seekToSeekBar(value, stand, maxRange)
+            }
+        }
     }
 
 
@@ -408,7 +450,6 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      * 底部导航栏绑定监听事件，处理RecycleView等相关布局变更
      */
     private fun bindBottomRadioListener() {
-
         beauty_radio_group.setOnDispatchActionUpListener { x ->
             if (!mEnableBottomRationClick) {
                 val width = beauty_radio_group.measuredWidth
@@ -429,10 +470,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
             }
         }
 
-
-
         beauty_radio_group.setOnCheckedChangeListener { _, checkedId ->
-
             //视图变化
             when (checkedId) {
                 R.id.beauty_radio_skin_beauty, R.id.beauty_radio_face_shape -> {
@@ -460,7 +498,6 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                     iv_compare.visibility = View.INVISIBLE
                     mDataFactory.enableFaceBeauty(true)
                 }
-
             }
 
             //数据变化
@@ -569,6 +606,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
         } else {
             viewHolder?.setImageResource(R.id.iv_control, item.openRes)
         }
+        mBeautyAdapter.notifyDataSetChanged()
     }
 
     /**
@@ -774,5 +812,15 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
         animSet.fillAfter = true
         animSet.addAnimation(alphaAnim)
         view.startAnimation(animSet)
+    }
+
+    /**
+     * 是否展示还原按钮
+     */
+    fun setResetButton(isVisible:Boolean) {
+        if (isVisible)
+            iv_reset.visibility = View.VISIBLE
+        else
+            iv_reset.visibility = View.GONE
     }
 }

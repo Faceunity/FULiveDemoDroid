@@ -15,6 +15,8 @@ data class FaceBeautyBean(
     val desRes: Int,
     val closeRes: Int,
     val openRes: Int,
+    val toastDesRes: Int,
+    val canUseFunction:Boolean = true,
     val buttonType: ButtonType = ButtonType.NORMAL_BUTTON//定义一项按钮功能 普通按钮 返回按钮 子项按钮
 ) {
     constructor(key: String, desRes: Int, closeRes: Int, openRes: Int) : this(
@@ -22,7 +24,19 @@ data class FaceBeautyBean(
         desRes,
         closeRes,
         openRes,
+        0,
+            true,
         ButtonType.NORMAL_BUTTON
+    )
+
+    constructor(key: String, desRes: Int, closeRes: Int, openRes: Int,toastDesRes: Int,canUseFunction: Boolean) : this(
+            key,
+            desRes,
+            closeRes,
+            openRes,
+            toastDesRes,
+            canUseFunction,
+            ButtonType.NORMAL_BUTTON
     )
 
     enum class ButtonType{

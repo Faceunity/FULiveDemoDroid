@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.PropSource;
+import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
@@ -16,7 +17,6 @@ import com.faceunity.core.model.prop.expression.ExpressionRecognition;
 import com.faceunity.core.model.prop.faceWarp.FaceWarp;
 import com.faceunity.core.model.prop.gesture.GestureRecognition;
 import com.faceunity.core.model.prop.sticker.Sticker;
-import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.ui.entity.PropBean;
 import com.faceunity.ui.infe.AbstractPropDataFactory;
 

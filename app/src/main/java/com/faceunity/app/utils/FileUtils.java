@@ -94,6 +94,19 @@ public class FileUtils {
     }
 
     /**
+     * 应用下缓存文件目录
+     *
+     * @return
+     */
+    public static File getCacheFileDir(Context context) {
+        File fileDir = context.getCacheDir();
+        if (fileDir == null) {
+            fileDir = context.getFilesDir();
+        }
+        return fileDir;
+    }
+
+    /**
      * 获取当前时间日期
      *
      * @return

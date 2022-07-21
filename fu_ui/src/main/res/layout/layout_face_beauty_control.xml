@@ -6,14 +6,29 @@
     android:gravity="bottom"
     android:orientation="vertical">
 
-    <com.faceunity.ui.widget.TouchStateImageView
-        android:id="@+id/iv_compare"
-        android:layout_width="@dimen/x72"
-        android:layout_height="@dimen/x72"
-        android:layout_marginStart="@dimen/x34"
-        android:layout_marginBottom="@dimen/x34"
-        android:src="@mipmap/icon_beauty_face_contrast"
-        android:visibility="gone" />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.faceunity.ui.widget.TouchStateImageView
+            android:id="@+id/iv_compare"
+            android:layout_width="@dimen/x72"
+            android:layout_height="@dimen/x72"
+            android:layout_marginStart="@dimen/x34"
+            android:layout_marginBottom="@dimen/x34"
+            android:src="@mipmap/icon_beauty_face_contrast"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/iv_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="@dimen/x34"
+            android:text="去除效果"
+            android:visibility="gone" />
+    </RelativeLayout>
+
 
     <LinearLayout
         android:id="@+id/fyt_bottom_view"
@@ -69,8 +84,8 @@
                     android:id="@+id/tv_beauty_recover"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:gravity="center_vertical"
                     android:layout_marginBottom="@dimen/x30"
+                    android:gravity="center_vertical"
                     android:text="@string/recover"
                     android:textColor="@color/tv_main_color_selector"
                     android:textSize="@dimen/text_size_20" />
@@ -96,8 +111,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:gravity="center_vertical"
                     android:layout_marginBottom="@dimen/x30"
+                    android:gravity="center_vertical"
                     android:text="@string/beauty_face_style_none"
                     android:textColor="@color/tv_main_color_selector"
                     android:textSize="@dimen/text_size_20" />
@@ -143,7 +158,7 @@
             android:gravity="center"
             android:text="@string/beauty_radio_skin_beauty"
             android:textColor="@color/bottom_radio_color"
-            android:textSize="@dimen/text_size_26"/>
+            android:textSize="@dimen/text_size_26" />
 
         <com.faceunity.ui.checkbox.CheckBoxCompat
             android:id="@+id/beauty_radio_face_shape"
@@ -155,7 +170,7 @@
             android:gravity="center"
             android:text="@string/beauty_radio_face_shape"
             android:textColor="@color/bottom_radio_color"
-            android:textSize="@dimen/text_size_26"/>
+            android:textSize="@dimen/text_size_26" />
 
         <com.faceunity.ui.checkbox.CheckBoxCompat
             android:id="@+id/beauty_radio_filter"
@@ -179,7 +194,7 @@
             android:gravity="center"
             android:text="@string/beauty_radio_style"
             android:textColor="@color/bottom_radio_color"
-            android:textSize="@dimen/text_size_26"/>
+            android:textSize="@dimen/text_size_26" />
 
     </com.faceunity.ui.checkbox.CheckGroup>
 </LinearLayout>

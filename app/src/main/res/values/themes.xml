@@ -11,9 +11,13 @@
         <item name="android:splitMotionEvents">false</item>
     </style>
 
+    <style name="ActivitySplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@mipmap/bg_loading</item>
+        <item name="android:splitMotionEvents">false</item>
+    </style>
+
     <style name="ActivityBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowEnableSplitTouch">false</item>
-        <item name="android:windowBackground">@mipmap/bg_loading</item>
         <item name="android:splitMotionEvents">false</item>
     </style>
 
@@ -23,8 +27,4 @@
         <item name="android:windowEnableSplitTouch">false</item>
         <item name="android:splitMotionEvents">false</item>
     </style>
-
-
-
-
 </resources>

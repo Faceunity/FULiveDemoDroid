@@ -7,7 +7,6 @@ import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedOutputStream;
@@ -23,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLSocketFactory;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -97,6 +98,14 @@ public final class OkHttpUtils {
             });
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
             builder.addInterceptor(logging);
+        }
+
+        //Android4.4一下手机制定ssl1.2
+        try {
+            SSLSocketFactory factory = new SSLSocketFactoryCompat();
+            builder.sslSocketFactory(factory);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 //        HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory();
 //        builder.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);

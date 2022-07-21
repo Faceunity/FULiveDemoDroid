@@ -11,17 +11,14 @@ import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.makeup.Makeup;
-import com.faceunity.core.model.makeup.MakeupBrowWarpEnum;
 import com.faceunity.core.model.makeup.MakeupLipEnum;
 import com.faceunity.core.model.prop.expression.ExpressionRecognition;
-import com.faceunity.core.model.prop.sticker.Sticker;
 import com.faceunity.ui.entity.MakeupCombinationBean;
 import com.faceunity.ui.entity.MakeupCustomBean;
 import com.faceunity.ui.entity.MakeupCustomClassBean;
 import com.faceunity.ui.infe.AbstractMakeupDataFactory;
 import com.faceunity.ui.utils.DecimalUtils;
 
-import java.lang.annotation.ElementType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -124,7 +121,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         currentMakeup = MakeupSource.getMakeupModel(bean);
         mFURenderKit.setMakeup(currentMakeup);
-        if (currentMakeup.getControlBundle().getPath() != DemoConfig.BUNDLE_FACE_MAKEUP) currentMakeup.setFilterIntensity(currentFilterIntensity);
+        if (!currentMakeup.getControlBundle().getPath().equals(DemoConfig.BUNDLE_FACE_MAKEUP)) currentMakeup.setFilterIntensity(currentFilterIntensity);
     }
 
     /**
@@ -140,7 +137,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             mFURenderKit.getFaceBeauty().setFilterIntensity(currentFilterIntensity);
         }
 
-        if (currentMakeup.getControlBundle().getPath() != DemoConfig.BUNDLE_FACE_MAKEUP) currentMakeup.setFilterIntensity(currentFilterIntensity);
+        if (!currentMakeup.getControlBundle().getPath().equals(DemoConfig.BUNDLE_FACE_MAKEUP)) currentMakeup.setFilterIntensity(currentFilterIntensity);
     }
 
 
@@ -297,31 +294,8 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
                 currentMakeup.setEyeBrowIntensity(0.0);
                 currentMakeup.setEnableBrowWarp(false);
             } else {
-                currentMakeup.setEnableBrowWarp(true);
-                currentMakeup.setEyeBrowBundle(new FUBundleData(itemDir + "mu_style_eyebrow_01.bundle"));
-                switch (index) {
-                    case 1:
-                        currentMakeup.setBrowWarpType(MakeupBrowWarpEnum.WILLOW);
-                        break;
-                    case 2:
-                        currentMakeup.setBrowWarpType(MakeupBrowWarpEnum.STANDARD);
-                        break;
-                    case 3:
-                        currentMakeup.setBrowWarpType(MakeupBrowWarpEnum.HILL);
-                        break;
-                    case 4:
-                        currentMakeup.setBrowWarpType(MakeupBrowWarpEnum.ONE_WORD);
-                        break;
-                    case 5:
-                        currentMakeup.setBrowWarpType(MakeupBrowWarpEnum.SHAPE);
-                        break;
-                    case 6:
-                        currentMakeup.setBrowWarpType(MakeupBrowWarpEnum.DAILY);
-                        break;
-                    case 7:
-                        currentMakeup.setBrowWarpType(MakeupBrowWarpEnum.JAPAN);
-                        break;
-                }
+                currentMakeup.setEnableBrowWarp(false);
+                currentMakeup.setEyeBrowBundle(new FUBundleData(itemDir + "mu_style_eyebrow_0" + index + ".bundle"));
                 double intensity = 1.0;
                 if (mCustomIntensityMap.containsKey(FACE_MAKEUP_TYPE_EYE_BROW + "_" + index)) {
                     intensity = mCustomIntensityMap.get(FACE_MAKEUP_TYPE_EYE_BROW + "_" + index);
@@ -602,30 +576,13 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             double intensity = currentMakeup.getEyeBrowIntensity() * makeupIntensity;
             currentMakeup.setEyeBrowIntensity(intensity);
             int current = 0;
-            switch (currentMakeup.getBrowWarpType()) {
-                case MakeupBrowWarpEnum.WILLOW:
-                    current = 1;
-                    break;
-                case MakeupBrowWarpEnum.STANDARD:
-                    current = 2;
-                    break;
-                case MakeupBrowWarpEnum.HILL:
-                    current = 3;
-                    break;
-                case MakeupBrowWarpEnum.ONE_WORD:
-                    current = 4;
-                    break;
-                case MakeupBrowWarpEnum.SHAPE:
-                    current = 5;
-                    break;
-                case MakeupBrowWarpEnum.DAILY:
-                    current = 6;
-                    break;
-                case MakeupBrowWarpEnum.JAPAN:
-                    current = 7;
-                    break;
+            if (currentMakeup.getEyeBrowBundle() != null && currentMakeup.getEyeBrowBundle().getPath() != null) {
+                String bundlePath = currentMakeup.getEyeBrowBundle().getPath();
+                int spotIndex = bundlePath.lastIndexOf(".");
+                String index = bundlePath.substring(spotIndex - 1, spotIndex);
+                current = Integer.valueOf(index);
             }
-            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW, current);
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW,current);
             if (current != 0) {
                 double[] colorArray = currentMakeup.getEyeBrowColor().toScaleColorArray();
                 ArrayList<double[]> list = mMakeUpColorMap.get("color_mu_style_eyebrow_01");
@@ -878,7 +835,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         mFURenderKit.setFaceBeauty(FaceBeautySource.clone(FaceBeautyDataFactory.faceBeauty));
         mFURenderKit.getFaceBeauty().setFilterName(currentFilterName);
         mFURenderKit.getFaceBeauty().setFilterIntensity(currentFilterIntensity);
-        if (currentMakeup.getControlBundle().getPath() != DemoConfig.BUNDLE_FACE_MAKEUP) currentMakeup.setFilterIntensity(currentFilterIntensity);
+        if (!currentMakeup.getControlBundle().getPath().equals(DemoConfig.BUNDLE_FACE_MAKEUP)) currentMakeup.setFilterIntensity(currentFilterIntensity);
         FUAIKit.getInstance().setMaxFaces(4);
         mFURenderKit.setMakeup(currentMakeup);
 
@@ -889,7 +846,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             currentMakeup.setEyeShadowTexBlend3(1);
 
         if (DemoConfig.IS_OPEN_LAND_MARK) {
-            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData("others/landmarks.bundle"));
+            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData(DemoConfig.BUNDLE_LANDMARKS));
             expressionRecognition.setLandmarksType(FUAITypeEnum.FUAITYPE_FACELANDMARKS239);
             mFURenderKit.getPropContainer().addProp(expressionRecognition);
         }

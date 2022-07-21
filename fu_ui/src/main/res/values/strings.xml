@@ -12,6 +12,7 @@
     <string name="save_video_too_short">The video is to short!</string>
     <string name="save_video_wait">Please wait while the video is processing</string>
     <string name="fu_base_is_tracking_text">No face tracking</string>
+    <string name="fu_base_incomplete_face_text">Incomplete face</string>
     <string name="fu_base_input_type_single">SingleInput</string>
     <string name="fu_base_input_type_double">DualInput</string>
 
@@ -61,6 +62,8 @@
     <string name="beauty_micro_pouch">Circle</string>
     <string name="beauty_micro_nasolabial">Wrinkles</string>
     <string name="beauty_micro_smile">Smile</string>
+    <string name="beauty_brow_height">Brow height</string>
+    <string name="beauty_brow_space">Brow space</string>
     <string name="beauty_micro_canthus">Canthus</string>
     <string name="beauty_micro_philtrum">Philtrum</string>
     <string name="beauty_micro_long_nose">Length</string>
@@ -164,7 +167,7 @@
     <string name="poster_change_face_error">change face failed</string>
     <string name="poster_template_face_none">No template face detected, please re-upload</string>
     <string name="dialog_no_track_face">No face detected, please re-upload</string>
-
+    <string name="dialog_no_incomplete_face">No face detected, please re-upload</string>
     <string name="dialog_face_rotation_not_valid">Side face angle is too greater, please re-upload</string>
     <string name="dialog_got">OK</string>
     <string name="tip_dual_face">Multiple people detected, please choose one person for face fusion</string>
@@ -238,11 +241,8 @@
     <string name="makeup_pupil_7">Curtain</string>
     <string name="makeup_pupil_8">Aurora</string>
     <string name="makeup_eyebrow_willow">Willow</string>
-    <string name="makeup_eyebrow_hill">Hill</string>
-    <string name="makeup_eyebrow_one_word">Horizontal</string>
-    <string name="makeup_eyebrow_shape">Shaped</string>
-    <string name="makeup_eyebrow_daily">Daily</string>
-    <string name="makeup_eyebrow_japan">Japanese</string>
+    <string name="makeup_eyebrow_wild">Wild</string>
+    <string name="makeup_eyebrow_classical">Classical</string>
     <string name="makeup_eyebrow_standard">Standard</string>
     <string name="makeup_eye_shadow_single">Monochrome</string>
     <string name="makeup_eye_shadow_double1">Dichromatic I</string>
@@ -319,4 +319,7 @@
     <string name="back">back</string>
 
     <string name="safe_area_tips">The white area is a safe area and does not participate in green screen matting</string>
+
+    <string name="brow_height_tips">This function is only supported for high-end computers</string>
+    <string name="brow_space_tips">This function is only supported for high-end computers</string>
 </resources>
