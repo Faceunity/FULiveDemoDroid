@@ -100,6 +100,8 @@ public class MakeupSource {
             bean.setJsonPathParams(getLocalParams(bean.getJsonPath()));
         }
         LinkedHashMap<String, Object> params = bean.getJsonPathParams();
+
+        //支持自定义，所以需要知道选中了妆容的哪一些项
         for (Map.Entry<String, Object> entry : params.entrySet()) {
             Object value = entry.getValue();
             String key = entry.getKey();

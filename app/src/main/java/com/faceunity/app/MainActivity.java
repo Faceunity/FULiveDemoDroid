@@ -201,7 +201,7 @@ public class MainActivity extends BaseActivity {
                 if (codeStr.length == 2) {
                     int code0 = Integer.parseInt(codeStr[0]);
                     int code1 = Integer.parseInt(codeStr[1]);
-                    moduleEntity.enable = (moduleCode0 == 0 && moduleCode1 == 0) || ((code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0);
+                    moduleEntity.enable = (code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0;
                 }
             }
         }

@@ -39,6 +39,7 @@ import com.faceunity.core.entity.FURenderFrameData;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.entity.FURenderOutputData;
 import com.faceunity.core.enumeration.CameraFacingEnum;
+import com.faceunity.core.enumeration.CameraTypeEnum;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.enumeration.FUTransformMatrixEnum;
@@ -171,6 +172,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     @Override
     public void bindListener() {
         mCameraRenderer = new CameraRenderer(mSurfaceView, getCameraConfig(), mOnGlRendererListener);
+        checkSpecialDevice();
         /* 亮度调整*/
         ((SeekBar) findViewById(R.id.seek_photograph_light)).setOnSeekBarChangeListener(mOnSeekBarChangeListener);
         /* 切换前后摄像头*/
@@ -471,6 +473,17 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
                 mFURenderKit.getFaceBeauty().setBlurType(FaceBeautyBlurTypeEnum.FineSkin);
                 mFURenderKit.getFaceBeauty().setEnableBlurUseMask(false);
             }
+        }
+    }
+
+    /**
+     * 检查是否特殊设备
+     */
+    private void checkSpecialDevice(){
+        if (DemoConfig.DEVICE_NAME.equals(FuDeviceUtils.Nexus_6P)) {
+            float[] speOriginFoundTexMatrix = {0.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f};
+            mCameraRenderer.setSpeOriginFoundTexMatrix(speOriginFoundTexMatrix);
         }
     }
 

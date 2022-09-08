@@ -27,8 +27,6 @@ import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.FineStickerDataFactory;
 import com.faceunity.app.data.HairBeautyDataFactory;
 import com.faceunity.app.data.MakeupDataFactory;
-import com.faceunity.app.data.MakeupDataFactory;
-import com.faceunity.app.data.MakeupDataFactory;
 import com.faceunity.app.data.MusicFilterDataFactory;
 import com.faceunity.app.data.PortraitSegmentDataFactory;
 import com.faceunity.app.data.PropDataFactory;
@@ -214,7 +212,7 @@ public class ShowPhotoActivity extends BaseActivity {
     private FaceBeautyDataFactory mFaceBeautyDataFactory;//美颜a
     private FaceBeautyControlView mFaceBeautyControlView;//美颜
 
-    private com.faceunity.app.data.MakeupDataFactory mMakeupDataFactory;//美妆
+    private MakeupDataFactory mMakeupDataFactory;//美妆
 
     private AnimojiDataFactory mAnimojiFactory;//Animoji
     private AnimojiControlView mAnimojiControlView;//Animoji
@@ -290,7 +288,7 @@ public class ShowPhotoActivity extends BaseActivity {
             mBodyBeautyDataFactory = new BodyBeautyDataFactory();
             ((BodyBeautyControlView) mStubView).bindDataFactory(mBodyBeautyDataFactory);
         } else if (mFunctionType == FunctionEnum.MAKE_UP) {
-            mMakeupDataFactory = new com.faceunity.app.data.MakeupDataFactory(1);
+            mMakeupDataFactory = new MakeupDataFactory(1);
             ((MakeupControlView) mStubView).bindDataFactory(mMakeupDataFactory);
         } else if (mFunctionType == FunctionEnum.ANIMOJI) {
             mAnimojiControlView = ((AnimojiControlView) mStubView);
