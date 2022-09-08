@@ -1,5 +1,6 @@
 package com.faceunity.app.data;
 
+import android.util.Log;
 import android.view.MotionEvent;
 
 import com.faceunity.app.DemoConfig;
@@ -36,6 +37,7 @@ import java.util.List;
  * Email:phoenix@xloger.com
  */
 public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
+    private static final String TAG = "FineStickerDataFactory";
 
     /*渲染控制器*/
     private final FURenderKit mFURenderKit = FURenderKit.getInstance();
@@ -301,7 +303,12 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
      */
     @Override
     public void downloadSticker(@NotNull FineStickerEntity.DocsBean docsBean) {
-        StickerDownloadHelper.getInstance().download(docsBean);
+        try{
+            StickerDownloadHelper.getInstance().download(docsBean);
+        } catch (Exception e) {
+            Log.e(TAG,"downloadSticker",e);
+            e.printStackTrace();
+        }
     }
 
 

@@ -75,6 +75,16 @@ public class FaceBeautyData implements Serializable {
     public double browHeightIntensity = 0.5;
     /* 眉毛间距 */
     public double browSpaceIntensity = 0.5;
+    /* 眼睑 */
+    public double eyeLidIntensity = 0.0;
+    /* 眼睛高度 */
+    public double eyeHeightIntensity = 0.5;
+    /* 眉毛粗细 */
+    public double browThickIntensity = 0.5;
+    /* 嘴巴厚度 */
+    public double lipThickIntensity = 0.5;
+    /* 五官立体 */
+    public double faceThreeIntensity = 0.5;
 
     /* 风格推荐 */
     /* 是否开启风格推荐 */

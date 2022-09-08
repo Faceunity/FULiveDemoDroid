@@ -150,6 +150,7 @@ public class FaceBeautySource {
                         FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, R.string.beauty_micro_nasolabial,
                         R.drawable.icon_beauty_skin_wrinkle_close_selector, R.drawable.icon_beauty_skin_wrinkle_open_selector)
         );
+
         return params;
     }
 
