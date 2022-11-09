@@ -64,6 +64,11 @@
     <string name="beauty_micro_smile">Smile</string>
     <string name="beauty_brow_height">Brow height</string>
     <string name="beauty_brow_space">Brow space</string>
+    <string name="beauty_eye_lid">Eye lid</string>
+    <string name="beauty_eye_height">Eye height</string>
+    <string name="beauty_brow_thick">Brow thick</string>
+    <string name="beauty_lip_thick">Lip thick</string>
+    <string name="beauty_face_three">Face three dimensional</string>
     <string name="beauty_micro_canthus">Canthus</string>
     <string name="beauty_micro_philtrum">Philtrum</string>
     <string name="beauty_micro_long_nose">Length</string>
@@ -320,6 +325,8 @@
 
     <string name="safe_area_tips">The white area is a safe area and does not participate in green screen matting</string>
 
-    <string name="brow_height_tips">This function is only supported for high-end computers</string>
-    <string name="brow_space_tips">This function is only supported for high-end computers</string>
+    <string name="face_beauty_function_tips">%s is only supported for high-end computers</string>
+
+    <string name="portrait_segment_mode1">Universal split mode</string>
+    <string name="portrait_segment_mode2">video conferencing mode</string>
 </resources>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="@dimen/x60"
+        android:layout_height="@dimen/x58"
+        android:layout_marginLeft="@dimen/x31"
+        android:layout_marginTop="@dimen/x39"
+        android:scaleType="centerInside"
+        android:src="@mipmap/icon_live_back" />
+
+    <ImageButton
+        android:id="@+id/btn_camera_change"
+        android:layout_width="@dimen/x66"
+        android:layout_height="@dimen/x54"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="@dimen/x41"
+        android:layout_marginEnd="@dimen/x31"
+        android:background="@mipmap/icon_live_camera_change" />
+
+    <ImageButton
+        android:id="@+id/btn_debug"
+        android:layout_width="@dimen/x60"
+        android:layout_height="@dimen/x56"
+        android:layout_marginTop="@dimen/x39"
+        android:layout_marginEnd="@dimen/x68"
+        android:layout_toStartOf="@id/btn_camera_change"
+        android:background="@mipmap/icon_live_debug"
+        android:button="@null"
+        android:checked="false" />
+
+        <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_portrait_segment_mode1"
+            android:layout_width="235dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_choose_dialog"
+            android:gravity="center"
+            android:textColor="@color/btn_live_photo_text"
+            android:text="@string/portrait_segment_mode1"
+            android:textSize="@dimen/text_size_32" />
+
+        <TextView
+            android:id="@+id/tv_portrait_segment_mode2"
+            android:layout_width="235dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="36dp"
+            android:background="@drawable/bg_choose_dialog"
+            android:gravity="center"
+            android:text="@string/portrait_segment_mode2"
+            android:textColor="@color/btn_live_photo_text"
+            android:textSize="@dimen/text_size_32" />
+    </LinearLayout>
+</RelativeLayout>

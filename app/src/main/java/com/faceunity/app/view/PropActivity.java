@@ -4,11 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.PropDataFactory;
 import com.faceunity.app.entity.FunctionEnum;
-import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.ui.control.PropControlView;
 import com.faceunity.ui.entity.PropBean;
@@ -75,6 +75,7 @@ public class PropActivity extends BaseFaceUnityActivity {
         if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
             return FUAIProcessorEnum.HUMAN_PROCESSOR;
         } else if (mFunctionType == FunctionEnum.GESTURE_RECOGNITION) {
+            mFUAIKit.setHandDetectEveryNFramesWhenNoHand(DemoConfig.HAND_DETECT_WHEN_NO_HAND_NUM);
             return FUAIProcessorEnum.HAND_GESTURE_PROCESSOR;
         } else return FUAIProcessorEnum.FACE_PROCESSOR;
     }

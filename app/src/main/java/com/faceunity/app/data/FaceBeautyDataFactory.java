@@ -377,6 +377,11 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, defaultFaceBeauty::setEyeCircleIntensity);
         put(FaceBeautyParam.BROW_HEIGHT_INTENSITY, defaultFaceBeauty::setBrowHeightIntensity);
         put(FaceBeautyParam.BROW_SPACE_INTENSITY, defaultFaceBeauty::setBrowSpaceIntensity);
+        put(FaceBeautyParam.INTENSITY_EYE_LID, defaultFaceBeauty::setEyeLidIntensity);
+        put(FaceBeautyParam.INTENSITY_EYE_HEIGHT, defaultFaceBeauty::setEyeHeightIntensity);
+        put(FaceBeautyParam.INTENSITY_BROW_THICK, defaultFaceBeauty::setBrowThickIntensity);
+        put(FaceBeautyParam.INTENSITY_LIP_THICK, defaultFaceBeauty::setLipThickIntensity);
+        put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::setFaceThreeIntensity);
         put(FaceBeautyParam.CHIN_INTENSITY, defaultFaceBeauty::setChinIntensity);
         put(FaceBeautyParam.FOREHEAD_INTENSITY, defaultFaceBeauty::setForHeadIntensity);
         put(FaceBeautyParam.NOSE_INTENSITY, defaultFaceBeauty::setNoseIntensity);
@@ -415,6 +420,11 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
             put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, defaultFaceBeauty::getEyeCircleIntensity);
             put(FaceBeautyParam.BROW_HEIGHT_INTENSITY, defaultFaceBeauty::getBrowHeightIntensity);
             put(FaceBeautyParam.BROW_SPACE_INTENSITY, defaultFaceBeauty::getBrowSpaceIntensity);
+            put(FaceBeautyParam.INTENSITY_EYE_LID, defaultFaceBeauty::getEyeLidIntensity);
+            put(FaceBeautyParam.INTENSITY_EYE_HEIGHT, defaultFaceBeauty::getEyeHeightIntensity);
+            put(FaceBeautyParam.INTENSITY_BROW_THICK, defaultFaceBeauty::getBrowThickIntensity);
+            put(FaceBeautyParam.INTENSITY_LIP_THICK, defaultFaceBeauty::getLipThickIntensity);
+            put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::getFaceThreeIntensity);
             put(FaceBeautyParam.CHIN_INTENSITY, defaultFaceBeauty::getChinIntensity);
             put(FaceBeautyParam.FOREHEAD_INTENSITY, defaultFaceBeauty::getForHeadIntensity);
             put(FaceBeautyParam.NOSE_INTENSITY, defaultFaceBeauty::getNoseIntensity);

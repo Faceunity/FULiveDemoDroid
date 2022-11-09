@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.app.data.source.MakeupSource;
+import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUColorRGBData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
@@ -21,7 +22,9 @@ import com.faceunity.ui.utils.DecimalUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_BLUSHER;
 import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_BROW;
@@ -228,6 +231,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
                 currentMakeup.setLipIntensity(0.0);
             } else {
                 currentMakeup.setLipBundle(new FUBundleData(itemDir + "mu_style_lip_0" + index + ".bundle"));
+                currentMakeup.setLipMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启口红遮挡
                 switch (index) {
                     case 1:
                         currentMakeup.setLipType(MakeupLipEnum.FOG);
@@ -486,6 +490,17 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         mCustomColorIndexMap.clear();
         mCustomIntensityMap.clear();
         double makeupIntensity = currentMakeup.getMakeupIntensity();
+        if (currentCombinationIndex >= 0 && makeupCombinations.get(currentCombinationIndex).getType() == MakeupCombinationBean.TypeEnum.TYPE_DAILY) {
+            String key = makeupCombinations.get(currentCombinationIndex).getKey();
+            mCustomIndexMap = MakeupSource.getDailyCombinationSelectItem(key);
+            mCustomColorIndexMap = MakeupSource.getDailyCombinationSelectItemColor(key);
+            Iterator<Map.Entry<String, Double>> iterator = MakeupSource.getDailyCombinationSelectItemValue(key).entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry< String, Double > entry = iterator.next();
+                mCustomIntensityMap.put(entry.getKey(),entry.getValue() * makeupIntensity);
+            }
+            return;
+        }
         /*粉底*/
         if (currentMakeup.getFoundationIntensity() != 0.0) {
             double intensity = currentMakeup.getFoundationIntensity() * makeupIntensity;

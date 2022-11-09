@@ -229,7 +229,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                     return
                 }
                 if (!data.canUseFunction) {
-                    ToastHelper.showNormalToast(mContext,data.toastDesRes)
+                    ToastHelper.showNormalToast(mContext,mContext.getString(R.string.face_beauty_function_tips, mContext.getString(data.desRes)))
                     return
                 }
                 if (isShinSelected) {

@@ -464,7 +464,7 @@ public class FuDeviceUtils {
 
         //存储设备等级
         saveCacheDeviceLevel(level[0]);
-        Log.d(TAG,"DeviceLevel: " + level);
+        Log.d(TAG,"DeviceLevel: " + level[0]);
         return level[0];
     }
 
@@ -494,9 +494,9 @@ public class FuDeviceUtils {
         return -1;
     }
 
-    public static final String[] upscaleDevice = {"vivo X6S A","MHA-AL00","VKY-AL00","V1838A"};
+    public static final String[] upscaleDevice = {"MHA-AL00","VKY-AL00","V1838A","EVA-AL00"};
     public static final String[] lowDevice = {};
-    public static final String[] middleDevice = {"OPPO R11s","PAR-AL00","MI 8 Lite","ONEPLUS A6000","PRO 6","PRO 7 Plus"};
+    public static final String[] middleDevice = {"PRO 6","PRO 7 Plus","V2002A","Pixel"};
 
     /**
      * 评定内存的等级.

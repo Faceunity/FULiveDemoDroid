@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import com.faceunity.app.DemoApplication;
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
+import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.core.controller.makeup.MakeupParam;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.entity.FUColorRGBData;
@@ -46,7 +47,7 @@ public class MakeupSource {
         ArrayList<MakeupCombinationBean> combinations = new ArrayList<MakeupCombinationBean>();
         String jsonDir = DemoConfig.MAKEUP_RESOURCE_JSON_DIR;
         String bundleDir = DemoConfig.MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR;
-        combinations.add(new MakeupCombinationBean("origin", TypeEnum.TYPE_NONE, R.mipmap.icon_control_none, R.string.makeup_radio_remove, null, "", FaceBeautyFilterEnum.ZIRAN_2, 1.0,0.0));
+        combinations.add(new MakeupCombinationBean("origin", TypeEnum.TYPE_NONE, R.mipmap.icon_control_none, R.string.makeup_radio_remove, null, "", FaceBeautyFilterEnum.ZIRAN_2, 1.0, 0.0));
         combinations.add(new MakeupCombinationBean("diadiatu", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_diadiatu, R.string.makeup_combination_diadiatu, bundleDir + "diadiatu.bundle", jsonDir + "diadiatu.json", FaceBeautyFilterEnum.ORIGIN, 0.68));
         combinations.add(new MakeupCombinationBean("dongling", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_freezing_age, R.string.makeup_combination_dongling, bundleDir + "dongling.bundle", jsonDir + "dongling.json", FaceBeautyFilterEnum.ORIGIN, 0.68));
         combinations.add(new MakeupCombinationBean("guofeng", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_guo_feng, R.string.makeup_combination_guofeng, bundleDir + "guofeng.bundle", jsonDir + "guofeng.json", FaceBeautyFilterEnum.ORIGIN, 0.6));
@@ -96,6 +97,8 @@ public class MakeupSource {
             makeupModel.setCombinedConfig(new FUBundleData(bean.getBundlePath()));
 
         makeupModel.setMakeupIntensity(bean.getIntensity());
+        makeupModel.setLipMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启口红遮挡
+
         if (bean.getJsonPathParams() == null) {
             bean.setJsonPathParams(getLocalParams(bean.getJsonPath()));
         }
@@ -179,6 +182,7 @@ public class MakeupSource {
             put(MakeupParam.MAKEUP_LIP_HIGH_LIGHT_ENABLE, (makeup, value) -> makeup.setLipHighLightEnable((int) value == 1));
             put(MakeupParam.MAKEUP_LIP_HIGH_LIGHT_STRENGTH, (makeup, value) -> makeup.setLipHighLightStrength((double) value));
             put(MakeupParam.BROW_WARP, (makeup, value) -> makeup.setEnableBrowWarp((double) value == 1.0));
+            put(MakeupParam.MAKEUP_LIP_MACHINE_LEVEL, (makeup, value) -> makeup.setLipMachineLevel((double) value == 1.0));
             put(MakeupParam.BROW_WARP_TYPE, (makeup, value) -> makeup.setBrowWarpType((int) value));
             /*强度*/
             put(MakeupParam.MAKEUP_INTENSITY, (makeup, value) -> makeup.setMakeupIntensity((double) value));
@@ -224,7 +228,6 @@ public class MakeupSource {
             put(MakeupParam.MAKEUP_EYE_SHADOW_COLOR2, (makeup, value) -> makeup.setEyeShadowColor2(buildFUColorRGBData(value)));
             put(MakeupParam.MAKEUP_EYE_SHADOW_COLOR3, (makeup, value) -> makeup.setEyeShadowColor3(buildFUColorRGBData(value)));
             put(MakeupParam.MAKEUP_EYE_SHADOW_COLOR4, (makeup, value) -> makeup.setEyeShadowColor4(buildFUColorRGBData(value)));
-            put(MakeupParam.MAKEUP_EYE_BROW_COLOR, (makeup, value) -> makeup.setEyeBrowColor(buildFUColorRGBData(value)));
             /* 图层混合模式 */
             put(MakeupParam.BLEND_TEX_EYE_SHADOW, (makeup, value) -> makeup.setEyeShadowTexBlend((int) value));
             put(MakeupParam.BLEND_TEX_EYE_SHADOW2, (makeup, value) -> makeup.setEyeShadowTexBlend2((int) value));
@@ -479,5 +482,185 @@ public class MakeupSource {
     private static Drawable getDrawable(int res) {
         return DemoApplication.mApplication.getResources().getDrawable(res);
     }
-    //endregion 
+    //endregion
+
+    /**
+     * 获取日常妆的选中项
+     *
+     * @param key
+     * @return
+     */
+    public static HashMap<String, Integer> getDailyCombinationSelectItem(String key) {
+        HashMap<String, Integer> mCustomIndexMap = new HashMap<>();
+        if ("xinggan".equals(key)) {
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_FOUNDATION, 1);//粉底
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK, 1);//口红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER, 2);//腮红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW, 1);//眉毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW, 2);//眼影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER, 1);//眼线
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH, 4);//睫毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT, 2);//高光
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_SHADOW, 1);//阴影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_PUPIL, 0);//美瞳
+        } else if ("tianmei".equals(key)) {
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_FOUNDATION, 2);//粉底
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK, 1);//口红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER, 4);//腮红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW, 4);//眉毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW, 1);//眼影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER, 2);//眼线
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH, 2);//睫毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT, 1);//高光
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_SHADOW, 1);//阴影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_PUPIL, 0);//美瞳
+        } else if ("linjia".equals(key)) {
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_FOUNDATION, 3);//粉底
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK, 1);//口红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER, 1);//腮红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW, 2);//眉毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW, 1);//眼影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER, 6);//眼线
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH, 1);//睫毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT, 0);//高光
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_SHADOW, 0);//阴影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_PUPIL, 0);//美瞳
+        } else if ("oumei".equals(key)) {
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_FOUNDATION, 2);//粉底
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK, 1);//口红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER, 2);//腮红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW, 1);//眉毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW, 4);//眼影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER, 5);//眼线
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH, 5);//睫毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT, 2);//高光
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_SHADOW, 1);//阴影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_PUPIL, 0);//美瞳
+        } else if ("wumei".equals(key)) {
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_FOUNDATION, 4);//粉底
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK, 1);//口红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER, 3);//腮红
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW, 1);//眉毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW, 2);//眼影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER, 3);//眼线
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH, 3);//睫毛
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT, 1);//高光
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_SHADOW, 0);//阴影
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_EYE_PUPIL, 0);//美瞳
+        }
+        return mCustomIndexMap;
+    }
+
+    /**
+     * 获取日常妆选中项的强度
+     *
+     * @param key
+     * @return
+     */
+    public static HashMap<String, Double> getDailyCombinationSelectItemValue(String key) {
+        HashMap<String, Double> mCustomIntensityMap = new HashMap<>();
+        if ("xinggan".equals(key)) {
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_FOUNDATION + "_1", 1.0);//粉底
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 0.800000011920929);//口红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_2", 1.0);//腮红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_1", 0.4000000059604645);//眉毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_2", 0.8999999761581421);//眼影
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_1", 0.6000000238418579);//眼线
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_4", 0.699999988079071);//睫毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT + "_2", 1.0);//高光
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_SHADOW + "_1", 1.0);//阴影
+        } else if ("tianmei".equals(key)) {
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_FOUNDATION + "_2", 1.0);//粉底
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 0.5);//口红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_4", 1.0);//腮红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_4", 0.5);//眉毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_1", 0.699999988079071);//眼影
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_2", 0.5);//眼线
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_2", 0.5);//睫毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT + "_1", 1.0);//高光
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_SHADOW + "_1", 1.0);//阴影
+        } else if ("linjia".equals(key)) {
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_FOUNDATION + "_3", 1.0);//粉底
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 0.6000000238418579);//口红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_1", 1.0);//腮红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_2", 0.4);//眉毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_1", 0.8999999761581421);//眼影
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_6", 0.699999988079071);//眼线
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_1", 0.699999988079071);//睫毛
+        } else if ("oumei".equals(key)) {
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_FOUNDATION + "_2", 1.0);//粉底
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 0.8600000143051148);//口红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_2", 1.0);//腮红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_1", 0.5);//眉毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_4", 0.800000011920929);//眼影
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_5", 0.4000000059604645);//眼线
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_5", 0.6000000238418579);//睫毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT + "_2", 1.0);//高光
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_SHADOW + "_1", 1.0);//阴影
+        } else if ("wumei".equals(key)) {
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_FOUNDATION + "_4", 1.0);//粉底
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 0.699999988079071);//口红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_3", 1.0);//腮红
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_1", 0.6000000238418579);//眉毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_2", 0.699999988079071);//眼影
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_3", 0.6000000238418579);//眼线
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_3", 0.6000000238418579);//睫毛
+            mCustomIntensityMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT + "_1", 1.0);//高光
+        }
+        return mCustomIntensityMap;
+    }
+
+    /**
+     * 获取日常妆选中项的颜色
+     *
+     * @param key
+     * @return
+     */
+    public static HashMap<String, Integer> getDailyCombinationSelectItemColor(String key) {
+        HashMap<String, Integer> mCustomColorIndexMap = new HashMap<>();
+        if ("xinggan".equals(key)) {
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 3);//口红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_2", 3);//腮红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_1", 3);//眉毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_2", 3);//眼影
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_1", 3);//眼线
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_4", 3);//睫毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT + "_2", 3);//高光
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_SHADOW + "_1", 3);//阴影
+        } else if ("tianmei".equals(key)) {
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 4);//口红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_4", 4);//腮红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_4", 3);//眉毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_1", 3);//眼影
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_2", 4);//眼线
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_2", 3);//睫毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT + "_1", 4);//高光
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_SHADOW + "_1", 3);//阴影
+        } else if ("linjia".equals(key)) {
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 5);//口红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_1", 5);//腮红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_2", 3);//眉毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_1", 3);//眼影
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_6", 5);//眼线
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_1", 3);//睫毛
+        } else if ("oumei".equals(key)) {
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 6);//口红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_2", 6);//腮红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_1", 3);//眉毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_4", 3);//眼影
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_5", 6);//眼线
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_5", 3);//睫毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT + "_2", 6);//高光
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_SHADOW + "_1", 6);//阴影
+        } else if ("wumei".equals(key)) {
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_LIP_STICK + "_1", 7);//口红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_3", 7);//腮红
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_BROW + "_1", 3);//眉毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_SHADOW + "_2", 4);//眼影
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LINER + "_3", 5);//眼线
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_EYE_LASH + "_3", 3);//睫毛
+            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_HIGH_LIGHT + "_1", 7);//高光
+        }
+        return mCustomColorIndexMap;
+    }
 }

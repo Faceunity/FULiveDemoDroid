@@ -9,8 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.faceunity.app.DemoConfig;
-import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.ui.dialog.ToastHelper;
 
 /**

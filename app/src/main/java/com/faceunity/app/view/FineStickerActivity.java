@@ -3,6 +3,7 @@ package com.faceunity.app.view;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FineStickerDataFactory;
@@ -37,6 +38,7 @@ public class FineStickerActivity extends BaseFaceUnityActivity {
     @Override
     public void initView() {
         super.initView();
+        mFUAIKit.setHandDetectEveryNFramesWhenNoHand(DemoConfig.HAND_DETECT_WHEN_NO_HAND_NUM);
         fineStickerView = (FineStickerView) mStubView;
         changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x462), getResources().getDimensionPixelSize(R.dimen.x166));
     }

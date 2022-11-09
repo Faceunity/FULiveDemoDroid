@@ -4,20 +4,25 @@ import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.PortraitSegmentDataFactory;
 import com.faceunity.app.data.source.PortraitSegmentSource;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.utils.FileUtils;
+import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
+import com.faceunity.core.enumeration.FUPortraitSegmentationEnum;
 import com.faceunity.core.media.video.VideoPlayHelper;
 import com.faceunity.core.model.prop.Prop;
 import com.faceunity.core.model.prop.bgSegCustom.BgSegCustom;
 import com.faceunity.ui.control.PropCustomControlView;
+import com.faceunity.ui.dialog.PortraitSegmentModeChooseDialogFragment;
 import com.faceunity.ui.entity.PropCustomBean;
 
 /**
@@ -39,6 +44,40 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
     public void initData() {
         super.initData();
         mPortraitSegmentDataFactory = new PortraitSegmentDataFactory(mPortraitSegmentListener);
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+            //选择两种模式
+            PortraitSegmentModeChooseDialogFragment chooseDialog = new PortraitSegmentModeChooseDialogFragment();
+            chooseDialog.setOnChooseListener(new PortraitSegmentModeChooseDialogFragment.OnChooseListener() {
+                @Override
+                public void onPortraitSegmentMode(@NonNull PortraitSegmentModeChooseDialogFragment.PortraitSegmentModeEnum choose) {
+                    //不同模式请求不同接口
+                    if (choose == PortraitSegmentModeChooseDialogFragment.PortraitSegmentModeEnum.PortraitSegmentMode1) {
+                        mFUAIKit.setHumanSegScene(FUPortraitSegmentationEnum.MODE_SEG_COMMON);
+                    } else {
+                        mFUAIKit.setHumanSegScene(FUPortraitSegmentationEnum.MODE_SEG_MEETING);
+                    }
+                    mPropCustomControlView.setChooseIndex(mPortraitSegmentDataFactory.getHumanOutLineIndex());
+                }
+
+                @Override
+                public void onBack() {
+                    mBackView.performClick();
+                }
+
+                @Override
+                public void onDebug() {
+                    mBtnDebug.performClick();
+                }
+
+                @Override
+                public void onCameraChange() {
+                    mCameraChange.performClick();
+                }
+            });
+            chooseDialog.show(getSupportFragmentManager(), "ChooseDialogFragment");
+        } else {
+            mPortraitSegmentDataFactory.setCurrentPropIndex(mPortraitSegmentDataFactory.getHumanOutLineIndex());
+        }
     }
 
     @Override
@@ -47,14 +86,13 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
         mPortraitSegmentDataFactory.bindCurrentRenderer();
     }
 
-
     @Override
     public void initView() {
         super.initView();
+        isAIProcessTrack = false;
         mPropCustomControlView = (PropCustomControlView) mStubView;
         changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212), getResources().getDimensionPixelSize(R.dimen.x166));
     }
-
 
     @Override
     public void bindListener() {
@@ -93,8 +131,6 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
 
 
     PortraitSegmentDataFactory.PortraitSegmentListener mPortraitSegmentListener = new PortraitSegmentDataFactory.PortraitSegmentListener() {
-
-
         @Override
         public void onItemSelected(PropCustomBean bean) {
             if (bean.getDescId() > 0) {
@@ -115,6 +151,9 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
         @Override
         public void onProcessTrackChanged(boolean needShow) {
             if (needShow) {
+                if (!isAIProcessTrack) {
+                    aIProcessTrackIgnoreFrame = 5;
+                }
                 isAIProcessTrack = true;
             } else {
                 isAIProcessTrack = false;
@@ -122,7 +161,6 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
                 aIProcessTrackStatus = 1;
             }
         }
-
     };
 
 

@@ -10,7 +10,6 @@ import com.faceunity.app.data.disksource.FUUtils;
 import com.faceunity.app.data.disksource.FaceBeautyData;
 import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.app.entity.FunctionEnum;
-import com.faceunity.app.utils.FileUtils;
 import com.faceunity.ui.control.FaceBeautyControlView;
 
 /**

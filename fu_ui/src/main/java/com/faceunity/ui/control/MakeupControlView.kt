@@ -141,6 +141,7 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
             }
             changeAdapterSelected(mCombinationAdapter, mDataFactory.currentCombinationIndex, -1)
             mDataFactory.currentCombinationIndex = -1
+            setCustomEnable(false)
             seek_bar_combination.visibility = View.INVISIBLE
             openCustomBottomAnimator(true)
         }
