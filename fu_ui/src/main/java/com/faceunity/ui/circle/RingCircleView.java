@@ -146,10 +146,19 @@ public class RingCircleView extends View {
                 if (mBitmapBg == null) {
                     mBitmapBg = BitmapUtils.INSTANCE.decodeSampledBitmapFromResource(getResources(), R.mipmap.icon_green_transparent, diameter, diameter);
                 }
-                mBitmapRect.left = paddingLeft;
-                mBitmapRect.top = paddingTop;
-                mBitmapRect.right = width - paddingRight;
-                mBitmapRect.bottom = height - paddingBottom;
+                if (selected) {
+                    canvas.drawCircle(centerX, centerY, radius, mPaintOuter);
+                    int halfInnerPadding = mInnerPadding / 2;
+                    mBitmapRect.left = paddingLeft + halfInnerPadding;
+                    mBitmapRect.top = paddingTop + halfInnerPadding;
+                    mBitmapRect.right = width - paddingRight - halfInnerPadding;
+                    mBitmapRect.bottom = height - paddingBottom - halfInnerPadding;
+                } else {
+                    mBitmapRect.left = paddingLeft;
+                    mBitmapRect.top = paddingTop;
+                    mBitmapRect.right = width - paddingRight;
+                    mBitmapRect.bottom = height - paddingBottom;
+                }
                 canvas.drawBitmap(mBitmapBg, null, mBitmapRect, mPaintBitmap);
                 canvas.drawBitmap(mBitmapPick, null, mBitmapRect, mPaintBitmap);
             }

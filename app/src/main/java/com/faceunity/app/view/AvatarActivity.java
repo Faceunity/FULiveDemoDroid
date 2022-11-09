@@ -6,7 +6,6 @@ import android.view.View;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.AvatarDataFactory;
-import com.faceunity.app.data.source.AvatarSource;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUCameraConfig;
 import com.faceunity.core.enumeration.CameraFacingEnum;

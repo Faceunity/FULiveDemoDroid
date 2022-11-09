@@ -87,6 +87,16 @@ public class FUUtils {
             faceBeautyData.browHeightIntensity = faceBeauty.getBrowHeightIntensity();
             /* 眉毛间距 */
             faceBeautyData.browSpaceIntensity = faceBeauty.getBrowSpaceIntensity();
+            /* 眼睑 */
+            faceBeautyData.eyeLidIntensity = faceBeauty.getEyeLidIntensity();
+            /* 眼睛高度 */
+            faceBeautyData.eyeHeightIntensity = faceBeauty.getEyeHeightIntensity();
+            /* 眉毛粗细 */
+            faceBeautyData.browThickIntensity = faceBeauty.getBrowThickIntensity();
+            /* 嘴巴厚度 */
+            faceBeautyData.lipThickIntensity = faceBeauty.getLipThickIntensity();
+            /* 五官立体 */
+            faceBeautyData.faceThreeIntensity = faceBeauty.getFaceThreeIntensity();
 
             /* 滤镜相关 */
             if (filterList != null) {
@@ -210,6 +220,21 @@ public class FUUtils {
             /* 眉毛间距 */
             if (faceBeautyData.browSpaceIntensity != faceBeauty.getBrowSpaceIntensity())
                 faceBeauty.setBrowSpaceIntensity(faceBeautyData.browSpaceIntensity);
+            /* 眼睑 */
+            if (faceBeautyData.eyeLidIntensity != faceBeauty.getEyeLidIntensity())
+                faceBeauty.setEyeLidIntensity(faceBeautyData.eyeLidIntensity);
+            /* 眼睛高度 */
+            if (faceBeautyData.eyeHeightIntensity != faceBeauty.getEyeHeightIntensity())
+                faceBeauty.setEyeHeightIntensity(faceBeautyData.eyeHeightIntensity);
+            /* 眉毛粗细 */
+            if (faceBeautyData.browThickIntensity != faceBeauty.getBrowThickIntensity())
+                faceBeauty.setBrowThickIntensity(faceBeautyData.browThickIntensity);
+            /* 嘴巴厚度 */
+            if (faceBeautyData.lipThickIntensity != faceBeauty.getLipThickIntensity())
+                faceBeauty.setLipThickIntensity(faceBeautyData.lipThickIntensity);
+            /* 五官立体 */
+            if (faceBeautyData.faceThreeIntensity != faceBeauty.getFaceThreeIntensity())
+                faceBeauty.setFaceThreeIntensity(faceBeautyData.faceThreeIntensity);
 
             /* 滤镜相关 */
             /* 滤镜名称 */

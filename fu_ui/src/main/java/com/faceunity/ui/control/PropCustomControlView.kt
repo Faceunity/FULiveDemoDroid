@@ -103,6 +103,14 @@ class PropCustomControlView @JvmOverloads constructor(mContext: Context, attrs: 
         recycler_view.adapter = mPropAdapter
     }
 
+    /**
+     * 从外部设置选择哪个项
+     */
+    fun setChooseIndex(position: Int) {
+        changeAdapterSelected(mPropAdapter, mDataFactory.currentPropIndex, position)
+        mDataFactory.currentPropIndex = position
+        mDataFactory.onItemSelected(mDataFactory.propCustomBeans[position])
+    }
 
     // endregion
 

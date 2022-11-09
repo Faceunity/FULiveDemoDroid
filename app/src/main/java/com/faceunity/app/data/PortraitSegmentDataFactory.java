@@ -7,8 +7,8 @@ import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
-import com.faceunity.core.model.prop.bgSegCustom.BgSegCustom;
 import com.faceunity.core.model.prop.Prop;
+import com.faceunity.core.model.prop.bgSegCustom.BgSegCustom;
 import com.faceunity.core.model.prop.humanOutline.HumanOutline;
 import com.faceunity.core.model.prop.portraitSegment.PortraitSegment;
 import com.faceunity.ui.entity.PropCustomBean;
@@ -40,7 +40,6 @@ public class PortraitSegmentDataFactory extends AbstractPropCustomDataFactory {
          * @param needShow
          */
         void onProcessTrackChanged(boolean needShow);
-
     }
 
 
@@ -67,12 +66,15 @@ public class PortraitSegmentDataFactory extends AbstractPropCustomDataFactory {
     public PortraitSegmentDataFactory(PortraitSegmentListener listener) {
         mPortraitSegmentListener = listener;
         propCustomBeans = PortraitSegmentSource.buildPropBeans();
+    }
+
+    public int getHumanOutLineIndex() {
         for (int i = 0; i < propCustomBeans.size(); i++) {
             if (propCustomBeans.get(i).getType() == FunctionEnum.HUMAN_OUTLINE) {
-                currentPropIndex = i;
-                break;
+                return i;
             }
         }
+        return -1;
     }
 
     /**
@@ -104,7 +106,6 @@ public class PortraitSegmentDataFactory extends AbstractPropCustomDataFactory {
     public ArrayList<PropCustomBean> getPropCustomBeans() {
         return propCustomBeans;
     }
-
 
     /**
      * 切换道具
@@ -187,6 +188,4 @@ public class PortraitSegmentDataFactory extends AbstractPropCustomDataFactory {
     public void releaseAIProcessor() {
         FUAIKit.getInstance().releaseAIProcessor(FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
     }
-
-
 }

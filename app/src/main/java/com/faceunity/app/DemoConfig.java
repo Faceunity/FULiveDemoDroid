@@ -125,4 +125,10 @@ public class DemoConfig {
 
     //测试用是否展示效果还原按钮
     public static final boolean IS_SHOW_RESET_BUTTON = false;
+
+    //无人手时候 人手的检测频率
+    public static final int HAND_DETECT_WHEN_NO_HAND_NUM = 3;
+
+    //人脸离开之后是否延迟10帧移除人脸相关信息
+    public static final boolean FACE_DELAY_LEAVE_ENABLE = false;
 }

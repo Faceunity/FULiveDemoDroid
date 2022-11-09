@@ -39,7 +39,6 @@ import com.faceunity.core.entity.FURenderFrameData;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.entity.FURenderOutputData;
 import com.faceunity.core.enumeration.CameraFacingEnum;
-import com.faceunity.core.enumeration.CameraTypeEnum;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.enumeration.FUTransformMatrixEnum;
@@ -111,6 +110,8 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     protected FrameLayout mRootView;
     protected RadioGroup mRenderTypeView;
     protected ImageView mBackView;
+    protected ImageButton mCameraChange;
+    protected ImageButton mBtnDebug;
 
     /* 更多弹框*/
     private PopupWindow mPopupWindow;
@@ -132,6 +133,8 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
     @Override
     public void initData() {
+        DemoConfig.DEVICE_LEVEL = FuDeviceUtils.judgeDeviceLevelGPU();
+        DemoConfig.DEVICE_NAME = FuDeviceUtils.getDeviceName();
         mMainHandler = new Handler();
         mVideoRecordHelper = new VideoRecordHelper(this, mOnVideoRecordingListener);
         mPhotoRecordHelper = new PhotoRecordHelper(mOnPhotoRecordingListener);
@@ -148,6 +151,8 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
         }
         mRootView = findViewById(R.id.fyt_root);
         mBackView = findViewById(R.id.iv_back);
+        mCameraChange = findViewById(R.id.btn_camera_change);
+        mBtnDebug = findViewById(R.id.btn_debug);
         mCustomView = findViewById(R.id.cyt_custom_view);
         mSurfaceView = findViewById(R.id.gl_surface);
         mTrackingView = findViewById(R.id.tv_tracking);
@@ -176,9 +181,9 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
         /* 亮度调整*/
         ((SeekBar) findViewById(R.id.seek_photograph_light)).setOnSeekBarChangeListener(mOnSeekBarChangeListener);
         /* 切换前后摄像头*/
-        findViewById(R.id.btn_camera_change).setOnClickListener(this);
+        mCameraChange.setOnClickListener(this);
         /* fps日志展示*/
-        findViewById(R.id.btn_debug).setOnClickListener(this);
+        mBtnDebug.setOnClickListener(this);
         /* 返回 */
         mBackView.setOnClickListener(this);
         /* 拍照*/
@@ -250,6 +255,8 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     private boolean isShowBenchmark = false;
     /*检测 开关*/
     protected boolean isAIProcessTrack = true;
+    /*检测 开关 打开延迟n帧再去获取人体人脸数据 */
+    protected int aIProcessTrackIgnoreFrame = 0;
     /*检测标识*/
     protected int aIProcessTrackStatus = 1;
 
@@ -257,6 +264,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
      * 特效配置
      */
     protected void configureFURenderKit() {
+        mFUAIKit.setFaceDelayLeaveEnable(DemoConfig.FACE_DELAY_LEAVE_ENABLE);
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         mFUAIKit.faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
         //高端机开启小脸检测
@@ -401,6 +409,12 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
         private void trackStatus() {
             if (!isAIProcessTrack) {
                 return;
+            } else {
+                //延迟5帧再走后面的逻辑
+                if (aIProcessTrackIgnoreFrame > 0) {
+                    aIProcessTrackIgnoreFrame--;
+                    return;
+                }
             }
             FUAIProcessorEnum fuaiProcessorEnum = getFURenderKitTrackingType();
             int trackCount;

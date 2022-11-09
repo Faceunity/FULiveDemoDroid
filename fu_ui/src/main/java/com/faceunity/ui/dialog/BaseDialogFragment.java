@@ -25,6 +25,12 @@ public abstract class BaseDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View dialogView = createDialogView(inflater, container);
         getDialog().setCanceledOnTouchOutside(false);//点击屏幕不消失
+        setKeyListener();
+        initWindowParams();
+        return dialogView;
+    }
+
+    public void setKeyListener() {
         getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {//点击返回键不消失
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
@@ -34,8 +40,6 @@ public abstract class BaseDialogFragment extends DialogFragment {
                 return false;
             }
         });
-        initWindowParams();
-        return dialogView;
     }
 
     /**

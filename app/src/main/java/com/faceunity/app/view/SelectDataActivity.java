@@ -3,7 +3,6 @@ package com.faceunity.app.view;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
@@ -12,8 +11,6 @@ import com.faceunity.app.R;
 import com.faceunity.app.base.BaseActivity;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.ui.dialog.ToastHelper;
-
-import java.io.File;
 
 /**
  * DESC：
@@ -65,11 +62,6 @@ public class SelectDataActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != Activity.RESULT_OK || data == null) return;
-        if (mFunctionType == -1) {
-            setResult(resultCode, data);
-            finish();
-            return;
-        }
         Uri uri = data.getData();
         String path = FileUtils.getFilePathByUri(this, uri);
         if (requestCode == REQUEST_CODE_PHOTO) {
@@ -77,14 +69,21 @@ public class SelectDataActivity extends BaseActivity {
                 ToastHelper.showNormalToast(this, getString(R.string.please_select_the_correct_picture_file));
                 return;
             }
-            FaceBeautyActivity.needBindDataFactory = true;
-            ShowPhotoActivity.startActivity(this, mFunctionType, path);
-
         } else if (requestCode == REQUEST_CODE_VIDEO) {
             if (!FileUtils.checkIsVideo(this,path)) {
                 ToastHelper.showNormalToast(this, getString(R.string.please_select_the_correct_video_file));
                 return;
             }
+        }
+        if (mFunctionType == -1) {
+            setResult(resultCode, data);
+            finish();
+            return;
+        }
+        if (requestCode == REQUEST_CODE_PHOTO) {
+            FaceBeautyActivity.needBindDataFactory = true;
+            ShowPhotoActivity.startActivity(this, mFunctionType, path);
+        } else if (requestCode == REQUEST_CODE_VIDEO) {
             FaceBeautyActivity.needBindDataFactory = true;
             ShowVideoActivity.startActivity(this, mFunctionType, path);
         }

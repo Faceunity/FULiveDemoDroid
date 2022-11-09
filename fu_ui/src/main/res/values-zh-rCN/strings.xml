@@ -49,6 +49,11 @@
     <string name="beauty_micro_smile">微笑嘴角</string>
     <string name="beauty_brow_height">眉毛上下</string>
     <string name="beauty_brow_space">眉间距</string>
+    <string name="beauty_eye_lid">眼睑下至</string>
+    <string name="beauty_eye_height">眼睛位置</string>
+    <string name="beauty_brow_thick">眉毛粗细</string>
+    <string name="beauty_lip_thick">嘴唇厚度</string>
+    <string name="beauty_face_three">五官立体</string>
     <string name="beauty_micro_canthus">开眼角</string>
     <string name="beauty_micro_philtrum">缩人中</string>
     <string name="beauty_micro_long_nose">长鼻</string>
@@ -323,6 +328,8 @@
 
     <string name="safe_area_tips">白色区域为安全区域，不参与绿幕抠像</string>
 
-    <string name="brow_height_tips">眉毛上下功能仅支持在高端机上使用</string>
-    <string name="brow_space_tips">眉间距功能仅支持在高端机上使用</string>
+    <string name="face_beauty_function_tips">%s功能仅支持在高端机上使用</string>
+
+    <string name="portrait_segment_mode1">通用分割版</string>
+    <string name="portrait_segment_mode2">视频会议版</string>
 </resources>
