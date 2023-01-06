@@ -6,41 +6,48 @@ import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
 import com.faceunity.app.data.FaceBeautyDataFactory;
-import com.faceunity.app.data.disksource.FUUtils;
-import com.faceunity.app.data.disksource.FaceBeautyData;
+import com.faceunity.app.data.disksource.facebeauty.FUDiskFaceBeautyUtils;
+import com.faceunity.app.data.disksource.facebeauty.FUDiskFaceBeautyData;
 import com.faceunity.app.data.source.FaceBeautySource;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.ui.control.FaceBeautyControlView;
+import com.faceunity.ui.entity.uistate.FaceBeautyControlState;
 
 /**
  * DESC：美颜
  * Created on 2021/3/1
  */
 public class FaceBeautyActivity extends BaseFaceUnityActivity {
-
-
     private FaceBeautyControlView mFaceBeautyControlView;
     private FaceBeautyDataFactory mFaceBeautyDataFactory;
-    private FaceBeautyData faceBeautyData;
+    private FUDiskFaceBeautyData fuDiskFaceBeautyData;
 
-
-    public static boolean needBindDataFactory = false;
+    public static FaceBeautyControlState mFaceBeautyControlState = null;
 
     @Override
     public void onResume() {
-        if (needBindDataFactory) {
+        if (needUpdateUI) {
             mFaceBeautyControlView.bindDataFactory(mFaceBeautyDataFactory);
-            needBindDataFactory = false;
+            mFaceBeautyControlView.updateUIStates(mFaceBeautyControlState);
+            needUpdateUI = false;
+            mFaceBeautyControlState = null;
         }
         super.onResume();
     }
 
     @Override
+    public void onPause() {
+        mFaceBeautyControlState = mFaceBeautyControlView.getUIStates();
+        super.onPause();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        mFaceBeautyControlState = null;
         //在美颜退出的时候序列化数据到磁盘，从真正需要的FaceBeauty数据中缓存到磁盘
         if (DemoConfig.OPEN_FACE_BEAUTY_TO_FILE) {
-            FUUtils.saveFaceBeautyData2File(faceBeautyData,FaceBeautyDataFactory.defaultFaceBeauty,FaceBeautySource.buildFilters(),mFaceBeautyDataFactory.getCurrentStyleIndex());
+            FUDiskFaceBeautyUtils.saveFaceBeautyData2File(fuDiskFaceBeautyData,FaceBeautyDataFactory.defaultFaceBeauty,FaceBeautySource.buildFilters());
         }
     }
 
@@ -65,10 +72,11 @@ public class FaceBeautyActivity extends BaseFaceUnityActivity {
     @Override
     public void initView() {
         super.initView();
-        faceBeautyData = new FaceBeautyData();
+        mFaceBeautyControlState = null;
+        fuDiskFaceBeautyData = new FUDiskFaceBeautyData();
         mFaceBeautyControlView = (FaceBeautyControlView) mStubView;
         mFaceBeautyControlView.setResetButton(DemoConfig.IS_SHOW_RESET_BUTTON);
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x156), getResources().getDimensionPixelSize(R.dimen.x166));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x156));
     }
 
     @Override
@@ -78,7 +86,7 @@ public class FaceBeautyActivity extends BaseFaceUnityActivity {
         mFaceBeautyControlView.setOnBottomAnimatorChangeListener(showRate -> {
             // 收起 1-->0，弹出 0-->1
             updateTakePicButton(getResources().getDimensionPixelSize(R.dimen.x166), showRate,
-                    getResources().getDimensionPixelSize(R.dimen.x156), getResources().getDimensionPixelSize(R.dimen.x256), true);
+                    getResources().getDimensionPixelSize(R.dimen.x156), getResources().getDimensionPixelSize(R.dimen.x256), false);
         });
     }
 

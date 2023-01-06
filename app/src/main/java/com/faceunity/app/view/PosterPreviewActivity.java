@@ -51,11 +51,17 @@ public class PosterPreviewActivity extends BaseActivity {
     public static String PHOTO = "photo";
     public static String INTENSITY = "intensity";
     private static String POSTER_FACE_ENUM = "poster_face_enum";
+    private static String DATA_SOURCE = "data_source";//图像来源 导入照片 or 拍摄 0拍摄 1图片
 
-    public static void startActivity(Activity activity, String photo, String template, double intensity,PosterFaceEnum posterFaceEnum) {
+    public static void startActivity(Activity activity, String photo, String template, double intensity,PosterFaceEnum posterFaceEnum,int dataSource) {
         activity.startActivityForResult(
                 new Intent(activity, PosterPreviewActivity.class)
-                        .putExtra(TEMPLATE, template).putExtra(PHOTO, photo).putExtra(INTENSITY, intensity).putExtra(POSTER_FACE_ENUM,posterFaceEnum), PosterFaceAcquisitionActivity.REQ_PREVIEW
+                        .putExtra(TEMPLATE, template)
+                        .putExtra(PHOTO, photo)
+                        .putExtra(INTENSITY, intensity)
+                        .putExtra(POSTER_FACE_ENUM,posterFaceEnum)
+                        .putExtra(DATA_SOURCE,dataSource)
+                , PosterFaceAcquisitionActivity.REQ_PREVIEW
         );
     }
 
@@ -65,6 +71,7 @@ public class PosterPreviewActivity extends BaseActivity {
     private String mPhoto;
     private String mTemplate;
     private double mIntensity;
+    private int mDataSource = 0;//0拍摄 1图片
 
     private PosterChangeFaceDataFactory mPosterChangeFaceDataFactory;
     private FUPosterKit mFUPosterKit;
@@ -91,7 +98,7 @@ public class PosterPreviewActivity extends BaseActivity {
     private FaceMaskView mFaceMaskView;
     private NoTrackFaceDialogFragment mDialog;
     private ImageView mSaveView;
-
+    private ImageView ivBack;
 
     private Handler mMainHandler;
 
@@ -106,6 +113,7 @@ public class PosterPreviewActivity extends BaseActivity {
         mTemplate = getIntent().getStringExtra(TEMPLATE);
         mIntensity = getIntent().getDoubleExtra(INTENSITY, 0.0);
         mPosterFaceEnum = (PosterFaceEnum) getIntent().getSerializableExtra(POSTER_FACE_ENUM);
+        mDataSource = getIntent().getIntExtra(DATA_SOURCE,0);
         mPosterChangeFaceDataFactory = new PosterChangeFaceDataFactory(mTemplate, mPosterChangeFaceListener);
         mFUPosterKit = FUPosterKit.getInstance(new FUBundleData(DemoConfig.BUNDLE_POSTER_CHANGE_FACE), mOnPosterRenderCallback);
         mMainHandler = new Handler();
@@ -120,6 +128,7 @@ public class PosterPreviewActivity extends BaseActivity {
         mLoadingView = findViewById(R.id.iv_loading);
         Glide.with(this).load(R.drawable.bg_loading_gif).into(mLoadingView);
         mFaceMaskView = findViewById(R.id.face_mask);
+        ivBack = findViewById(R.id.iv_back);
         mSaveView = findViewById(R.id.iv_save);
     }
 
@@ -131,8 +140,8 @@ public class PosterPreviewActivity extends BaseActivity {
         mFUAIKit.setHumanProcessorDetectMode(FUHumanProcessorDetectModeEnum.IMAGE);
         mPosterChangeFaceControlView.bindDataFactory(mPosterChangeFaceDataFactory);
         mLoadingViewRoot.setOnTouchListener((view, event) -> true);
-        findViewById(R.id.iv_back).setOnClickListener(view -> onBackPressed());
-        findViewById(R.id.iv_save).setOnClickListener(view -> {
+        ivBack.setOnClickListener(view -> onBackPressed());
+        mSaveView.setOnClickListener(view -> {
             if (mSavedBitmap != null) {
                 FileUtils.addBitmapToAlbum(this, mSavedBitmap);
                 ToastHelper.showNormalToast(PosterPreviewActivity.this, R.string.save_photo_success);
@@ -252,11 +261,20 @@ public class PosterPreviewActivity extends BaseActivity {
         @Override
         public void onPhotoLoaded(PosterFaceEnum posterFaceEnum, ArrayList<float[]> array) {
             if (PosterFaceEnum.POSTER_ERROR_NO_FACE == posterFaceEnum) {
-                showPromptFragment(R.string.dialog_no_track_face);
+                if (mDataSource == 0)
+                    showPromptFragment(R.string.dialog_no_track_face_re_shot);
+                else
+                    showPromptFragment(R.string.dialog_no_track_face_re_upload);
             } else if (PosterFaceEnum.POSTER_ERROR_ROTATE_FACE == posterFaceEnum) {
-                showPromptFragment(R.string.dialog_face_rotation_not_valid);
+                if (mDataSource == 0)
+                    showPromptFragment(R.string.dialog_face_rotation_not_valid_re_shot);
+                else
+                    showPromptFragment(R.string.dialog_face_rotation_not_valid_re_upload);
             } else if (PosterFaceEnum.POSTER_ERROR_INCOMPLETE_FACE == posterFaceEnum) {
-                showPromptFragment(R.string.fu_base_incomplete_face_text);
+                if (mDataSource == 0)
+                    showPromptFragment(R.string.dialog_no_incomplete_face_re_shot);
+                else
+                    showPromptFragment(R.string.dialog_no_incomplete_face_re_upload);
             } else {
                 showFaceMaskView(array);
             }
@@ -275,16 +293,15 @@ public class PosterPreviewActivity extends BaseActivity {
     private void showPromptFragment(int strId) {
         if (!isActivityPaused) {
             runOnUiThread(() -> {
-                        showLoadingView(false);
-                        mDialog = new NoTrackFaceDialogFragment(this, strId);
-                        mDialog.setOnDismissListener(() -> {
-                            setResult(RESULT_OK);
-                            release();
-                            this.finish();
-                        });
-                        mDialog.show(getSupportFragmentManager(), "NoTrackFaceDialogFragment");
-                    }
-            );
+                showLoadingView(false);
+                mDialog = new NoTrackFaceDialogFragment(this, strId);
+                mDialog.setOnDismissListener(() -> {
+                    setResult(RESULT_OK);
+                    release();
+                    this.finish();
+                });
+                mDialog.show(getSupportFragmentManager(), "NoTrackFaceDialogFragment");
+            });
         }
     }
 
@@ -387,11 +404,11 @@ public class PosterPreviewActivity extends BaseActivity {
                 isFirstRender = false;
                 //先通过外界的传入判断一次
                 if (PosterFaceEnum.POSTER_ERROR_NO_FACE == mPosterFaceEnum) {
-                    showPromptFragment(R.string.dialog_no_track_face);
+                    showPromptFragment(R.string.dialog_no_track_face_re_shot);
                 } else if (PosterFaceEnum.POSTER_ERROR_ROTATE_FACE == mPosterFaceEnum) {
-                    showPromptFragment(R.string.dialog_face_rotation_not_valid);
+                    showPromptFragment(R.string.dialog_face_rotation_not_valid_re_shot);
                 } else if (PosterFaceEnum.POSTER_ERROR_INCOMPLETE_FACE == mPosterFaceEnum) {
-                    showPromptFragment(R.string.dialog_no_incomplete_face);
+                    showPromptFragment(R.string.dialog_no_incomplete_face_re_shot);
                 } else {
                     mFUPosterKit.renderPoster(mPhotoBitmap, mPhotoTextureId, mTemplate, mIntensity);
                 }
@@ -424,8 +441,9 @@ public class PosterPreviewActivity extends BaseActivity {
      */
     private final OnPhotoRecordingListener mOnPhotoRecordingListener = bitmap -> {
         mSavedBitmap = bitmap;
-        runOnUiThread(() -> mSaveView.setVisibility(View.VISIBLE));
+        runOnUiThread(() -> {
+            ivBack.setVisibility(View.VISIBLE);
+            mSaveView.setVisibility(View.VISIBLE);
+        });
     };
-
-
 }

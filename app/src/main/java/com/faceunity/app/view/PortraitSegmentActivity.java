@@ -91,7 +91,7 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
         super.initView();
         isAIProcessTrack = false;
         mPropCustomControlView = (PropCustomControlView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212), getResources().getDimensionPixelSize(R.dimen.x166));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212));
     }
 
     @Override

@@ -22,4 +22,5 @@ public class FunctionEnum {
     public final static int HUMAN_OUTLINE = 19;
     public final static int BG_SEG_CUSTOM = 20;
     public final static int FINE_STICKER = 21;
+    public final static int STYLE = 22;
 }

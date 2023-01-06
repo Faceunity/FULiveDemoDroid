@@ -20,6 +20,7 @@
             android:layout_marginLeft="@dimen/x30"
             android:layout_marginTop="@dimen/x26"
             android:scaleType="centerInside"
+            android:visibility="gone"
             android:src="@mipmap/icon_poster_back" />
 
         <ImageView

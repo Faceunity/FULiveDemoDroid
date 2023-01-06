@@ -6,14 +6,14 @@
     <string name="camera_dialog_open">重试</string>
     <string name="camera_dialog_back">退出</string>
 
-    <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS: %d\nRender time:\n\t%dms</string>
-    <string name="save_photo_success">保存照片成功！</string>
-    <string name="save_video_success">保存视频成功！</string>
+    <string name="fu_base_debug">resolution:\n%dx%d\nfps: %d\nrender time:\n%dms</string>
+    <string name="save_photo_success">图片已保存到相册</string>
+    <string name="save_video_success">视频已保存到相册</string>
     <string name="save_video_failed">保存视频失败！</string>
     <string name="save_video_too_short">视频太短啦！</string>
     <string name="save_video_wait">视频处理中请稍等</string>
     <string name="fu_base_is_tracking_text">未检测到人脸</string>
-    <string name="fu_base_incomplete_face_text">人脸不全</string>
+    <string name="fu_base_incomplete_face_text">人脸不完整</string>
     <string name="fu_base_input_type_single">单输入</string>
     <string name="fu_base_input_type_double">双输入</string>
 
@@ -43,7 +43,6 @@
     <string name="beauty_radio_skin_beauty">美肤</string>
     <string name="beauty_radio_face_shape">美型</string>
     <string name="beauty_radio_filter">滤镜</string>
-    <string name="beauty_radio_style">风格推荐</string>
     <string name="beauty_micro_pouch">去黑眼圈</string>
     <string name="beauty_micro_nasolabial">去法令纹</string>
     <string name="beauty_micro_smile">微笑嘴角</string>
@@ -160,23 +159,36 @@
     <string name="mitao_7">蜜桃 7</string>
     <string name="mitao_8">蜜桃 8</string>
 
+    <string name="dialog_style_reset">是否将风格推荐模块的所有项重置到默认值？</string>
+    <string name="open">开启</string>
+    <string name="close">关闭</string>
     <string name="beauty_face_style_none">无</string>
-    <string name="beauty_face_style_1">风格 1</string>
-    <string name="beauty_face_style_2">风格 2</string>
-    <string name="beauty_face_style_3">风格 3</string>
-    <string name="beauty_face_style_4">风格 4</string>
-    <string name="beauty_face_style_5">风格 5</string>
-    <string name="beauty_face_style_6">风格 6</string>
-    <string name="beauty_face_style_7">风格 7</string>
-    <string name="beauty_face_style_toast">使用%s先取消“风格推荐”</string>
+    <string name="style_primitive">原生</string>
+    <string name="style_classic">经典</string>
+    <string name="style_male_deity">男神</string>
+    <string name="style_goddess">女神</string>
+    <string name="style_handsome">真帅啊</string>
+    <string name="style_natura">自然</string>
+    <string name="style_korean_schoolgirls">学妹</string>
+    <string name="style_senior_sister">学姐</string>
+    <string name="style_pure_desire">纯欲</string>
+    <string name="style_pale_complexion">淡颜</string>
+    <string name="style_zyfz">智雅</string>
+    <string name="style_alz">爱凌</string>
+    <string name="style_temperament">气质</string>
+    <string name="style_milk_feroucious">奶凶</string>
+    <string name="style_texture">质感</string>
 
     <string name="poster_take_photo">对准线框 正脸拍摄</string>
     <string name="poster_change_face_error">替换失败</string>
     <string name="poster_template_face_none">未识别模板的人脸，请重新选择模板</string>
-    <string name="dialog_no_track_face">未检测到人脸，请重新拍摄</string>
-    <string name="dialog_no_incomplete_face">人脸不全，请重新拍摄</string>
-    <string name="dialog_face_rotation_not_valid">人脸偏转角度过大，请正脸拍摄。</string>
-    <string name="dialog_got">知道啦</string>
+    <string name="dialog_no_track_face_re_shot">未检测到人脸，请重新拍摄</string>
+    <string name="dialog_no_incomplete_face_re_shot">人脸不全，请重新拍摄</string>
+    <string name="dialog_face_rotation_not_valid_re_shot">人脸偏转角度过大，请重新拍摄</string>
+    <string name="dialog_no_track_face_re_upload">未检测到人脸，请重新上传</string>
+    <string name="dialog_no_incomplete_face_re_upload">人脸不全，请重新上传</string>
+    <string name="dialog_face_rotation_not_valid_re_upload">人脸偏转角度过大，请重新上传</string>
+    <string name="dialog_got">知道了</string>
     <string name="tip_dual_face">检测到多人，请选择一人进行换脸</string>
 
     <string name="animoji_filter">Animoji</string>
@@ -227,6 +239,8 @@
     <string name="live_photo_save_succeed">道具保存成功</string>
     <string name="recover">恢复</string>
 
+    <string name="makeup">美妆</string>
+    <string name="make_up">妆容</string>
     <string name="makeup_lip_fog">雾面</string>
     <string name="makeup_lip_moist1">润泽Ⅰ</string>
     <string name="makeup_lip_moist2">润泽Ⅱ</string>
@@ -323,7 +337,7 @@
     <string name="dialog_guide_bg_seg_green">请使用纯色背景拍摄，推荐绿色幕布效果最佳</string>
     <string name="dialog_i_know">我知道了</string>
 
-    <string name="download_error">下载失败</string>
+    <string name="download_error">下载失败，请检查网络重试</string>
     <string name="back">返回</string>
 
     <string name="safe_area_tips">白色区域为安全区域，不参与绿幕抠像</string>
@@ -332,4 +346,7 @@
 
     <string name="portrait_segment_mode1">通用分割版</string>
     <string name="portrait_segment_mode2">视频会议版</string>
+
+    <string name="push_video_tips">正在努力导出视频，请不要退出应用或锁屏</string>
+    <string name="close_tip">%s效果已关闭</string>
 </resources>

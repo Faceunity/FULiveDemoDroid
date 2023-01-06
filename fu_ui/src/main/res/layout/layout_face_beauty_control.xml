@@ -91,34 +91,6 @@
                     android:textSize="@dimen/text_size_20" />
             </LinearLayout>
 
-
-            <LinearLayout
-                android:id="@+id/lyt_style_recover"
-                android:layout_width="@dimen/x132"
-                android:layout_height="@dimen/x180"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <ImageView
-                    android:layout_width="@dimen/x88"
-                    android:layout_height="@dimen/x88"
-                    android:layout_marginBottom="@dimen/x18"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/icon_beauty_style_none_selector" />
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="@dimen/x30"
-                    android:gravity="center_vertical"
-                    android:text="@string/beauty_face_style_none"
-                    android:textColor="@color/tv_main_color_selector"
-                    android:textSize="@dimen/text_size_20" />
-            </LinearLayout>
-
-
             <View
                 android:id="@+id/iv_line"
                 android:layout_width="@dimen/x1"
@@ -183,18 +155,5 @@
             android:text="@string/beauty_radio_filter"
             android:textColor="@color/bottom_radio_color"
             android:textSize="@dimen/text_size_26" />
-
-        <com.faceunity.ui.checkbox.CheckBoxCompat
-            android:id="@+id/beauty_radio_style"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@color/transparent"
-            android:button="@null"
-            android:gravity="center"
-            android:text="@string/beauty_radio_style"
-            android:textColor="@color/bottom_radio_color"
-            android:textSize="@dimen/text_size_26" />
-
     </com.faceunity.ui.checkbox.CheckGroup>
 </LinearLayout>

@@ -28,7 +28,7 @@ public class BgSegGreenSource {
 
     private static double SIMILARITY = 0.5;//相似度
     private static double SMOOTHNESS = 0.3;//平滑度
-    private static double TRANSPARENCY = 0.67;//透明度
+    private static double TRANSPARENCY = 0.66;//透明度
 
     /**
      * 构造绿幕抠像对象
@@ -65,7 +65,7 @@ public class BgSegGreenSource {
         ArrayList<BgSegGreenBean> actions = new ArrayList<BgSegGreenBean>();
         actions.add(new BgSegGreenBean(BgSegGreenParam.RGB_COLOR, R.string.bg_seg_green_key_color, R.drawable.icon_green_color_selector, R.drawable.icon_green_color_selector, BgSegGreenBean.ButtonType.NORMAL2_BUTTON));
         actions.add(new BgSegGreenBean(BgSegGreenParam.SIMILARITY, R.string.bg_seg_green_similarity, R.drawable.icon_green_similarityr_close_selector, R.drawable.icon_green_similarityr_open_selector, BgSegGreenBean.ButtonType.NORMAL1_BUTTON));
-        actions.add(new BgSegGreenBean(BgSegGreenParam.SMOOTHNESS, R.string.bg_seg_green_smooth, R.drawable.icon_green_smooth_close_selector, R.drawable.icon_green_similarityr_open_selector, BgSegGreenBean.ButtonType.NORMAL1_BUTTON));
+        actions.add(new BgSegGreenBean(BgSegGreenParam.SMOOTHNESS, R.string.bg_seg_green_smooth, R.drawable.icon_green_smooth_close_selector, R.drawable.icon_green_smooth_open_selector, BgSegGreenBean.ButtonType.NORMAL1_BUTTON));
         actions.add(new BgSegGreenBean(BgSegGreenParam.TRANSPARENCY, R.string.bg_seg_green_alpha, R.drawable.icon_green_transparency_close_selector, R.drawable.icon_green_transparency_open_selector, BgSegGreenBean.ButtonType.NORMAL1_BUTTON));
         actions.add(new BgSegGreenBean("", R.string.bg_seg_green_safe_area, R.drawable.icon_green_safe_area_close_selector, R.drawable.icon_green_safe_area_open_selector, BgSegGreenBean.ButtonType.SWITCH_BUTTON));
         return actions;

@@ -31,7 +31,7 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         //检查设备基本情况，并记录在app生命周期内。
-        DemoConfig.DEVICE_LEVEL = FuDeviceUtils.judgeDeviceLevelGPU();
+        DemoConfig.DEVICE_LEVEL = FuDeviceUtils.judgeDeviceLevelGPU(true);
         DemoConfig.DEVICE_NAME = FuDeviceUtils.getDeviceName();
     }
 

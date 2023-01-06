@@ -26,17 +26,11 @@ abstract class AbstractFaceBeautyDataFactory {
     /* 滤镜底部菜单数据*/
     abstract val beautyFilters: ArrayList<FaceBeautyFilterBean>
 
-    /* 风格底部菜单数据*/
-    abstract val beautyStyles: ArrayList<FaceBeautyStyleBean>
-
     /*系统推荐配置滤镜对应下标*/
     abstract var currentFilterIndex: Int
 
     /* 美颜项目数据扩展模型 */
     abstract val modelAttributeRange: HashMap<String, ModelAttributeData>
-
-    /*系统风格对应下标*/
-    abstract var currentStyleIndex: Int
 
     /**
      * 切换滤镜
@@ -44,12 +38,6 @@ abstract class AbstractFaceBeautyDataFactory {
      * @param intensity Double
      */
     abstract fun onFilterSelected(name: String, intensity: Double, resDes: Int)
-
-    /**
-     * 切换风格
-     * @param name String
-     */
-    abstract fun onStyleSelected(name: String?)
 
     /**
      * 更改滤镜强度

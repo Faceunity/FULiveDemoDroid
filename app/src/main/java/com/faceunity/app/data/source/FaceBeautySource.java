@@ -2,20 +2,17 @@ package com.faceunity.app.data.source;
 
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
-import com.faceunity.app.data.FaceBeautyDataFactory;
-import com.faceunity.app.data.disksource.FUUtils;
-import com.faceunity.app.data.disksource.FaceBeautyData;
+import com.faceunity.app.data.disksource.facebeauty.FUDiskFaceBeautyData;
+import com.faceunity.app.data.disksource.facebeauty.FUDiskFaceBeautyUtils;
 import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.core.controller.facebeauty.FaceBeautyParam;
 import com.faceunity.core.entity.FUBundleData;
 import com.faceunity.core.enumeration.FUFaceBeautyMultiModePropertyEnum;
 import com.faceunity.core.enumeration.FUFaceBeautyPropertyModeEnum;
-import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.facebeauty.FaceBeauty;
 import com.faceunity.core.model.facebeauty.FaceBeautyFilterEnum;
 import com.faceunity.ui.entity.FaceBeautyBean;
 import com.faceunity.ui.entity.FaceBeautyFilterBean;
-import com.faceunity.ui.entity.FaceBeautyStyleBean;
 import com.faceunity.ui.entity.ModelAttributeData;
 
 import java.util.ArrayList;
@@ -28,7 +25,7 @@ import java.util.HashMap;
 public class FaceBeautySource {
 
     private static ArrayList<FaceBeautyFilterBean> filters = new ArrayList<>();
-    private static FaceBeautyData faceBeautyData;
+    private static FUDiskFaceBeautyData FUDiskFaceBeautyData;
 
     /**
      * 获取默认推荐美颜模型
@@ -39,11 +36,14 @@ public class FaceBeautySource {
     public static FaceBeauty getDefaultFaceBeauty() {
         FaceBeauty recommendFaceBeauty = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
         if (DemoConfig.OPEN_FACE_BEAUTY_TO_FILE)
-            faceBeautyData = FUUtils.loadFaceBeautyData();
-        if (faceBeautyData != null) {
+            FUDiskFaceBeautyData = FUDiskFaceBeautyUtils.loadFaceBeautyData();
+        //性能最优策略，设置个属性模式
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+            setFaceBeautyPropertyMode(recommendFaceBeauty);
+        }
+        if (FUDiskFaceBeautyData != null) {
             //有本地缓存
-            FaceBeautyDataFactory.setDiskCurrentStyleIndex(faceBeautyData.styleTypeIndex);
-            FUUtils.setFaceBeauty(faceBeautyData, recommendFaceBeauty);
+            FUDiskFaceBeautyUtils.setFaceBeauty(FUDiskFaceBeautyData, recommendFaceBeauty);
         } else {
             //没有本地缓存
             recommendFaceBeauty.setFilterName(FaceBeautyFilterEnum.ZIRAN_2);
@@ -61,10 +61,6 @@ public class FaceBeautySource {
             recommendFaceBeauty.setForHeadIntensity(0.3);
             recommendFaceBeauty.setMouthIntensity(0.4);
             recommendFaceBeauty.setChinIntensity(0.3);
-            //性能最优策略
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
-                setFaceBeautyPropertyMode(recommendFaceBeauty);
-            }
         }
 
         return recommendFaceBeauty;
@@ -578,139 +574,12 @@ public class FaceBeautySource {
      * @return
      */
     private static double getDiskFilterValue(String key) {
-        if (faceBeautyData != null) {
-            return faceBeautyData.filterMap.get(key);
+        if (FUDiskFaceBeautyData != null) {
+            return FUDiskFaceBeautyData.filterMap.get(key);
         } else {
             return 0.4;
         }
     }
-
-    private static final String CONFIG_BIAOZHUN = "biaozhun";
-    private static final String CONFIG_HUAJIAO = "huajiao";
-    private static final String CONFIG_KUAISHOU = "kuaishou";
-    private static final String CONFIG_QINGYAN = "qingyan";
-    private static final String CONFIG_SHANGTANG = "shangtang";
-    private static final String CONFIG_YINGKE = "yingke";
-    private static final String CONFIG_ZIJIETIAODONG = "zijietiaodong";
-
-
-    /**
-     * 初始化风格推荐
-     *
-     * @return ArrayList<FaceBeautyBean>
-     */
-    public static ArrayList<FaceBeautyStyleBean> buildStylesParams() {
-        ArrayList<FaceBeautyStyleBean> params = new ArrayList<>();
-        params.add(new FaceBeautyStyleBean(CONFIG_KUAISHOU, R.drawable.icon_beauty_style_1_selector, R.string.beauty_face_style_1));
-        params.add(new FaceBeautyStyleBean(CONFIG_QINGYAN, R.drawable.icon_beauty_style_2_selector, R.string.beauty_face_style_2));
-        params.add(new FaceBeautyStyleBean(CONFIG_ZIJIETIAODONG, R.drawable.icon_beauty_style_3_selector, R.string.beauty_face_style_3));
-        params.add(new FaceBeautyStyleBean(CONFIG_HUAJIAO, R.drawable.icon_beauty_style_4_selector, R.string.beauty_face_style_4));
-        params.add(new FaceBeautyStyleBean(CONFIG_YINGKE, R.drawable.icon_beauty_style_5_selector, R.string.beauty_face_style_5));
-        params.add(new FaceBeautyStyleBean(CONFIG_SHANGTANG, R.drawable.icon_beauty_style_6_selector, R.string.beauty_face_style_6));
-        params.add(new FaceBeautyStyleBean(CONFIG_BIAOZHUN, R.drawable.icon_beauty_style_7_selector, R.string.beauty_face_style_7));
-        return params;
-    }
-
-    /**
-     * 风格对应参数配置
-     */
-    public static HashMap<String, Runnable> styleParams = new HashMap<String, Runnable>() {
-        {
-            put(CONFIG_KUAISHOU, () -> {
-                FaceBeauty model = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-                model.setFaceShapeIntensity(1.0);
-                model.setColorIntensity(0.5);
-                model.setBlurIntensity(3.6);
-                model.setEyeBrightIntensity(0.35);
-                model.setToothIntensity(0.25);
-                model.setCheekThinningIntensity(0.45);
-                model.setCheekVIntensity(0.08);
-                model.setCheekSmallIntensity(0.05);
-                model.setEyeEnlargingIntensity(0.3);
-                FaceBeautyDataFactory.faceBeauty = model;
-                FURenderKit.getInstance().setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-
-            });
-            put(CONFIG_QINGYAN, () -> {
-                FaceBeauty model = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-                model.setFaceShapeIntensity(1.0);
-                model.setFilterName(FaceBeautyFilterEnum.ZIRAN_3);
-                model.setFilterIntensity(0.3);
-                model.setColorIntensity(0.4);
-                model.setRedIntensity(0.2);
-                model.setBlurIntensity(3.6);
-                model.setEyeBrightIntensity(0.5);
-                model.setToothIntensity(0.4);
-                model.setCheekThinningIntensity(0.3);
-                model.setNoseIntensity(0.5);
-                model.setEyeEnlargingIntensity(0.25);
-                FaceBeautyDataFactory.faceBeauty = model;
-                FURenderKit.getInstance().setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-            });
-            put(CONFIG_ZIJIETIAODONG, () -> {
-                FaceBeauty model = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-                model.setFaceShapeIntensity(1.0);
-                model.setColorIntensity(0.4);
-                model.setRedIntensity(0.3);
-                model.setBlurIntensity(2.4);
-                model.setCheekThinningIntensity(0.3);
-                model.setCheekSmallIntensity(0.15);
-                model.setEyeEnlargingIntensity(0.65);
-                model.setNoseIntensity(0.3);
-                FaceBeautyDataFactory.faceBeauty = model;
-                FURenderKit.getInstance().setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-            });
-            put(CONFIG_HUAJIAO, () -> {
-                FaceBeauty model = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-                model.setFaceShapeIntensity(1.0);
-                model.setColorIntensity(0.7);
-                model.setBlurIntensity(3.9);
-                model.setCheekThinningIntensity(0.3);
-                model.setCheekSmallIntensity(0.05);
-                model.setEyeEnlargingIntensity(0.65);
-                FaceBeautyDataFactory.faceBeauty = model;
-                FURenderKit.getInstance().setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-            });
-            put(CONFIG_YINGKE, () -> {
-                FaceBeauty model = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-                model.setFaceShapeIntensity(1.0);
-                model.setFilterName(FaceBeautyFilterEnum.FENNEN_2);
-                model.setFilterIntensity(0.5);
-                model.setColorIntensity(0.6);
-                model.setBlurIntensity(3.0);
-                model.setCheekThinningIntensity(0.5);
-                model.setEyeEnlargingIntensity(0.65);
-                FaceBeautyDataFactory.faceBeauty = model;
-                FURenderKit.getInstance().setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-            });
-            put(CONFIG_SHANGTANG, () -> {
-                FaceBeauty model = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-                model.setFaceShapeIntensity(1.0);
-                model.setFilterName(FaceBeautyFilterEnum.FENNEN_2);
-                model.setFilterIntensity(0.8);
-                model.setColorIntensity(0.7);
-                model.setBlurIntensity(4.2);
-                model.setEyeEnlargingIntensity(0.6);
-                model.setCheekThinningIntensity(0.3);
-                FaceBeautyDataFactory.faceBeauty = model;
-                FURenderKit.getInstance().setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-            });
-            put(CONFIG_BIAOZHUN, () -> {
-                FaceBeauty model = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-                model.setFaceShapeIntensity(1.0);
-                model.setFilterName(FaceBeautyFilterEnum.ZIRAN_5);
-                model.setFilterIntensity(0.55);
-                model.setColorIntensity(0.2);
-                model.setRedIntensity(0.65);
-                model.setBlurIntensity(3.3);
-                model.setCheekSmallIntensity(0.05);
-                model.setCheekThinningIntensity(0.1);
-                FaceBeautyDataFactory.faceBeauty = model;
-                FURenderKit.getInstance().setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-            });
-        }
-
-    };
 
     /**
      * 克隆模型
@@ -737,6 +606,7 @@ public class FaceBeautySource {
         cloneFaceBeauty.setToothIntensity(faceBeauty.getToothIntensity());
         cloneFaceBeauty.setRemovePouchIntensity(faceBeauty.getRemovePouchIntensity());
         cloneFaceBeauty.setRemoveLawPatternIntensity(faceBeauty.getRemoveLawPatternIntensity());
+        cloneFaceBeauty.setFaceThreeIntensity(faceBeauty.getFaceThreeIntensity());
         /*美型*/
         cloneFaceBeauty.setFaceShape(faceBeauty.getFaceShape());
         cloneFaceBeauty.setFaceShapeIntensity(faceBeauty.getFaceShapeIntensity());
@@ -767,7 +637,6 @@ public class FaceBeautySource {
         cloneFaceBeauty.setEyeHeightIntensity(faceBeauty.getEyeHeightIntensity());
         cloneFaceBeauty.setBrowThickIntensity(faceBeauty.getBrowThickIntensity());
         cloneFaceBeauty.setLipThickIntensity(faceBeauty.getLipThickIntensity());
-        cloneFaceBeauty.setFaceThreeIntensity(faceBeauty.getFaceThreeIntensity());
         cloneFaceBeauty.setChangeFramesIntensity(faceBeauty.getChangeFramesIntensity());
         return cloneFaceBeauty;
     }

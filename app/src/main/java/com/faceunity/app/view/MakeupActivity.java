@@ -39,8 +39,7 @@ public class MakeupActivity extends BaseFaceUnityActivity {
     public void initView() {
         super.initView();
         mMakeupControlView = (MakeupControlView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x304), getResources().getDimensionPixelSize(R.dimen.x122));
-
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x304));
     }
 
     @Override

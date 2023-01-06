@@ -68,4 +68,33 @@
     <declare-styleable name="RingCircleView">
         <attr name="inner_padding" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="CircleNumberProgressBar">
+        <!-- 圆的半径 -->
+        <attr name="cnpb_circle_radius" format="dimension"/>
+        <!-- 开始角度，0 ~ 360 -->
+        <attr name="cnpb_start_angle" format="integer" />
+        <!-- 进度条的宽度 -->
+        <attr name="cnpb_bar_width" format="dimension" />
+        <!-- 达到的进度颜色 -->
+        <attr name="cnpb_reach_color" format="color" />
+        <!-- 未达到的进度颜色 -->
+        <attr name="cnpb_unreach_color" format="color" />
+        <!-- 文字大小 -->
+        <attr name="cnpb_text_size" format="dimension" />
+        <!-- 文字颜色 -->
+        <attr name="cnpb_text_color" format="color" />
+        <!-- 文字是否显示 -->
+        <attr name="cnpb_text_visibility" format="enum">
+            <enum name="invisible" value="0"/>
+            <enum name="visible" value="1"/>
+        </attr>
+        <!-- 单位 -->
+        <attr name="cnpb_unit" format="string"/>
+        <!-- 单位是否显示 -->
+        <attr name="cnpb_unit_visibility" format="enum">
+            <enum name="invisible" value="0"/>
+            <enum name="visible" value="1"/>
+        </attr>
+    </declare-styleable>
 </resources>

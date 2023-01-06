@@ -89,4 +89,14 @@ abstract class AbstractMakeupDataFactory {
      * @return Double
      */
     abstract fun getCurrentCustomIntensity(key: String, current: Int): Double
+
+    /**
+     * 传入组合装名字确认组合装是否有修改 =null时候是卸妆
+     */
+    abstract fun checkMakeupChange(index: Int): Boolean
+
+    /**
+     * 检查当前子妆是否选中或者有强度
+     */
+    abstract fun checkItemIntensity(key:String): Boolean
 }

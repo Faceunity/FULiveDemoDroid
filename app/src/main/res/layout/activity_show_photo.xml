@@ -29,15 +29,14 @@
             android:src="@mipmap/icon_arrow_back" />
 
 
-
         <ImageButton
             android:id="@+id/btn_save"
             android:layout_width="65dp"
             android:layout_height="65dp"
-            android:onClick="onClick"
-            android:background="@mipmap/icon_show_save"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"   />
+            android:layout_centerHorizontal="true"
+            android:background="@mipmap/icon_show_save"
+            android:onClick="onClick" />
 
 
 

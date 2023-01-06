@@ -6,19 +6,18 @@
 
     <ImageView
         android:id="@+id/iv_poster_rect"
-        android:layout_width="@dimen/x484"
-        android:layout_height="@dimen/x608"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/x236"
-        android:scaleType="centerInside"
-        android:src="@mipmap/icon_poster_take_rect" />
+        android:scaleType="centerCrop"
+        android:src="@mipmap/bg_poster_tack" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/iv_poster_rect"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/x60"
+        android:layout_marginBottom="@dimen/y400"
         android:text="@string/poster_take_photo"
         android:textColor="@color/colorWhite"
         android:textSize="@dimen/text_size_26" />

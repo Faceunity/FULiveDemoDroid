@@ -5,7 +5,7 @@
     <string name="camera_dialog_open">Retry</string>
     <string name="camera_dialog_back">quit</string>
 
-    <string name="fu_base_debug">Resolution:\n\t%dX%d\nFPS: %d\nRender time:\n\t%dms</string>
+    <string name="fu_base_debug">resolution:\n%dx%d\nfps: %d\nrender time:\n%dms</string>
     <string name="save_photo_success">Save photo successfully!</string>
     <string name="save_video_success">Save video successfully!</string>
     <string name="save_video_failed">Save video failed!</string>
@@ -39,10 +39,9 @@
     <string name="beauty_box_intensity_forehead">Forehead</string>
     <string name="beauty_box_intensity_nose">Nose</string>
     <string name="beauty_box_intensity_mouth">Mouth</string>
-    <string name="beauty_radio_skin_beauty">Skin</string>
-    <string name="beauty_radio_face_shape">Reshape</string>
+    <string name="beauty_radio_skin_beauty">Beauty Effects</string>
+    <string name="beauty_radio_face_shape">Face Shaping</string>
     <string name="beauty_radio_filter">Filter</string>
-    <string name="beauty_radio_style">Presets</string>
     <string name="makeup_radio_lipstick">Lipstick</string>
     <string name="makeup_radio_blusher">Blush</string>
     <string name="makeup_radio_eyebrow">Eyebrow</string>
@@ -74,15 +73,26 @@
     <string name="beauty_micro_long_nose">Length</string>
     <string name="beauty_micro_eye_space">Eye distance</string>
     <string name="beauty_micro_eye_rotate">Slant</string>
+
+    <string name="dialog_style_reset">Whether or not reset all parameters of the Classic Style to the default</string>
+    <string name="open">Turn on</string>
+    <string name="close">Turn off</string>
     <string name="beauty_face_style_none">None</string>
-    <string name="beauty_face_style_1">Style 1</string>
-    <string name="beauty_face_style_2">Style 2</string>
-    <string name="beauty_face_style_3">Style 3</string>
-    <string name="beauty_face_style_4">Style 4</string>
-    <string name="beauty_face_style_5">Style 5</string>
-    <string name="beauty_face_style_6">Style 6</string>
-    <string name="beauty_face_style_7">Style 7</string>
-    <string name="beauty_face_style_toast">To use %s, cancel \'Presets\' first.</string>
+    <string name="style_primitive">Natural</string>
+    <string name="style_classic">Classic</string>
+    <string name="style_male_deity">Demigod</string>
+    <string name="style_goddess">Beauty</string>
+    <string name="style_handsome">handsome</string>
+    <string name="style_natura">natura</string>
+    <string name="style_korean_schoolgirls">Schoolgirl</string>
+    <string name="style_senior_sister">Senior Sister</string>
+    <string name="style_pure_desire">pure desire</string>
+    <string name="style_pale_complexion">Elegant</string>
+    <string name="style_zyfz">Jiah</string>
+    <string name="style_alz">Eileen</string>
+    <string name="style_temperament">Temperament</string>
+    <string name="style_milk_feroucious">milk_feroucious</string>
+    <string name="style_texture">Quality</string>
 
     <string name="select_data_photo">Photo</string>
     <string name="select_data_video">Video</string>
@@ -171,9 +181,12 @@
     <string name="poster_take_photo">Please take photos by positive face.</string>
     <string name="poster_change_face_error">change face failed</string>
     <string name="poster_template_face_none">No template face detected, please re-upload</string>
-    <string name="dialog_no_track_face">No face detected, please re-upload</string>
-    <string name="dialog_no_incomplete_face">No face detected, please re-upload</string>
-    <string name="dialog_face_rotation_not_valid">Side face angle is too greater, please re-upload</string>
+    <string name="dialog_no_track_face_re_shot">No face detected, please re-shot</string>
+    <string name="dialog_no_incomplete_face_re_shot">No face detected, please re-shot</string>
+    <string name="dialog_face_rotation_not_valid_re_shot">Side face angle is too greater, please re-shot</string>
+    <string name="dialog_no_track_face_re_upload">No face detected, please re-upload</string>
+    <string name="dialog_no_incomplete_face_re_upload">No face detected, please re-upload</string>
+    <string name="dialog_face_rotation_not_valid_re_upload">Side face angle is too greater, please re-upload</string>
     <string name="dialog_got">OK</string>
     <string name="tip_dual_face">Multiple people detected, please choose one person for face fusion</string>
 
@@ -225,6 +238,8 @@
     <string name="avatar_save_succeed">Save succeed</string>
     <string name="recover">Recover</string>
 
+    <string name="makeup">makeup</string>
+    <string name="make_up">Makeup</string>
     <string name="makeup_lip_fog">Matte</string>
     <string name="makeup_lip_moist1">Moist</string>
     <string name="makeup_lip_moist2">Water</string>
@@ -329,4 +344,7 @@
 
     <string name="portrait_segment_mode1">Universal split mode</string>
     <string name="portrait_segment_mode2">video conferencing mode</string>
+
+    <string name="push_video_tips">Trying to export the video. Please do not exit the application or lock the screen</string>
+    <string name="close_tip">%s turned off</string>
 </resources>

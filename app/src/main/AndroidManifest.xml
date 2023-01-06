@@ -46,6 +46,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />
         <activity
+            android:name=".view.StyleActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/FullScreenTheme" />
+        <activity
             android:name=".view.BodyBeautyActivity"
             android:screenOrientation="portrait"
             android:theme="@style/FullScreenTheme" />

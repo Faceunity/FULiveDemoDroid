@@ -44,6 +44,7 @@
                 android:id="@+id/iv_delete_all"
                 android:layout_width="@dimen/x80"
                 android:layout_height="@dimen/x80"
+                android:padding="@dimen/x10"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/x10"
                 android:layout_marginEnd="@dimen/x20"
@@ -62,7 +63,7 @@
                 android:layout_height="@dimen/x98"
                 android:layout_gravity="center_vertical"
                 app:tabIndicator="@null"
-                app:tabMode="scrollable"
+                app:tabMode="fixed"
                 app:tabSelectedTextColor="@color/main_color"
                 app:tabTextColor="@color/colorWhite" />
         </LinearLayout>

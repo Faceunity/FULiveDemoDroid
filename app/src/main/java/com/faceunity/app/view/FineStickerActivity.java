@@ -40,7 +40,7 @@ public class FineStickerActivity extends BaseFaceUnityActivity {
         super.initView();
         mFUAIKit.setHandDetectEveryNFramesWhenNoHand(DemoConfig.HAND_DETECT_WHEN_NO_HAND_NUM);
         fineStickerView = (FineStickerView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x462), getResources().getDimensionPixelSize(R.dimen.x166));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x462));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class FineStickerActivity extends BaseFaceUnityActivity {
         fineStickerView.setOnBottomAnimatorChangeListener(showRate -> {
             // 收起 1-->0，弹出 0-->1
             updateTakePicButton(getResources().getDimensionPixelSize(R.dimen.x166), showRate,
-                    getResources().getDimensionPixelSize(R.dimen.x156), getResources().getDimensionPixelSize(R.dimen.x364), true);
+                    getResources().getDimensionPixelSize(R.dimen.x156), getResources().getDimensionPixelSize(R.dimen.x364), false);
         });
 
         mFineStickerDataFactory.setBundleTypeListener(bundleType -> {

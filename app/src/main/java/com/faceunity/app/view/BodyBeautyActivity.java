@@ -39,7 +39,7 @@ public class BodyBeautyActivity extends BaseFaceUnityActivity {
     public void initView() {
         super.initView();
         mBodyBeautyControlView = (BodyBeautyControlView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x298), getResources().getDimensionPixelSize(R.dimen.x122));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x298));
     }
 
     @Override

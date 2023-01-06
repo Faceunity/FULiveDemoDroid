@@ -37,7 +37,7 @@ public class HairBeautyActivity extends BaseFaceUnityActivity {
     public void initView() {
         super.initView();
         mHairBeautyControlView = (HairBeautyControlView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x282), getResources().getDimensionPixelSize(R.dimen.x122));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x282));
     }
 
 

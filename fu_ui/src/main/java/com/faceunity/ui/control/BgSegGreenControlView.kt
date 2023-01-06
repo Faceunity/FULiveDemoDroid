@@ -21,6 +21,7 @@ import com.faceunity.ui.entity.BgSegGreenBackgroundBean
 import com.faceunity.ui.entity.BgSegGreenBean
 import com.faceunity.ui.entity.BgSegGreenSafeAreaBean
 import com.faceunity.ui.entity.ModelAttributeData
+import com.faceunity.ui.entity.uistate.BgSegGreenControlState
 import com.faceunity.ui.infe.AbstractBgSegGreenDataFactory
 import com.faceunity.ui.seekbar.DiscreteSeekBar
 import com.faceunity.ui.utils.DecimalUtils
@@ -43,6 +44,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     //抠像
     private lateinit var mActionAdapter: BaseListAdapter<BgSegGreenBean>
     private var mActionIndex = 0
+    private var mColorIndex = 1
 
     //背景
     private lateinit var mBackgroundAdapter: BaseListAdapter<BgSegGreenBackgroundBean>
@@ -69,7 +71,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         mSafeAreaAdapter.setData(mDataFactory.bgSegGreenSafeAreas)
         mBackgroundAdapter.setData(mDataFactory.bgSegGreenBackgrounds)
         showSeekBar()
-        setPaletteSelected(1)
+        setPaletteSelected(mColorIndex)
         setRecoverEnable(checkActionChanged())
     }
 
@@ -267,7 +269,8 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                 mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 255.0, 0.0))
                 setRecoverEnable(checkActionChanged())
                 mActionAdapter.notifyDataSetChanged()
-                setPaletteSelected(1)
+                mColorIndex = 1
+                setPaletteSelected(mColorIndex)
             }
         }
         iv_palette_blue.setOnClickListener {
@@ -276,7 +279,8 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                 mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 0.0, 255.0))
                 setRecoverEnable(checkActionChanged())
                 mActionAdapter.notifyDataSetChanged()
-                setPaletteSelected(2)
+                mColorIndex = 2
+                setPaletteSelected(mColorIndex)
             }
         }
         iv_palette_white.setOnClickListener {
@@ -285,7 +289,8 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                 mDataFactory.onColorRGBChanged(doubleArrayOf(255.0, 255.0, 255.0))
                 setRecoverEnable(checkActionChanged())
                 mActionAdapter.notifyDataSetChanged()
-                setPaletteSelected(3)
+                mColorIndex = 3
+                setPaletteSelected(mColorIndex)
             }
         }
         iv_palette_pick.setOnClickListener {
@@ -293,8 +298,8 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
             iv_palette_pick.setDrawType(RingCircleView.TYPE_TRANSPARENT)
             setRecoverEnable(true)
             mDataFactory.onColorPickerStateChanged(true, Color.TRANSPARENT)
-            mActionAdapter.notifyDataSetChanged()
-            setPaletteSelected(0)
+            mColorIndex = 0
+            setPaletteSelected(mColorIndex)
         }
     }
 
@@ -414,7 +419,6 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
             1 -> iv_palette_green.isSelected = true
             2 -> iv_palette_blue.isSelected = true
             3 -> iv_palette_white.isSelected = true
-
         }
     }
 
@@ -487,7 +491,6 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
      * @param isOpen Boolean
      */
     private fun changeBottomLayoutAnimator(isOpen: Boolean) {
-
         if (isBottomShow == isOpen) {
             return
         }
@@ -528,7 +531,27 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
 
     fun setPaletteColorPicked(r: Int, g: Int, b: Int) {
         mDataFactory.onColorRGBChanged(doubleArrayOf(r.toDouble(), g.toDouble(), b.toDouble()))
+        mActionAdapter.notifyDataSetChanged()
     }
 
+    fun getUIStates(): BgSegGreenControlState {
+        return BgSegGreenControlState(mActionIndex,mColorIndex,mDataFactory.bgSafeAreaIndex,mDataFactory.backgroundIndex,check_group.checkedCheckBoxId)
+    }
 
+    fun updateUIStates(bgSegGreenSafeAreaBean: BgSegGreenControlState?){
+        if (bgSegGreenSafeAreaBean != null) {
+            mActionIndex = bgSegGreenSafeAreaBean.actionIndex
+            mColorIndex = bgSegGreenSafeAreaBean.colorIndex
+            mDataFactory.bgSafeAreaIndex = bgSegGreenSafeAreaBean.bgSafeAreaIndex
+            mDataFactory.backgroundIndex = bgSegGreenSafeAreaBean.backgroundIndex
+            //刷新UI
+            mActionAdapter.notifyDataSetChanged()
+            mSafeAreaAdapter.notifyDataSetChanged()
+            mBackgroundAdapter.notifyDataSetChanged()
+            showSeekBar()
+            setPaletteSelected(mColorIndex)
+            setRecoverEnable(checkActionChanged())
+            check_group.check(bgSegGreenSafeAreaBean.rbIndex)
+        }
+    }
 }

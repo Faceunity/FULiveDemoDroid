@@ -66,14 +66,13 @@ import java.io.File;
  * Created on 2021/3/1
  */
 public abstract class BaseFaceUnityActivity extends BaseActivity implements View.OnClickListener {
-
+    public static boolean needUpdateUI = false;
+    private boolean hasPermission = false;//是否已又权限
     //region Activity生命周期绑定
     @Override
     public void onResume() {
         super.onResume();
-        if (checkSelfPermission(permissions)) {
-            mCameraRenderer.onResume();
-        }
+        if (hasPermission) mCameraRenderer.onResume();
     }
 
     @Override
@@ -133,6 +132,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
 
     @Override
     public void initData() {
+        if (checkSelfPermission(permissions)) hasPermission = true;
         DemoConfig.DEVICE_LEVEL = FuDeviceUtils.judgeDeviceLevelGPU();
         DemoConfig.DEVICE_NAME = FuDeviceUtils.getDeviceName();
         mMainHandler = new Handler();
@@ -450,7 +450,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
                 double renderTime = ((double) mOneHundredFrameFUTime) / mMaxFrameCnt / 1000000L;
                 mLastOneHundredFrameTimeStamp = System.nanoTime();
                 mOneHundredFrameFUTime = 0;
-                runOnUiThread(() -> onBenchmarkFPSChanged(width, height, fps, renderTime));
+                runOnUiThread(() -> onBenchmarkFPSChanged(height, width, fps, renderTime));
             }
             mEnableFaceRender = false;
         }
@@ -552,14 +552,32 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     public void onSelectPhotoVideoClickBySon() {}
 
     /**
-     * 调整拍照按钮对齐方式
+     * 调整拍照按钮对齐方式 默认不改变宽高
+     *
+     * @param margin Int
+     */
+    protected void changeTakePicButtonMargin(int margin) {
+        changeTakePicButtonMargin(margin,0,false);
+    }
+
+    /**
+     * 调整拍照按钮对齐方式 默认不改变宽高
      *
      * @param margin Int
      */
     protected void changeTakePicButtonMargin(int margin, int width) {
+        changeTakePicButtonMargin(margin,width,true);
+    }
+
+    /**
+     * 调整拍照按钮对齐方式
+     *
+     * @param margin Int
+     */
+    protected void changeTakePicButtonMargin(int margin, int width,boolean changeSize) {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mTakePicView.getLayoutParams();
         params.bottomMargin = margin;
-        mTakePicView.setDrawWidth(width);
+        if (changeSize) mTakePicView.setDrawWidth(width);
         mTakePicView.setLayoutParams(params);
     }
 
@@ -574,7 +592,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     protected void updateTakePicButton(int width, Float showRate, int margin, int diff, Boolean changeSize) {
         int currentWidth = changeSize ? (int) (width * (1 - showRate * 0.265)) : width;
         int currentMargin = margin + (int) (diff * showRate);
-        changeTakePicButtonMargin(currentMargin, currentWidth);
+        changeTakePicButtonMargin(currentMargin, currentWidth,changeSize);
     }
 
 
@@ -832,6 +850,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     @Override
     public void checkPermissionResult(boolean permissionResult) {
         if (permissionResult) {
+            hasPermission = true;
             mCameraRenderer.onResume();
         } else {
             ToastHelper.showNormalToast(this, "缺少相机或录音权限");

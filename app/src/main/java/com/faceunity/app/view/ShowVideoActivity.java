@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.faceunity.app.data.MakeupDataFactory;
 import com.faceunity.app.data.MusicFilterDataFactory;
 import com.faceunity.app.data.PortraitSegmentDataFactory;
 import com.faceunity.app.data.PropDataFactory;
+import com.faceunity.app.data.StyleDataFactory;
 import com.faceunity.app.data.source.BgSegGreenSource;
 import com.faceunity.app.data.source.PortraitSegmentSource;
 import com.faceunity.app.entity.FunctionEnum;
@@ -70,6 +72,8 @@ import com.faceunity.ui.control.MakeupControlView;
 import com.faceunity.ui.control.MusicFilterControlView;
 import com.faceunity.ui.control.PropControlView;
 import com.faceunity.ui.control.PropCustomControlView;
+import com.faceunity.ui.control.StyleControlView;
+import com.faceunity.ui.dialog.ProgressDialogFragment;
 import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
 import com.faceunity.ui.entity.BgSegGreenSafeAreaBean;
@@ -90,6 +94,8 @@ public class ShowVideoActivity extends BaseActivity {
     public static final String TYPE = "type";
     public static final String PATH = "path";
     private static final int REQUEST_CODE_PHOTO = 1000;
+    private ProgressDialogFragment progressDialogFragment;
+    private boolean isOncreate = true;
 
     public static void startActivity(Context context, int type, String path) {
         context.startActivity(new Intent(context, ShowVideoActivity.class).putExtra(TYPE, type).putExtra(PATH, path));
@@ -102,6 +108,7 @@ public class ShowVideoActivity extends BaseActivity {
 
     //region Activity生命周期绑定
     private Boolean isActivityPause = false;
+    long videoDuration;
 
     @Override
     public void onResume() {
@@ -111,6 +118,9 @@ public class ShowVideoActivity extends BaseActivity {
         mVideoRenderer.onResume();
         if (isActivityPause) {
             mPlayView.setVisibility(View.VISIBLE);
+        }
+        if (progressDialogFragment != null) {
+            progressDialogFragment.dismiss();
         }
         isActivityPause = false;
     }
@@ -130,11 +140,24 @@ public class ShowVideoActivity extends BaseActivity {
         } else if (mFunctionType == FunctionEnum.MUSIC_FILTER) {
             mediaPlayerHelper.pausePlay();
         }
-        super.onPause();
-        if (isSendRecordingData) {
-            mVideoRecordHelper.stopRecording();
+
+        //UI状态同步
+        if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
+            FaceBeautyActivity.mFaceBeautyControlState = mFaceBeautyControlView.getUIStates();
+        } else if (mFunctionType == FunctionEnum.STICKER || mFunctionType == FunctionEnum.AR_MASK
+                || mFunctionType == FunctionEnum.BIG_HEAD || mFunctionType == FunctionEnum.EXPRESSION_RECOGNITION
+                || mFunctionType == FunctionEnum.FACE_WARP || mFunctionType == FunctionEnum.GESTURE_RECOGNITION) {
+            PropActivity.propControlState = mPropControlView.getUIStates();
+        } else if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
+            BgSegGreenActivity.bgSegGreenControlState = mBgSegGreenControlView.getUIStates();
+        } else if (mFunctionType == FunctionEnum.STYLE) {
+            StyleActivity.mStyleControlState = mStyleControlView.getUIStates();
         }
 
+        super.onPause();
+        if (isSendRecordingData) {
+            onStopRecord(false);
+        }
         mVideoRenderer.onPause();
     }
 
@@ -199,53 +222,62 @@ public class ShowVideoActivity extends BaseActivity {
         mSaveView = findViewById(R.id.btn_save);
         mCustomView = findViewById(R.id.ryt_custom_view);
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
-            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x156));
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x156));
         } else if (mFunctionType == FunctionEnum.MAKE_UP) {
-            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x350));
-        } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
-            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x520));
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x304));
+        } else if (mFunctionType == FunctionEnum.STICKER
+                || mFunctionType == FunctionEnum.AR_MASK
+                || mFunctionType == FunctionEnum.BIG_HEAD
+                || mFunctionType == FunctionEnum.EXPRESSION_RECOGNITION
+                || mFunctionType == FunctionEnum.FACE_WARP
+                || mFunctionType == FunctionEnum.GESTURE_RECOGNITION) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212));
+        } else if (mFunctionType == FunctionEnum.ANIMOJI) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x306));
         } else if (mFunctionType == FunctionEnum.HAIR_BEAUTY) {
-            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x350));
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x282));
+        } else if (mFunctionType == FunctionEnum.LIGHT_MAKEUP) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x298));
+        } else if (mFunctionType == FunctionEnum.MUSIC_FILTER) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212));
+        } else if (mFunctionType == FunctionEnum.BODY_BEAUTY) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x298));
+        } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212));
+        } else if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x397));
+        } else if (mFunctionType == FunctionEnum.FINE_STICKER) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x462));
+        } else if (mFunctionType == FunctionEnum.STYLE) {
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x298));
         } else {
-            changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x200));
+            changeSaveButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212));
         }
     }
 
 
     @Override
     public void bindListener() {
-        mVideoRenderer = new VideoRenderer(mSurfaceView, mVideoPath, mOnGlRendererListener);
+        mVideoRenderer = new VideoRenderer(mSurfaceView, mVideoPath, mOnGlRendererListener, true,true);
         mVideoPlayHelper = new VideoPlayHelper(mVideoDecoderListener, mSurfaceView, false);
         /* 播放*/
         mPlayView.setOnClickListener((view) -> {
-            if (mSaveView.isSelected()) {
-                ToastHelper.showNormalToast(ShowVideoActivity.this, R.string.save_video_wait);
-                return;
-            }
-            mSaveView.setVisibility(View.GONE);
             mPlayView.setVisibility(View.GONE);
-            mVideoRecordHelper.startRecording(mSurfaceView, mVideoWidth, mVideoHeight, mVideoPath);
-
+            mVideoRenderer.startMediaPlayer(mOnVideoPlayListener);
         });
         /* 保存*/
         mSaveView.setOnClickListener((view) -> {
-            if (mSaveView.isSelected()) {
-                ToastHelper.showNormalToast(ShowVideoActivity.this, R.string.save_video_wait);
-                return;
-            }
-            mSaveView.setVisibility(View.GONE);
-            new Thread(() -> {
-                String filePath = FileUtils.addVideoToAlbum(ShowVideoActivity.this, recordFile);
-                if (recordFile.exists()) {
-                    recordFile.delete();
-                    recordFile = null;
-                }
-                if (filePath == null || filePath.trim().length() == 0) {
-                    runOnUiThread(() -> ToastHelper.showNormalToast(ShowVideoActivity.this, R.string.save_video_failed));
-                } else {
-                    runOnUiThread(() -> ToastHelper.showNormalToast(ShowVideoActivity.this, R.string.save_video_success));
-                }
-            }).start();
+            mPlayView.setVisibility(View.GONE);
+            mVideoRecordHelper.startRecording(mSurfaceView, mVideoWidth, mVideoHeight, mVideoPath);
+            if (videoDuration <= 0) videoDuration = mVideoRenderer.getDuration();
+            progressDialogFragment = new ProgressDialogFragment(videoDuration);
+            progressDialogFragment.setOnDismissListener(() -> {
+                mVideoRenderer.pauseMediaPlayer();
+                mPlayView.setVisibility(View.VISIBLE);
+                //手动停止
+                onStopRecord(false);
+            });
+            progressDialogFragment.show(getSupportFragmentManager(), "ChooseDialogFragment");
         });
         /* 返回 */
         findViewById(R.id.btn_back).setOnClickListener(view -> onBackPressed());
@@ -268,6 +300,7 @@ public class ShowVideoActivity extends BaseActivity {
     private BgSegGreenDataFactory mBgSegGreenDataFactory;//绿幕抠像
     private BgSegGreenControlView mBgSegGreenControlView;//绿幕抠像
 
+    private PropControlView mPropControlView;
     private PropDataFactory mPropDataFactory; //道具 道具贴纸 AR面具 大头 表情识别 哈哈镜 手势识别
 
     private BodyBeautyDataFactory mBodyBeautyDataFactory;//美体
@@ -278,6 +311,14 @@ public class ShowVideoActivity extends BaseActivity {
     //美发
     private HairBeautyControlView mHairBeautyControlView;
     private HairBeautyDataFactory mHairBeautyDataFactory;
+
+    //Avatar
+    private AvatarDataFactory mAvatarDataFactory;
+    private AvatarControlView mAvatarControlView;
+
+    //风格
+    private StyleControlView mStyleControlView;
+    private StyleDataFactory mStyleDataFactory;
 
     //音乐滤镜
     private MusicFilterControlView mMusicFilterControlView;
@@ -290,7 +331,7 @@ public class ShowVideoActivity extends BaseActivity {
         public void run() {
             if (isMusicPlaying) {
                 MusicFilter musicFilter = mFURenderKit.getMusicFilter();
-                if (musicFilter!=null){
+                if (musicFilter != null) {
                     musicFilter.setMusicTime(mediaPlayerHelper.getMusicCurrentPosition());
                 }
                 mHandler.postDelayed(this, 50L);
@@ -298,28 +339,25 @@ public class ShowVideoActivity extends BaseActivity {
         }
     };
 
-    //Avatar
-    private AvatarDataFactory mAvatarDataFactory;
-    private AvatarControlView mAvatarControlView;
-
     private void bindDataFactory() {
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
             mFaceBeautyDataFactory = new FaceBeautyDataFactory(mFaceBeautyListener);
             mFaceBeautyControlView = ((FaceBeautyControlView) mStubView);
             mFaceBeautyControlView.bindDataFactory(mFaceBeautyDataFactory);
+            mFaceBeautyControlView.updateUIStates(FaceBeautyActivity.mFaceBeautyControlState);
             mFaceBeautyControlView.setOnBottomAnimatorChangeListener(showRate -> {
-                // 收起 1-->0，弹出 0-->1
-                mSaveView.setAlpha(1 - showRate);
+                updateSaveButton(getResources().getDimensionPixelSize(R.dimen.x122), showRate, getResources().getDimensionPixelSize(R.dimen.x128),
+                        getResources().getDimensionPixelSize(R.dimen.x269), false);
             });
         } else if (mFunctionType == FunctionEnum.BG_SEG_GREEN) {
             mBgSegGreenDataFactory = new BgSegGreenDataFactory(mBgSegGreenListener, 3);
             mBgSegGreenControlView = ((BgSegGreenControlView) mStubView);
             mBgSegGreenControlView.bindDataFactory(mBgSegGreenDataFactory);
+            mBgSegGreenControlView.updateUIStates(BgSegGreenActivity.bgSegGreenControlState);
             mBgSegGreenControlView.setOnBottomAnimatorChangeListener(showRate -> {
-                // 收起 1-->0，弹出 0-->1
-                mSaveView.setAlpha(1 - showRate);
+                updateSaveButton(getResources().getDimensionPixelSize(R.dimen.x122), showRate, getResources().getDimensionPixelSize(R.dimen.x128),
+                        getResources().getDimensionPixelSize(R.dimen.x269), false);
             });
-            mSaveView.setAlpha(0f);
             mColorPickerView = new ColorPickerView(this);
             mGestureTouchHandler = new GestureTouchHandler(this);
             mGestureTouchHandler.setOnTouchResultListener(mOnTouchResultListener);
@@ -327,8 +365,15 @@ public class ShowVideoActivity extends BaseActivity {
         } else if (mFunctionType == FunctionEnum.STICKER || mFunctionType == FunctionEnum.AR_MASK
                 || mFunctionType == FunctionEnum.BIG_HEAD || mFunctionType == FunctionEnum.EXPRESSION_RECOGNITION
                 || mFunctionType == FunctionEnum.FACE_WARP || mFunctionType == FunctionEnum.GESTURE_RECOGNITION) {
-            mPropDataFactory = new PropDataFactory(mPropListener, mFunctionType, 1);
-            ((PropControlView) mStubView).bindDataFactory(mPropDataFactory);
+            int index = 1;
+            if (PropActivity.propControlState != null) {
+                if (PropActivity.propControlState.getPropIndex() > 0) {
+                    index = PropActivity.propControlState.getPropIndex();
+                }
+            }
+            mPropControlView = ((PropControlView) mStubView);
+            mPropDataFactory = new PropDataFactory(mPropListener, mFunctionType, index);
+            mPropControlView.bindDataFactory(mPropDataFactory);
         } else if (mFunctionType == FunctionEnum.BODY_BEAUTY) {
             mBodyBeautyDataFactory = new BodyBeautyDataFactory();
             ((BodyBeautyControlView) mStubView).bindDataFactory(mBodyBeautyDataFactory);
@@ -340,10 +385,9 @@ public class ShowVideoActivity extends BaseActivity {
             mAnimojiFactory = new AnimojiDataFactory(0, 0);
             ((AnimojiControlView) mStubView).bindDataFactory(mAnimojiFactory);
             mAnimojiControlView.setOnBottomAnimatorChangeListener(showRate -> {
-                // 收起 1-->0，弹出 0-->1
-                mSaveView.setAlpha(1 - showRate);
+                updateSaveButton(getResources().getDimensionPixelSize(R.dimen.x122), showRate, getResources().getDimensionPixelSize(R.dimen.x128),
+                        getResources().getDimensionPixelSize(R.dimen.x269), false);
             });
-            mSaveView.setAlpha(0f);
         } else if (mFunctionType == FunctionEnum.PORTRAIT_SEGMENT) {
             mPortraitSegmentControlView = ((PropCustomControlView) mStubView);
             mPortraitSegmentFactory = new PortraitSegmentDataFactory(mPortraitSegmentListener);
@@ -357,12 +401,12 @@ public class ShowVideoActivity extends BaseActivity {
             mFineStickerDataFactory.setBundleTypeListener(bundleType -> {
                 if (bundleType != null) {
                     if (bundleType == FineStickerDataFactory.BundleType.AVATAR_BUNDLE) {
-                        runOnUiThread(()-> mTrackingView.setText(R.string.toast_not_detect_body));
+                        runOnUiThread(() -> mTrackingView.setText(R.string.toast_not_detect_body));
                     } else {
-                        runOnUiThread(()-> mTrackingView.setText(R.string.fu_base_is_tracking_text));
+                        runOnUiThread(() -> mTrackingView.setText(R.string.fu_base_is_tracking_text));
                     }
                 } else {
-                    runOnUiThread(()-> mTrackingView.setText(R.string.fu_base_is_tracking_text));
+                    runOnUiThread(() -> mTrackingView.setText(R.string.fu_base_is_tracking_text));
                 }
             });
         } else if (mFunctionType == FunctionEnum.HAIR_BEAUTY) {
@@ -407,6 +451,14 @@ public class ShowVideoActivity extends BaseActivity {
             mAvatarControlView = (AvatarControlView) mStubView;
             mAvatarDataFactory = new AvatarDataFactory(0, true);
             mAvatarControlView.bindDataFactory(mAvatarDataFactory);
+        } else if (mFunctionType == FunctionEnum.STYLE) {
+            mStyleControlView = (StyleControlView) mStubView;
+            mStyleDataFactory = new StyleDataFactory(enable -> mVideoRenderer.setFURenderSwitch(enable));
+            mStyleControlView.bindDataFactory(mStyleDataFactory);
+            mStyleControlView.setOnBottomAnimatorChangeListener(showRate -> {
+                // 收起 1-->0，弹出 0-->1
+                updateSaveButton(getResources().getDimensionPixelSize(R.dimen.x122), showRate, getResources().getDimensionPixelSize(R.dimen.x298), getResources().getDimensionPixelSize(R.dimen.x98), false);
+            });
         }
     }
 
@@ -414,7 +466,7 @@ public class ShowVideoActivity extends BaseActivity {
         FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         FUAIKit.getInstance().faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
         //高端机开启小脸检测
-        if (DemoConfig.DEVICE_LEVEL  > FuDeviceUtils.DEVICE_LEVEL_MID)
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
             FUAIKit.getInstance().fuFaceProcessorSetDetectSmallFace(true);
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
             mFaceBeautyDataFactory.bindCurrentRenderer();
@@ -440,6 +492,12 @@ public class ShowVideoActivity extends BaseActivity {
             mMusicFilterDataFactory.bindCurrentRenderer();
         } else if (mFunctionType == FunctionEnum.AVATAR) {
             mAvatarDataFactory.bindCurrentRenderer();
+        } else if (mFunctionType == FunctionEnum.STYLE) {
+            mStyleDataFactory.bindCurrentRenderer();
+            if (isOncreate) {
+                runOnUiThread(() -> mStyleControlView.updateUIStates(StyleActivity.mStyleControlState));
+                isOncreate = false;
+            }
         }
     }
 
@@ -468,20 +526,10 @@ public class ShowVideoActivity extends BaseActivity {
             return R.layout.layout_control_music_filter;
         } else if (mFunctionType == FunctionEnum.AVATAR) {
             return R.layout.layout_control_avatar;
+        } else if (mFunctionType == FunctionEnum.STYLE) {
+            return R.layout.layout_control_style;
         }
         return 0;
-    }
-
-
-    /**
-     * 调整拍照按钮对齐方式
-     *
-     * @param margin Int
-     */
-    protected void changeTakePicButtonMargin(int margin) {
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mSaveView.getLayoutParams();
-        params.bottomMargin = margin;
-        mSaveView.setLayoutParams(params);
     }
 
     /**
@@ -490,7 +538,7 @@ public class ShowVideoActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        onStopRecord();
+        onStopRecord(false);
     }
 
     //endregion 业务扩展
@@ -500,17 +548,12 @@ public class ShowVideoActivity extends BaseActivity {
 
     /*GLRender 回调  */
     private final OnGlRendererListener mOnGlRendererListener = new OnGlRendererListener() {
-        private int currentFrame = 0;
-
         @Override
         public void onRenderAfter(@NotNull FURenderOutputData outputData, @NotNull FURenderFrameData frameData) {
             mVideoWidth = outputData.getTexture().getWidth();
             mVideoHeight = outputData.getTexture().getHeight();
             if (isSendRecordingData) {
                 mVideoRecordHelper.frameAvailableSoon(outputData.getTexture().getTexId(), frameData.getTexMatrix(), GlUtil.IDENTITY_MATRIX);
-            }
-            if (currentFrame++ == 5) {
-                mVideoRecordHelper.startRecording(mSurfaceView, mVideoWidth, mVideoHeight, mVideoPath);
             }
         }
 
@@ -654,9 +697,11 @@ public class ShowVideoActivity extends BaseActivity {
     private VideoRecordHelper mVideoRecordHelper;
     private volatile Boolean isSendRecordingData = false;
     private File recordFile;
+    //是否播放完毕停止
+    private volatile boolean mIsFinishStop = false;
 
-
-    protected void onStopRecord() {
+    protected void onStopRecord(boolean isFinishStop) {
+        this.mIsFinishStop = isFinishStop;
         mVideoRecordHelper.stopRecording();
     }
 
@@ -667,7 +712,7 @@ public class ShowVideoActivity extends BaseActivity {
         @Override
         public void onPrepared() {
             isSendRecordingData = true;
-            mVideoRenderer.startMediaPlayer(mOnVideoPlayListener);
+            mVideoRenderer.renderVideoUnDrawTexture(mRenderVideoUnDrawTextureListener);
         }
 
         @Override
@@ -677,9 +722,35 @@ public class ShowVideoActivity extends BaseActivity {
 
         @Override
         public void onFinish(File file) {
+            //录制完成
             isSendRecordingData = false;
             recordFile = file;
-            runOnUiThread(() -> mSaveView.setSelected(false));
+
+            if (!mIsFinishStop) {
+                //异常停止直接删除保存了一部分的视频
+                if (recordFile.exists()) {
+                    recordFile.delete();
+                    recordFile = null;
+                }
+            } else {
+                runOnUiThread(() -> {
+                    mPlayView.setVisibility(View.VISIBLE);
+                    progressDialogFragment.dismiss();
+                });
+                //正常停止流程
+                new Thread(() -> {
+                    String filePath = FileUtils.addVideoToAlbum(ShowVideoActivity.this, recordFile);
+                    if (recordFile.exists()) {
+                        recordFile.delete();
+                        recordFile = null;
+                    }
+                    if (filePath == null || filePath.trim().length() == 0) {
+                        runOnUiThread(() -> ToastHelper.showNormalToast(ShowVideoActivity.this, R.string.save_video_failed));
+                    } else {
+                        runOnUiThread(() -> ToastHelper.showNormalToast(ShowVideoActivity.this, R.string.save_video_success));
+                    }
+                }).start();
+            }
         }
     };
 
@@ -695,15 +766,24 @@ public class ShowVideoActivity extends BaseActivity {
 
         @Override
         public void onPlayFinish() {
-            onStopRecord();
-            runOnUiThread(() -> {
-                mPlayView.setVisibility(View.VISIBLE);
-                mSaveView.setVisibility(View.VISIBLE);
-                mSaveView.setSelected(true);
-            });
+            runOnUiThread(() -> mPlayView.setVisibility(View.VISIBLE));
         }
     };
 
+    /**
+     * 视频播放回调
+     */
+    private OnVideoPlayListener mRenderVideoUnDrawTextureListener = new OnVideoPlayListener() {
+        @Override
+        public void onError(String error) {
+
+        }
+
+        @Override
+        public void onPlayFinish() {
+            onStopRecord(true);
+        }
+    };
 
     //endregion 视频录制
 
@@ -748,7 +828,7 @@ public class ShowVideoActivity extends BaseActivity {
 
         @Override
         public void onClick() {
-            mBgSegGreenControlView.dismissBottomLayout();
+//            mBgSegGreenControlView.dismissBottomLayout();
         }
     };
 
@@ -886,7 +966,7 @@ public class ShowVideoActivity extends BaseActivity {
 
         @Override
         public void onFilterSelected(int res) {
-            ToastHelper.showNormalToast(ShowVideoActivity.this, res);
+            showToast(res);
         }
 
         @Override
@@ -967,4 +1047,53 @@ public class ShowVideoActivity extends BaseActivity {
     }
 
     //endregion
+
+    //调整保存按钮的位置
+
+    /**
+     * 更新保存按钮对齐方式
+     *
+     * @param width    Int
+     * @param showRate Float
+     * @param margin   Int
+     * @param diff     Int
+     */
+    protected void updateSaveButton(int width, Float showRate, int margin, int diff, Boolean changeSize) {
+        int currentWidth = changeSize ? (int) (width * (1 - showRate * 0.265)) : width;
+        int currentMargin = margin + (int) (diff * showRate);
+        changeSaveButtonMargin(currentMargin, currentWidth, changeSize);
+    }
+
+    /**
+     * 调整保存按钮对齐方式
+     *
+     * @param margin Int
+     */
+    protected void changeSaveButtonMargin(int margin) {
+        changeSaveButtonMargin(margin, 0, false);
+    }
+
+    /**
+     * 调整保存按钮对齐方式
+     *
+     * @param margin Int
+     */
+    protected void changeSaveButtonMargin(int margin, int width) {
+        changeSaveButtonMargin(margin, width, true);
+    }
+
+    /**
+     * 调整保存按钮对齐方式
+     *
+     * @param margin Int
+     */
+    protected void changeSaveButtonMargin(int margin, int width, boolean changeSize) {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mSaveView.getLayoutParams();
+        params.bottomMargin = margin;
+        if (changeSize) {
+            params.width = width;
+            params.height = width;
+        }
+        mSaveView.setLayoutParams(params);
+    }
 }
