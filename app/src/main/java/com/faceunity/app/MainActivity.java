@@ -28,6 +28,7 @@ import com.faceunity.app.view.MusicFilterActivity;
 import com.faceunity.app.view.PortraitSegmentActivity;
 import com.faceunity.app.view.PosterListActivity;
 import com.faceunity.app.view.PropActivity;
+import com.faceunity.app.view.StyleActivity;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
@@ -135,6 +136,9 @@ public class MainActivity extends BaseActivity {
                 break;
             case R.string.home_function_name_makeup:
                 startActivity(new Intent(this, MakeupActivity.class));
+                break;
+            case R.string.home_function_name_style:
+                startActivity(new Intent(this, StyleActivity.class));
                 break;
             case R.string.home_function_name_beauty_body:
                 startActivity(new Intent(this, BodyBeautyActivity.class));

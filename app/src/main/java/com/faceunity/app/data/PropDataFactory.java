@@ -29,9 +29,7 @@ import java.util.ArrayList;
 public class PropDataFactory extends AbstractPropDataFactory {
 
     public interface PropListener {
-
         void onItemSelected(PropBean bean);
-
     }
 
     /*渲染控制器*/

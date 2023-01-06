@@ -25,10 +25,10 @@ import com.faceunity.core.media.video.VideoPlayHelper;
 import com.faceunity.core.model.bgSegGreen.BgSegGreen;
 import com.faceunity.core.utils.GestureTouchHandler;
 import com.faceunity.ui.control.BgSegGreenControlView;
-import com.faceunity.ui.dialog.PromptDialogFragment;
 import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.entity.BgSegGreenBackgroundBean;
 import com.faceunity.ui.entity.BgSegGreenSafeAreaBean;
+import com.faceunity.ui.entity.uistate.BgSegGreenControlState;
 import com.faceunity.ui.widget.ColorPickerView;
 
 /**
@@ -55,13 +55,14 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     private int argbR = 0;
     private int argbG = 0;
     private int argbB = 0;
+    private boolean isOnCreate = true;
 
     private int viewTopOffset;//取色器触碰向上偏移一个手指
-
-
     //region   onCreate初始化
 
     private ColorPickerView mColorPickerView;
+
+    public static BgSegGreenControlState bgSegGreenControlState = null;
 
     @Override
     protected int getStubBottomLayoutResID() {
@@ -79,13 +80,11 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     @Override
     public void initView() {
         super.initView();
+        bgSegGreenControlState = null;
         mBgSegGreenControlView = (BgSegGreenControlView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x397), getResources().getDimensionPixelSize(R.dimen.x122));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x397));
         mColorPickerView = new ColorPickerView(this);
         addColorPickerView();
-        PromptDialogFragment promptDialogFragment = PromptDialogFragment.newInstance(this, R.string.dialog_guide_bg_seg_green);
-        promptDialogFragment.show(getSupportFragmentManager(), "PromptDialogFragment");
-
     }
 
     @Override
@@ -97,7 +96,7 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
         mBgSegGreenControlView.bindDataFactory(mBgSegGreenDataFactory);
         mBgSegGreenControlView.setOnBottomAnimatorChangeListener(showRate -> {
             updateTakePicButton(getResources().getDimensionPixelSize(R.dimen.x166), showRate, getResources().getDimensionPixelSize(R.dimen.x128),
-                    getResources().getDimensionPixelSize(R.dimen.x269), true);
+                    getResources().getDimensionPixelSize(R.dimen.x269), false);
         });
         mGestureTouchHandler = new GestureTouchHandler(this);
         mGestureTouchHandler.setOnTouchResultListener(mOnTouchResultListener);
@@ -118,18 +117,25 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     @Override
     public void onResume() {
         super.onResume();
+        if (needUpdateUI) {
+            mBgSegGreenControlView.updateUIStates(bgSegGreenControlState);
+            bgSegGreenControlState = null;
+            needUpdateUI = false;
+        }
     }
-
 
     @Override
     public void onPause() {
         mVideoPlayHelper.pausePlay();
+        bgSegGreenControlState = mBgSegGreenControlView.getUIStates();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
         mVideoPlayHelper.release();
+        mBgSegGreenDataFactory.release();
+        bgSegGreenControlState = null;
         super.onDestroy();
     }
 
@@ -145,6 +151,10 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
     @Override
     protected void onSurfaceChanged(int width, int height) {
         mGestureTouchHandler.setViewSize(width, height);
+        if (isOnCreate) {
+            runOnUiThread(()-> ToastHelper.showNormalToast(this, R.string.dialog_guide_bg_seg_green));
+            isOnCreate = false;
+        }
     }
 
     @Override
@@ -206,7 +216,7 @@ public class BgSegGreenActivity extends BaseFaceUnityActivity {
 
         @Override
         public void onClick() {
-            mBgSegGreenControlView.dismissBottomLayout();
+//            mBgSegGreenControlView.dismissBottomLayout();
         }
     };
 

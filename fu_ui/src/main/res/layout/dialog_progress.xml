@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.faceunity.ui.dialog.CircleNumberProgressBar
+            android:id="@+id/cnpb_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:max="100"
+            app:cnpb_bar_width="4dp"
+            app:cnpb_circle_radius="32dp"
+            app:cnpb_reach_color="@color/primary_selected_old"
+            app:cnpb_start_angle="270"
+            app:cnpb_text_color="@color/colorWhite"
+            app:cnpb_text_size="13sp"
+            app:cnpb_unit="%"
+            app:cnpb_unreach_color="@color/percent50translucentBlack" />
+
+        <TextView
+            android:id="@+id/tv_tip_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="32dp"
+            android:text="@string/push_video_tips"
+            android:textColor="@color/colorWhite"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="84dp"
+            android:layout_height="28dp"
+            android:background="@drawable/bg_button_white"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:textColor="@color/colorWhite"
+            android:textSize="13sp" />
+    </LinearLayout>
+</RelativeLayout>

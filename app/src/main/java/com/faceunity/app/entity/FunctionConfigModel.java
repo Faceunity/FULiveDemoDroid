@@ -25,6 +25,7 @@ public class FunctionConfigModel {
         {
             this.put(FACE_BEAUTY, new FunctionConfigModel(true, true, true, true));
             this.put(MAKE_UP, new FunctionConfigModel(false, false, false, true));
+            this.put(STYLE, new FunctionConfigModel(false, true, true, true));
             this.put(STICKER, new FunctionConfigModel(true, false, true, true));
             this.put(ANIMOJI, new FunctionConfigModel(true, false, false, true));
             this.put(HAIR_BEAUTY, new FunctionConfigModel(true, false, false, true));

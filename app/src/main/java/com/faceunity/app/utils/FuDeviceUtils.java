@@ -369,15 +369,21 @@ public class FuDeviceUtils {
         return level;
     }
 
+    public static int judgeDeviceLevelGPU() {
+        return judgeDeviceLevelGPU(false);
+    }
+
     /**
      * Level judgement based on current GPU.
      * 需要GL环境
      * @return
      */
-    public static int judgeDeviceLevelGPU() {
-        int cacheDeviceLevel = getCacheDeviceLevel();
-        if (cacheDeviceLevel > -1) {
-            return cacheDeviceLevel;
+    public static int judgeDeviceLevelGPU(boolean ignoreCache) {
+        if (!ignoreCache) {
+            int cacheDeviceLevel = getCacheDeviceLevel();
+            if (cacheDeviceLevel > -1) {
+                return cacheDeviceLevel;
+            }
         }
 
         OffLineRenderHandler.getInstance().onResume();
@@ -394,6 +400,7 @@ public class FuDeviceUtils {
 
                 String glRenderer = GLES20.glGetString(GLES20.GL_RENDERER);      //GPU 渲染器
                 String glVendor = GLES20.glGetString(GLES20.GL_VENDOR);          //GPU 供应商
+                Log.d(TAG,"glRenderer: " + glRenderer + ",glVendor: " + glVendor);
                 int GPUVersion;
                 if ("Qualcomm".equals(glVendor)) {
                     //高通
@@ -409,7 +416,7 @@ public class FuDeviceUtils {
                             GPUVersion = Integer.parseInt(GPUVersionStrNew);
                         }
 
-                        if (GPUVersion >= 512) {
+                        if (GPUVersion > 512) {
                             level[0] = DEVICE_LEVEL_HIGH;
                         } else {
                             level[0] = DEVICE_LEVEL_MID;
@@ -433,7 +440,7 @@ public class FuDeviceUtils {
                         }
 
                         if ("G".equals(strStart)) {
-                            if (GPUVersion >= 51) {
+                            if (GPUVersion > 51) {
                                 level[0] = DEVICE_LEVEL_HIGH;
                             } else {
                                 level[0] = DEVICE_LEVEL_MID;
@@ -494,9 +501,9 @@ public class FuDeviceUtils {
         return -1;
     }
 
-    public static final String[] upscaleDevice = {"MHA-AL00","VKY-AL00","V1838A","EVA-AL00"};
+    public static final String[] upscaleDevice = {"MHA-AL00","VKY-AL00"};
     public static final String[] lowDevice = {};
-    public static final String[] middleDevice = {"PRO 6","PRO 7 Plus","V2002A","Pixel"};
+    public static final String[] middleDevice = {"PRO 6","PRO 7 Plus","V2002A","Pixel","V1838A","PACM00","M2004J19C"};//"V1838A" vivo X27; PACM00 oppo_R15; M2004J19C 红米9
 
     /**
      * 评定内存的等级.

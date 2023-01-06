@@ -97,7 +97,7 @@ public class MakeupSource {
             makeupModel.setCombinedConfig(new FUBundleData(bean.getBundlePath()));
 
         makeupModel.setMakeupIntensity(bean.getIntensity());
-        makeupModel.setLipMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启口红遮挡
+        makeupModel.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启人脸遮挡
 
         if (bean.getJsonPathParams() == null) {
             bean.setJsonPathParams(getLocalParams(bean.getJsonPath()));
@@ -182,7 +182,7 @@ public class MakeupSource {
             put(MakeupParam.MAKEUP_LIP_HIGH_LIGHT_ENABLE, (makeup, value) -> makeup.setLipHighLightEnable((int) value == 1));
             put(MakeupParam.MAKEUP_LIP_HIGH_LIGHT_STRENGTH, (makeup, value) -> makeup.setLipHighLightStrength((double) value));
             put(MakeupParam.BROW_WARP, (makeup, value) -> makeup.setEnableBrowWarp((double) value == 1.0));
-            put(MakeupParam.MAKEUP_LIP_MACHINE_LEVEL, (makeup, value) -> makeup.setLipMachineLevel((double) value == 1.0));
+            put(MakeupParam.MAKEUP_MACHINE_LEVEL, (makeup, value) -> makeup.setMachineLevel((double) value == 1.0));
             put(MakeupParam.BROW_WARP_TYPE, (makeup, value) -> makeup.setBrowWarpType((int) value));
             /*强度*/
             put(MakeupParam.MAKEUP_INTENSITY, (makeup, value) -> makeup.setMakeupIntensity((double) value));

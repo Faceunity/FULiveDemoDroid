@@ -23,7 +23,7 @@ public class MusicFilterActivity extends BaseFaceUnityActivity {
     private MusicFilterDataFactory mMusicFilterDataFactory;
     private MediaPlayerHelper mediaPlayerHelper;
 
-    private boolean isMusicPlaying = false;
+    private volatile boolean isMusicPlaying = false;
 
     private Handler mHandler;
     private final Runnable mMusicRunnable = new Runnable() {
@@ -65,7 +65,7 @@ public class MusicFilterActivity extends BaseFaceUnityActivity {
     public void initView() {
         super.initView();
         mMusicFilterControlView = (MusicFilterControlView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212), getResources().getDimensionPixelSize(R.dimen.x166));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x212));
     }
 
 
@@ -78,7 +78,8 @@ public class MusicFilterActivity extends BaseFaceUnityActivity {
 
     @Override
     public void onPause() {
-        mediaPlayerHelper.pausePlay();
+        if (isMusicPlaying)
+            mediaPlayerHelper.pausePlay();
         super.onPause();
     }
 

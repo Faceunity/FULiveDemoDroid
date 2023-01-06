@@ -19,6 +19,7 @@
     <string name="home_function_name_gesture">手势识别</string>
     <string name="home_function_name_face_warp">哈哈镜</string>
     <string name="home_function_name_makeup">美妆</string>
+    <string name="home_function_name_style">风格推荐</string>
     <string name="home_function_name_beauty_body">美体</string>
     <string name="home_function_name_human_avatar">全身 Avatar</string>
     <string name="home_function_name_action_recognition">动作识别</string>

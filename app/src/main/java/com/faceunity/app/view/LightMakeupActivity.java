@@ -37,7 +37,7 @@ public class LightMakeupActivity extends BaseFaceUnityActivity {
     public void initView() {
         super.initView();
         mLightMakeupControlView = (LightMakeupControlView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x298), getResources().getDimensionPixelSize(R.dimen.x122));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x298));
     }
 
 

@@ -19,6 +19,7 @@
     <string name="home_function_name_gesture">Gesture</string>
     <string name="home_function_name_face_warp">FaceWarp</string>
     <string name="home_function_name_makeup">Make up</string>
+    <string name="home_function_name_style">Classic Style</string>
     <string name="home_function_name_beauty_body">Body shape</string>
     <string name="home_function_name_human_avatar">Whole-body avatar</string>
     <string name="home_function_name_action_recognition">Action recognition</string>

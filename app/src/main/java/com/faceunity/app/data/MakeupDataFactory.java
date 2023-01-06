@@ -43,8 +43,6 @@ import static com.faceunity.app.data.source.MakeupSource.buildFUColorRGBData;
  * Created on 2021/3/1
  */
 public class MakeupDataFactory extends AbstractMakeupDataFactory {
-
-
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
 
@@ -65,6 +63,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
     private HashMap<String, Integer> mCustomIndexMap = new HashMap<>();//key:美妆类别  value:当前美妆子项选中下标  默认0
     private HashMap<String, Double> mCustomIntensityMap = new HashMap<>();//key:美妆类别_子项下标    value:当前美妆选中子项的妆容强度  默认1.0
     private HashMap<String, Integer> mCustomColorIndexMap = new HashMap<>();//key:美妆类别_子项下标    value:当前美妆选中子项的颜色下标  默认3
+    private double enterMakeupIntensity;
 
 
     public MakeupDataFactory(int index) {
@@ -122,6 +121,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             mFURenderKit.getFaceBeauty().setFilterName(currentFilterName);
             mFURenderKit.getFaceBeauty().setFilterIntensity(currentFilterIntensity);
         }
+        mFURenderKit.addMakeupLoadListener(() -> {});//为了让所有的数据同一帧完成
         currentMakeup = MakeupSource.getMakeupModel(bean);
         mFURenderKit.setMakeup(currentMakeup);
         if (!currentMakeup.getControlBundle().getPath().equals(DemoConfig.BUNDLE_FACE_MAKEUP)) currentMakeup.setFilterIntensity(currentFilterIntensity);
@@ -231,7 +231,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
                 currentMakeup.setLipIntensity(0.0);
             } else {
                 currentMakeup.setLipBundle(new FUBundleData(itemDir + "mu_style_lip_0" + index + ".bundle"));
-                currentMakeup.setLipMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启口红遮挡
+                currentMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启人脸遮挡
                 switch (index) {
                     case 1:
                         currentMakeup.setLipType(MakeupLipEnum.FOG);
@@ -489,7 +489,8 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         mCustomIndexMap.clear();
         mCustomColorIndexMap.clear();
         mCustomIntensityMap.clear();
-        double makeupIntensity = currentMakeup.getMakeupIntensity();
+        enterMakeupIntensity = currentMakeup.getMakeupIntensity();
+        //组合妆
         if (currentCombinationIndex >= 0 && makeupCombinations.get(currentCombinationIndex).getType() == MakeupCombinationBean.TypeEnum.TYPE_DAILY) {
             String key = makeupCombinations.get(currentCombinationIndex).getKey();
             mCustomIndexMap = MakeupSource.getDailyCombinationSelectItem(key);
@@ -497,13 +498,36 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             Iterator<Map.Entry<String, Double>> iterator = MakeupSource.getDailyCombinationSelectItemValue(key).entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry< String, Double > entry = iterator.next();
-                mCustomIntensityMap.put(entry.getKey(),entry.getValue() * makeupIntensity);
+                mCustomIntensityMap.put(entry.getKey(),entry.getValue() * enterMakeupIntensity);
             }
+            /*粉底*/
+            currentMakeup.setFoundationIntensity(currentMakeup.getFoundationIntensity() * enterMakeupIntensity);
+            /*口红*/
+            currentMakeup.setLipIntensity(currentMakeup.getLipIntensity() * enterMakeupIntensity);
+            /*腮红*/
+            currentMakeup.setBlusherIntensity(currentMakeup.getBlusherIntensity() * enterMakeupIntensity);
+            /*眉毛*/
+            currentMakeup.setEyeBrowIntensity(currentMakeup.getEyeBrowIntensity() * enterMakeupIntensity);
+            /*眼影*/
+            currentMakeup.setEyeShadowIntensity(currentMakeup.getEyeShadowIntensity() * enterMakeupIntensity);
+            /*眼线*/
+            currentMakeup.setEyeLineIntensity(currentMakeup.getEyeLineIntensity() * enterMakeupIntensity);
+            /* 睫毛*/
+            currentMakeup.setEyeLashIntensity(currentMakeup.getEyeLashIntensity() * enterMakeupIntensity);
+            /* 高光*/
+            currentMakeup.setHeightLightIntensity(currentMakeup.getHeightLightIntensity() * enterMakeupIntensity);
+            /* 阴影*/
+            currentMakeup.setShadowIntensity(currentMakeup.getShadowIntensity() * enterMakeupIntensity);
+            /* 美瞳*/
+            currentMakeup.setPupilIntensity(currentMakeup.getPupilIntensity() * enterMakeupIntensity);
+            /* 再将美妆强度设置为1 */
+            currentMakeup.setMakeupIntensity(1.0);
             return;
         }
+        //自定义
         /*粉底*/
         if (currentMakeup.getFoundationIntensity() != 0.0) {
-            double intensity = currentMakeup.getFoundationIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getFoundationIntensity() * enterMakeupIntensity;
             currentMakeup.setFoundationIntensity(intensity);
             double[] array = currentMakeup.getFoundationColor().toScaleColorArray();
             ArrayList<double[]> list = mMakeUpColorMap.get("color_mu_style_foundation_01");
@@ -514,11 +538,10 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
                     break;
                 }
             }
-
         }
         /*口红*/
         if (currentMakeup.getLipIntensity() != 0.0) {
-            double intensity = currentMakeup.getLipIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getLipIntensity() * enterMakeupIntensity;
             currentMakeup.setLipIntensity(intensity);
             int current = 0;
             switch (currentMakeup.getLipType()) {
@@ -560,7 +583,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         /*腮红*/
         if (currentMakeup.getBlusherIntensity() != 0.0 && currentMakeup.getBlusherBundle() != null) {
-            double intensity = currentMakeup.getBlusherIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getBlusherIntensity() * enterMakeupIntensity;
             currentMakeup.setBlusherIntensity(intensity);
             String path = currentMakeup.getBlusherBundle().getPath();
             int current = 0;
@@ -588,7 +611,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         /*眉毛*/
         if (currentMakeup.getEyeBrowIntensity() != 0.0) {
-            double intensity = currentMakeup.getEyeBrowIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getEyeBrowIntensity() * enterMakeupIntensity;
             currentMakeup.setEyeBrowIntensity(intensity);
             int current = 0;
             if (currentMakeup.getEyeBrowBundle() != null && currentMakeup.getEyeBrowBundle().getPath() != null) {
@@ -612,7 +635,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         /*眼影*/
         if (currentMakeup.getEyeShadowIntensity() != 0.0 && currentMakeup.getEyeShadowBundle() != null) {
-            double intensity = currentMakeup.getEyeShadowIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getEyeShadowIntensity() * enterMakeupIntensity;
             currentMakeup.setEyeShadowIntensity(intensity);
             String path = currentMakeup.getEyeShadowBundle().getPath();
             int current = 0;
@@ -650,7 +673,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         /*眼线*/
         if (currentMakeup.getEyeLineIntensity() != 0.0 && currentMakeup.getEyeLinerBundle() != null) {
-            double intensity = currentMakeup.getEyeLineIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getEyeLineIntensity() * enterMakeupIntensity;
             currentMakeup.setEyeLineIntensity(intensity);
             String path = currentMakeup.getEyeLinerBundle().getPath();
             int current = 0;
@@ -682,7 +705,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         /* 睫毛*/
         if (currentMakeup.getEyeLashIntensity() != 0.0 && currentMakeup.getEyeLashBundle() != null) {
-            double intensity = currentMakeup.getEyeLashIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getEyeLashIntensity() * enterMakeupIntensity;
             currentMakeup.setEyeLashIntensity(intensity);
             String path = currentMakeup.getEyeLashBundle().getPath();
             int current = 0;
@@ -714,7 +737,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         /* 高光*/
         if (currentMakeup.getHeightLightIntensity() != 0.0 && currentMakeup.getHighLightBundle() != null) {
-            double intensity = currentMakeup.getHeightLightIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getHeightLightIntensity() * enterMakeupIntensity;
             currentMakeup.setHeightLightIntensity(intensity);
             String path = currentMakeup.getHighLightBundle().getPath();
             int current = 0;
@@ -738,7 +761,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         /* 阴影*/
         if (currentMakeup.getShadowIntensity() != 0.0 && currentMakeup.getShadowBundle() != null) {
-            double intensity = currentMakeup.getShadowIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getShadowIntensity() * enterMakeupIntensity;
             currentMakeup.setShadowIntensity(intensity);
             String path = currentMakeup.getShadowBundle().getPath();
             int current = 0;
@@ -760,7 +783,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         }
         /* 美瞳*/
         if (currentMakeup.getPupilIntensity() != 0.0 && currentMakeup.getPupilBundle() != null) {
-            double intensity = currentMakeup.getPupilIntensity() * makeupIntensity;
+            double intensity = currentMakeup.getPupilIntensity() * enterMakeupIntensity;
             currentMakeup.setPupilIntensity(intensity);
             String path = currentMakeup.getPupilBundle().getPath();
             int current = 0;
@@ -865,5 +888,105 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             expressionRecognition.setLandmarksType(FUAITypeEnum.FUAITYPE_FACELANDMARKS239);
             mFURenderKit.getPropContainer().addProp(expressionRecognition);
         }
+    }
+
+    @Override
+    public boolean checkMakeupChange(int index) {
+        String key = makeupCombinations.get(currentCombinationIndex).getKey();
+        String path = makeupCombinations.get(currentCombinationIndex).getBundlePath();
+        if (path == null) {
+            //点击的是卸妆项
+            return checkAllItemIntensity();
+        } else {
+            //通过这三个map去对比
+            HashMap customIndexMap = MakeupSource.getDailyCombinationSelectItem(key);
+            HashMap customColorIndexMap = MakeupSource.getDailyCombinationSelectItemColor(key);
+            HashMap<String, Double> customIntensityMap = new HashMap();
+            Iterator<Map.Entry<String, Double>> iterator = MakeupSource.getDailyCombinationSelectItemValue(key).entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry< String, Double > entry = iterator.next();
+                customIntensityMap.put(entry.getKey(),entry.getValue() * enterMakeupIntensity);
+            }
+
+            //将修改的情况和原始进行比对
+
+            // 1.比对选中项
+            Iterator<Map.Entry<String, Integer>> customIndexMapIterator = mCustomIndexMap.entrySet().iterator();
+            while (customIndexMapIterator.hasNext()) {
+                Map.Entry< String, Integer > entry = customIndexMapIterator.next();
+                if (customIndexMap.get(entry.getKey()) != entry.getValue()) {
+                    return true;
+                }
+            }
+
+            // 2.比对所有项的强度值
+            Iterator<Map.Entry<String, Double>> customIntensityMapIterator = mCustomIntensityMap.entrySet().iterator();
+            while (customIntensityMapIterator.hasNext()) {
+                Map.Entry<String, Double> entry = customIntensityMapIterator.next();
+                double value1 = customIntensityMap.get(entry.getKey());
+                double value2 = entry.getValue();
+                if (value1 != value2) {
+                    return true;
+                }
+            }
+
+            // 3.比对所有项的颜色选择
+            Iterator<Map.Entry<String, Integer>> customColorIndexMapIterator = mCustomColorIndexMap.entrySet().iterator();
+            while (customColorIndexMapIterator.hasNext()) {
+                Map.Entry< String, Integer > entry = customColorIndexMapIterator.next();
+                if (customColorIndexMap.get(entry.getKey()) != entry.getValue()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
+     * 检查所有子妆是否选中
+     * @return
+     */
+    private boolean checkAllItemIntensity() {
+        // 1.比对选中项
+        Iterator<Map.Entry<String, Integer>> customIndexMapIterator = mCustomIndexMap.entrySet().iterator();
+        while (customIndexMapIterator.hasNext()) {
+            Map.Entry< String, Integer > entry = customIndexMapIterator.next();
+            if (0 != entry.getValue()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 检查当前子妆是否选中或者有强度
+     */
+    public boolean checkItemIntensity(String key) {
+        double intensity = 0.0;
+        if (key.equals(FACE_MAKEUP_TYPE_FOUNDATION)) {
+            intensity = currentMakeup.getFoundationIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_LIP_STICK)) {
+            intensity = currentMakeup.getLipIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_BLUSHER)) {
+            intensity = currentMakeup.getBlusherIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_EYE_BROW)) {
+            intensity = currentMakeup.getEyeBrowIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_EYE_SHADOW)) {
+            intensity = currentMakeup.getEyeShadowIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_EYE_LINER)) {
+            intensity = currentMakeup.getEyeLineIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_EYE_LASH)) {
+            intensity = currentMakeup.getEyeLashIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_HIGH_LIGHT)) {
+            intensity = currentMakeup.getHeightLightIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_SHADOW)) {
+            intensity = currentMakeup.getShadowIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_EYE_PUPIL)) {
+            intensity = currentMakeup.getPupilIntensity();
+        }
+        if (intensity != 0) {
+            return true;
+        }
+        return false;
     }
 }

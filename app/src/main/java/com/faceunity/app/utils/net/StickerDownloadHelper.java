@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.faceunity.app.DemoApplication;
 import com.faceunity.app.utils.ZipUtils;
+import com.faceunity.ui.entity.net.DownLoadStatus;
 import com.faceunity.ui.entity.net.FineStickerEntity;
 import com.faceunity.app.utils.FileUtils;
 import com.google.gson.Gson;
@@ -224,6 +225,7 @@ public final class StickerDownloadHelper {
                 }
 
                 entity.setFilePath(result.getAbsolutePath());
+                entity.setDownloadStatus(DownLoadStatus.DOWN_LOAD_SUCCESS);
                 if (null != mCallback)
                     runOnUiThread(()-> mCallback.onDownload(entity));
             }
@@ -269,6 +271,7 @@ public final class StickerDownloadHelper {
         for (FineStickerEntity.DocsBean fineSticker : fineStickerEntity.getDocs()) {
             if (bundleSet.contains(fineSticker.getTool().getBundle().getUid())) {
                 fineSticker.setFilePath(STICKER_DIR_PATH + "/" + fineSticker.getTool().getBundle().getUid());
+                fineSticker.setDownloadStatus(DownLoadStatus.DOWN_LOAD_SUCCESS);
                 if (fineSticker.getTool().getBundle().getUid().endsWith(".zip")) {
                     //遍历解压文件地址
                     String path = STICKER_DIR_PATH + "/" + fineSticker.getTool().getBundle().getUid().substring(0,fineSticker.getTool().getBundle().getUid().lastIndexOf("."));

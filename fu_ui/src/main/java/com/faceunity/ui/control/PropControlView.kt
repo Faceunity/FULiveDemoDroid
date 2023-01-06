@@ -9,8 +9,12 @@ import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
 import com.faceunity.ui.entity.PropBean
+import com.faceunity.ui.entity.uistate.FaceBeautyControlState
+import com.faceunity.ui.entity.uistate.PropControlState
 import com.faceunity.ui.infe.AbstractPropDataFactory
 import kotlinx.android.synthetic.main.layout_effect_control.view.*
+import kotlinx.android.synthetic.main.layout_effect_control.view.recycler_view
+import kotlinx.android.synthetic.main.layout_face_beauty_control.view.*
 
 
 /**
@@ -70,8 +74,19 @@ class PropControlView @JvmOverloads constructor(mContext: Context, attrs: Attrib
         }, R.layout.list_item_control_image_circle)
         recycler_view.adapter = mPropAdapter
     }
-
-
     // endregion
 
+    fun getUIStates(): PropControlState {
+        return PropControlState(mDataFactory.currentPropIndex)
+    }
+
+    fun updateUIStates(propControlState: PropControlState){
+        if (propControlState != null) {
+            if (mDataFactory.currentPropIndex != propControlState.propIndex) {
+                mDataFactory.currentPropIndex = propControlState.propIndex
+                mDataFactory.onItemSelected(mDataFactory.propBeans[propControlState.propIndex])
+                mPropAdapter.notifyDataSetChanged()
+            }
+        }
+    }
 }

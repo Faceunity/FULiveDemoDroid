@@ -8,7 +8,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Path
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
@@ -139,15 +138,19 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
             } else if (mCustomColorAdapter.itemCount > 0) {
                 cyt_makeup_color.visibility = View.VISIBLE
             }
-            changeAdapterSelected(mCombinationAdapter, mDataFactory.currentCombinationIndex, -1)
-            mDataFactory.currentCombinationIndex = -1
-            setCustomEnable(false)
-            seek_bar_combination.visibility = View.INVISIBLE
             openCustomBottomAnimator(true)
         }
         iv_custom_back.setOnClickListener {
             cyt_makeup_color.visibility = View.GONE
             openCustomBottomAnimator(false)
+            //1.当选中的是卸妆的时候 返回需要检查是否上了子妆如果上了子妆容 需要将选中状态取消
+            //2.当选中的是组合装时，如果组合装发生改变则取消选中
+            if (mDataFactory.checkMakeupChange(mDataFactory.currentCombinationIndex)) {
+                changeAdapterSelected(mCombinationAdapter, mDataFactory.currentCombinationIndex, -1)
+                mDataFactory.currentCombinationIndex = -1
+                setCustomEnable(false)
+                seek_bar_combination.visibility = View.INVISIBLE
+            }
         }
     }
 
@@ -198,7 +201,6 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                     mDataFactory.currentCombinationIndex = position
                     mDataFactory.onMakeupCombinationSelected(data)
                     showCombinationSeekBar(data)
-
                 }
             }
         }, R.layout.list_item_control_title_image_square)
@@ -212,8 +214,7 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
         mCustomClassAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<MakeupCustomClassBean>() {
             override fun convert(viewType: Int, helper: BaseViewHolder, data: MakeupCustomClassBean, position: Int) {
                 helper.setText(R.id.tv_control, data.nameRes)
-                val current = mDataFactory.getCurrentCustomItemIndex(data.key)
-                helper.setVisible(R.id.iv_indicator, current > 0)
+                helper.setVisible(R.id.iv_indicator, mDataFactory.checkItemIntensity(data.key))
                 helper.itemView.isSelected = (position == mCustomClassIndex)
             }
 
@@ -229,6 +230,11 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                     showCustomSeekBar(current, intensity)
                     recycler_custom.scrollToPosition(current)
                     showColorRecycleView(makeupCustomBeans[current].doubleArray)
+
+                    //根据选中的项弹出提示
+                    if (current > 0 && makeupCustomBeans[current].nameRes > 0) {
+                        ToastHelper.showWhiteTextToast(context, makeupCustomBeans[current].nameRes)
+                    }
                 }
             }
         }, R.layout.list_item_control_title)
@@ -259,7 +265,7 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                     showCustomSeekBar(position, intensity)
                     showColorRecycleView(data.doubleArray)
                     mCustomClassAdapter.getViewByPosition(mCustomClassIndex)?.findViewById<View>(R.id.iv_indicator)
-                        ?.visibility = if (position == 0) View.INVISIBLE else View.VISIBLE
+                        ?.visibility = if (mDataFactory.checkItemIntensity(mCurrentCustomClassKey)) View.VISIBLE else View.INVISIBLE
                 }
             }
         }, R.layout.list_item_control_image_square)
@@ -393,6 +399,7 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                     combination.filterIntensity = valueF.toDouble()
                     mDataFactory.updateCombinationIntensity(valueF.toDouble())
                 }
+                needUpdateView = true
             }
         })
 
@@ -411,6 +418,8 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                 if (!DecimalUtils.doubleEquals(intensity, valueF.toDouble())) {
                     mDataFactory.updateCustomItemIntensity(mCurrentCustomClassKey, current, valueF.toDouble())
                 }
+                mCustomClassAdapter.getViewByPosition(mCustomClassIndex)?.findViewById<View>(R.id.iv_indicator)
+                    ?.visibility = if (mDataFactory.checkItemIntensity(mCurrentCustomClassKey)) View.VISIBLE else View.INVISIBLE
             }
         })
     }

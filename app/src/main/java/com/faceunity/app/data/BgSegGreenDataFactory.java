@@ -58,7 +58,7 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
     private final FURenderKit mFURenderKit = FURenderKit.getInstance();
 
     /*绿幕抠像特效模型*/
-    private final BgSegGreen mBgSegGreen;
+    public static BgSegGreen mBgSegGreen;
 
     /*绿幕抠像背景列表*/
     private final ArrayList<BgSegGreenBackgroundBean> mBgSegGreenBackgroundBeans;
@@ -82,7 +82,7 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
      */
     public BgSegGreenDataFactory(BgSegGreenListener listener, int index) {
         mBgSegGreenListener = listener;
-        mBgSegGreen = BgSegGreenSource.buildBgSegGreen();
+        if (mBgSegGreen == null) mBgSegGreen = BgSegGreenSource.buildBgSegGreen();
         mBgSegGreenBackgroundBeans = BgSegGreenSource.buildBgSegGreenBackground();
         mBgSegGreenSafeAreaBeans = BgSegGreenSource.buildBgSegGreenSafeArea();
         mCurrentBackgroundIndex = index;
@@ -343,4 +343,7 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
         mBgSegGreenListener.onSafeAreaSelected(mBgSegGreenSafeAreaBeans.get(mCurrentSafeAreaIndex));
     }
 
+    public void release(){
+        mBgSegGreen = null;
+    }
 }

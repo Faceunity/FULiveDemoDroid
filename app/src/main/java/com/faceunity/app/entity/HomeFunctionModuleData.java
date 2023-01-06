@@ -41,6 +41,7 @@ public class HomeFunctionModuleData {
 
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_beauty, R.string.home_function_name_beauty,"1-0"));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_makeup, R.string.home_function_name_makeup, "524288-0"));
+        data.add(new HomeFunctionModuleData(R.mipmap.ico_home_style, R.string.home_function_name_style, "0-1048576"));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_sticker, R.string.home_function_name_sticker,"110-0"));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_animoji, R.string.home_function_name_animoji,"16-0"));
         data.add(new HomeFunctionModuleData(R.mipmap.ico_home_hair, R.string.home_function_name_hair,"1048576-0"));

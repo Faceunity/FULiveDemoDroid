@@ -22,6 +22,7 @@ public class ConfirmDialogFragment extends BaseDialogFragment {
     private static final String CONFIRM = "confirm";
     private static final String CANCEL = "cancel";
     private OnClickListener mOnClickListener;
+    private TextView tvTitle;
 
     /**
      * 创建对话框
@@ -83,7 +84,8 @@ public class ConfirmDialogFragment extends BaseDialogFragment {
         tvConfirm.setOnClickListener(onClickListener);
         tvCancel.setOnClickListener(onClickListener);
         String title = getArguments().getString(TITLE);
-        ((TextView) view.findViewById(R.id.tv_content)).setText(title);
+        tvTitle = (TextView) view.findViewById(R.id.tv_content);
+        tvTitle.setText(title);
         return view;
     }
 

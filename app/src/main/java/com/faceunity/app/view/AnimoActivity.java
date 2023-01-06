@@ -40,7 +40,7 @@ public class AnimoActivity extends BaseFaceUnityActivity {
     public void initView() {
         super.initView();
         mAnimojiControlView = (AnimojiControlView) mStubView;
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x306), getResources().getDimensionPixelSize(R.dimen.x122));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x306));
     }
 
 
@@ -51,7 +51,7 @@ public class AnimoActivity extends BaseFaceUnityActivity {
         mAnimojiControlView.setOnBottomAnimatorChangeListener(showRate -> {
             // 收起 1-->0，弹出 0-->1
             updateTakePicButton(getResources().getDimensionPixelSize(R.dimen.x166), showRate, getResources().getDimensionPixelSize(R.dimen.x138),
-                    getResources().getDimensionPixelSize(R.dimen.x168), true);
+                    getResources().getDimensionPixelSize(R.dimen.x168), false);
         });
     }
 

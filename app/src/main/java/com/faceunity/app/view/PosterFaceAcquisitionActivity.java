@@ -32,6 +32,7 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
 
     private static String TEMPLATE = "template";
     private static String INTENSITY = "intensity";
+    private static int dataSource = 0;
 
     private static int REQ_PHOTO = 310;
     public static int REQ_PREVIEW = 1000;
@@ -63,7 +64,7 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
         super.initView();
         View mFaceRectView = LayoutInflater.from(this).inflate(R.layout.layout_poster_take_photo, null);
         RelativeLayout.LayoutParams paramsRectView = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-        mCustomView.addView(mFaceRectView, paramsRectView);
+        mCustomView.addView(mFaceRectView, 0,paramsRectView);
 
         mTakeOptionView = LayoutInflater.from(this).inflate(R.layout.layout_poster_take_bottom, null);
         FrameLayout.LayoutParams paramsOptionView = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, getResources().getDimensionPixelSize(R.dimen.x238));
@@ -76,7 +77,7 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
 
         mBackView.setImageResource(R.mipmap.icon_arrow_back);
 
-        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x40), getResources().getDimensionPixelSize(R.dimen.x166));
+        changeTakePicButtonMargin(getResources().getDimensionPixelSize(R.dimen.x40));
     }
 
     @Override
@@ -96,7 +97,8 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
                     runOnUiThread(() -> ToastHelper.showNormalToast(PosterFaceAcquisitionActivity.this, "图片保存失败"));
                 } else {
                     mFURenderKit.release();
-                    PosterPreviewActivity.startActivity(this, photoPath, mTempPath, mIntensity, mPosterFaceEnum);
+                    dataSource = 0;
+                    PosterPreviewActivity.startActivity(this, photoPath, mTempPath, mIntensity, mPosterFaceEnum,dataSource);
                 }
             });
         });
@@ -151,7 +153,8 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
             Uri uri = data.getData();
             String photoPath = FileUtils.getFilePathByUri(this, uri);
             mFURenderKit.release();
-            PosterPreviewActivity.startActivity(this, photoPath, mTempPath, mIntensity,PosterFaceEnum.POSTER_RIGHT_FACE);
+            dataSource = 1;
+            PosterPreviewActivity.startActivity(this, photoPath, mTempPath, mIntensity,PosterFaceEnum.POSTER_RIGHT_FACE,dataSource);
         } else if (requestCode == REQ_PREVIEW) {
             if (resultCode == Activity.RESULT_OK) {
                 mShotBitmap = null;

@@ -58,7 +58,7 @@ public class FineStickerEntity {
 
         private String filePath; //原始下载来的文件的存储地址，手动设置
         private ArrayList<String> upZipFilePath;//解压的文件位置（绝对路径），手动设置
-        private boolean isDownloading; //手动设置
+        private int downloadStatus; //0：默认状态（下载成功），1：正在下载，-1：下载失败 手动设置
 
 //        public Effect cast2Effect() {
 //            return new Effect(tool.bundle.name, 0, filePath, 1, Effect.EFFECT_TYPE_STICKER, 0);
@@ -120,12 +120,12 @@ public class FineStickerEntity {
             upZipFilePath = paths;
         }
 
-        public boolean isDownloading() {
-            return isDownloading;
+        public int getDownloadStatus() {
+            return downloadStatus;
         }
 
-        public void setDownloading(boolean downloading) {
-            isDownloading = downloading;
+        public void setDownloadStatus(int downloadStatus) {
+            this.downloadStatus = downloadStatus;
         }
 
         public static class ToolBean {

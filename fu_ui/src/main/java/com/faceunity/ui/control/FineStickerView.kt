@@ -22,6 +22,7 @@ import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
 import com.faceunity.ui.dialog.ToastHelper
+import com.faceunity.ui.entity.net.DownLoadStatus
 import com.faceunity.ui.entity.net.FineStickerEntity
 import com.faceunity.ui.entity.net.FineStickerEntity.DocsBean
 import com.faceunity.ui.entity.net.FineStickerTagEntity
@@ -77,7 +78,7 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
             }
 
             override fun onTabReselected(tab: TabLayout.Tab?) {
-                changeBottomLayoutAnimator(true)
+                changeBottomLayoutAnimator(!isBottomShow)
             }
         })
         iv_delete_all.setOnClickListener {
@@ -112,7 +113,7 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
      * @param entity DocsBean
      */
     fun onDownload(entity: DocsBean) {
-        entity.isDownloading = false
+        entity.downloadStatus = DownLoadStatus.DOWN_LOAD_SUCCESS
         val rv: RecyclerView? = safeFindViewWithTag(entity.tag)
         val adapter = rv?.adapter as BaseListAdapter<DocsBean>?
         adapter?.notifyDataSetChanged()
@@ -128,7 +129,7 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
      * @param entity DocsBean
      */
     fun onDownloadError(entity: DocsBean, msg: String) {
-        entity.isDownloading = false
+        entity.downloadStatus = DownLoadStatus.DOWN_LOAD_FAILED
         val rv: RecyclerView? = safeFindViewWithTag(entity.tag)
         val adapter = rv?.adapter as BaseListAdapter<DocsBean>?
         adapter?.notifyDataSetChanged()
@@ -231,33 +232,42 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
                         downloadView.visibility = GONE
                     }
                     val rotateAnim = AnimationUtils.loadAnimation(mContext, R.anim.anim_rotate)
-                    if (data.isDownloading) {
-                        loadingView.startAnimation(rotateAnim)
-                        loadingView.visibility = VISIBLE
-                        stickerView.alpha = 0.6f
-                        downloadView.visibility = GONE
-                    } else {
-                        stickerView.alpha = 1f
-                        loadingView.visibility = GONE
-                        loadingView.clearAnimation()
+                    when (data.downloadStatus) {
+                        DownLoadStatus.DOWN_LOADING -> {
+                            loadingView.startAnimation(rotateAnim)
+                            loadingView.visibility = VISIBLE
+                            stickerView.alpha = 0.6f
+                            downloadView.visibility = GONE
+                        }
+                        DownLoadStatus.DOWN_LOAD_FAILED -> {
+                            stickerView.alpha = 1f
+                            loadingView.visibility = GONE
+                            loadingView.clearAnimation()
+                        }
+                        else -> {
+                            stickerView.alpha = 1f
+                            loadingView.visibility = GONE
+                            loadingView.clearAnimation()
+                            //手指最后点击的位置
+                            helper.itemView.isSelected = currentSticker == data
+                        }
                     }
-                    helper.itemView.isSelected = currentSticker == data
                 }
 
                 override fun onItemClickListener(view: View, data: DocsBean, position: Int) {
                     if (currentSticker == data) {
-                        if (TextUtils.isEmpty(data.filePath) && !data.isDownloading) {
+                        if (TextUtils.isEmpty(data.filePath) && data.downloadStatus != DownLoadStatus.DOWN_LOADING) {
                             dataFactory.downloadSticker(data)
-                            data.isDownloading = true
+                            data.downloadStatus = DownLoadStatus.DOWN_LOADING
                             updateCurrentAdapterView()
                             return
                         }
                         return
                     }
                     if (TextUtils.isEmpty(data.filePath)) {
-                        if (data.isDownloading) return
+                        if (data.downloadStatus == DownLoadStatus.DOWN_LOADING) return
                         dataFactory.downloadSticker(data)
-                        data.isDownloading = true
+                        data.downloadStatus = DownLoadStatus.DOWN_LOADING
                         dataFactory.onItemSelected(null)
                     } else {
                         dataFactory.onItemSelected(data)

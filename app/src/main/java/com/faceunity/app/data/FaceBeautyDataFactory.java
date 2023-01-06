@@ -14,7 +14,6 @@ import com.faceunity.core.model.facebeauty.FaceBeautyFilterEnum;
 import com.faceunity.core.model.prop.expression.ExpressionRecognition;
 import com.faceunity.ui.entity.FaceBeautyBean;
 import com.faceunity.ui.entity.FaceBeautyFilterBean;
-import com.faceunity.ui.entity.FaceBeautyStyleBean;
 import com.faceunity.ui.entity.ModelAttributeData;
 import com.faceunity.ui.infe.AbstractFaceBeautyDataFactory;
 
@@ -63,9 +62,6 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
 
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
-
-    /*推荐风格标识*/
-    private static int currentStyleIndex = -1;
 
     /*美颜缓存数据模型 用于普通美颜*/
     public static final FaceBeauty defaultFaceBeauty = FaceBeautySource.getDefaultFaceBeauty();
@@ -170,47 +166,6 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     }
 
     /**
-     * 获取推荐风格列表
-     *
-     * @return
-     */
-    @NonNull
-    @Override
-    public ArrayList<FaceBeautyStyleBean> getBeautyStyles() {
-        return FaceBeautySource.buildStylesParams();
-    }
-
-
-    /**
-     * 获取当前风格推荐标识
-     *
-     * @return
-     */
-    @Override
-    public int getCurrentStyleIndex() {
-        return currentStyleIndex;
-    }
-
-    /**
-     * 设置风格推荐标识
-     *
-     * @param styleIndex
-     */
-    @Override
-    public void setCurrentStyleIndex(int styleIndex) {
-        currentStyleIndex = styleIndex;
-    }
-
-    /**
-     * 设置风格推荐标识 来自于硬盘
-     *
-     * @param styleIndex
-     */
-    public static void setDiskCurrentStyleIndex(int styleIndex) {
-        currentStyleIndex = styleIndex;
-    }
-
-    /**
      * 美颜开关设置
      *
      * @param enable
@@ -279,9 +234,6 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         defaultFaceBeauty.setFilterName(FaceBeautyFilterEnum.ORIGIN);
         defaultFaceBeauty.setFilterIntensity(0.0);
         setCurrentFilterIndex(0);
-
-        //设置风格角标
-        setCurrentStyleIndex(-1);
     }
 
     @Override
@@ -334,24 +286,6 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         defaultFaceBeauty.setFilterIntensity(intensity);
     }
 
-    /**
-     * 设置推荐风格
-     *
-     * @param name
-     */
-    @Override
-    public void onStyleSelected(String name) {
-        if (name == null) {
-            faceBeauty = defaultFaceBeauty;
-            FURenderKit.getInstance().setFaceBeauty(faceBeauty);
-        } else {
-            Runnable runnable = FaceBeautySource.styleParams.get(name);
-            if (runnable != null) {
-                runnable.run();
-            }
-        }
-    }
-
     /*模型映射设置模型值*/
     private final HashMap<String, FaceBeautySetParamInterface> faceBeautySetMapping = new HashMap<String, FaceBeautySetParamInterface>() {{
         put(FaceBeautyParam.COLOR_INTENSITY, defaultFaceBeauty::setColorIntensity);
@@ -362,8 +296,9 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         put(FaceBeautyParam.TOOTH_WHITEN_INTENSITY, defaultFaceBeauty::setToothIntensity);
         put(FaceBeautyParam.REMOVE_POUCH_INTENSITY, defaultFaceBeauty::setRemovePouchIntensity);
         put(FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, defaultFaceBeauty::setRemoveLawPatternIntensity);
+        put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::setFaceThreeIntensity);
         /*美型*/
-        put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::setSharpenIntensity);
+        put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::setFaceShapeIntensity);
         put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, defaultFaceBeauty::setCheekThinningIntensity);
         put(FaceBeautyParam.CHEEK_V_INTENSITY, defaultFaceBeauty::setCheekVIntensity);
         put(FaceBeautyParam.CHEEK_LONG_INTENSITY, defaultFaceBeauty::setCheekLongIntensity);
@@ -381,7 +316,6 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         put(FaceBeautyParam.INTENSITY_EYE_HEIGHT, defaultFaceBeauty::setEyeHeightIntensity);
         put(FaceBeautyParam.INTENSITY_BROW_THICK, defaultFaceBeauty::setBrowThickIntensity);
         put(FaceBeautyParam.INTENSITY_LIP_THICK, defaultFaceBeauty::setLipThickIntensity);
-        put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::setFaceThreeIntensity);
         put(FaceBeautyParam.CHIN_INTENSITY, defaultFaceBeauty::setChinIntensity);
         put(FaceBeautyParam.FOREHEAD_INTENSITY, defaultFaceBeauty::setForHeadIntensity);
         put(FaceBeautyParam.NOSE_INTENSITY, defaultFaceBeauty::setNoseIntensity);
@@ -405,6 +339,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
             put(FaceBeautyParam.TOOTH_WHITEN_INTENSITY, defaultFaceBeauty::getToothIntensity);
             put(FaceBeautyParam.REMOVE_POUCH_INTENSITY, defaultFaceBeauty::getRemovePouchIntensity);
             put(FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, defaultFaceBeauty::getRemoveLawPatternIntensity);
+            put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::getFaceThreeIntensity);
             /*美型*/
             put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::getSharpenIntensity);
             put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, defaultFaceBeauty::getCheekThinningIntensity);
@@ -424,7 +359,6 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
             put(FaceBeautyParam.INTENSITY_EYE_HEIGHT, defaultFaceBeauty::getEyeHeightIntensity);
             put(FaceBeautyParam.INTENSITY_BROW_THICK, defaultFaceBeauty::getBrowThickIntensity);
             put(FaceBeautyParam.INTENSITY_LIP_THICK, defaultFaceBeauty::getLipThickIntensity);
-            put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::getFaceThreeIntensity);
             put(FaceBeautyParam.CHIN_INTENSITY, defaultFaceBeauty::getChinIntensity);
             put(FaceBeautyParam.FOREHEAD_INTENSITY, defaultFaceBeauty::getForHeadIntensity);
             put(FaceBeautyParam.NOSE_INTENSITY, defaultFaceBeauty::getNoseIntensity);

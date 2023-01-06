@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseActivity;
+import com.faceunity.app.base.BaseFaceUnityActivity;
+import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.utils.FileUtils;
 import com.faceunity.ui.dialog.ToastHelper;
 
@@ -17,7 +20,6 @@ import com.faceunity.ui.dialog.ToastHelper;
  * Created on 2021/3/2
  */
 public class SelectDataActivity extends BaseActivity {
-
     private static final String TYPE = "type";
     private static final int REQUEST_CODE_PHOTO = 1000;
     private static final int REQUEST_CODE_VIDEO = 1001;
@@ -81,10 +83,24 @@ public class SelectDataActivity extends BaseActivity {
             return;
         }
         if (requestCode == REQUEST_CODE_PHOTO) {
-            FaceBeautyActivity.needBindDataFactory = true;
+            if (mFunctionType == FunctionEnum.FACE_BEAUTY)
+                BaseFaceUnityActivity.needUpdateUI = true;
+            else if (mFunctionType == FunctionEnum.STICKER)
+                BaseFaceUnityActivity.needUpdateUI = true;
+            else if (mFunctionType == FunctionEnum.BG_SEG_GREEN)
+                BaseFaceUnityActivity.needUpdateUI = true;
+            else if (mFunctionType == FunctionEnum.STYLE)
+                BaseFaceUnityActivity.needUpdateUI = true;
             ShowPhotoActivity.startActivity(this, mFunctionType, path);
         } else if (requestCode == REQUEST_CODE_VIDEO) {
-            FaceBeautyActivity.needBindDataFactory = true;
+            if (mFunctionType == FunctionEnum.FACE_BEAUTY)
+                BaseFaceUnityActivity.needUpdateUI = true;
+            else if (mFunctionType == FunctionEnum.STICKER)
+                BaseFaceUnityActivity.needUpdateUI = true;
+            else if (mFunctionType == FunctionEnum.BG_SEG_GREEN)
+                BaseFaceUnityActivity.needUpdateUI = true;
+            else if (mFunctionType == FunctionEnum.STYLE)
+                BaseFaceUnityActivity.needUpdateUI = true;
             ShowVideoActivity.startActivity(this, mFunctionType, path);
         }
     }
