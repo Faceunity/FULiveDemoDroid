@@ -17,7 +17,9 @@ import com.faceunity.app.utils.FileUtils;
 import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.core.entity.FURenderInputData;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
+import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.enumeration.FUPortraitSegmentationEnum;
+import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.media.video.VideoPlayHelper;
 import com.faceunity.core.model.prop.Prop;
 import com.faceunity.core.model.prop.bgSegCustom.BgSegCustom;
@@ -52,10 +54,11 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
                 public void onPortraitSegmentMode(@NonNull PortraitSegmentModeChooseDialogFragment.PortraitSegmentModeEnum choose) {
                     //不同模式请求不同接口
                     if (choose == PortraitSegmentModeChooseDialogFragment.PortraitSegmentModeEnum.PortraitSegmentMode1) {
-                        mFUAIKit.setHumanSegScene(FUPortraitSegmentationEnum.MODE_SEG_COMMON);
+                        mFUAIKit.fuSetHumanSegMode(FUPortraitSegmentationEnum.MODE_SEG_GPU_COMMON);
                     } else {
-                        mFUAIKit.setHumanSegScene(FUPortraitSegmentationEnum.MODE_SEG_MEETING);
+                        mFUAIKit.fuSetHumanSegMode(FUPortraitSegmentationEnum.MODE_SEG_GPU_METING);
                     }
+                    mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
                     mPropCustomControlView.setChooseIndex(mPortraitSegmentDataFactory.getHumanOutLineIndex());
                 }
 
@@ -76,6 +79,7 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
             });
             chooseDialog.show(getSupportFragmentManager(), "ChooseDialogFragment");
         } else {
+//            mFUAIKit.setHumanSegScene(FUPortraitSegmentationEnum.MODE_SEG_CPU_COMMON);
             mPortraitSegmentDataFactory.setCurrentPropIndex(mPortraitSegmentDataFactory.getHumanOutLineIndex());
         }
     }
@@ -83,6 +87,8 @@ public class PortraitSegmentActivity extends BaseFaceUnityActivity {
     @Override
     protected void configureFURenderKit() {
         super.configureFURenderKit();
+        if (DemoConfig.DEVICE_LEVEL <= FuDeviceUtils.DEVICE_LEVEL_MID)
+            mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
         mPortraitSegmentDataFactory.bindCurrentRenderer();
     }
 

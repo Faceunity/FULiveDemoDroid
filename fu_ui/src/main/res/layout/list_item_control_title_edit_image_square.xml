@@ -36,5 +36,10 @@
         android:layout_height="@dimen/x40"
         android:layout_marginBottom="@dimen/x16"
         android:textColor="@color/tv_main_color_selector"
-        android:textSize="@dimen/text_size_20" />
+        android:maxLines="1"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMaxTextSize="10sp"
+        android:autoSizeMinTextSize="5sp"
+        android:autoSizeStepGranularity="1sp"
+        android:textSize="10sp" />
 </LinearLayout>

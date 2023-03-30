@@ -200,14 +200,15 @@ public class MainActivity extends BaseActivity {
         int moduleCode0 = FURenderKit.getInstance().getModuleCode(0);
         int moduleCode1 = FURenderKit.getInstance().getModuleCode(1);
         for (HomeFunctionModuleData moduleEntity : homeFunctionModuleData) {
-            if (moduleEntity.authCode != null) {
-                String[] codeStr = moduleEntity.authCode.split("-");
-                if (codeStr.length == 2) {
-                    int code0 = Integer.parseInt(codeStr[0]);
-                    int code1 = Integer.parseInt(codeStr[1]);
-                    moduleEntity.enable = (code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0;
-                }
-            }
+//            if (moduleEntity.authCode != null) {
+//                String[] codeStr = moduleEntity.authCode.split("-");
+//                if (codeStr.length == 2) {
+//                    int code0 = Integer.parseInt(codeStr[0]);
+//                    int code1 = Integer.parseInt(codeStr[1]);
+//                    moduleEntity.enable = (code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0;
+//                }
+//            }
+            moduleEntity.enable = true;
         }
     }
 
@@ -246,9 +247,5 @@ public class MainActivity extends BaseActivity {
         String cacheFilePath = DemoConfig.cacheFilePath(getApplication());
         FileUtils.createFileDir(cacheFilePath);
         FURenderKit.getInstance().setCacheDirectory(cacheFilePath);
-
-        //高端机子进行预加载 HumanProcessor
-        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
-            FUAIKit.getInstance().preLoadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN_GPU, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
     }
 }

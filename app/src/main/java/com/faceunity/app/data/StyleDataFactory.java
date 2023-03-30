@@ -1,8 +1,6 @@
 package com.faceunity.app.data;
 
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.faceunity.app.DemoConfig;

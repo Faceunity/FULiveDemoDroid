@@ -532,7 +532,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      * 遍历美肤数据确认还原按钮是否可以点击
      */
     private fun checkFaceSkinChanged(): Boolean {
-        if (mSkinBeauty.size > mShapeIndex && mSkinIndex > 0) {
+        if (mSkinBeauty.size > mSkinIndex && mSkinIndex > 0) {
             val item = mSkinBeauty[mSkinIndex]
             var value = mDataFactory.getParamIntensity(item.key)
             var default = mModelAttributeRange[item.key]!!.default

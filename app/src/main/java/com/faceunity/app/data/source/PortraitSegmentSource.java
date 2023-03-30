@@ -63,7 +63,7 @@ public class PortraitSegmentSource {
         propBeans.add(new PropCustomBean(R.mipmap.icon_segment_boyfriend_1, "effect/segment/boyfriend1.bundle", FunctionEnum.PORTRAIT_SEGMENT));
         propBeans.add(new PropCustomBean(R.mipmap.icon_segment_boyfriend_2, "effect/segment/boyfriend3.bundle", FunctionEnum.PORTRAIT_SEGMENT));
         propBeans.add(new PropCustomBean(R.mipmap.icon_segment_boyfriend_3, "effect/segment/boyfriend2.bundle", FunctionEnum.PORTRAIT_SEGMENT));
-        propBeans.add(new PropCustomBean(R.mipmap.icon_segment_hez_ztt_fu, "effect/segment/hez_ztt_fu.bundle", FunctionEnum.PORTRAIT_SEGMENT, R.string.hez_ztt_fu));
+        propBeans.add(new PropCustomBean(R.mipmap.icon_segment_hez_ztt_fu, "effect/segment/hez_ztt_fu.bundle", FunctionEnum.PORTRAIT_SEGMENT, R.string.future_warrior));
         propBeans.add(new PropCustomBean(R.mipmap.icon_segment_gufeng_zh_fu, "effect/segment/gufeng_zh_fu.bundle", FunctionEnum.PORTRAIT_SEGMENT));
         propBeans.add(new PropCustomBean(R.mipmap.icon_segment_xiandai_ztt_fu, "effect/segment/xiandai_ztt_fu.bundle", FunctionEnum.PORTRAIT_SEGMENT));
         propBeans.add(new PropCustomBean(R.mipmap.icon_segment_sea_lm_fu, "effect/segment/sea_lm_fu.bundle", FunctionEnum.PORTRAIT_SEGMENT));

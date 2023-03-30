@@ -63,6 +63,7 @@
                 android:layout_height="@dimen/x98"
                 android:layout_gravity="center_vertical"
                 app:tabIndicator="@null"
+                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
                 app:tabMode="fixed"
                 app:tabSelectedTextColor="@color/main_color"
                 app:tabTextColor="@color/colorWhite" />
