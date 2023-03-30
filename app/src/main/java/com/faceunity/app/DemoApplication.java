@@ -36,7 +36,7 @@ public class DemoApplication extends Application {
 
     private void registerFURender() {
         FURenderManager.setKitDebug(FULogger.LogLevel.DEBUG);
-        FURenderManager.setCoreDebug(FULogger.LogLevel.DEBUG);
+        FURenderManager.setCoreDebug(FULogger.LogLevel.OFF);
         FURenderManager.registerFURender(mApplication, authpack.A(), new OperateCallback() {
             @Override
             public void onSuccess(int code, String msg) {

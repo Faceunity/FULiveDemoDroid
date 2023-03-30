@@ -51,7 +51,7 @@ public class MakeupSource {
         combinations.add(new MakeupCombinationBean("diadiatu", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_diadiatu, R.string.makeup_combination_diadiatu, bundleDir + "diadiatu.bundle", jsonDir + "diadiatu.json", FaceBeautyFilterEnum.ORIGIN, 0.68));
         combinations.add(new MakeupCombinationBean("dongling", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_freezing_age, R.string.makeup_combination_dongling, bundleDir + "dongling.bundle", jsonDir + "dongling.json", FaceBeautyFilterEnum.ORIGIN, 0.68));
         combinations.add(new MakeupCombinationBean("guofeng", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_guo_feng, R.string.makeup_combination_guofeng, bundleDir + "guofeng.bundle", jsonDir + "guofeng.json", FaceBeautyFilterEnum.ORIGIN, 0.6));
-        combinations.add(new MakeupCombinationBean("hunxie", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_mixed_race, R.string.makeup_combination_hunxie, bundleDir + "hunxie.bundle", jsonDir + "hunxie.json", FaceBeautyFilterEnum.ORIGIN, 0.6));
+        combinations.add(new MakeupCombinationBean("hunxue", TypeEnum.TYPE_THEME_MAIN, R.mipmap.icon_makeup_combination_mixed_race, R.string.makeup_combination_hunxie, bundleDir + "hunxue.bundle", jsonDir + "hunxue.json", FaceBeautyFilterEnum.ORIGIN, 0.6));
         combinations.add(new MakeupCombinationBean("jianling", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_age, R.string.makeup_combination_jianling, bundleDir + "jianling.bundle", jsonDir + "jianling.json", FaceBeautyFilterEnum.ZHIGANHUI_1));
         combinations.add(new MakeupCombinationBean("nuandong", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_warm_winter, R.string.makeup_combination_nuandong, bundleDir + "nuandong.bundle", jsonDir + "nuandong.json", FaceBeautyFilterEnum.ZHIGANHUI_2));
         combinations.add(new MakeupCombinationBean("hongfeng", TypeEnum.TYPE_THEME_SUB, R.mipmap.icon_makeup_combination_red_maple, R.string.makeup_combination_hongfeng, bundleDir + "hongfeng.bundle", jsonDir + "hongfeng.json", FaceBeautyFilterEnum.ZHIGANHUI_3));
@@ -73,13 +73,16 @@ public class MakeupSource {
         return combinations;
     }
 
+    public static Makeup getMakeupModel(MakeupCombinationBean bean) {
+        return getMakeupModel(bean,false);
+    }
 
     /**
      * 构造美妆模型
      *
      * @return
      */
-    public static Makeup getMakeupModel(MakeupCombinationBean bean) {
+    public static Makeup getMakeupModel(MakeupCombinationBean bean, boolean makeupItemNew) {
         Makeup makeupModel;
         if (TypeEnum.TYPE_THEME_MAIN == bean.getType() && bean.getBundlePath() != null && bean.getBundlePath().trim().length() > 0) {
             makeupModel = new Makeup(new FUBundleData(bean.getBundlePath()));
@@ -89,6 +92,7 @@ public class MakeupSource {
             makeupModel = new Makeup(new FUBundleData(DemoConfig.BUNDLE_FACE_MAKEUP));
         }
 
+        makeupModel.setMakeupItemNew(makeupItemNew);
         if (bean.getKey().equals("origin")) {
             return makeupModel;
         }

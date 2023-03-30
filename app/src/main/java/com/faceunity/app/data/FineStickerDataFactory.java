@@ -330,7 +330,7 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
      * FURenderKit加载当前特效
      */
     public void bindCurrentRenderer() {
-        mFUAIKit.loadAIProcessor(DemoConfig.getAIHumanBundle(), FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
+        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HUMAN, FUAITypeEnum.FUAITYPE_HUMAN_PROCESSOR);
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HAND, FUAITypeEnum.FUAITYPE_HANDGESTURE);
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
         mFUAIKit.setMaxFaces(1);

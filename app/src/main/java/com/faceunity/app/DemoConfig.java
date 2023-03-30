@@ -19,21 +19,9 @@ public class DemoConfig {
     public static String BUNDLE_AI_FACE = "model" + File.separator + "ai_face_processor.bundle";
     // 手势
     public static String BUNDLE_AI_HAND = "model" + File.separator + "ai_hand_processor.bundle";
-
-    //获取人体bundle
-    public static String getAIHumanBundle() {
-        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
-            return BUNDLE_AI_HUMAN_GPU;
-        else
-            return BUNDLE_AI_HUMAN;
-    }
-
     // 人体
     public static String BUNDLE_AI_HUMAN = "model" + File.separator + "ai_human_processor.bundle";
-    // 人体
-    public static String BUNDLE_AI_HUMAN_GPU = "model" + File.separator + "ai_human_processor_gpu.bundle";
-    // 头发
-    public static String BUNDLE_AI_HAIR_SEG = "model" + File.separator + "ai_hairseg.bundle";
+
     // 舌头
     public static String BUNDLE_AI_TONGUE = "graphics" + File.separator + "tongue.bundle";
 
@@ -83,6 +71,7 @@ public class DemoConfig {
     public static String BUNDLE_LANDMARKS = "effect" + File.separator + "landmarks.bundle";
 
     //设备等级默认为中级
+
     public static int DEVICE_LEVEL = FuDeviceUtils.DEVICE_LEVEL_MID;
 
     //人脸置信度 标准

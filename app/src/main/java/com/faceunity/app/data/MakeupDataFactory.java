@@ -57,6 +57,8 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
     /*当前滤镜*/
     private Double currentFilterIntensity;
 
+    /*当前生效的组合妆*/
+    private MakeupCombinationBean makeupCombinationBean;
 
     private LinkedHashMap<String, ArrayList<double[]>> mMakeUpColorMap;//美妆颜色表
 
@@ -70,9 +72,10 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
         makeupCombinations = MakeupSource.buildCombinations();
         mMakeUpColorMap = MakeupSource.buildMakeUpColorMap();
         currentCombinationIndex = index;
-        currentFilterName = makeupCombinations.get(index).getFilterName();
-        currentFilterIntensity = makeupCombinations.get(index).getFilterIntensity();
-        currentMakeup = MakeupSource.getMakeupModel(makeupCombinations.get(currentCombinationIndex)); // 当前生效模型
+        makeupCombinationBean = makeupCombinations.get(currentCombinationIndex);
+        currentFilterName = makeupCombinationBean.getFilterName();
+        currentFilterIntensity = makeupCombinationBean.getFilterIntensity();
+        currentMakeup = MakeupSource.getMakeupModel(makeupCombinationBean); // 当前生效模型
     }
 
     //region 组合妆
@@ -122,9 +125,14 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             mFURenderKit.getFaceBeauty().setFilterIntensity(currentFilterIntensity);
         }
         mFURenderKit.addMakeupLoadListener(() -> {});//为了让所有的数据同一帧完成
-        currentMakeup = MakeupSource.getMakeupModel(bean);
+        boolean makeupItemNew = false;
+        if (makeupCombinationBean != null && makeupCombinationBean.getBundlePath() != null)
+            makeupItemNew = makeupCombinationBean.getBundlePath().equals(bean.getBundlePath());
+        currentMakeup = MakeupSource.getMakeupModel(bean, makeupItemNew);
+        if (!currentMakeup.getControlBundle().getPath().equals(DemoConfig.BUNDLE_FACE_MAKEUP))
+            currentMakeup.setFilterIntensity(currentFilterIntensity);
         mFURenderKit.setMakeup(currentMakeup);
-        if (!currentMakeup.getControlBundle().getPath().equals(DemoConfig.BUNDLE_FACE_MAKEUP)) currentMakeup.setFilterIntensity(currentFilterIntensity);
+        makeupCombinationBean = bean;
     }
 
     /**
@@ -231,7 +239,6 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
                 currentMakeup.setLipIntensity(0.0);
             } else {
                 currentMakeup.setLipBundle(new FUBundleData(itemDir + "mu_style_lip_0" + index + ".bundle"));
-                currentMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启人脸遮挡
                 switch (index) {
                     case 1:
                         currentMakeup.setLipType(MakeupLipEnum.FOG);
@@ -419,7 +426,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
 
             }
         }
-
+        currentMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启人脸遮挡
     }
 
 
@@ -905,7 +912,8 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             Iterator<Map.Entry<String, Double>> iterator = MakeupSource.getDailyCombinationSelectItemValue(key).entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry< String, Double > entry = iterator.next();
-                customIntensityMap.put(entry.getKey(),entry.getValue() * enterMakeupIntensity);
+                if (entry != null && entry.getKey() != null && entry.getValue() != null)
+                    customIntensityMap.put(entry.getKey(),entry.getValue() * enterMakeupIntensity);
             }
 
             //将修改的情况和原始进行比对
@@ -914,8 +922,10 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             Iterator<Map.Entry<String, Integer>> customIndexMapIterator = mCustomIndexMap.entrySet().iterator();
             while (customIndexMapIterator.hasNext()) {
                 Map.Entry< String, Integer > entry = customIndexMapIterator.next();
-                if (customIndexMap.get(entry.getKey()) != entry.getValue()) {
-                    return true;
+                if (entry != null && entry.getKey() != null && entry.getValue() != null) {
+                    if (customIndexMap.get(entry.getKey()) != entry.getValue()) {
+                        return true;
+                    }
                 }
             }
 
@@ -923,10 +933,10 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             Iterator<Map.Entry<String, Double>> customIntensityMapIterator = mCustomIntensityMap.entrySet().iterator();
             while (customIntensityMapIterator.hasNext()) {
                 Map.Entry<String, Double> entry = customIntensityMapIterator.next();
-                double value1 = customIntensityMap.get(entry.getKey());
-                double value2 = entry.getValue();
-                if (value1 != value2) {
-                    return true;
+                if (entry != null && entry.getKey() != null && entry.getValue() != null) {
+                    if (customIntensityMap.get(entry.getKey()) != entry.getValue()) {
+                        return true;
+                    }
                 }
             }
 
@@ -934,8 +944,10 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             Iterator<Map.Entry<String, Integer>> customColorIndexMapIterator = mCustomColorIndexMap.entrySet().iterator();
             while (customColorIndexMapIterator.hasNext()) {
                 Map.Entry< String, Integer > entry = customColorIndexMapIterator.next();
-                if (customColorIndexMap.get(entry.getKey()) != entry.getValue()) {
-                    return true;
+                if (entry != null && entry.getKey() != null && entry.getValue() != null) {
+                    if (customColorIndexMap.get(entry.getKey()) != entry.getValue()) {
+                        return true;
+                    }
                 }
             }
             return false;

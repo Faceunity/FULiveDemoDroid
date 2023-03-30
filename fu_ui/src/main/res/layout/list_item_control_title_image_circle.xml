@@ -16,24 +16,28 @@
             android:layout_marginBottom="@dimen/x18"
             android:scaleType="centerInside" />
 
-
         <TextView
             android:id="@+id/tv_control"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/x30"
-            android:gravity="center_vertical"
+            android:autoSizeMaxTextSize="10sp"
+            android:autoSizeMinTextSize="5sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:gravity="center"
+            android:maxLines="1"
             android:text="@string/recover"
             android:textColor="@color/tv_main_color_selector"
-            android:textSize="@dimen/text_size_20" />
+            android:textSize="10sp" />
     </LinearLayout>
 
     <ImageView
-        android:visibility="gone"
         android:id="@+id/iv_oval_spot"
         android:layout_width="@dimen/x6"
         android:layout_height="@dimen/x6"
         android:layout_gravity="right"
         android:layout_marginTop="@dimen/x44"
-        android:src="@drawable/bg_white_oval" />
+        android:src="@drawable/bg_white_oval"
+        android:visibility="gone" />
 </FrameLayout>

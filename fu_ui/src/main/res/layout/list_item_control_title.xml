@@ -8,11 +8,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
+        android:autoSizeMaxTextSize="13sp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
         android:background="@color/transparent"
         android:gravity="center"
-        android:maxLines="2"
+        android:maxLines="1"
         android:textColor="@color/tv_main_color_selector"
-        android:textSize="@dimen/text_size_26" />
+        android:textSize="13sp" />
 
     <ImageView
         android:id="@+id/iv_indicator"
@@ -23,5 +27,4 @@
         android:layout_marginEnd="@dimen/x16"
         android:src="@drawable/icon_blue_dot"
         android:visibility="visible" />
-
 </RelativeLayout>

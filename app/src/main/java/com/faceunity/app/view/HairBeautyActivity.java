@@ -55,7 +55,6 @@ public class HairBeautyActivity extends BaseFaceUnityActivity {
 
     @Override
     public void onDestroy() {
-        mHairBeautyDataFactory.releaseAIProcessor();
         super.onDestroy();
     }
 }

@@ -115,19 +115,8 @@ public class HairBeautyDataFactory extends AbstractHairBeautyDataFactory {
      */
     public void bindCurrentRenderer() {
         mFURenderKit.setFaceBeauty(FaceBeautyDataFactory.faceBeauty);
-        mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_HAIR_SEG, FUAITypeEnum.FUAITYPE_HAIRSEGMENTATION);
         mFUAIKit.setMaxFaces(4);
         HairBeautyBean hairBeautyBean = hairBeautyBeans.get(currentHairIndex);
         onHairSelected(hairBeautyBean);
     }
-
-
-    /**
-     * 结束需要释放AI驱动
-     */
-    public void releaseAIProcessor() {
-        mFUAIKit.releaseAIProcessor(FUAITypeEnum.FUAITYPE_HAIRSEGMENTATION);
-    }
-
-
 }
