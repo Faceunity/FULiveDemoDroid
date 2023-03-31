@@ -10,8 +10,8 @@ android {
         applicationId "com.faceunity.fulivedemo"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 752
-        versionName "8.5.0"
+        versionCode 753
+        versionName "8.6.0"
         multiDexEnabled true
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a'
