@@ -2,7 +2,6 @@ package com.faceunity.ui.infe
 
 import com.faceunity.ui.entity.FaceBeautyBean
 import com.faceunity.ui.entity.FaceBeautyFilterBean
-import com.faceunity.ui.entity.FaceBeautyStyleBean
 import com.faceunity.ui.entity.ModelAttributeData
 
 
