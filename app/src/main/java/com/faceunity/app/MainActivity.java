@@ -29,8 +29,6 @@ import com.faceunity.app.view.PortraitSegmentActivity;
 import com.faceunity.app.view.PosterListActivity;
 import com.faceunity.app.view.PropActivity;
 import com.faceunity.app.view.StyleActivity;
-import com.faceunity.core.enumeration.FUAITypeEnum;
-import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.faceunity.FURenderManager;
 import com.faceunity.ui.base.BaseDelegate;
@@ -216,6 +214,7 @@ public class MainActivity extends BaseActivity {
     private String[] permissions = {Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO};
+
     @Override
     public void checkPermissionResult(boolean permissionResult) {
         if (permissionResult)
@@ -231,7 +230,7 @@ public class MainActivity extends BaseActivity {
         //是否开启日志重定向
         if (DemoConfig.OPEN_FILE_LOG) {
             FileUtils.createFileDir(DemoConfig.OPEN_FILE_PATH);
-            FURenderManager.openFileLog(DemoConfig.OPEN_FILE_PATH + DemoConfig.OPEN_FILE_NAME,DemoConfig.OPEN_FILE_MAX_SIZE,DemoConfig.OPEN_FILES);
+            FURenderManager.openFileLog(DemoConfig.OPEN_FILE_PATH + DemoConfig.OPEN_FILE_NAME, DemoConfig.OPEN_FILE_MAX_SIZE, DemoConfig.OPEN_FILES);
         }
 
         //是否开启timeProfile 检测算法耗时
@@ -239,7 +238,7 @@ public class MainActivity extends BaseActivity {
             FileUtils.createFileDir(DemoConfig.OPEN_TIME_PROFILE_PATH);
             SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
             String dateStrFile = df.format(new Date());
-            String profileFilePath = DemoConfig.OPEN_TIME_PROFILE_PATH  + "profile-" + dateStrFile + ".txt";
+            String profileFilePath = DemoConfig.OPEN_TIME_PROFILE_PATH + "profile-" + dateStrFile + ".txt";
             FUTimeProfile.frameTimeProfileStartToFile(profileFilePath);
         }
 

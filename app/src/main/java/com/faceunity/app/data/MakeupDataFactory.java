@@ -444,8 +444,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             double[] color = mMakeUpColorMap.get("color_mu_style_lip_01").get(index);
             if (current == 3)
                 currentMakeup.setLipColorV2(buildFUColorRGBData(color));
-            else
-                currentMakeup.setLipColor(buildFUColorRGBData(color));
+            currentMakeup.setLipColor(buildFUColorRGBData(color));
         } else if (key.equals(FACE_MAKEUP_TYPE_BLUSHER)) {
             mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_BLUSHER + "_" + current, index);
             double[] color = mMakeUpColorMap.get("color_mu_style_blush_0" + current).get(index);

@@ -102,7 +102,7 @@ public class PosterFaceAcquisitionActivity extends BaseFaceUnityActivity {
                 }
             });
         });
-        mMoreView.setOnClickListener((view) -> FileUtils.pickImageFile(this, REQ_PHOTO));
+        mMoreView.setOnClickListener((view) -> com.faceunity.app.utils.FileUtils.pickImageFile(this, REQ_PHOTO));
     }
 
 

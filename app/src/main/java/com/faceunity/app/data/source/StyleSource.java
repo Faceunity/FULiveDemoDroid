@@ -158,7 +158,7 @@ public class StyleSource {
 //        FUDiskFaceStyleUtils.removeStyleData();
         Iterator<Map.Entry<String, StyleData>> iterator = styleType.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<String, StyleData> entry = iterator.next();
+            Map.Entry<String, StyleSource.StyleData> entry = iterator.next();
             StyleData styleData = resetStyleFaceBeauty(entry.getValue().faceBeauty, entry.getKey());
             entry.setValue(styleData);
         }
