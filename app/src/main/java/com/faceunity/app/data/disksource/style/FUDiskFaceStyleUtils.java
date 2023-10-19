@@ -42,6 +42,8 @@ public class FUDiskFaceStyleUtils {
             fuDiskStyleData.colorIntensity = faceBeauty.getColorIntensity();
             /* 红润程度 */
             fuDiskStyleData.redIntensity = faceBeauty.getRedIntensity();
+            /* 清晰程度 */
+            fuDiskStyleData.clarityIntensity = faceBeauty.getClarityIntensity();
             /* 锐化程度 */
             fuDiskStyleData.sharpenIntensity = faceBeauty.getSharpenIntensity();
             /* 亮眼程度 */
@@ -147,6 +149,9 @@ public class FUDiskFaceStyleUtils {
             /* 红润程度 */
             if (FUDiskFaceBeautyData.redIntensity != faceBeauty.getRedIntensity())
                 faceBeauty.setRedIntensity(FUDiskFaceBeautyData.redIntensity);
+            /* 清晰程度 */
+            if (FUDiskFaceBeautyData.clarityIntensity != faceBeauty.getClarityIntensity())
+                faceBeauty.setClarityIntensity(FUDiskFaceBeautyData.clarityIntensity);
             /* 锐化程度 */
             if (FUDiskFaceBeautyData.sharpenIntensity != faceBeauty.getSharpenIntensity())
                 faceBeauty.setSharpenIntensity(FUDiskFaceBeautyData.sharpenIntensity);

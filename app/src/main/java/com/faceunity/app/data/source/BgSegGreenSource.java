@@ -1,5 +1,7 @@
 package com.faceunity.app.data.source;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.SharedPreferences;
 
 import com.faceunity.app.DemoApplication;
@@ -17,8 +19,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static android.content.Context.MODE_PRIVATE;
-
 /**
  * DESC：绿幕抠像数据构造
  * Created on 2021/3/25
@@ -33,7 +33,7 @@ public class BgSegGreenSource {
     /**
      * 构造绿幕抠像对象
      *
-     * @return
+     * @return BgSegGreen
      */
     public static BgSegGreen buildBgSegGreen() {
         BgSegGreen bgSegGreen = new BgSegGreen(new FUBundleData(DemoConfig.BUNDLE_BG_SEG_GREEN));
@@ -59,7 +59,7 @@ public class BgSegGreenSource {
     /**
      * 绿幕抠像功能列表
      *
-     * @return
+     * @return ArrayList<BgSegGreenBean>
      */
     public static ArrayList<BgSegGreenBean> buildBgSegGreenAction() {
         ArrayList<BgSegGreenBean> actions = new ArrayList<BgSegGreenBean>();
@@ -74,33 +74,38 @@ public class BgSegGreenSource {
     /**
      * 绿幕抠像安全区域功能列表
      *
-     * @return
+     * @return ArrayList<BgSegGreenSafeAreaBean>
      */
     public static ArrayList<BgSegGreenSafeAreaBean> buildBgSegGreenSafeArea() {
         String fileDir = "bg_seg_green" + File.separator + "sample" + File.separator;
         ArrayList<BgSegGreenSafeAreaBean> safeAreaBeans = new ArrayList<BgSegGreenSafeAreaBean>();
-        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_control_return, BgSegGreenSafeAreaBean.ButtonType.BACK_BUTTON));//返回
-        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_control_none, BgSegGreenSafeAreaBean.ButtonType.NONE_BUTTON));//不选
-        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_control_square_add, BgSegGreenSafeAreaBean.ButtonType.NORMAL2_BUTTON));//自定义
+        //返回
+        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_control_return, BgSegGreenSafeAreaBean.ButtonType.BACK_BUTTON));
+        //不选
+        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_control_none, BgSegGreenSafeAreaBean.ButtonType.NONE_BUTTON));
+        //自定义
+        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_control_square_add, BgSegGreenSafeAreaBean.ButtonType.NORMAL2_BUTTON));
         BgSegGreenSafeAreaBean customerBean = buildSafeAreaCustomBean(getCachePortraitSegment());
         if (customerBean != null) {
             safeAreaBeans.add(customerBean);
         }
-        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_green_safe_area1, BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON,fileDir + "safe_area1.jpg"));//区域一
-        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_green_safe_area2, BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON,fileDir + "safe_area2.jpg"));//区域二
+        //区域一
+        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_green_safe_area1, BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON, fileDir + "safe_area1.jpg"));
+        //区域二
+        safeAreaBeans.add(new BgSegGreenSafeAreaBean(R.mipmap.icon_green_safe_area2, BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON, fileDir + "safe_area2.jpg"));
         return safeAreaBeans;
     }
 
     /**
      * 构造自定义安全区域图片
      *
-     * @param path
-     * @return
+     * @param path String
+     * @return BgSegGreenSafeAreaBean
      */
     public static BgSegGreenSafeAreaBean buildSafeAreaCustomBean(String path) {
         if (path != null && path.trim().length() > 0 && new File(path).exists()) {
             saveCachePortraitSegment(path);
-            return new BgSegGreenSafeAreaBean(0, BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON, path,false);
+            return new BgSegGreenSafeAreaBean(0, BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON, path, false);
         }
         return null;
     }
@@ -108,7 +113,7 @@ public class BgSegGreenSource {
     /**
      * 绿幕抠像背景列表
      *
-     * @return
+     * @return ArrayList<BgSegGreenBackgroundBean>
      */
     public static ArrayList<BgSegGreenBackgroundBean> buildBgSegGreenBackground() {
         ArrayList<BgSegGreenBackgroundBean> backgroundBeans = new ArrayList<>();
@@ -125,7 +130,7 @@ public class BgSegGreenSource {
     /**
      * 缓存自定义安全区域图片
      *
-     * @param path
+     * @param path String
      */
     public static void saveCachePortraitSegment(String path) {
         SharedPreferences sp = DemoApplication.mApplication.getSharedPreferences(GREEN_SAFE_AREA_CUSTOM, MODE_PRIVATE);
@@ -135,7 +140,7 @@ public class BgSegGreenSource {
     /**
      * 获取自定义安全区域图片
      *
-     * @return
+     * @return String
      */
     public static String getCachePortraitSegment() {
         SharedPreferences sp = DemoApplication.mApplication.getSharedPreferences(GREEN_SAFE_AREA_CUSTOM, MODE_PRIVATE);

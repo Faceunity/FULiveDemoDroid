@@ -12,6 +12,12 @@ import java.util.ArrayList;
  */
 public class PropSource {
 
+    /**
+     * 道具数据构造
+     *
+     * @param propType int
+     * @return ArrayList<PropBean>
+     */
     public static ArrayList<PropBean> buildPropBeans(int propType) {
         ArrayList<PropBean> propBeans = new ArrayList<>();
         switch (propType) {
@@ -72,6 +78,8 @@ public class PropSource {
                 propBeans.add(new PropBean(R.mipmap.icon_gesture_koreaheart, "effect/gesture/ssd_thread_korheart.bundle", R.string.fu_lm_koreaheart));
                 propBeans.add(new PropBean(R.mipmap.icon_gesture_six, "effect/gesture/ssd_thread_six.bundle", R.string.ssd_thread_six));
                 propBeans.add(new PropBean(R.mipmap.icon_gesture_cute, "effect/gesture/ssd_thread_cute.bundle", R.string.ssd_thread_cute));
+                break;
+            default:
                 break;
         }
         return propBeans;

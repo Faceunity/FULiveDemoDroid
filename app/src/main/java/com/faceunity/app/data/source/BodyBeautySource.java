@@ -18,7 +18,7 @@ public class BodyBeautySource {
     /**
      * 构造美体
      *
-     * @return
+     * @return ArrayList<BodyBeautyBean>
      */
     public static ArrayList<BodyBeautyBean> buildBodyBeauty() {
         ArrayList<BodyBeautyBean> params = new ArrayList<>();

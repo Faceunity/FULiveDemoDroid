@@ -11,10 +11,9 @@ import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
+import com.faceunity.ui.databinding.LayoutEffectControlBinding
 import com.faceunity.ui.entity.PosterBean
 import com.faceunity.ui.infe.AbstractPosterChangeFaceDataFactory
-import kotlinx.android.synthetic.main.layout_effect_control.view.*
-import java.util.ArrayList
 
 
 /**
@@ -23,17 +22,23 @@ import java.util.ArrayList
  * Created on 2020/12/16
  *
  */
-class PosterChangeFaceControlView @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class PosterChangeFaceControlView @JvmOverloads constructor(
+    private val mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     BaseControlView(mContext, attrs, defStyleAttr) {
 
 
     private lateinit var mPosterAdapter: BaseListAdapter<PosterBean>
     private lateinit var mDataFactory: AbstractPosterChangeFaceDataFactory
+    private val mBinding: LayoutEffectControlBinding by lazy {
+        LayoutEffectControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
 
     // region  init
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_effect_control, this)
         initView()
         initAdapter()
     }
@@ -41,18 +46,24 @@ class PosterChangeFaceControlView @JvmOverloads constructor(private val mContext
     fun bindDataFactory(factoryData: AbstractPosterChangeFaceDataFactory) {
         mDataFactory = factoryData
         mPosterAdapter.setData(factoryData.posters)
-        recycler_view.scrollToPosition(mDataFactory.currentPosterIndex)
+        mBinding.recyclerView.scrollToPosition(mDataFactory.currentPosterIndex)
     }
 
 
     private fun initView() {
-        initHorizontalRecycleView(recycler_view)
+        initHorizontalRecycleView(mBinding.recyclerView)
     }
 
     private fun initAdapter() {
         mPosterAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<PosterBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, item: PosterBean, position: Int) {
-                Glide.with(mContext).load(item.listIconPath).apply(RequestOptions().transform(CenterCrop()))
+            override fun convert(
+                viewType: Int,
+                helper: BaseViewHolder,
+                item: PosterBean,
+                position: Int
+            ) {
+                Glide.with(mContext).load(item.listIconPath)
+                    .apply(RequestOptions().transform(CenterCrop()))
                     .into(helper.getView(R.id.iv_control)!!)
                 helper.itemView.isSelected = position == mDataFactory.currentPosterIndex
             }
@@ -65,7 +76,7 @@ class PosterChangeFaceControlView @JvmOverloads constructor(private val mContext
                 }
             }
         }, R.layout.list_item_control_image_circle)
-        recycler_view.adapter = mPosterAdapter
+        mBinding.recyclerView.adapter = mPosterAdapter
     }
 
     // endregion

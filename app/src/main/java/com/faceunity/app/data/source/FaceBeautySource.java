@@ -1,5 +1,7 @@
 package com.faceunity.app.data.source;
 
+import android.text.TextUtils;
+
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.data.disksource.facebeauty.FUDiskFaceBeautyData;
@@ -31,14 +33,15 @@ public class FaceBeautySource {
      * 获取默认推荐美颜模型
      * 一个app生命周期请求一次
      *
-     * @return
+     * @return FaceBeauty
      */
     public static FaceBeauty getDefaultFaceBeauty() {
         FaceBeauty recommendFaceBeauty = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-        if (DemoConfig.OPEN_FACE_BEAUTY_TO_FILE)
+        if (DemoConfig.OPEN_FACE_BEAUTY_TO_FILE) {
             FUDiskFaceBeautyData = FUDiskFaceBeautyUtils.loadFaceBeautyData();
+        }
         //性能最优策略，设置个属性模式
-        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+        if (DemoConfig.DEVICE_LEVEL == FuDeviceUtils.DEVICE_LEVEL_HIGH) {
             setFaceBeautyPropertyMode(recommendFaceBeauty);
         }
         if (FUDiskFaceBeautyData != null) {
@@ -101,23 +104,33 @@ public class FaceBeautySource {
      */
     public static ArrayList<FaceBeautyBean> buildSkinParams() {
         ArrayList<FaceBeautyBean> params = new ArrayList<>();
+        //磨皮
         params.add(new FaceBeautyBean(
                         FaceBeautyParam.BLUR_INTENSITY, R.string.beauty_box_heavy_blur_fine,
                         R.drawable.icon_beauty_skin_buffing_close_selector, R.drawable.icon_beauty_skin_buffing_open_selector
                 )
         );
+        //美白
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.COLOR_INTENSITY, R.string.beauty_box_color_level,
                         R.drawable.icon_beauty_skin_color_close_selector, R.drawable.icon_beauty_skin_color_open_selector
                 )
         );
+        //红润
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.RED_INTENSITY, R.string.beauty_box_red_level,
                         R.drawable.icon_beauty_skin_red_close_selector, R.drawable.icon_beauty_skin_red_open_selector
                 )
         );
+        //清晰
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.CLARITY, R.string.beauty_box_clarity,
+                        R.drawable.icon_beauty_skin_clarity_close_selector, R.drawable.icon_beauty_skin_clarity_open_selector)
+        );
+        //锐化
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.SHARPEN_INTENSITY, R.string.beauty_box_sharpen,
@@ -130,23 +143,27 @@ public class FaceBeautySource {
                         FaceBeautyParam.FACE_THREED, R.string.beauty_face_three,
                         R.drawable.icon_beauty_skin_face_three_close_selector, R.drawable.icon_beauty_skin_face_three_open_selector)
         );
+        //亮眼
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.EYE_BRIGHT_INTENSITY, R.string.beauty_box_eye_bright,
                         R.drawable.icon_beauty_skin_eyes_bright_close_selector, R.drawable.icon_beauty_skin_eyes_bright_open_selector
                 )
         );
+        //美牙
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.TOOTH_WHITEN_INTENSITY, R.string.beauty_box_tooth_whiten,
                         R.drawable.icon_beauty_skin_teeth_close_selector, R.drawable.icon_beauty_skin_teeth_open_selector
                 )
         );
+        //去黑眼圈
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.REMOVE_POUCH_INTENSITY, R.string.beauty_micro_pouch,
                         R.drawable.icon_beauty_skin_dark_circles_close_selector, R.drawable.icon_beauty_skin_dark_circles_open_selector)
         );
+        //去法令纹
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, R.string.beauty_micro_nasolabial,
@@ -376,7 +393,7 @@ public class FaceBeautySource {
     /**
      * 加载脸型子项
      *
-     * @return
+     * @return ArrayList<FaceBeautyBean>
      */
     public static ArrayList<FaceBeautyBean> buildFaceShapeSubItemParams() {
         return buildSubItemParams(FaceBeautyParam.FACE_SHAPE);
@@ -448,6 +465,7 @@ public class FaceBeautySource {
         params.put(FaceBeautyParam.REMOVE_POUCH_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.FACE_THREED, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(FaceBeautyParam.CLARITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         /*美型*/
         params.put(FaceBeautyParam.FACE_SHAPE_INTENSITY, new ModelAttributeData(1.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
@@ -570,11 +588,11 @@ public class FaceBeautySource {
     /**
      * 从磁盘获取所有项滤镜强度
      *
-     * @param key
-     * @return
+     * @param key String
+     * @return double
      */
     private static double getDiskFilterValue(String key) {
-        if (FUDiskFaceBeautyData != null) {
+        if (FUDiskFaceBeautyData != null && FUDiskFaceBeautyData.filterMap != null && !TextUtils.isEmpty(key)) {
             return FUDiskFaceBeautyData.filterMap.get(key);
         } else {
             return 0.4;
@@ -584,8 +602,8 @@ public class FaceBeautySource {
     /**
      * 克隆模型
      *
-     * @param faceBeauty
-     * @return
+     * @param faceBeauty FaceBeauty
+     * @return FaceBeauty
      */
     public static FaceBeauty clone(FaceBeauty faceBeauty) {
         FaceBeauty cloneFaceBeauty = new FaceBeauty(new FUBundleData(faceBeauty.getControlBundle().getPath()));
@@ -607,6 +625,7 @@ public class FaceBeautySource {
         cloneFaceBeauty.setRemovePouchIntensity(faceBeauty.getRemovePouchIntensity());
         cloneFaceBeauty.setRemoveLawPatternIntensity(faceBeauty.getRemoveLawPatternIntensity());
         cloneFaceBeauty.setFaceThreeIntensity(faceBeauty.getFaceThreeIntensity());
+        cloneFaceBeauty.setClarityIntensity(faceBeauty.getClarityIntensity());
         /*美型*/
         cloneFaceBeauty.setFaceShape(faceBeauty.getFaceShape());
         cloneFaceBeauty.setFaceShapeIntensity(faceBeauty.getFaceShapeIntensity());

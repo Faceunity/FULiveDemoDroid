@@ -19,7 +19,7 @@ class XfermodeRadioButton @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = R.attr.radioButtonStyle
 ) : AppCompatRadioButton(context, attrs, defStyleAttr) {
-    private val textXfermode: String?
+    private var textXfermode: String?
     private val textSizeXfermode: Int
     private val textColorXfermodeNormal = -0x1
     private val textColorXfermodeChecked = -0x66faf0ec
@@ -39,8 +39,10 @@ class XfermodeRadioButton @JvmOverloads constructor(
     override fun setChecked(checked: Boolean) {
         super.setChecked(checked)
         if (mMyRadioButtonPaint != null) {
-            mMyRadioButtonPaint.color = if (checked) textColorXfermodeChecked else textColorXfermodeNormal
-            mMyRadioButtonPaint.xfermode = PorterDuffXfermode(if (checked) PorterDuff.Mode.SRC_ATOP else PorterDuff.Mode.XOR)
+            mMyRadioButtonPaint.color =
+                if (checked) textColorXfermodeChecked else textColorXfermodeNormal
+            mMyRadioButtonPaint.xfermode =
+                PorterDuffXfermode(if (checked) PorterDuff.Mode.SRC_ATOP else PorterDuff.Mode.XOR)
         }
     }
 
@@ -50,12 +52,22 @@ class XfermodeRadioButton @JvmOverloads constructor(
         canvas.drawText(textXfermode!!, x.toFloat(), baseLineY.toFloat(), mMyRadioButtonPaint!!)
     }
 
+    fun setTextXfermode(text: String) {
+        textXfermode = text
+        invalidate()
+    }
+
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.xfermode_radio_btn, defStyleAttr, 0)
+        val typedArray =
+            context.obtainStyledAttributes(attrs, R.styleable.xfermode_radio_btn, defStyleAttr, 0)
         textXfermode = typedArray.getString(R.styleable.xfermode_radio_btn_text_xfermode)
         textSizeXfermode = typedArray.getDimensionPixelSize(
             R.styleable.xfermode_radio_btn_text_size_xfermode,
-            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, context.resources.displayMetrics).toInt()
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_SP,
+                12f,
+                context.resources.displayMetrics
+            ).toInt()
         )
         typedArray.recycle()
         mMyRadioButtonPaint = Paint()

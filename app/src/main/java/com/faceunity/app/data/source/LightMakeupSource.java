@@ -31,7 +31,7 @@ public class LightMakeupSource {
     /**
      * 构造轻美妆队列
      *
-     * @return
+     * @return ArrayList<LightMakeupBean>
      */
     public static ArrayList<LightMakeupBean> buildLightMakeup() {
         ArrayList<LightMakeupBean> makeups = new ArrayList<>();
@@ -104,9 +104,6 @@ public class LightMakeupSource {
         }
 
     };
-
-
-
 
 
     //region 轻美妆效果枚举

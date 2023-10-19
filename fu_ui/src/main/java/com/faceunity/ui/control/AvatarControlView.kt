@@ -8,9 +8,9 @@ import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
+import com.faceunity.ui.databinding.LayoutAvatarControlBinding
 import com.faceunity.ui.entity.AvatarBean
 import com.faceunity.ui.infe.AbstractAvatarDataFactory
-import kotlinx.android.synthetic.main.layout_avatar_control.view.*
 
 
 /**
@@ -19,16 +19,23 @@ import kotlinx.android.synthetic.main.layout_avatar_control.view.*
  * Created on 2020/12/18
  *
  */
-class AvatarControlView @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class AvatarControlView @JvmOverloads constructor(
+    private val mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     BaseControlView(mContext, attrs, defStyleAttr) {
 
     private lateinit var mAvatarDataFactory: AbstractAvatarDataFactory
 
     private lateinit var mAvatarBeanAdapter: BaseListAdapter<AvatarBean>
 
+    private val mBinding: LayoutAvatarControlBinding by lazy {
+        LayoutAvatarControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
+
     // region  init
     init {
-        LayoutInflater.from(mContext).inflate(R.layout.layout_avatar_control, this)
         initView()
         initAdapter()
         bindListener()
@@ -39,27 +46,41 @@ class AvatarControlView @JvmOverloads constructor(private val mContext: Context,
         mAvatarDataFactory = dataFactory
         mAvatarBeanAdapter.setData(dataFactory.members)
 //        btn_switch_pta.visibility = View.GONE
-        btn_switch_pta.isChecked = dataFactory.isHumanTrackSceneFull
+        mBinding.btnSwitchPta.isChecked = dataFactory.isHumanTrackSceneFull
     }
 
 
     private fun initView() {
-        initHorizontalRecycleView(recycler_view)
+        initHorizontalRecycleView(mBinding.recyclerView)
         val margin = mContext.resources.getDimensionPixelSize(R.dimen.x4)
-        btn_switch_pta.setThumbMargin(-margin * 2.toFloat(), -margin.toFloat(), -margin * 2.toFloat(), -margin * 4.toFloat())
+        mBinding.btnSwitchPta.setThumbMargin(
+            -margin * 2.toFloat(),
+            -margin.toFloat(),
+            -margin * 2.toFloat(),
+            -margin * 4.toFloat()
+        )
     }
 
 
     private fun initAdapter() {
         mAvatarBeanAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<AvatarBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, item: AvatarBean, position: Int) {
+            override fun convert(
+                viewType: Int,
+                helper: BaseViewHolder,
+                item: AvatarBean,
+                position: Int
+            ) {
                 helper.setImageResource(R.id.iv_control, item.iconId)
                 helper.itemView.isSelected = position == mAvatarDataFactory.currentMemberIndex
             }
 
             override fun onItemClickListener(view: View, data: AvatarBean, position: Int) {
                 if (mAvatarDataFactory.currentMemberIndex != position) {
-                    changeAdapterSelected(mAvatarBeanAdapter, mAvatarDataFactory.currentMemberIndex, position)
+                    changeAdapterSelected(
+                        mAvatarBeanAdapter,
+                        mAvatarDataFactory.currentMemberIndex,
+                        position
+                    )
                     mAvatarDataFactory.currentMemberIndex = position
                     mAvatarDataFactory.onMemberSelected(data)
 
@@ -71,11 +92,11 @@ class AvatarControlView @JvmOverloads constructor(private val mContext: Context,
                 }
             }
         }, R.layout.list_item_control_image_circle)
-        recycler_view.adapter = mAvatarBeanAdapter
+        mBinding.recyclerView.adapter = mAvatarBeanAdapter
     }
 
     private fun bindListener() {
-        btn_switch_pta.setOnCheckedChangeListener { _, isChecked ->
+        mBinding.btnSwitchPta.setOnCheckedChangeListener { _, isChecked ->
             mAvatarDataFactory.isHumanTrackSceneFull = isChecked
 
         }

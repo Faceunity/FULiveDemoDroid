@@ -2,9 +2,13 @@
 
 ## 1.Introduction
 
- Face Transfer interface is based on the props, so the input parameters are all performed by fuItemSetParam。
+Face Transfer interface is based on the props, so the input parameters are all performed by
+fuItemSetParam。
 
-It is divided into a common template and a preset template. The common template needs to set the following six parameters. The preset template needs to set three parameters related to the input image. The related parameters of the template image are pre-buried resources, and the preset template cannot be configured. Load the template image from the outside.
+It is divided into a common template and a preset template. The common template needs to set the
+following six parameters. The preset template needs to set three parameters related to the input
+image. The related parameters of the template image are pre-buried resources, and the preset
+template cannot be configured. Load the template image from the outside.
 
 ```
 		input_width:0,    //Enter the width of the image (the default is 0, you must set otherwise the bundle will return directly)
@@ -23,11 +27,14 @@ Now use the generic template first, all the parameters need to be passed in by t
 ### Notes
 
 1. The width and height of the input should be made before the buffer is passed in.
-2. while render in the fuRenderItems, the size of the incoming buffer or texture should be the same as the template image.
+2. while render in the fuRenderItems, the size of the incoming buffer or texture should be the same
+   as the template image.
 
 ### tex_template tex_input: buffer setting
 
-Now add the Nama layer loading texture interface, you can use the faster underlying interface fuCreateTexForItem to pass the RGBA buffer, or you can use fuDeleteTexForItem to delete the created texture. The created texture will be deleted when the item is destroyed.
+Now add the Nama layer loading texture interface, you can use the faster underlying interface
+fuCreateTexForItem to pass the RGBA buffer, or you can use fuDeleteTexForItem to delete the created
+texture. The created texture will be deleted when the item is destroyed.
 
 ```
 /**
@@ -50,9 +57,10 @@ public static native int fuDeleteTexForItem(int item, String name);
 
 ## 2.Making a template
 
-Now creating a template only requires the user to find a template image that recognizes the face, and set the above parameters.
+Now creating a template only requires the user to find a template image that recognizes the face,
+and set the above parameters.
 
-## 3.The steps for making a fixed template 
+## 3.The steps for making a fixed template
 
 Need to fill in the data in the template.json file
 
@@ -69,11 +77,14 @@ The template image file needs to be placed in the same directory as the template
 }
 ```
 
-**Notes：**Fixed templates cannot update template images and data by setting parameters, only update input data.
+**Notes：**Fixed templates cannot update template images and data by setting parameters, only update
+input data.
 
 ## 4.Attentions
 
-1. If there is a two-toned face in the template image, it will affect the final effect. It is recommended to select a template image with even skin tone. If the template skin color is uneven, you can use photoshop to process.
+1. If there is a two-toned face in the template image, it will affect the final effect. It is
+   recommended to select a template image with even skin tone. If the template skin color is uneven,
+   you can use photoshop to process.
 
 
 

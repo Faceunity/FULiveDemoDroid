@@ -13,7 +13,6 @@ import com.faceunity.app.entity.FunctionType;
 import com.faceunity.app.entity.HomeFunctionModuleData;
 import com.faceunity.app.spetimeprofile.FUTimeProfile;
 import com.faceunity.app.utils.FileUtils;
-import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.app.view.ActionRecognitionActivity;
 import com.faceunity.app.view.AnimoActivity;
 import com.faceunity.app.view.AvatarActivity;
@@ -210,17 +209,20 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    //鉴权
-    private String[] permissions = {Manifest.permission.CAMERA,
+    /**
+     * 权限
+     */
+    private final String[] permissions = {Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO};
 
     @Override
     public void checkPermissionResult(boolean permissionResult) {
-        if (permissionResult)
+        if (permissionResult) {
             about2File();
-        else
+        } else {
             showToast("缺少必要权限，可能导致应用功能无法使用");
+        }
     }
 
     /**

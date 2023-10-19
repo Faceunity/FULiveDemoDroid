@@ -8,10 +8,10 @@ import android.util.ArrayMap;
 import android.util.Log;
 
 import com.faceunity.app.DemoApplication;
+import com.faceunity.app.utils.FileUtils;
 import com.faceunity.app.utils.ZipUtils;
 import com.faceunity.ui.entity.net.DownLoadStatus;
 import com.faceunity.ui.entity.net.FineStickerEntity;
-import com.faceunity.app.utils.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -186,7 +186,7 @@ public final class StickerDownloadHelper {
             protected void onFailure(String errorMsg) {
                 Log.e(TAG, url + "  " + errorMsg);
                 if (null != mCallback) {
-                    mCallback.onDownloadError(entity,errorMsg);
+                    mCallback.onDownloadError(entity, errorMsg);
                 }
             }
         });
@@ -204,7 +204,7 @@ public final class StickerDownloadHelper {
                     //请求成功和解压是一个原子操作
                     //zip，解压
                     boolean unZipSuccess = true;
-                    String outPathString = STICKER_DIR_PATH + "/" + entity.getTool().getBundle().getUid().substring(0,entity.getTool().getBundle().getUid().lastIndexOf("."));
+                    String outPathString = STICKER_DIR_PATH + "/" + entity.getTool().getBundle().getUid().substring(0, entity.getTool().getBundle().getUid().lastIndexOf("."));
                     try {
                         //获取解压后的文件名赋值
                         ArrayList<String> fileNameList = ZipUtils.unZipFolderWithFileName(STICKER_DIR_PATH + "/" + entity.getTool().getBundle().getUid(), outPathString);
@@ -219,7 +219,7 @@ public final class StickerDownloadHelper {
 
                     if (!unZipSuccess) {
                         if (null != mCallback)
-                            runOnUiThread(()-> mCallback.onDownloadError(entity,"unZipFolder failed"));
+                            runOnUiThread(() -> mCallback.onDownloadError(entity, "unZipFolder failed"));
                         return;
                     }
                 }
@@ -227,14 +227,14 @@ public final class StickerDownloadHelper {
                 entity.setFilePath(result.getAbsolutePath());
                 entity.setDownloadStatus(DownLoadStatus.DOWN_LOAD_SUCCESS);
                 if (null != mCallback)
-                    runOnUiThread(()-> mCallback.onDownload(entity));
+                    runOnUiThread(() -> mCallback.onDownload(entity));
             }
 
             @Override
             protected void onFailure(String errorMsg) {
                 Log.e(TAG, url + "  " + errorMsg);
                 if (null != mCallback)
-                    runOnUiThread(()-> mCallback.onDownloadError(entity,errorMsg));
+                    runOnUiThread(() -> mCallback.onDownloadError(entity, errorMsg));
             }
         });
     }
@@ -274,7 +274,7 @@ public final class StickerDownloadHelper {
                 fineSticker.setDownloadStatus(DownLoadStatus.DOWN_LOAD_SUCCESS);
                 if (fineSticker.getTool().getBundle().getUid().endsWith(".zip")) {
                     //遍历解压文件地址
-                    String path = STICKER_DIR_PATH + "/" + fineSticker.getTool().getBundle().getUid().substring(0,fineSticker.getTool().getBundle().getUid().lastIndexOf("."));
+                    String path = STICKER_DIR_PATH + "/" + fineSticker.getTool().getBundle().getUid().substring(0, fineSticker.getTool().getBundle().getUid().lastIndexOf("."));
                     fineSticker.setUpZipFilePaths(FileUtils.getFileList(path));
                 }
             }

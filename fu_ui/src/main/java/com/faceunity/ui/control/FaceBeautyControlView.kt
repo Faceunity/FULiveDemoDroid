@@ -16,13 +16,15 @@ import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
+import com.faceunity.ui.databinding.LayoutFaceBeautyControlBinding
 import com.faceunity.ui.dialog.ToastHelper
-import com.faceunity.ui.entity.*
+import com.faceunity.ui.entity.FaceBeautyBean
+import com.faceunity.ui.entity.FaceBeautyFilterBean
+import com.faceunity.ui.entity.ModelAttributeData
 import com.faceunity.ui.entity.uistate.FaceBeautyControlState
 import com.faceunity.ui.infe.AbstractFaceBeautyDataFactory
 import com.faceunity.ui.seekbar.DiscreteSeekBar
 import com.faceunity.ui.utils.DecimalUtils
-import kotlinx.android.synthetic.main.layout_face_beauty_control.view.*
 import kotlin.collections.set
 
 
@@ -32,8 +34,9 @@ import kotlin.collections.set
  * Created on 2020/11/17
  *
  */
-class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
-    BaseControlView(mContext, attrs, defStyleAttr) {
+class FaceBeautyControlView @JvmOverloads constructor(
+    private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : BaseControlView(mContext, attrs, defStyleAttr) {
 
     private lateinit var mDataFactory: AbstractFaceBeautyDataFactory
 
@@ -42,7 +45,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
     private var mSkinBeauty = ArrayList<FaceBeautyBean>()
     private var mShapeBeauty = ArrayList<FaceBeautyBean>()
     private var mShapeBeautySubItem = ArrayList<FaceBeautyBean>()
-    private var mSubItemUIValueCache: HashMap<String,Double> = HashMap()//美型子项脸型的UI缓存值
+    private var mSubItemUIValueCache: HashMap<String, Double> = HashMap()//美型子项脸型的UI缓存值
     private var mSkinIndex = -1
     private var mShapeIndex = -1
     private var mIsOnBeautyShapeMain = true//美型是否在主项上
@@ -52,10 +55,12 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
     /* 滤镜 */
     private var mFilters = ArrayList<FaceBeautyFilterBean>()
     private lateinit var mFiltersAdapter: BaseListAdapter<FaceBeautyFilterBean>
+    private val mBinding: LayoutFaceBeautyControlBinding by lazy {
+        LayoutFaceBeautyControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
     // region  init
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_face_beauty_control, this)
         initView()
         initAdapter()
         bindListener()
@@ -84,7 +89,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      * 收回菜单栏
      */
     fun hideControlView() {
-        beauty_radio_group.check(View.NO_ID)
+        mBinding.beautyRadioGroup.check(View.NO_ID)
     }
 
 
@@ -92,7 +97,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      *  View初始化
      */
     private fun initView() {
-        initHorizontalRecycleView(recycler_view)
+        initHorizontalRecycleView(mBinding.recyclerView)
     }
 
 
@@ -102,20 +107,26 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
     private fun initAdapter() {
         mFiltersAdapter = BaseListAdapter(
             ArrayList(), object : BaseDelegate<FaceBeautyFilterBean>() {
-                override fun convert(viewType: Int, helper: BaseViewHolder, data: FaceBeautyFilterBean, position: Int) {
+                override fun convert(
+                    viewType: Int, helper: BaseViewHolder, data: FaceBeautyFilterBean, position: Int
+                ) {
                     helper.setText(R.id.tv_control, data.desRes)
                     helper.setImageResource(R.id.iv_control, data.imageRes)
                     helper.itemView.isSelected = mDataFactory.currentFilterIndex == position
                 }
 
-                override fun onItemClickListener(view: View, data: FaceBeautyFilterBean, position: Int) {
+                override fun onItemClickListener(
+                    view: View, data: FaceBeautyFilterBean, position: Int
+                ) {
                     super.onItemClickListener(view, data, position)
                     if (mDataFactory.currentFilterIndex != position) {
-                        changeAdapterSelected(mFiltersAdapter, mDataFactory.currentFilterIndex, position)
+                        changeAdapterSelected(
+                            mFiltersAdapter, mDataFactory.currentFilterIndex, position
+                        )
                         mDataFactory.currentFilterIndex = position
                         mDataFactory.onFilterSelected(data.key, data.intensity, data.desRes)
                         if (position == 0) {
-                            beauty_seek_bar.visibility = View.INVISIBLE
+                            mBinding.beautySeekBar.visibility = View.INVISIBLE
                         } else {
                             seekToSeekBar(data.intensity, 0.0, 1.0)
                         }
@@ -125,9 +136,13 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
         )
 
         mBeautyAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<FaceBeautyBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, data: FaceBeautyBean, position: Int) {
-                val isShinSelected = beauty_radio_group.checkedCheckBoxId == R.id.beauty_radio_skin_beauty
-                helper.itemView.isSelected = if (isShinSelected) mSkinIndex == position else mShapeIndex == position
+            override fun convert(
+                viewType: Int, helper: BaseViewHolder, data: FaceBeautyBean, position: Int
+            ) {
+                val isShinSelected =
+                    mBinding.beautyRadioGroup.checkedCheckBoxId == R.id.beauty_radio_skin_beauty
+                helper.itemView.isSelected =
+                    if (isShinSelected) mSkinIndex == position else mShapeIndex == position
                 helper.setText(R.id.tv_control, data.desRes)
                 //主项的时候才需要显示
 //                helper.setVisible(R.id.iv_oval_spot, !isShinSelected && mIsOnBeautyShapeMain && position ==0)
@@ -136,6 +151,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                     FaceBeautyBean.ButtonType.BACK_BUTTON -> {
                         helper.setImageResource(R.id.iv_control, data.closeRes)
                     }
+
                     FaceBeautyBean.ButtonType.SUB_ITEM_BUTTON -> {
                         //判断当前UI值 和 真实值是否全是空的如果是空的则不选中
                         //先过UI值
@@ -156,7 +172,9 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                             }
                         }
 
-                        helper.setImageResource(R.id.iv_control, if (choose) data.openRes else data.closeRes)
+                        helper.setImageResource(
+                            R.id.iv_control, if (choose) data.openRes else data.closeRes
+                        )
                     }
                     //普通按钮
                     else -> {
@@ -176,7 +194,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
 
                         if (openEnterAnimation && needEnterAnimation && position != 0) {
                             enterAnimation(helper.itemView)
-                            if (position >=4 || (mBeautyAdapter.itemCount < 5 && position == mBeautyAdapter.itemCount - 1)) {
+                            if (position >= 4 || (mBeautyAdapter.itemCount < 5 && position == mBeautyAdapter.itemCount - 1)) {
                                 needEnterAnimation = false
                             }
                         }
@@ -185,12 +203,17 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
             }
 
             override fun onItemClickListener(view: View, data: FaceBeautyBean, position: Int) {
-                val isShinSelected = beauty_radio_group.checkedCheckBoxId == R.id.beauty_radio_skin_beauty
+                val isShinSelected =
+                    mBinding.beautyRadioGroup.checkedCheckBoxId == R.id.beauty_radio_skin_beauty
                 if ((isShinSelected && position == mSkinIndex) || (!isShinSelected && position == mShapeIndex)) {
                     return
                 }
                 if (!data.canUseFunction) {
-                    ToastHelper.showNormalToast(mContext,mContext.getString(R.string.face_beauty_function_tips, mContext.getString(data.desRes)))
+                    ToastHelper.showNormalToast(
+                        mContext, mContext.getString(
+                            R.string.face_beauty_function_tips, mContext.getString(data.desRes)
+                        )
+                    )
                     return
                 }
                 if (isShinSelected) {
@@ -206,17 +229,18 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                             //返回按钮
                             mBeautyAdapter.setData(mShapeBeauty)
                             //没有按钮被选中，需要隐藏进度条
-                            beauty_seek_bar.visibility = View.INVISIBLE
+                            mBinding.beautySeekBar.visibility = View.INVISIBLE
                             changeAdapterSelected(mBeautyAdapter, mShapeIndex, -1)
                             mShapeIndex = -1
                             mIsOnBeautyShapeMain = true
                             needEnterAnimation = true
                         }
+
                         FaceBeautyBean.ButtonType.SUB_ITEM_BUTTON -> {
                             //子项按钮
                             //选中的是哪一个子项 -> 在FaceBeauty中有记录
                             run outside@{
-                                mShapeBeautySubItem.forEachIndexed{ index, value ->
+                                mShapeBeautySubItem.forEachIndexed { index, value ->
                                     if (mDataFactory.getCurrentOneHotFaceShape() == value.key) {//获取当前作用的脸型
                                         mShapeIndex = index
                                         return@outside
@@ -226,12 +250,13 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
 
                             mBeautyAdapter.setData(mShapeBeautySubItem)
                             if (mShapeBeautySubItem.size >= 1) {
-                                beauty_seek_bar.visibility = View.VISIBLE
+                                mBinding.beautySeekBar.visibility = View.VISIBLE
                                 val faceBeautyBean = mShapeBeautySubItem[mShapeIndex]
                                 if (faceBeautyBean.buttonType == FaceBeautyBean.ButtonType.NORMAL_BUTTON) {
                                     val value = mDataFactory.getParamIntensity(faceBeautyBean.key)
                                     val stand = mModelAttributeRange[faceBeautyBean.key]!!.stand
-                                    val maxRange = mModelAttributeRange[faceBeautyBean.key]!!.maxRange
+                                    val maxRange =
+                                        mModelAttributeRange[faceBeautyBean.key]!!.maxRange
                                     seekToSeekBar(value, stand, maxRange)
                                 }
                             }
@@ -241,10 +266,10 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                         //普通按钮
                         else -> {
                             //点击的是子项普通按钮还是主项普通按钮1.子项普通之间按钮效果One Hot 2.主项普通按钮之间效果可叠加
-                            beauty_seek_bar.visibility = View.VISIBLE
+                            mBinding.beautySeekBar.visibility = View.VISIBLE
                             changeAdapterSelected(mBeautyAdapter, mShapeIndex, position)
                             //判断一下是子项还是主项，1.主项直接设置改点击对象的值，2.子项需要获取之前的缓存如果存在缓存设置回之前的值，然后还要将上一个点击过的子项sdk值设置为零，UI值进行缓存
-                            var value:Double
+                            var value: Double
                             if (mIsOnBeautyShapeMain) {
                                 value = mDataFactory.getParamIntensity(data.key)
                             } else {
@@ -253,16 +278,16 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                                     var value = mSubItemUIValueCache[data.key]!!
                                     mDataFactory.updateParamIntensity(data.key, value)
                                     mSubItemUIValueCache.remove(data.key)!!
-                                } else
-                                    mDataFactory.getParamIntensity(data.key)
+                                } else mDataFactory.getParamIntensity(data.key)
                                 //将上一个点击的有效项设置为空
                                 if (mShapeIndex >= 0) {
                                     var beforeData = mBeautyAdapter.getData(mShapeIndex)
                                     when (beforeData.buttonType) {
                                         FaceBeautyBean.ButtonType.NORMAL_BUTTON -> {
                                             //算法值要设置为零，但是点击回来的时候需要根据UI值(缓存值)重新设置回算法值
-                                            mSubItemUIValueCache[beforeData.key] = mDataFactory.getParamIntensity(beforeData.key)
-                                            mDataFactory.updateParamIntensity(beforeData.key,0.0)
+                                            mSubItemUIValueCache[beforeData.key] =
+                                                mDataFactory.getParamIntensity(beforeData.key)
+                                            mDataFactory.updateParamIntensity(beforeData.key, 0.0)
                                         }
                                     }
                                 }
@@ -290,13 +315,13 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      */
     private fun bindListener() {
         /*拦截触碰事件*/
-        fyt_bottom_view.setOnTouchListener { _, _ -> true }
+        mBinding.fytBottomView.setOnTouchListener { _, _ -> true }
         /*菜单控制*/
         bindBottomRadioListener()
         /*滑动条控制*/
         bindSeekBarListener()
         /*比对开关*/
-        iv_compare.setOnTouchStateListener { v, event ->
+        mBinding.ivCompare.setOnTouchStateListener { v, event ->
             val action = event.action
             if (action == MotionEvent.ACTION_DOWN) {
                 v.alpha = 0.7f
@@ -308,27 +333,29 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
             true
         }
         /*还原数据*/
-        lyt_beauty_recover.setOnClickListener {
+        mBinding.lytBeautyRecover.setOnClickListener {
             showDialog(mContext.getString(R.string.dialog_reset_avatar_model)) { recoverData() }
         }
 
-        iv_reset.setOnClickListener {
+        mBinding.ivReset.setOnClickListener {
             mDataFactory.resetParamIntensity()
-            var item:FaceBeautyBean? = null
-            when (beauty_radio_group.checkedCheckBoxId) {
+            var item: FaceBeautyBean? = null
+            when (mBinding.beautyRadioGroup.checkedCheckBoxId) {
                 R.id.beauty_radio_skin_beauty -> {
                     mBeautyAdapter.notifyDataSetChanged()
                     if (mSkinIndex >= 0) item = mSkinBeauty[mSkinIndex]
                     setRecoverFaceSkinEnable(true)
                 }
+
                 R.id.beauty_radio_face_shape -> {
                     mBeautyAdapter.notifyDataSetChanged()
-                    if (mShapeIndex >= 0)  item = mShapeBeauty[mShapeIndex]
+                    if (mShapeIndex >= 0) item = mShapeBeauty[mShapeIndex]
                     setRecoverFaceSkinEnable(true)
                 }
+
                 R.id.beauty_radio_filter -> {
                     mFiltersAdapter.notifyDataSetChanged()
-                    beauty_seek_bar.visibility = View.INVISIBLE
+                    mBinding.beautySeekBar.visibility = View.INVISIBLE
                 }
             }
             item?.let {
@@ -345,13 +372,16 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      * 滚动条绑定事件
      */
     private fun bindSeekBarListener() {
-        beauty_seek_bar.setOnProgressChangeListener(object : DiscreteSeekBar.OnSimpleProgressChangeListener() {
-            override fun onProgressChanged(seekBar: DiscreteSeekBar?, value: Int, fromUser: Boolean) {
+        mBinding.beautySeekBar.setOnProgressChangeListener(object :
+            DiscreteSeekBar.OnSimpleProgressChangeListener() {
+            override fun onProgressChanged(
+                seekBar: DiscreteSeekBar?, value: Int, fromUser: Boolean
+            ) {
                 if (!fromUser) {
                     return
                 }
                 val valueF = 1.0 * (value - seekBar!!.min) / 100
-                when (beauty_radio_group.checkedCheckBoxId) {
+                when (mBinding.beautyRadioGroup.checkedCheckBoxId) {
                     R.id.beauty_radio_skin_beauty -> {
                         if (mSkinIndex < 0) return
                         val bean = mSkinBeauty[mSkinIndex]
@@ -361,9 +391,12 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                         if (!DecimalUtils.doubleEquals(res, value)) {
                             mDataFactory.updateParamIntensity(bean.key, res)
                             setRecoverFaceSkinEnable(checkFaceSkinChanged())
-                            updateBeautyItemUI(mBeautyAdapter.getViewHolderByPosition(mSkinIndex), bean)
+                            updateBeautyItemUI(
+                                mBeautyAdapter.getViewHolderByPosition(mSkinIndex), bean
+                            )
                         }
                     }
+
                     R.id.beauty_radio_face_shape -> {
                         if (mShapeIndex < 0) return
                         val bean = mBeautyAdapter.getData(mShapeIndex)
@@ -376,11 +409,16 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                                 if (!DecimalUtils.doubleEquals(res, value)) {
                                     mDataFactory.updateParamIntensity(bean.key, res)
                                     setRecoverFaceSkinEnable(checkFaceShapeChanged())
-                                    updateBeautyItemUI(mBeautyAdapter.getViewHolderByPosition(mShapeIndex), bean)
+                                    updateBeautyItemUI(
+                                        mBeautyAdapter.getViewHolderByPosition(
+                                            mShapeIndex
+                                        ), bean
+                                    )
                                 }
                             }
                         }
                     }
+
                     R.id.beauty_radio_filter -> {
                         val bean = mFilters[mDataFactory.currentFilterIndex]
                         if (!DecimalUtils.doubleEquals(bean.intensity, valueF)) {
@@ -398,29 +436,33 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      * 底部导航栏绑定监听事件，处理RecycleView等相关布局变更
      */
     private fun bindBottomRadioListener() {
-        beauty_radio_group.setOnCheckedChangeListener { _, checkedId ->
+        mBinding.beautyRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             //视图变化
             when (checkedId) {
                 R.id.beauty_radio_skin_beauty -> {
-                    iv_compare.visibility = View.VISIBLE
-                    beauty_seek_bar.visibility = View.VISIBLE
-                    lyt_beauty_recover.visibility = View.VISIBLE
-                    iv_line.visibility = View.VISIBLE
+                    mBinding.ivCompare.visibility = View.VISIBLE
+                    mBinding.beautySeekBar.visibility = View.VISIBLE
+                    mBinding.lytBeautyRecover.visibility = View.VISIBLE
+                    mBinding.ivLine.visibility = View.VISIBLE
                 }
+
                 R.id.beauty_radio_face_shape -> {
-                    iv_compare.visibility = View.VISIBLE
-                    beauty_seek_bar.visibility = View.VISIBLE
-                    lyt_beauty_recover.visibility = View.VISIBLE
-                    iv_line.visibility = View.VISIBLE
+                    mBinding.ivCompare.visibility = View.VISIBLE
+                    mBinding.beautySeekBar.visibility = View.VISIBLE
+                    mBinding.lytBeautyRecover.visibility = View.VISIBLE
+                    mBinding.ivLine.visibility = View.VISIBLE
                 }
+
                 R.id.beauty_radio_filter -> {
-                    iv_compare.visibility = View.VISIBLE
-                    beauty_seek_bar.visibility = if (mDataFactory.currentFilterIndex == 0) View.INVISIBLE else View.VISIBLE
-                    lyt_beauty_recover.visibility = View.GONE
-                    iv_line.visibility = View.GONE
+                    mBinding.ivCompare.visibility = View.VISIBLE
+                    mBinding.beautySeekBar.visibility =
+                        if (mDataFactory.currentFilterIndex == 0) View.INVISIBLE else View.VISIBLE
+                    mBinding.lytBeautyRecover.visibility = View.GONE
+                    mBinding.ivLine.visibility = View.GONE
                 }
+
                 View.NO_ID -> {
-                    iv_compare.visibility = View.INVISIBLE
+                    mBinding.ivCompare.visibility = View.INVISIBLE
                     mDataFactory.enableFaceBeauty(true)
                 }
             }
@@ -429,7 +471,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
             when (checkedId) {
                 R.id.beauty_radio_skin_beauty -> {
                     mBeautyAdapter.setData(mSkinBeauty)
-                    recycler_view.adapter = mBeautyAdapter
+                    mBinding.recyclerView.adapter = mBeautyAdapter
                     if (mSkinIndex >= 0) {
                         val item = mSkinBeauty[mSkinIndex]
                         val value = mDataFactory.getParamIntensity(item.key)
@@ -437,14 +479,15 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                         val maxRange = mModelAttributeRange[item.key]!!.maxRange
                         seekToSeekBar(value, stand, maxRange)
                     } else {
-                        beauty_seek_bar.visibility = View.INVISIBLE
+                        mBinding.beautySeekBar.visibility = View.INVISIBLE
                     }
                     setRecoverFaceSkinEnable(checkFaceSkinChanged())
                     changeBottomLayoutAnimator(true)
                 }
+
                 R.id.beauty_radio_face_shape -> {
                     mBeautyAdapter.setData(mShapeBeauty)
-                    recycler_view.adapter = mBeautyAdapter
+                    mBinding.recyclerView.adapter = mBeautyAdapter
                     if (mShapeIndex >= 0) {
                         val item = mShapeBeauty[mShapeIndex]
                         val value = mDataFactory.getParamIntensity(item.key)
@@ -452,21 +495,23 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                         val maxRange = mModelAttributeRange[item.key]!!.maxRange
                         seekToSeekBar(value, stand, maxRange)
                     } else {
-                        beauty_seek_bar.visibility = View.INVISIBLE
+                        mBinding.beautySeekBar.visibility = View.INVISIBLE
                     }
                     setRecoverFaceSkinEnable(checkFaceShapeChanged())
                     changeBottomLayoutAnimator(true)
                 }
+
                 R.id.beauty_radio_filter -> {
-                    recycler_view.adapter = mFiltersAdapter
-                    recycler_view.scrollToPosition(mDataFactory.currentFilterIndex)
+                    mBinding.recyclerView.adapter = mFiltersAdapter
+                    mBinding.recyclerView.scrollToPosition(mDataFactory.currentFilterIndex)
                     if (mDataFactory.currentFilterIndex == 0) {
-                        beauty_seek_bar.visibility = View.INVISIBLE
+                        mBinding.beautySeekBar.visibility = View.INVISIBLE
                     } else {
                         seekToSeekBar(mFilters[mDataFactory.currentFilterIndex].intensity, 0.0, 1.0)
                     }
                     changeBottomLayoutAnimator(true)
                 }
+
                 View.NO_ID -> {
                     changeBottomLayoutAnimator(false)
                     mDataFactory.enableFaceBeauty(true)
@@ -475,6 +520,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
             }
         }
     }
+
 
     // endregion
     // region  业务处理
@@ -488,15 +534,20 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      */
     private fun seekToSeekBar(value: Double, stand: Double, range: Double) {
         if (stand == 0.5) {
-            beauty_seek_bar.min = -50
-            beauty_seek_bar.max = 50
-            beauty_seek_bar.progress = (value * 100 / range - 50).toInt()
+            mBinding.beautySeekBar.apply {
+                min = -50
+                max = 50
+                progress = (value * 100 / range - 50).toInt()
+            }
+
         } else {
-            beauty_seek_bar.min = 0
-            beauty_seek_bar.max = 100
-            beauty_seek_bar.progress = (value * 100 / range).toInt()
+            mBinding.beautySeekBar.apply {
+                min = 0
+                max = 100
+                progress = (value * 100 / range).toInt()
+            }
         }
-        beauty_seek_bar.visibility = View.VISIBLE
+        mBinding.beautySeekBar.visibility = View.VISIBLE
     }
 
     /**
@@ -518,13 +569,13 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      */
     private fun setRecoverFaceSkinEnable(enable: Boolean) {
         if (enable) {
-            tv_beauty_recover.alpha = 1f
-            iv_beauty_recover.alpha = 1f
+            mBinding.tvBeautyRecover.alpha = 1f
+            mBinding.ivBeautyRecover.alpha = 1f
         } else {
-            tv_beauty_recover.alpha = 0.6f
-            iv_beauty_recover.alpha = 0.6f
+            mBinding.tvBeautyRecover.alpha = 0.6f
+            mBinding.ivBeautyRecover.alpha = 0.6f
         }
-        lyt_beauty_recover.isEnabled = enable
+        mBinding.lytBeautyRecover.isEnabled = enable
     }
 
 
@@ -534,16 +585,16 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
     private fun checkFaceSkinChanged(): Boolean {
         if (mSkinBeauty.size > mSkinIndex && mSkinIndex > 0) {
             val item = mSkinBeauty[mSkinIndex]
-            var value = mDataFactory.getParamIntensity(item.key)
-            var default = mModelAttributeRange[item.key]!!.default
+            val value = mDataFactory.getParamIntensity(item.key)
+            val default = mModelAttributeRange[item.key]!!.default
             if (!DecimalUtils.doubleEquals(value, default)) {
                 return true
             }
         }
 
         mSkinBeauty.forEach {
-            var value = mDataFactory.getParamIntensity(it.key)
-            var default = mModelAttributeRange[it.key]!!.default
+            val value = mDataFactory.getParamIntensity(it.key)
+            val default = mModelAttributeRange[it.key]!!.default
             if (!DecimalUtils.doubleEquals(value, default)) {
                 return true
             }
@@ -555,8 +606,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      * 遍历美型数据确认还原按钮是否可以点击
      */
     private fun checkFaceShapeChanged(): Boolean {
-        if (checkFaceShapeChanged(mShapeBeauty) || checkFaceShapeChanged(mShapeBeautySubItem))
-            return true
+        if (checkFaceShapeChanged(mShapeBeauty) || checkFaceShapeChanged(mShapeBeautySubItem)) return true
         return false
     }
 
@@ -567,8 +617,8 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
         var value: Double
         var default: Double
         if (shapeBeauty.size > mShapeIndex && mShapeIndex > 0) {
-            var item = shapeBeauty[mShapeIndex]
-            item?.let {
+            val item = shapeBeauty[mShapeIndex]
+            item.let {
                 value = mDataFactory.getParamIntensity(item.key)
                 default = mModelAttributeRange[item.key]!!.default
                 if (!DecimalUtils.doubleEquals(value, default)) {
@@ -597,11 +647,12 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      * 还原 美型、美肤数据
      */
     private fun recoverData() {
-        when (beauty_radio_group.checkedCheckBoxId) {
+        when (mBinding.beautyRadioGroup.checkedCheckBoxId) {
             R.id.beauty_radio_skin_beauty -> {
                 mSkinBeauty.forEach {
                     val default = mModelAttributeRange[it.key]!!.default
                     mDataFactory.updateParamIntensity(it.key, default)
+
                 }
                 if (mSkinIndex >= 0) {
                     val item = mSkinBeauty[mSkinIndex]
@@ -613,6 +664,7 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                 mBeautyAdapter.notifyDataSetChanged()
                 setRecoverFaceSkinEnable(false)
             }
+
             R.id.beauty_radio_face_shape -> {
                 //还原主项和子项
                 mShapeBeauty.forEach {
@@ -664,8 +716,10 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
         if (isBottomShow == isOpen) {
             return
         }
-        val start = if (isOpen) resources.getDimension(R.dimen.x1).toInt() else resources.getDimension(R.dimen.x268).toInt()
-        val end = if (isOpen) resources.getDimension(R.dimen.x268).toInt() else resources.getDimension(R.dimen.x1).toInt()
+        val start = if (isOpen) resources.getDimension(R.dimen.x1)
+            .toInt() else resources.getDimension(R.dimen.x268).toInt()
+        val end = if (isOpen) resources.getDimension(R.dimen.x268)
+            .toInt() else resources.getDimension(R.dimen.x1).toInt()
 
         if (bottomLayoutAnimator != null && bottomLayoutAnimator!!.isRunning) {
             bottomLayoutAnimator!!.end()
@@ -673,15 +727,15 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
         bottomLayoutAnimator = ValueAnimator.ofInt(start, end).setDuration(150)
         bottomLayoutAnimator!!.addUpdateListener { animation ->
             val height = animation.animatedValue as Int
-            val params = fyt_bottom_view.layoutParams as LinearLayout.LayoutParams
+            val params = mBinding.fytBottomView.layoutParams as LinearLayout.LayoutParams
             params.height = height
-            fyt_bottom_view.layoutParams = params
+            mBinding.fytBottomView.layoutParams = params
             if (onBottomAnimatorChangeListener != null) {
                 val showRate = 1.0f * (height - start) / (end - start)
                 onBottomAnimatorChangeListener?.onBottomAnimatorChangeListener(if (!isOpen) 1 - showRate else showRate)
             }
             if (DecimalUtils.floatEquals(animation.animatedFraction, 1.0f) && isOpen) {
-                iv_compare.visibility = View.VISIBLE
+                mBinding.ivCompare.visibility = View.VISIBLE
             }
         }
         bottomLayoutAnimator!!.start()
@@ -706,13 +760,20 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
     /**
      * recycleView ITEM 子项入场动画
      */
-    fun enterAnimation(view:View){
+    fun enterAnimation(view: View) {
         //动画集合
         val animSet = AnimationSet(false)
         //位移动画
         val translateAnim = TranslateAnimation(
-            Animation.ABSOLUTE, 0f, Animation.ABSOLUTE, 0f,
-            Animation.ABSOLUTE, 100f, Animation.ABSOLUTE, 0f)
+            Animation.ABSOLUTE,
+            0f,
+            Animation.ABSOLUTE,
+            0f,
+            Animation.ABSOLUTE,
+            100f,
+            Animation.ABSOLUTE,
+            0f
+        )
         //渐变动画
         val alphaAnim = AlphaAnimation(0.0f, 1.0f)
         animSet.addAnimation(translateAnim)
@@ -726,22 +787,22 @@ class FaceBeautyControlView @JvmOverloads constructor(private val mContext: Cont
     /**
      * 是否展示还原按钮
      */
-    fun setResetButton(isVisible:Boolean) {
-        if (isVisible)
-            iv_reset.visibility = View.VISIBLE
-        else
-            iv_reset.visibility = View.GONE
+    fun setResetButton(isVisible: Boolean) {
+        if (isVisible) mBinding.ivReset.visibility = View.VISIBLE
+        else mBinding.ivReset.visibility = View.GONE
     }
 
     fun getUIStates(): FaceBeautyControlState {
-        return FaceBeautyControlState(mSkinIndex,mShapeIndex,beauty_radio_group.checkedCheckBoxId)
+        return FaceBeautyControlState(
+            mSkinIndex, mShapeIndex, mBinding.beautyRadioGroup.checkedCheckBoxId
+        )
     }
 
-    fun updateUIStates(faceBeautyControlState: FaceBeautyControlState?){
+    fun updateUIStates(faceBeautyControlState: FaceBeautyControlState?) {
         if (faceBeautyControlState != null) {
             mSkinIndex = faceBeautyControlState.skinIndex
             mShapeIndex = faceBeautyControlState.shapeIndex
-            beauty_radio_group.check(faceBeautyControlState.rbRes)
+            mBinding.beautyRadioGroup.check(faceBeautyControlState.rbRes)
             mBeautyAdapter.notifyDataSetChanged()
             mFiltersAdapter.notifyDataSetChanged()
         }
