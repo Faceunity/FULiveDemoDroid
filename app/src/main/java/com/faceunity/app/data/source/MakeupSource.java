@@ -74,13 +74,13 @@ public class MakeupSource {
     }
 
     public static Makeup getMakeupModel(MakeupCombinationBean bean) {
-        return getMakeupModel(bean,false);
+        return getMakeupModel(bean, false);
     }
 
     /**
      * 构造美妆模型
      *
-     * @return
+     * @return Makeup
      */
     public static Makeup getMakeupModel(MakeupCombinationBean bean, boolean makeupItemNew) {
         Makeup makeupModel;
@@ -93,7 +93,7 @@ public class MakeupSource {
         }
 
         makeupModel.setMakeupItemNew(makeupItemNew);
-        if (bean.getKey().equals("origin")) {
+        if ("origin".equals(bean.getKey())) {
             return makeupModel;
         }
 
@@ -101,7 +101,8 @@ public class MakeupSource {
             makeupModel.setCombinedConfig(new FUBundleData(bean.getBundlePath()));
 
         makeupModel.setMakeupIntensity(bean.getIntensity());
-        makeupModel.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启人脸遮挡
+        //更新设备等级去设置是否开启人脸遮挡
+        makeupModel.setMachineLevel(DemoConfig.DEVICE_LEVEL == FuDeviceUtils.DEVICE_LEVEL_HIGH);
 
         if (bean.getJsonPathParams() == null) {
             bean.setJsonPathParams(getLocalParams(bean.getJsonPath()));
@@ -171,8 +172,8 @@ public class MakeupSource {
         /**
          * 模型属性赋值
          *
-         * @param makeup
-         * @param value
+         * @param makeup Makeup
+         * @param value  Object
          */
         void setValue(Makeup makeup, Object value);
 
@@ -249,8 +250,8 @@ public class MakeupSource {
     /**
      * 构造颜色模型
      *
-     * @param object
-     * @return
+     * @param object Object
+     * @return FUColorRGBData
      */
     public static FUColorRGBData buildFUColorRGBData(Object object) {
         if (object instanceof double[]) {
@@ -440,7 +441,7 @@ public class MakeupSource {
      */
     public static LinkedHashMap<String, ArrayList<double[]>> buildMakeUpColorMap() {
         LinkedHashMap<String, ArrayList<double[]>> makeupColorMap = new LinkedHashMap<>(32);
-        String colorJson = FileUtils.INSTANCE.loadStringFromLocal(DemoApplication.mApplication, DemoConfig.MAKEUP_RESOURCE_COLOR_SETUP_JSON);
+        String colorJson = FileUtils.loadStringFromLocal(DemoApplication.mApplication, DemoConfig.MAKEUP_RESOURCE_COLOR_SETUP_JSON);
         if (colorJson != null && colorJson.trim().length() > 0) {
             try {
                 JSONObject jsonObject = new JSONObject(colorJson);
@@ -491,8 +492,8 @@ public class MakeupSource {
     /**
      * 获取日常妆的选中项
      *
-     * @param key
-     * @return
+     * @param key String
+     * @return HashMap<String, Integer>
      */
     public static HashMap<String, Integer> getDailyCombinationSelectItem(String key) {
         HashMap<String, Integer> mCustomIndexMap = new HashMap<>();
@@ -558,8 +559,8 @@ public class MakeupSource {
     /**
      * 获取日常妆选中项的强度
      *
-     * @param key
-     * @return
+     * @param key String
+     * @return HashMap<String, Double>
      */
     public static HashMap<String, Double> getDailyCombinationSelectItemValue(String key) {
         HashMap<String, Double> mCustomIntensityMap = new HashMap<>();
@@ -617,8 +618,8 @@ public class MakeupSource {
     /**
      * 获取日常妆选中项的颜色
      *
-     * @param key
-     * @return
+     * @param key String
+     * @return HashMap<String, Integer>
      */
     public static HashMap<String, Integer> getDailyCombinationSelectItemColor(String key) {
         HashMap<String, Integer> mCustomColorIndexMap = new HashMap<>();

@@ -1,8 +1,8 @@
 package com.faceunity.ui.entity.net;
 
 
-
 import java.util.ArrayList;
+
 /**
  * @author Qinyu on 2021-03-17
  * @description
@@ -112,11 +112,11 @@ public class FineStickerEntity {
             this.filePath = filePath;
         }
 
-        public ArrayList<String> getUnZipFilePaths () {
+        public ArrayList<String> getUnZipFilePaths() {
             return upZipFilePath;
         }
 
-        public void setUpZipFilePaths (ArrayList paths) {
+        public void setUpZipFilePaths(ArrayList paths) {
             upZipFilePath = paths;
         }
 
@@ -140,6 +140,10 @@ public class FineStickerEntity {
             private IconBean icon;
             private String adapter;
             private String category;
+
+            private String eventToast;
+
+            private String eventToastEn;
 
             public String get_id() {
                 return _id;
@@ -179,6 +183,22 @@ public class FineStickerEntity {
 
             public void setCategory(String category) {
                 this.category = category;
+            }
+
+            public String getEventToast() {
+                return eventToast;
+            }
+
+            public void setEventToast(String eventToast) {
+                this.eventToast = eventToast;
+            }
+
+            public String getEventToastEn() {
+                return eventToastEn;
+            }
+
+            public void setEventToastEn(String eventToastEn) {
+                this.eventToastEn = eventToastEn;
             }
 
             public static class BundleBean {

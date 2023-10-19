@@ -8,13 +8,10 @@ import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
+import com.faceunity.ui.databinding.LayoutEffectControlBinding
 import com.faceunity.ui.entity.PropBean
-import com.faceunity.ui.entity.uistate.FaceBeautyControlState
 import com.faceunity.ui.entity.uistate.PropControlState
 import com.faceunity.ui.infe.AbstractPropDataFactory
-import kotlinx.android.synthetic.main.layout_effect_control.view.*
-import kotlinx.android.synthetic.main.layout_effect_control.view.recycler_view
-import kotlinx.android.synthetic.main.layout_face_beauty_control.view.*
 
 
 /**
@@ -24,15 +21,21 @@ import kotlinx.android.synthetic.main.layout_face_beauty_control.view.*
  *
  */
 
-class PropControlView @JvmOverloads constructor(mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class PropControlView @JvmOverloads constructor(
+    mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     BaseControlView(mContext, attrs, defStyleAttr) {
 
     private lateinit var mDataFactory: AbstractPropDataFactory
     private lateinit var mPropAdapter: BaseListAdapter<PropBean>
+    private val mBinding: LayoutEffectControlBinding by lazy {
+        LayoutEffectControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
 
     // region  init
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_effect_control, this)
         initView()
         initAdapter()
     }
@@ -51,7 +54,7 @@ class PropControlView @JvmOverloads constructor(mContext: Context, attrs: Attrib
      *  View初始化
      */
     private fun initView() {
-        initHorizontalRecycleView(recycler_view)
+        initHorizontalRecycleView(mBinding.recyclerView)
     }
 
     /**
@@ -59,7 +62,12 @@ class PropControlView @JvmOverloads constructor(mContext: Context, attrs: Attrib
      */
     private fun initAdapter() {
         mPropAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<PropBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, data: PropBean, position: Int) {
+            override fun convert(
+                viewType: Int,
+                helper: BaseViewHolder,
+                data: PropBean,
+                position: Int
+            ) {
                 helper.setImageResource(R.id.iv_control, data.iconId)
                 helper.itemView.isSelected = position == mDataFactory.currentPropIndex
             }
@@ -72,7 +80,7 @@ class PropControlView @JvmOverloads constructor(mContext: Context, attrs: Attrib
                 }
             }
         }, R.layout.list_item_control_image_circle)
-        recycler_view.adapter = mPropAdapter
+        mBinding.recyclerView.adapter = mPropAdapter
     }
     // endregion
 
@@ -80,7 +88,7 @@ class PropControlView @JvmOverloads constructor(mContext: Context, attrs: Attrib
         return PropControlState(mDataFactory.currentPropIndex)
     }
 
-    fun updateUIStates(propControlState: PropControlState){
+    fun updateUIStates(propControlState: PropControlState) {
         if (propControlState != null) {
             if (mDataFactory.currentPropIndex != propControlState.propIndex) {
                 mDataFactory.currentPropIndex = propControlState.propIndex

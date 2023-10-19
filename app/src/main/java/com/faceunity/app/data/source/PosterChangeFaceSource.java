@@ -15,7 +15,7 @@ public class PosterChangeFaceSource {
     /**
      * 构造海报换脸数据
      *
-     * @return
+     * @return ArrayList<PosterBean>
      */
     public static ArrayList<PosterBean> buildPoster() {
         ArrayList<PosterBean> posterBeans = new ArrayList<>();

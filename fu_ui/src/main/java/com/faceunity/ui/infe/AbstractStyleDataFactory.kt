@@ -46,7 +46,7 @@ abstract class AbstractStyleDataFactory {
      * @param name 风格key
      * @param cacheAction 是否缓存动作同一帧触发
      */
-    abstract fun onStyleSelected(name: String?,cacheAction:Boolean)
+    abstract fun onStyleSelected(name: String?, cacheAction: Boolean)
 
     /**
      * 风格开关
@@ -77,22 +77,22 @@ abstract class AbstractStyleDataFactory {
     /**
      * 设置所有美肤效果到无
      */
-    abstract fun  enableFaceBeautySkin(faceBeautySkinEnable:Boolean)
+    abstract fun enableFaceBeautySkin(faceBeautySkinEnable: Boolean)
 
     /**
      * 设置所有美肤效果到无
      */
-    abstract fun  enableFaceBeautyShape(faceBeautyShapeEnable:Boolean)
+    abstract fun enableFaceBeautyShape(faceBeautyShapeEnable: Boolean)
 
     /**
      * 获取当前风格美肤是否开启
      */
-    abstract fun  getCurrentStyleSkinEnable():Boolean
+    abstract fun getCurrentStyleSkinEnable(): Boolean
 
     /**
      * 获取当前风格美型是否开启
      */
-    abstract fun  getCurrentStyleShapeEnable():Boolean
+    abstract fun getCurrentStyleShapeEnable(): Boolean
 
     //美妆相关
     /**
@@ -127,10 +127,11 @@ abstract class AbstractStyleDataFactory {
      * 检查是否与原来风格一样
      * @return ture和原风格一样 false和原风格不一样
      */
-    abstract fun checkStyleRecover() :Boolean
+    abstract fun checkStyleRecover(): Boolean
 
     /**
      * 将真正生效的风格转换成角标
      */
     abstract fun styleTypeIndex()
+
 }

@@ -65,17 +65,17 @@ abstract class AbstractFaceBeautyDataFactory {
     /**
      * 设置当前one hot的脸型
      */
-    abstract fun setCurrentOneHotFaceShape(faceShape:String)
+    abstract fun setCurrentOneHotFaceShape(faceShape: String)
 
     /**
      * 设置当前脸型的UI值
      */
-    abstract fun setCurrentFaceShapeUIValue(hashMap:HashMap<String,Double>)
+    abstract fun setCurrentFaceShapeUIValue(hashMap: HashMap<String, Double>)
 
     /**
      * 获取当前脸型的UI值
      */
-    abstract fun getCurrentFaceShapeUIValue() :HashMap<String,Double>
+    abstract fun getCurrentFaceShapeUIValue(): HashMap<String, Double>
 
     /**
      * 设置单项强度
@@ -88,4 +88,5 @@ abstract class AbstractFaceBeautyDataFactory {
      * 将所有效果置空 -> 变成标准值
      */
     abstract fun resetParamIntensity()
+
 }

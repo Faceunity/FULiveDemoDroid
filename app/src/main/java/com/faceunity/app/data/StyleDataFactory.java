@@ -25,7 +25,7 @@ import java.util.Map;
  * DESC：风格工厂
  */
 public class StyleDataFactory extends AbstractStyleDataFactory {
-//    private FaceBeauty mFaceBeauty;
+    //    private FaceBeauty mFaceBeauty;
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
     private FaceBeauty mFaceBeauty = StyleSource.getNewFaceBeauty();
@@ -58,7 +58,7 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
         FUAIKit.getInstance().setMaxFaces(4);
         mFURenderKit.setFaceBeauty(mFaceBeauty);
         styleTypeIndex();
-        onStyleSelected(getStyleBeans().get(currentStyleIndex).getKey(),false);
+        onStyleSelected(getStyleBeans().get(currentStyleIndex).getKey(), false);
     }
 
     /**
@@ -84,7 +84,7 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
 
     @Override
     public void onStyleSelected(String name) {
-        onStyleSelected(name,true);
+        onStyleSelected(name, true);
     }
 
     public void onStyleSelected(String name, boolean syncAction) {
@@ -94,7 +94,7 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             mSimpleMakeup = null;
             currentStyleIndex = 0;
             mFaceBeauty.beginCacheAction();
-            StyleSource.setFaceBeauty(mDefaultFaceBeauty,mFaceBeauty);
+            StyleSource.setFaceBeauty(mDefaultFaceBeauty, mFaceBeauty);
             mFURenderKit.doGLThreadAction(() -> mFaceBeauty.doingUnitCache());
             mFURenderKit.setMakeup(mSimpleMakeup);
         } else {
@@ -107,9 +107,11 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
                 //真正上效果由某一阵gl决定
                 mFURenderKit.addMakeupLoadListener(() -> mFaceBeauty.doingUnitCache());
             }
-            StyleSource.setFaceBeauty(mDefaultFaceBeauty,mFaceBeauty);
-            if (mStyleType.faceBeautySkinEnable) StyleSource.setFaceBeautySkin(mStyleType.faceBeauty,mFaceBeauty);
-            if (mStyleType.faceBeautyShapeEnable) StyleSource.setFaceBeautyShape(mStyleType.faceBeauty,mFaceBeauty);
+            StyleSource.setFaceBeauty(mDefaultFaceBeauty, mFaceBeauty);
+            if (mStyleType.faceBeautySkinEnable)
+                StyleSource.setFaceBeautySkin(mStyleType.faceBeauty, mFaceBeauty);
+            if (mStyleType.faceBeautyShapeEnable)
+                StyleSource.setFaceBeautyShape(mStyleType.faceBeauty, mFaceBeauty);
             mFURenderKit.setMakeup(mSimpleMakeup);
         }
     }
@@ -142,6 +144,8 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             value = mFaceBeauty.getBlurIntensity();
         else if (FaceBeautyParam.RED_INTENSITY.equals(key))
             value = mFaceBeauty.getRedIntensity();
+        else if (FaceBeautyParam.CLARITY.equals(key))
+            value = mFaceBeauty.getClarityIntensity();
         else if (FaceBeautyParam.SHARPEN_INTENSITY.equals(key))
             value = mFaceBeauty.getSharpenIntensity();
         else if (FaceBeautyParam.EYE_BRIGHT_INTENSITY.equals(key))
@@ -152,7 +156,7 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             value = mFaceBeauty.getRemovePouchIntensity();
         else if (FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY.equals(key))
             value = mFaceBeauty.getRemoveLawPatternIntensity();
-        //美型
+            //美型
         else if (FaceBeautyParam.FACE_SHAPE_INTENSITY.equals(key))
             value = mFaceBeauty.getSharpenIntensity();
         else if (FaceBeautyParam.CHEEK_THINNING_INTENSITY.equals(key))
@@ -229,6 +233,8 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             mFaceBeauty.setBlurIntensity(value);
         else if (FaceBeautyParam.RED_INTENSITY.equals(key))
             mFaceBeauty.setRedIntensity(value);
+        else if (FaceBeautyParam.CLARITY.equals(key))
+            mFaceBeauty.setClarityIntensity(value);
         else if (FaceBeautyParam.SHARPEN_INTENSITY.equals(key))
             mFaceBeauty.setSharpenIntensity(value);
         else if (FaceBeautyParam.EYE_BRIGHT_INTENSITY.equals(key))
@@ -301,11 +307,12 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
 
         //将这些参数设置到对应的style持有的faceBeauty
         if (mStyleType != null && mStyleType.faceBeauty != null)
-            StyleSource.setFaceBeauty(mFaceBeauty,mStyleType.faceBeauty);
+            StyleSource.setFaceBeauty(mFaceBeauty, mStyleType.faceBeauty);
     }
 
     /**
      * 获取美妆强度
+     *
      * @return
      */
     @Override
@@ -318,6 +325,7 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
 
     /**
      * 更新美妆强度
+     *
      * @param value
      */
     @Override
@@ -326,8 +334,10 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             mSimpleMakeup.setMakeupIntensity(value);
     }
 
+
     /**
      * 获取滤镜强度
+     *
      * @return
      */
     @Override
@@ -340,12 +350,14 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
 
     /**
      * 设置滤镜强度
+     *
      * @param value
      */
     @Override
     public void updateFilterParamIntensity(double value) {
-        if (mSimpleMakeup != null)
+        if (mSimpleMakeup != null) {
             mSimpleMakeup.setFilterIntensity(value);
+        }
     }
 
     @Override
@@ -394,17 +406,17 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
         mFaceBeauty.beginCacheAction();
         if (!mStyleType.faceBeautySkinEnable) {
             //美肤无效
-            StyleSource.setFaceBeautySkin(mDefaultFaceBeauty,mFaceBeauty);
+            StyleSource.setFaceBeautySkin(mDefaultFaceBeauty, mFaceBeauty);
         } else {
             //美肤生效
-            StyleSource.setFaceBeautySkin(mStyleType.faceBeauty,mFaceBeauty);
+            StyleSource.setFaceBeautySkin(mStyleType.faceBeauty, mFaceBeauty);
         }
         if (!mStyleType.faceBeautyShapeEnable) {
             //美型无效
-            StyleSource.setFaceBeautyShape(mDefaultFaceBeauty,mFaceBeauty);
+            StyleSource.setFaceBeautyShape(mDefaultFaceBeauty, mFaceBeauty);
         } else {
             //美型生效
-            StyleSource.setFaceBeautyShape(mStyleType.faceBeauty,mFaceBeauty);
+            StyleSource.setFaceBeautyShape(mStyleType.faceBeauty, mFaceBeauty);
         }
         mFURenderKit.doGLThreadAction(() -> {
             mFaceBeauty.doingUnitCache();
@@ -413,6 +425,7 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
 
     /**
      * 获取当前美肤功能是否开启
+     *
      * @return
      */
     public boolean getCurrentStyleSkinEnable() {
@@ -425,6 +438,7 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
 
     /**
      * 获取当前美型功能是否开启
+     *
      * @return
      */
     public boolean getCurrentStyleShapeEnable() {

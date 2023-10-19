@@ -3,17 +3,17 @@ package com.faceunity.ui.control
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View 
+import android.view.View
 import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
+import com.faceunity.ui.databinding.LayoutBodyBeautyControlBinding
 import com.faceunity.ui.entity.BodyBeautyBean
 import com.faceunity.ui.entity.ModelAttributeData
 import com.faceunity.ui.infe.AbstractBodyBeautyDataFactory
 import com.faceunity.ui.seekbar.DiscreteSeekBar
 import com.faceunity.ui.utils.DecimalUtils
-import kotlinx.android.synthetic.main.layout_body_beauty_control.view.* 
 
 
 /**
@@ -22,18 +22,24 @@ import kotlinx.android.synthetic.main.layout_body_beauty_control.view.*
  * Created on 2020/12/11
  *
  */
-class BodyBeautyControlView @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class BodyBeautyControlView @JvmOverloads constructor(
+    private val mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     BaseControlView(mContext, attrs, defStyleAttr) {
     private lateinit var mDataFactory: AbstractBodyBeautyDataFactory
     private lateinit var mModelAttributeRange: HashMap<String, ModelAttributeData>
     private lateinit var mBodyBeautyBeans: ArrayList<BodyBeautyBean>
     private lateinit var mBodyAdapter: BaseListAdapter<BodyBeautyBean>
     private var mBodyIndex = 0
+    private val mBinding: LayoutBodyBeautyControlBinding by lazy {
+        LayoutBodyBeautyControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
 
     // region  init
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_body_beauty_control, this)
         initView()
         initAdapter()
         bindListener()
@@ -55,13 +61,18 @@ class BodyBeautyControlView @JvmOverloads constructor(private val mContext: Cont
     }
 
     private fun initView() {
-        initHorizontalRecycleView(recycler_view)
+        initHorizontalRecycleView(mBinding.recyclerView)
     }
 
 
     private fun initAdapter() {
         mBodyAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<BodyBeautyBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, data: BodyBeautyBean, position: Int) {
+            override fun convert(
+                viewType: Int,
+                helper: BaseViewHolder,
+                data: BodyBeautyBean,
+                position: Int
+            ) {
                 helper.setText(R.id.tv_control, data.desRes)
                 val value = mDataFactory.getParamIntensity(data.key)
                 val stand = mModelAttributeRange[data.key]!!.stand
@@ -85,13 +96,18 @@ class BodyBeautyControlView @JvmOverloads constructor(private val mContext: Cont
             }
 
         }, R.layout.list_item_control_title_image_circle)
-        recycler_view.adapter = mBodyAdapter
+        mBinding.recyclerView.adapter = mBodyAdapter
     }
 
     private fun bindListener() {
-        cyt_main.setOnTouchListener { _, _ -> true }
-        beauty_seek_bar.setOnProgressChangeListener(object : DiscreteSeekBar.OnSimpleProgressChangeListener() {
-            override fun onProgressChanged(seekBar: DiscreteSeekBar?, value: Int, fromUser: Boolean) {
+        mBinding.cytMain.setOnTouchListener { _, _ -> true }
+        mBinding.beautySeekBar.setOnProgressChangeListener(object :
+            DiscreteSeekBar.OnSimpleProgressChangeListener() {
+            override fun onProgressChanged(
+                seekBar: DiscreteSeekBar?,
+                value: Int,
+                fromUser: Boolean
+            ) {
                 if (!fromUser) {
                     return
                 }
@@ -107,7 +123,7 @@ class BodyBeautyControlView @JvmOverloads constructor(private val mContext: Cont
                 }
             }
         })
-        lyt_beauty_recover.setOnClickListener {
+        mBinding.lytBeautyRecover.setOnClickListener {
             showDialog(mContext.getString(R.string.dialog_reset_avatar_model)) {
                 recoverData()
             }
@@ -120,15 +136,20 @@ class BodyBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      */
     private fun seekToSeekBar(value: Double, stand: Double, range: Double) {
         if (stand == 0.5) {
-            beauty_seek_bar.min = -50
-            beauty_seek_bar.max = 50
-            beauty_seek_bar.progress = (value * 100 / range - 50).toInt()
+            mBinding.beautySeekBar.apply {
+                min = -50
+                max = 50
+                progress = (value * 100 / range - 50).toInt()
+            }
         } else {
-            beauty_seek_bar.min = 0
-            beauty_seek_bar.max = 100
-            beauty_seek_bar.progress = (value * 100 / range).toInt()
+            mBinding.beautySeekBar.apply {
+                min = 0
+                max = 100
+                progress = (value * 100 / range).toInt()
+            }
+
         }
-        beauty_seek_bar.visibility = View.VISIBLE
+        mBinding.beautySeekBar.visibility = View.VISIBLE
     }
 
 
@@ -191,13 +212,13 @@ class BodyBeautyControlView @JvmOverloads constructor(private val mContext: Cont
      */
     private fun setRecoverEnable(enable: Boolean) {
         if (enable) {
-            tv_beauty_recover.alpha = 1f
-            iv_beauty_recover.alpha = 1f
+            mBinding.tvBeautyRecover.alpha = 1f
+            mBinding.ivBeautyRecover.alpha = 1f
         } else {
-            tv_beauty_recover.alpha = 0.6f
-            iv_beauty_recover.alpha = 0.6f
+            mBinding.tvBeautyRecover.alpha = 0.6f
+            mBinding.ivBeautyRecover.alpha = 0.6f
         }
-        lyt_beauty_recover.isEnabled = enable
+        mBinding.lytBeautyRecover.isEnabled = enable
     }
 
 

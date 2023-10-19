@@ -1,5 +1,6 @@
 package com.faceunity.app.data;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -19,6 +20,7 @@ import com.faceunity.core.model.antialiasing.Antialiasing;
 import com.faceunity.core.model.prop.sticker.FineSticker;
 import com.faceunity.core.utils.FileUtils;
 import com.faceunity.ui.control.FineStickerView;
+import com.faceunity.ui.dialog.ToastHelper;
 import com.faceunity.ui.entity.net.FineStickerEntity;
 import com.faceunity.ui.entity.net.FineStickerTagEntity;
 import com.faceunity.ui.infe.AbstractFineStickerDataFactory;
@@ -30,6 +32,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created on 2021/3/31 0031 15:28.
@@ -148,10 +151,24 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
         if (mBundleTypeListener != null) {
             mBundleTypeListener.bundleType(mCurrentBundleType);
         }
+
+        if (currentSticker != null && currentSticker.getTool() != null) {
+            if ("zh".equalsIgnoreCase(Locale.getDefault().getLanguage())) {
+                if (!TextUtils.isEmpty(currentSticker.getTool().getEventToast())) {
+                    ToastHelper.showWhiteTextToast(view.getContext(), currentSticker.getTool().getEventToast());
+                }
+            } else {
+                if (!TextUtils.isEmpty(currentSticker.getTool().getEventToastEn())) {
+                    ToastHelper.showWhiteTextToast(view.getContext(), currentSticker.getTool().getEventToastEn());
+                }
+            }
+        }
+
     }
 
     /**
      * 构建avatar -> scene
+     *
      * @param bean
      */
     private void buildAvatarModel(FineStickerEntity.DocsBean bean) {
@@ -168,21 +185,21 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
         ArrayList<String> strAnimations = new ArrayList<>();//动画Bundle
         if (hasJson >= 0) {
             //用json的描述赋予每一个bundle自己的职责，还可以赋予其他参数
-            String jsonPath = bean.getFilePath().substring(0,bean.getFilePath().lastIndexOf(".")) + "/" + unZipFilePaths.get(hasJson);
+            String jsonPath = bean.getFilePath().substring(0, bean.getFilePath().lastIndexOf(".")) + "/" + unZipFilePaths.get(hasJson);
             //解析json文件 ->
             String json = FileUtils.loadStringFromExternal(jsonPath);
             //解析avatar的json文件
             try {
                 JSONObject jsonObject = new JSONObject(json);
                 JSONArray components = jsonObject.getJSONArray("components");
-                for(int i =0 ;i < components.length();i++) {
-                    String path = bean.getFilePath().substring(0,bean.getFilePath().lastIndexOf(".")) + "/" + components.get(i);
+                for (int i = 0; i < components.length(); i++) {
+                    String path = bean.getFilePath().substring(0, bean.getFilePath().lastIndexOf(".")) + "/" + components.get(i);
                     strComponents.add(path);
                 }
 
                 JSONArray anims = jsonObject.getJSONArray("anims");
-                for(int i =0 ;i < anims.length();i++) {
-                    String path = bean.getFilePath().substring(0,bean.getFilePath().lastIndexOf(".")) + "/" + anims.get(i);
+                for (int i = 0; i < anims.length(); i++) {
+                    String path = bean.getFilePath().substring(0, bean.getFilePath().lastIndexOf(".")) + "/" + anims.get(i);
                     strAnimations.add(path);
                 }
             } catch (JSONException e) {
@@ -190,30 +207,30 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
             }
         } else {
             //根据bundle的命名赋予每一个bundle自己的职责
-            for (String str:unZipFilePaths) {
+            for (String str : unZipFilePaths) {
                 if (str.startsWith(COMPONENTS_STR)) {
-                    String path = bean.getFilePath().substring(0,bean.getFilePath().lastIndexOf(".")) + "/" + str;
+                    String path = bean.getFilePath().substring(0, bean.getFilePath().lastIndexOf(".")) + "/" + str;
                     strComponents.add(path);
-                } else if (str.startsWith(ANIM_STR)){
-                    String path = bean.getFilePath().substring(0,bean.getFilePath().lastIndexOf(".")) + "/" + str;
+                } else if (str.startsWith(ANIM_STR)) {
+                    String path = bean.getFilePath().substring(0, bean.getFilePath().lastIndexOf(".")) + "/" + str;
                     strAnimations.add(path);
                 }
             }
         }
 
         if (mSceneModel == null) {
-            mCurrentAvatarModel = AvatarSource.buildAvatarData(strComponents,strAnimations);
+            mCurrentAvatarModel = AvatarSource.buildAvatarData(strComponents, strAnimations);
             mSceneModel = AvatarSource.buildSceneModel(mCurrentAvatarModel);
             mSceneModel.processorConfig.setTrackScene(ProcessorConfig.TrackScene.SceneFull);
             mCurrentAvatarModel.transForm.setTranslationScale(new FUTranslationScale(0.5f, 0f, 0.1f));
         } else {
             if (mCurrentAvatarModel != null)
                 mSceneModel.removeAvatar(mCurrentAvatarModel);
-            mCurrentAvatarModel = AvatarSource.buildAvatarData(strComponents,strAnimations);
+            mCurrentAvatarModel = AvatarSource.buildAvatarData(strComponents, strAnimations);
             mSceneModel.addAvatar(mCurrentAvatarModel);
         }
-       FUSceneKit.getInstance().addScene(mSceneModel);
-       FUSceneKit.getInstance().setCurrentScene(mSceneModel);
+        FUSceneKit.getInstance().addScene(mSceneModel);
+        FUSceneKit.getInstance().setCurrentScene(mSceneModel);
     }
 
 
@@ -303,10 +320,10 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
      */
     @Override
     public void downloadSticker(@NotNull FineStickerEntity.DocsBean docsBean) {
-        try{
+        try {
             StickerDownloadHelper.getInstance().download(docsBean);
         } catch (Exception e) {
-            Log.e(TAG,"downloadSticker",e);
+            Log.e(TAG, "downloadSticker", e);
             e.printStackTrace();
         }
     }
@@ -370,10 +387,12 @@ public class FineStickerDataFactory extends AbstractFineStickerDataFactory {
     }
 
     private BundleTypeListener mBundleTypeListener;
+
     public interface BundleTypeListener {
         void bundleType(BundleType bundleType);
     }
-    public void setBundleTypeListener (BundleTypeListener bundleTypeListener){
+
+    public void setBundleTypeListener(BundleTypeListener bundleTypeListener) {
         mBundleTypeListener = bundleTypeListener;
     }
 }

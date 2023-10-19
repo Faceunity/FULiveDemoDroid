@@ -21,6 +21,7 @@ import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
+import com.faceunity.ui.databinding.LayoutFineStickerBinding
 import com.faceunity.ui.dialog.ToastHelper
 import com.faceunity.ui.entity.net.DownLoadStatus
 import com.faceunity.ui.entity.net.FineStickerEntity
@@ -28,16 +29,18 @@ import com.faceunity.ui.entity.net.FineStickerEntity.DocsBean
 import com.faceunity.ui.entity.net.FineStickerTagEntity
 import com.faceunity.ui.infe.AbstractFineStickerDataFactory
 import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.layout_fine_sticker.view.*
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.Locale
 
 /**
  * Created on 2021/3/31 0031 15:25.
  * Author: xloger
  * Email:phoenix@xloger.com
  */
-class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class FineStickerView @JvmOverloads constructor(
+    val mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     BaseControlView(mContext, attrs, defStyleAttr) {
 
 
@@ -48,9 +51,12 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
     private var currentTag: String? = null
     private var currentPosition: Int = 0
 
+    private val mBinding: LayoutFineStickerBinding by lazy {
+        LayoutFineStickerBinding.inflate(LayoutInflater.from(context), this, true)
+    }
+
     // region  init
     init {
-        LayoutInflater.from(mContext).inflate(R.layout.layout_fine_sticker, this)
         initAdapter()
         bindListener()
     }
@@ -62,13 +68,13 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
 
     private fun initAdapter() {
         tagPagerAdapter = TagPagerAdapter(mContext, mutableListOf())
-        vp_fine_sticker.adapter = tagPagerAdapter
+        mBinding.vpFineSticker.adapter = tagPagerAdapter
     }
 
 
     private fun bindListener() {
-        tl_fine_sticker.setupWithViewPager(vp_fine_sticker)
-        tl_fine_sticker.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+        mBinding.tlFineSticker.setupWithViewPager(mBinding.vpFineSticker)
+        mBinding.tlFineSticker.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 changeBottomLayoutAnimator(true)
             }
@@ -81,7 +87,7 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
                 changeBottomLayoutAnimator(!isBottomShow)
             }
         })
-        iv_delete_all.setOnClickListener {
+        mBinding.ivDeleteAll.setOnClickListener {
             dataFactory.onItemSelected(null)
             updateAdapterView(null, 0, null)
         }
@@ -157,8 +163,10 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
         if (isBottomShow == isOpen) {
             return
         }
-        val start = if (isOpen) resources.getDimension(R.dimen.x0).toInt() else resources.getDimension(R.dimen.x364).toInt()
-        val end = if (isOpen) resources.getDimension(R.dimen.x364).toInt() else resources.getDimension(R.dimen.x0).toInt()
+        val start = if (isOpen) resources.getDimension(R.dimen.x0)
+            .toInt() else resources.getDimension(R.dimen.x364).toInt()
+        val end = if (isOpen) resources.getDimension(R.dimen.x364)
+            .toInt() else resources.getDimension(R.dimen.x0).toInt()
 
         if (bottomLayoutAnimator != null && bottomLayoutAnimator!!.isRunning) {
             bottomLayoutAnimator!!.end()
@@ -166,9 +174,9 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
         bottomLayoutAnimator = ValueAnimator.ofInt(start, end).setDuration(150)
         bottomLayoutAnimator!!.addUpdateListener { animation ->
             val height = animation.animatedValue as Int
-            val params = lyt_bottom_view.layoutParams as LinearLayout.LayoutParams
+            val params = mBinding.lytBottomView.layoutParams as LinearLayout.LayoutParams
             params.height = height
-            lyt_bottom_view.layoutParams = params
+            mBinding.lytBottomView.layoutParams = params
             if (onBottomAnimatorChangeListener != null) {
                 val showRate = 1.0f * (height - start) / (end - start)
                 onBottomAnimatorChangeListener?.onBottomAnimatorChangeListener(if (!isOpen) 1 - showRate else showRate)
@@ -186,12 +194,16 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
      * @property gridSpanCount Int
      * @constructor
      */
-    private inner class TagPagerAdapter(private val context: Context, private var tags: MutableList<FineStickerTagEntity>) : PagerAdapter() {
+    private inner class TagPagerAdapter(
+        private val context: Context,
+        private var tags: MutableList<FineStickerTagEntity>
+    ) : PagerAdapter() {
 
         val gridSpanCount = 5
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val list: ArrayList<DocsBean> = dataFactory.loadStickerList(tags[position])?.docs ?: ArrayList()
+            val list: ArrayList<DocsBean> =
+                dataFactory.loadStickerList(tags[position])?.docs ?: ArrayList()
             val recyclerView = initRecyclerView()
             val adapter = initAdapter(list, tags[position].tag)
             recyclerView.adapter = adapter
@@ -214,17 +226,27 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
             return recyclerView
         }
 
-        private fun initAdapter(items: ArrayList<DocsBean>, tag: String): BaseListAdapter<DocsBean> {
+        private fun initAdapter(
+            items: ArrayList<DocsBean>,
+            tag: String
+        ): BaseListAdapter<DocsBean> {
             return BaseListAdapter(items, object : BaseDelegate<DocsBean>() {
-                override fun convert(viewType: Int, helper: BaseViewHolder, data: DocsBean, position: Int) {
+                override fun convert(
+                    viewType: Int,
+                    helper: BaseViewHolder,
+                    data: DocsBean,
+                    position: Int
+                ) {
                     val loadingView = helper.getView<ImageView>(R.id.iv_loading)!!
                     val stickerView = helper.getView<ImageView>(R.id.iv_fine_sticker)!!
                     val downloadView = helper.getView<ImageView>(R.id.iv_download)!!
                     if (data.tool.icon != null) {
-                        val requestOptions = RequestOptions().placeholder(R.mipmap.icon_control_placeholder)
-                            .error(R.mipmap.icon_control_placeholder)
-                            .diskCacheStrategy(DiskCacheStrategy.DATA)
-                        Glide.with(mContext).load(data.tool.icon.url).apply(requestOptions).into(stickerView)
+                        val requestOptions =
+                            RequestOptions().placeholder(R.mipmap.icon_control_placeholder)
+                                .error(R.mipmap.icon_control_placeholder)
+                                .diskCacheStrategy(DiskCacheStrategy.DATA)
+                        Glide.with(mContext).load(data.tool.icon.url).apply(requestOptions)
+                            .into(stickerView)
                     } else {
                         stickerView.setImageResource(R.mipmap.icon_control_placeholder)
                     }
@@ -239,11 +261,13 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
                             stickerView.alpha = 0.6f
                             downloadView.visibility = GONE
                         }
+
                         DownLoadStatus.DOWN_LOAD_FAILED -> {
                             stickerView.alpha = 1f
                             loadingView.visibility = GONE
                             loadingView.clearAnimation()
                         }
+
                         else -> {
                             stickerView.alpha = 1f
                             loadingView.visibility = GONE
@@ -340,7 +364,7 @@ class FineStickerView @JvmOverloads constructor(val mContext: Context, attrs: At
     private fun safeFindViewWithTag(tag: String?): RecyclerView? {
         try {
             tag?.let {
-                return vp_fine_sticker?.findViewWithTag(it)
+                return mBinding.vpFineSticker.findViewWithTag(it)
             }
         } catch (e: IllegalStateException) {
             e.printStackTrace()

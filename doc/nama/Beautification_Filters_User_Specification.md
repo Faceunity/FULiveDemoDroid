@@ -1,8 +1,7 @@
-
-
 # Fucntion
 
-Beautification includes rosy, whitening, light-blur, heavy-blur, filter, face transfer, eyes brighten, teeth whiten function
+Beautification includes rosy, whitening, light-blur, heavy-blur, filter, face transfer, eyes
+brighten, teeth whiten function
 
 # Paramerter Description
 
@@ -77,11 +76,10 @@ intensity_mouth:default is 0.5,       //0.0-1.0
 intensity_chin: default is 0.5,       //0.0-1.0
 ```
 
-
-
 ### Attentions
 
-The above parameters indicate the value range. If the value range is exceeded, the effect will be affected. It is not recommended.
+The above parameters indicate the value range. If the value range is exceeded, the effect will be
+affected. It is not recommended.
 
 ### Filter corresponds to the key value
 
@@ -142,7 +140,7 @@ xiaoqingxin6
 ### New and old filter correspondence
 
 | key for new filer | key for old filter |
-| ----------------- | ------------------ |
+|-------------------|--------------------|
 | bailiang1         |                    |
 | bailiang2         | nature_old         |
 | bailiang3         | delta              |

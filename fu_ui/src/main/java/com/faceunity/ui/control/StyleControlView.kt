@@ -3,6 +3,7 @@ package com.faceunity.ui.control
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
+import com.faceunity.ui.databinding.LayoutStyleControlBinding
 import com.faceunity.ui.dialog.BaseDialogFragment
 import com.faceunity.ui.dialog.ConfirmDialogFragment
 import com.faceunity.ui.dialog.ToastHelper
@@ -24,7 +26,6 @@ import com.faceunity.ui.entity.uistate.StyleControlState
 import com.faceunity.ui.infe.AbstractStyleDataFactory
 import com.faceunity.ui.seekbar.DiscreteSeekBar
 import com.faceunity.ui.utils.DecimalUtils
-import kotlinx.android.synthetic.main.layout_style_control.view.*
 
 /**
  *
@@ -47,22 +48,27 @@ class StyleControlView @JvmOverloads constructor(
     private lateinit var mDataFactory: AbstractStyleDataFactory
     private lateinit var mStyleAdapter: BaseListAdapter<StyleBean>
     private lateinit var mBeautyAdapter: BaseListAdapter<FaceBeautyBean>
+
     //是否打开子页面
     private var isOpenSub = false
 
+    private val mBinding: LayoutStyleControlBinding by lazy {
+        LayoutStyleControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
+
     // region  init
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_style_control, this)
         initView()
         initAdapter()
         bindListener()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun bindListener() {
-        cyt_main.setOnTouchListener { _, _ -> true }
-        cyt_sub.setOnTouchListener { _, _ -> true }
+        mBinding.cytMain.setOnTouchListener { _, _ -> true }
+        mBinding.cytSub.setOnTouchListener { _, _ -> true }
         /*比对开关*/
-        iv_compare.setOnTouchStateListener { v, event ->
+        mBinding.ivCompare.setOnTouchStateListener { v, event ->
             val action = event.action
             if (action == MotionEvent.ACTION_DOWN) {
                 v.alpha = 0.7f
@@ -75,7 +81,7 @@ class StyleControlView @JvmOverloads constructor(
         }
 
         /*还原参数*/
-        iv_recover.setOnClickListener {
+        mBinding.ivRecover.setOnClickListener {
             val confirmDialogFragment =
                 ConfirmDialogFragment.newInstance(mContext.getString(R.string.dialog_style_reset),
                     object : BaseDialogFragment.OnClickListener {
@@ -83,11 +89,11 @@ class StyleControlView @JvmOverloads constructor(
                             mDataFactory.recoverStyleAllParams()
                             mDataFactory.onStyleSelected(mDataFactory.styleBeans[mDataFactory.currentStyleIndex].key)
                             //更新美妆滤镜滑条
-                            if (!style_makeup.isChecked) style_makeup.performClick()
+                            if (!mBinding.styleMakeup.isChecked) mBinding.styleMakeup.performClick()
                             updateStyleSeekBar()
                             //没有改变
-                            iv_recover.alpha = 0.7f
-                            iv_recover.isClickable = false
+                            mBinding.ivRecover.alpha = 0.7f
+                            mBinding.ivRecover.isClickable = false
                             //更新列表
                             mStyleAdapter.notifyDataSetChanged()
                         }
@@ -101,42 +107,43 @@ class StyleControlView @JvmOverloads constructor(
         }
 
         /* 子界面相关逻辑 */
-        beauty_radio_group.setOnCheckedChangeListener { _, checkedId ->
+        mBinding.beautyRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             //视图变化
             when (checkedId) {
                 R.id.beauty_radio_skin_beauty -> {
-                    beauty_radio_skin_beauty.isEnabled = false
-                    beauty_radio_face_shape.isEnabled = true
+                    mBinding.beautyRadioSkinBeauty.isEnabled = false
+                    mBinding.beautyRadioFaceShape.isEnabled = true
                     //选中美颜
                     mBeautyAdapter.setData(mDataFactory.skinBeauty)
-                    ll_switch_beauty_skin.visibility = VISIBLE
-                    ll_switch_beauty_shape.visibility = GONE
+                    mBinding.llSwitchBeautySkin.visibility = VISIBLE
+                    mBinding.llSwitchBeautyShape.visibility = GONE
                     if (mSkinIndex >= 0) {
                         val data = mDataFactory.skinBeauty[mSkinIndex]
                         val value = mDataFactory.getParamIntensity(data.key)
                         val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
                         val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
-                        seekToSeekBar(beauty_seek_bar, value, stand, maxRange)
+                        seekToSeekBar(mBinding.beautySeekBar, value, stand, maxRange)
                     } else {
-                        beauty_seek_bar.visibility = View.INVISIBLE
+                        mBinding.beautySeekBar.visibility = View.INVISIBLE
                     }
                 }
+
                 R.id.beauty_radio_face_shape -> {
-                    beauty_radio_skin_beauty.isEnabled = true
-                    beauty_radio_face_shape.isEnabled = false
+                    mBinding.beautyRadioSkinBeauty.isEnabled = true
+                    mBinding.beautyRadioFaceShape.isEnabled = false
                     //选中美型
                     mBeautyAdapter.setData(mDataFactory.shapeBeauty)
-                    ll_switch_beauty_skin.visibility = GONE
-                    ll_switch_beauty_shape.visibility = VISIBLE
+                    mBinding.llSwitchBeautySkin.visibility = GONE
+                    mBinding.llSwitchBeautyShape.visibility = VISIBLE
 
                     if (mShapeIndex >= 0) {
                         val data = mDataFactory.shapeBeauty[mShapeIndex]
                         val value = mDataFactory.getParamIntensity(data.key)
                         val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
                         val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
-                        seekToSeekBar(beauty_seek_bar, value, stand, maxRange)
+                        seekToSeekBar(mBinding.beautySeekBar, value, stand, maxRange)
                     } else {
-                        beauty_seek_bar.visibility = View.INVISIBLE
+                        mBinding.beautySeekBar.visibility = View.INVISIBLE
                     }
                 }
             }
@@ -144,15 +151,15 @@ class StyleControlView @JvmOverloads constructor(
 
 
         /*返回一级页面*/
-        iv_beauty_back.setOnClickListener {
+        mBinding.ivBeautyBack.setOnClickListener {
             isOpenSub = false
             openSubBottomAnimator()
-            iv_recover.visibility = View.VISIBLE
+            mBinding.ivRecover.visibility = View.VISIBLE
             //更新风格还原按钮
             checkStyleRecover()
         }
 
-        style_seek_bar.setOnProgressChangeListener(object :
+        mBinding.styleSeekBar.setOnProgressChangeListener(object :
             DiscreteSeekBar.OnProgressChangeListener {
             override fun onProgressChanged(
                 seekBar: DiscreteSeekBar?,
@@ -163,7 +170,7 @@ class StyleControlView @JvmOverloads constructor(
                     return
                 }
                 val valueF = 1.0 * (value - seekBar!!.min) / 100
-                when (style_radio_group.checkedCheckBoxId) {
+                when (mBinding.styleRadioGroup.checkedCheckBoxId) {
                     R.id.style_makeup -> {
                         val res = valueF * 1.0
                         val value = mDataFactory.getMakeupIntensity()
@@ -193,7 +200,7 @@ class StyleControlView @JvmOverloads constructor(
         })
 
         /* 滑条控件监听 */
-        beauty_seek_bar.setOnProgressChangeListener(object :
+        mBinding.beautySeekBar.setOnProgressChangeListener(object :
             DiscreteSeekBar.OnProgressChangeListener {
             override fun onProgressChanged(
                 seekBar: DiscreteSeekBar?,
@@ -204,7 +211,7 @@ class StyleControlView @JvmOverloads constructor(
                     return
                 }
                 val valueF = 1.0 * (value - seekBar!!.min) / 100
-                when (beauty_radio_group.checkedCheckBoxId) {
+                when (mBinding.beautyRadioGroup.checkedCheckBoxId) {
                     R.id.beauty_radio_skin_beauty -> {
                         if (mSkinIndex < 0) return
                         val bean = mDataFactory.skinBeauty[mSkinIndex]
@@ -219,6 +226,7 @@ class StyleControlView @JvmOverloads constructor(
                             )
                         }
                     }
+
                     R.id.beauty_radio_face_shape -> {
                         if (mShapeIndex < 0) return
                         val bean = mBeautyAdapter.getData(mShapeIndex)
@@ -246,30 +254,44 @@ class StyleControlView @JvmOverloads constructor(
         })
 
         /* 美肤开关 */
-        switch_beauty_skin.setOnCheckedChangeListener { buttonView, isChecked ->
+        mBinding.switchBeautySkin.setOnCheckedChangeListener { buttonView, isChecked ->
             //选中美肤
             mDataFactory.enableFaceBeautySkin(isChecked)
             mSkinIndex = -1
-            beauty_seek_bar.visibility = View.INVISIBLE
+            mBinding.beautySeekBar.visibility = View.INVISIBLE
             //刷新数据
             mBeautyAdapter.notifyDataSetChanged()
-            tv_switch_beauty_skin.text = if (isChecked) mContext.getString(R.string.open) else mContext.getString(R.string.close)
-            if (!isChecked && isOpenSub)  ToastHelper.showNormalToast(mContext,mContext.getString(R.string.close_tip, mContext.getString(R.string.beauty_radio_skin_beauty)))
+            mBinding.tvSwitchBeautySkin.text =
+                if (isChecked) mContext.getString(R.string.open) else mContext.getString(R.string.close)
+            if (!isChecked && isOpenSub) ToastHelper.showNormalToast(
+                mContext,
+                mContext.getString(
+                    R.string.close_tip,
+                    mContext.getString(R.string.beauty_radio_skin_beauty)
+                )
+            )
         }
 
         /* 美型开关 */
-        switch_beauty_shape.setOnCheckedChangeListener { buttonView, isChecked ->
+        mBinding.switchBeautyShape.setOnCheckedChangeListener { buttonView, isChecked ->
             //选中美型
             mDataFactory.enableFaceBeautyShape(isChecked)
             mShapeIndex = -1
-            beauty_seek_bar.visibility = View.INVISIBLE
+            mBinding.beautySeekBar.visibility = View.INVISIBLE
             //刷新数据
             mBeautyAdapter.notifyDataSetChanged()
-            tv_switch_beauty_shape.text = if (isChecked) mContext.getString(R.string.open) else mContext.getString(R.string.close)
-            if (!isChecked && isOpenSub) ToastHelper.showNormalToast(mContext,mContext.getString(R.string.close_tip, mContext.getString(R.string.beauty_radio_face_shape)))
+            mBinding.tvSwitchBeautyShape.text =
+                if (isChecked) mContext.getString(R.string.open) else mContext.getString(R.string.close)
+            if (!isChecked && isOpenSub) ToastHelper.showNormalToast(
+                mContext,
+                mContext.getString(
+                    R.string.close_tip,
+                    mContext.getString(R.string.beauty_radio_face_shape)
+                )
+            )
         }
 
-        style_radio_group.setOnCheckedChangeListener { _, checkedId ->
+        mBinding.styleRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             //视图变化
             updateStyleSeekBar()
         }
@@ -288,8 +310,8 @@ class StyleControlView @JvmOverloads constructor(
      *  View初始化
      */
     private fun initView() {
-        initHorizontalRecycleView(recycler_style_view)
-        initHorizontalRecycleView(recycler_beauty_view)
+        initHorizontalRecycleView(mBinding.recyclerStyleView)
+        initHorizontalRecycleView(mBinding.recyclerBeautyView)
     }
 
     /**
@@ -314,7 +336,7 @@ class StyleControlView @JvmOverloads constructor(
 
             override fun onItemClickListener(view: View, data: StyleBean, position: Int) {
                 if (mDataFactory.currentStyleIndex == position && data.key != null) {
-                    enterSubItem(-1,-1,true)
+                    enterSubItem(-1, -1, true)
                 } else {
                     //选中逻辑
                     changeAdapterSelected(mStyleAdapter, mDataFactory.currentStyleIndex, position)
@@ -328,40 +350,40 @@ class StyleControlView @JvmOverloads constructor(
                 }
             }
         }, R.layout.list_item_control_title_edit_image_square)
-        recycler_style_view.adapter = mStyleAdapter
+        mBinding.recyclerStyleView.adapter = mStyleAdapter
         initSubAdapter()
     }
 
     /**
      * 跳入指定子界面
      */
-    private fun enterSubItem(skinIndex:Int,shapeIndex:Int,isSkin:Boolean) {
+    private fun enterSubItem(skinIndex: Int, shapeIndex: Int, isSkin: Boolean) {
         //跳入辅助页面
-        ll_switch_beauty_skin.visibility = VISIBLE
-        ll_switch_beauty_shape.visibility = GONE
-        switch_beauty_skin.isChecked = mDataFactory.getCurrentStyleSkinEnable()
-        tv_switch_beauty_skin.text =
+        mBinding.llSwitchBeautySkin.visibility = VISIBLE
+        mBinding.llSwitchBeautyShape.visibility = GONE
+        mBinding.switchBeautySkin.isChecked = mDataFactory.getCurrentStyleSkinEnable()
+        mBinding.tvSwitchBeautySkin.text =
             if (mDataFactory.getCurrentStyleSkinEnable()) mContext.getString(R.string.open) else mContext.getString(
                 R.string.close
             )
-        switch_beauty_shape.isChecked = mDataFactory.getCurrentStyleShapeEnable()
-        tv_switch_beauty_shape.text =
+        mBinding.switchBeautyShape.isChecked = mDataFactory.getCurrentStyleShapeEnable()
+        mBinding.tvSwitchBeautyShape.text =
             if (mDataFactory.getCurrentStyleShapeEnable()) mContext.getString(R.string.open) else mContext.getString(
                 R.string.close
             )
 
         isOpenSub = true
         openSubBottomAnimator()
-        iv_recover.visibility = GONE
+        mBinding.ivRecover.visibility = GONE
         mSkinIndex = skinIndex
         mShapeIndex = shapeIndex
-        beauty_radio_skin_beauty.isChecked = isSkin
-        beauty_radio_face_shape.isChecked = !isSkin
-        beauty_radio_skin_beauty.isEnabled = !isSkin
-        beauty_radio_face_shape.isEnabled = isSkin
+        mBinding.beautyRadioSkinBeauty.isChecked = isSkin
+        mBinding.beautyRadioFaceShape.isChecked = !isSkin
+        mBinding.beautyRadioSkinBeauty.isEnabled = !isSkin
+        mBinding.beautyRadioFaceShape.isEnabled = isSkin
         var beauties: java.util.ArrayList<FaceBeautyBean>
         var index: Int
-        if (isSkin){
+        if (isSkin) {
             beauties = mDataFactory.skinBeauty
             index = mSkinIndex
         } else {
@@ -373,9 +395,9 @@ class StyleControlView @JvmOverloads constructor(
             val value = mDataFactory.getParamIntensity(data.key)
             val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
             val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
-            seekToSeekBar(beauty_seek_bar, value, stand, maxRange)
+            seekToSeekBar(mBinding.beautySeekBar, value, stand, maxRange)
         } else {
-            beauty_seek_bar.visibility = INVISIBLE
+            mBinding.beautySeekBar.visibility = INVISIBLE
         }
         if (mBeautyAdapter.itemCount <= 0)
             mBeautyAdapter.setData(beauties)
@@ -392,7 +414,7 @@ class StyleControlView @JvmOverloads constructor(
                 position: Int
             ) {
                 val isShinSelected =
-                    beauty_radio_group.checkedCheckBoxId == R.id.beauty_radio_skin_beauty
+                    mBinding.beautyRadioGroup.checkedCheckBoxId == R.id.beauty_radio_skin_beauty
                 helper.itemView.isSelected =
                     if (isShinSelected) mSkinIndex == position else mShapeIndex == position
                 helper.setText(R.id.tv_control, data.desRes)
@@ -404,10 +426,10 @@ class StyleControlView @JvmOverloads constructor(
                 } else {
                     helper.setImageResource(R.id.iv_control, data.openRes)
                 }
-                if (isShinSelected && !switch_beauty_skin.isChecked) {
+                if (isShinSelected && !mBinding.switchBeautySkin.isChecked) {
                     val ivControl = helper.getView<ImageView>(R.id.iv_control)
                     ivControl?.imageAlpha = 154
-                } else if (!isShinSelected && !switch_beauty_shape.isChecked) {
+                } else if (!isShinSelected && !mBinding.switchBeautyShape.isChecked) {
                     val ivControl = helper.getView<ImageView>(R.id.iv_control)
                     ivControl?.imageAlpha = 154
                 } else {
@@ -424,20 +446,26 @@ class StyleControlView @JvmOverloads constructor(
                     val value = mDataFactory.getParamIntensity(data.key)
                     val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
                     val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
-                    seekToSeekBar(beauty_seek_bar, value, stand, maxRange)
+                    seekToSeekBar(mBinding.beautySeekBar, value, stand, maxRange)
                 }
             }
 
             override fun onItemClickListener(view: View, data: FaceBeautyBean, position: Int) {
                 if (!data.canUseFunction) {
-                    ToastHelper.showNormalToast(mContext,mContext.getString(R.string.face_beauty_function_tips, mContext.getString(data.desRes)))
+                    ToastHelper.showNormalToast(
+                        mContext,
+                        mContext.getString(
+                            R.string.face_beauty_function_tips,
+                            mContext.getString(data.desRes)
+                        )
+                    )
                     return
                 }
                 val isShinSelected =
-                    beauty_radio_group.checkedCheckBoxId == R.id.beauty_radio_skin_beauty
-                if (isShinSelected && !switch_beauty_skin.isChecked)
+                    mBinding.beautyRadioGroup.checkedCheckBoxId == R.id.beauty_radio_skin_beauty
+                if (isShinSelected && !mBinding.switchBeautySkin.isChecked)
                     return
-                if (!isShinSelected && !switch_beauty_shape.isChecked)
+                if (!isShinSelected && !mBinding.switchBeautyShape.isChecked)
                     return
                 if ((isShinSelected && position == mSkinIndex) || (!isShinSelected && position == mShapeIndex)) {
                     return
@@ -445,7 +473,7 @@ class StyleControlView @JvmOverloads constructor(
                 val value = mDataFactory.getParamIntensity(data.key)
                 val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
                 val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
-                seekToSeekBar(beauty_seek_bar, value, stand, maxRange)
+                seekToSeekBar(mBinding.beautySeekBar, value, stand, maxRange)
                 if (isShinSelected) {
                     changeAdapterSelected(mBeautyAdapter, mSkinIndex, position)
                     mSkinIndex = position
@@ -455,34 +483,35 @@ class StyleControlView @JvmOverloads constructor(
                 }
             }
         }, R.layout.list_item_control_title_image_circle)
-        recycler_beauty_view.adapter = mBeautyAdapter
+        mBinding.recyclerBeautyView.adapter = mBeautyAdapter
         isSubInit = true
     }
+
 
     /**
      * 更新风格那个seekbar 美妆 滤镜
      */
     private fun updateStyleSeekBar() {
         if (mDataFactory.currentStyleIndex == 0)
-            ll_seek_bar.visibility = View.INVISIBLE
+            mBinding.llSeekBar.visibility = View.INVISIBLE
         else
-            ll_seek_bar.visibility = View.VISIBLE
+            mBinding.llSeekBar.visibility = View.VISIBLE
 
         val stand = 0.0
         val range = 1.0
-        when (style_radio_group.checkedCheckBoxId) {
+        when (mBinding.styleRadioGroup.checkedCheckBoxId) {
             R.id.style_makeup -> {
-                style_makeup.isEnabled = false
-                style_filter.isEnabled = true
+                mBinding.styleMakeup.isEnabled = false
+                mBinding.styleFilter.isEnabled = true
                 val value = mDataFactory.getMakeupIntensity()
-                seekToSeekBar(style_seek_bar, value, stand, range)
+                seekToSeekBar(mBinding.styleSeekBar, value, stand, range)
             }
 
             R.id.style_filter -> {
-                style_makeup.isEnabled = true
-                style_filter.isEnabled = false
+                mBinding.styleMakeup.isEnabled = true
+                mBinding.styleFilter.isEnabled = false
                 val value = mDataFactory.getFilterIntensity()
-                seekToSeekBar(style_seek_bar, value, stand, range)
+                seekToSeekBar(mBinding.styleSeekBar, value, stand, range)
             }
         }
     }
@@ -532,14 +561,14 @@ class StyleControlView @JvmOverloads constructor(
     private var cytSubAnimator: ValueAnimator? = null
 
     private fun openSubBottomAnimator() {
-        openSubBottomAnimator(isOpenSub,150)
+        openSubBottomAnimator(isOpenSub, 150)
     }
 
     /**
      * 菜单切换动画，先收起后弹出
      * @param isOpenSub Boolean 是否开启子菜单
      */
-    private fun openSubBottomAnimator(isOpenSub: Boolean,duration :Long) {
+    private fun openSubBottomAnimator(isOpenSub: Boolean, duration: Long) {
         if (cytMainAnimator != null && cytMainAnimator!!.isRunning) {
             cytMainAnimator!!.cancel()
         }
@@ -558,7 +587,7 @@ class StyleControlView @JvmOverloads constructor(
         cytMainAnimator = ValueAnimator.ofInt(start, mid)
         cytMainAnimator!!.addUpdateListener { animation ->
             val height = animation.animatedValue as Int
-            val view = if (isOpenSub) cyt_main else cyt_sub
+            val view = if (isOpenSub) mBinding.cytMain else mBinding.cytSub
             val params = view.layoutParams as LinearLayout.LayoutParams
             params.height = height
             view.layoutParams = params
@@ -574,7 +603,7 @@ class StyleControlView @JvmOverloads constructor(
         cytSubAnimator = ValueAnimator.ofInt(mid, end)
         cytSubAnimator!!.addUpdateListener { animation ->
             val height = animation.animatedValue as Int
-            val view = if (!isOpenSub) cyt_main else cyt_sub
+            val view = if (!isOpenSub) mBinding.cytMain else mBinding.cytSub
             val params = view.layoutParams as LinearLayout.LayoutParams
             params.height = height
             view.layoutParams = params
@@ -591,17 +620,23 @@ class StyleControlView @JvmOverloads constructor(
     fun checkStyleRecover() {
         if (mDataFactory.checkStyleRecover()) {
             //没有改变
-            iv_recover.alpha = 0.7f
-            iv_recover.isClickable = false
+            mBinding.ivRecover.alpha = 0.7f
+            mBinding.ivRecover.isClickable = false
         } else {
             //有改变
-            iv_recover.alpha = 1.0f
-            iv_recover.isClickable = true
+            mBinding.ivRecover.alpha = 1.0f
+            mBinding.ivRecover.isClickable = true
         }
     }
 
     fun getUIStates(): StyleControlState {
-        return StyleControlState(mSkinIndex,mShapeIndex,isOpenSub,beauty_radio_skin_beauty.isChecked,style_filter.isChecked)
+        return StyleControlState(
+            mSkinIndex,
+            mShapeIndex,
+            isOpenSub,
+            mBinding.beautyRadioSkinBeauty.isChecked,
+            mBinding.styleFilter.isChecked
+        )
     }
 
     /**
@@ -617,28 +652,32 @@ class StyleControlView @JvmOverloads constructor(
             mSkinIndex = -1
             mShapeIndex = -1
             isOpenSub = false
-            openSubBottomAnimator(isOpenSub,1)
-            iv_recover.visibility = View.VISIBLE
+            openSubBottomAnimator(isOpenSub, 1)
+            mBinding.ivRecover.visibility = View.VISIBLE
             mStyleAdapter.notifyDataSetChanged()
-            style_filter.isChecked = false
-            style_filter.isEnabled = true
-            style_makeup.isChecked = true
-            style_makeup.isEnabled = false
+            mBinding.styleFilter.isChecked = false
+            mBinding.styleFilter.isEnabled = true
+            mBinding.styleMakeup.isChecked = true
+            mBinding.styleMakeup.isEnabled = false
             updateStyleSeekBar()
             checkStyleRecover()
         } else {
             isOpenSub = styleControlState.isSubOpen
-            style_filter.isChecked = styleControlState.isFilter
-            style_filter.isEnabled = !styleControlState.isFilter
-            style_makeup.isChecked = !styleControlState.isFilter
-            style_makeup.isEnabled = styleControlState.isFilter
+            mBinding.styleFilter.isChecked = styleControlState.isFilter
+            mBinding.styleFilter.isEnabled = !styleControlState.isFilter
+            mBinding.styleMakeup.isChecked = !styleControlState.isFilter
+            mBinding.styleMakeup.isEnabled = styleControlState.isFilter
             updateStyleSeekBar()
             checkStyleRecover()
             if (styleControlState.isSubOpen) {
-                enterSubItem(styleControlState.skinIndex,styleControlState.shapeIndex,styleControlState.isSkin)
+                enterSubItem(
+                    styleControlState.skinIndex,
+                    styleControlState.shapeIndex,
+                    styleControlState.isSkin
+                )
             } else {
-                iv_recover.visibility = View.VISIBLE
-                openSubBottomAnimator(isOpenSub,1)
+                mBinding.ivRecover.visibility = View.VISIBLE
+                openSubBottomAnimator(isOpenSub, 1)
             }
             mStyleAdapter.notifyDataSetChanged()
         }
@@ -647,8 +686,11 @@ class StyleControlView @JvmOverloads constructor(
     /**
      * 选中当前应该选中的风格
      */
-    fun selectCurrentStyle(){
+    fun selectCurrentStyle() {
         mDataFactory.styleTypeIndex()
-        mDataFactory.onStyleSelected(mDataFactory.styleBeans[mDataFactory.currentStyleIndex].key,false)
+        mDataFactory.onStyleSelected(
+            mDataFactory.styleBeans[mDataFactory.currentStyleIndex].key,
+            false
+        )
     }
 }

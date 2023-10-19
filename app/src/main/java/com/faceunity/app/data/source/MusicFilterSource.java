@@ -13,7 +13,7 @@ public class MusicFilterSource {
 
     /**
      * 构造音乐滤镜队列
-     * @return
+     * @return ArrayList<MusicFilterBean>
      */
     public static ArrayList<MusicFilterBean> buildMusicFilters() {
         ArrayList<MusicFilterBean> filters = new ArrayList<>();

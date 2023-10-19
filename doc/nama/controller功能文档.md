@@ -1,13 +1,16 @@
 # Contorller 参数文档
 
 ## 特别说明
+
 ```C
 //文档中假设：通过fuCreateItemFromPackage创建的controller.bundle的句柄为1
 //创建controller后，要先创建controller_config.bundle并绑定到controller。这样controller才算正确初始化。
 ```
+
 ------
 
 ## 多人模式
+
 ```C
 //使用fuBindItems绑定道具, fuUnbindItems解绑道具，以及对controller设置的参数，作用的都是当前角色，默认情况下，当前角色的ID是0号。
 //使用多人模式，需要通过设置参数current_instance_id，切换当前角色，例如切换到1号角色：
@@ -23,64 +26,88 @@ fuItemSetParamd(1, "destroy_instance", 1.0);
 ------
 
 ## 设置角色位置
+
 ```C
 //NAMA中使用右手坐标系，X轴水平向右，Y轴竖直向上，Z轴垂直屏幕向外
 ```
+
 ------
+
 ##### 设置角色的旋转角度
+
 ```C
 //第三个参数是归一化的旋转角度，范围[0.0, 1.0]，0.0代表0度，1.0代表360度
 fuItemSetParamd(1, "target_angle", 0.5);
 ```
+
 ##### 设置角色的大小
+
 ```C
 //第三个参数是角色在三维空间中Z方向的坐标，范围[-3000, 600]，数值越大，显示的角色越大
 fuItemSetParamd(1, "target_scale", -300.0);
 ```
+
 ##### 设置角色在竖直方向上的位置
+
 ```C
 //第三个参数是角色在三维空间中Y方向的位置，范围[-600, 800]
 fuItemSetParamd(1, "target_trans", 30.0);
 ```
+
 ##### 设置角色在三维空间的位置
+
 ```C
 //第三个参数是角色在三维空间中的坐标[x, y, z]，x范围[-200, 200]，y范围[-600, 800]，z范围[-3000, 600]
 fuItemSetParamdv(1, "target_position", [30.0, 0.0, -300]);
 ```
+
 ##### 调用重置命令，使上述对位置的设置命令生效
+
 ```C
 //第三个参数为过渡帧数，范围[1.0, 60.0]，表示经过多少帧从当前位置过渡到目标位置
 fuItemSetParamd(1, "reset_all", 1.0);
 ```
+
 ------
+
 ##### 旋转角色
+
 ```C
 //第三个参数是旋转增量，取值范围[-1.0, 1.0]
 fuItemSetParamd(1, "rot_delta", 1.0);
 ```
+
 ##### 缩放角色
+
 ```C
 //第三个参数缩放增量，取值范围[-1.0, 1.0]
 fuItemSetParamd(1, "scale_delta", 1.0);
 ```
+
 ##### 上下移动角色
+
 ```C
 //第三个参数是上下增量，取值范围[-1.0, 1.0]
 fuItemSetParamd(1, "translate_delta", 1.0);
 ```
 
 ##### 获取角色在三维空间的位置
+
 ```C
 fuItemGetParamdv(1, "current_position");
 ```
+
 ------
 
 ## 动画控制
+
 ```C
 //假设：通过fuCreateItemFromPackage创建的动画道具anim.bundle的句柄为2
 //以下控制接口只对当前角色有效
 ```
+
 ------
+
 ```C
 //个别设备支持的骨骼数量有限，无法在默认情况下运行骨骼动画，这时候开启这个选项
 fuItemSetParamd(1, "enable_vtf", 1.0); 
@@ -132,11 +159,14 @@ fuItemGetParamd(1, "{\"name\":\"get_animation_layerid\", \"anim_id\":2}");
 ------
 
 ## DynamicBone控制
+
 ```C
 //假设：通过fuCreateItemFromPackage创建的动画道具anim.bundle的句柄为2
 //以下控制接口只对当前角色有效
 ```
+
 ------
+
 ```C
 //1为开启，0为关闭，开启的时候移动角色的值会被设进骨骼系统，这时候带DynamicBone的模型会有相关效果
 //如果添加了没有骨骼的模型，请关闭这个值，否则无法移动模型
@@ -167,6 +197,7 @@ fuItemSetParamd(1, "dynamicBone_Reset", 1.0);
 ------
 
 ## 相机控制
+
 //通过以下接口控制相机的镜头参数
 
 ```C
@@ -254,8 +285,11 @@ fuItemGetParamd(1, "{\"name\":\"get_camera_animation_transition_progress\"}");
 //获取句柄为2的相机动画的总帧数
 fuItemGetParamd(1, "{\"name\":\"get_camera_animation_frame_num\", \"anim_id\":2}"); 
 ```
+
 ------
+
 ## 使用自定义的动画系统时间轴，必须按以下步骤
+
 ```C
 //1.重置一下当前的动画系统，准备切换时间轴
 //每个角色调用
@@ -297,52 +331,73 @@ fuItemSetParamd(1,'uv_anim_fps',25);
 ```C
 //所有输入的颜色值都为RGB，范围0-255
 ```
+
 ------
+
 ##### 肤色
+
 ```C
 //设置角色头和身体的肤色
 fuItemSetParamdv(1, "skin_color", [255, 0, 0]);
 //获取当前肤色在肤色表的索引，从0开始
 int skin_color_index = fuItemGetParamd(1, "skin_color_index");
 ```
+
 ------
+
 ##### 唇色
+
 ```C
 //设置唇色
 fuItemSetParamdv(1, "lip_color", [255, 0, 0]);
 //获取当前唇色在唇色表的索引，从0开始
 int lip_color_index = fuItemGetParamd(1, "lip_color_index");
 ```
+
 ------
+
 ##### 瞳孔颜色
+
 ```C
 //设置瞳孔颜色
 fuItemSetParamdv(1, "iris_color", [255,0,0]);
 ```
+
 ------
+
 ##### 眼镜颜色
+
 ```C
 //设置眼镜片颜色
 fuItemSetParamdv(1, "glass_color", [255,0,0]);
 //设置眼镜框颜色
 fuItemSetParamdv(1, "glass_frame_color", [255,0,0]);
 ```
+
 ------
+
 ##### 头发颜色
+
 ```C
 //设置头发颜色
 fuItemSetParamdv(1, "hair_color", [255, 0, 0]);
 //设置颜色强度，参数大于0.0，一般取值为1.0
 fuItemSetParamd(1, "hair_color_intensity", 1.0);
 ```
+
 ------
+
 ##### 胡子颜色
+
 ```C
 //设置胡子颜色
 fuItemSetParamdv(1, "beard_color", [255,0,0]);
 ```
+
 ------
+
 ##### 美妆颜色
+
 ```C
 //设置美妆的颜色
 //美妆参数名为json结构，
@@ -366,14 +421,20 @@ fuItemGetParamdv(1, "{\"name\":\"global\",\"type\":\"face_detail\",\"param\":\"b
 // Android，如果buf = null，表示获取失败
 double[] buf = fuItemGetParamdv(1, "{\"name\":\"global\",\"type\":\"face_detail\",\"param\":\"blend_color\",\"UUID\":5}");
 ```
+
 ------
+
 ##### 帽子颜色
+
 ```C
 //设置帽子颜色
 fuItemSetParamdv(1, "hat_color", [255,0,0]);
 ```
+
 ------
+
 ##### 设置背景颜色
+
 ```C
 //开启enable_background_color，只有开启后，才能通过set_background_color，设置纯色背景
 fuItemSetParamd(1, "enable_background_color", 1.0);
@@ -381,6 +442,7 @@ fuItemSetParamdv(1, "set_background_color", [255, 255, 255, 255]);
 //开启enable_background_color后背景道具失效，所以如果要使用背景道具，注意关闭enable_background_color
 fuItemSetParamd(1, "enable_background_color", 0.0);
 ```
+
 ------
 
 ## 阴影设置
@@ -396,6 +458,7 @@ fuItemSetParamd(1, "shadow_pcf_level", 2.0);
 // 设置shadow bias， value[0] 代表 uniform bias， value[1] 代表 normal bias
 fuItemSetParamdv(1, "shadow_bias", [0.01, 0.1]);
 ```
+
 ------
 
 ## 特殊模式
@@ -420,6 +483,7 @@ fuItemSetParamd(1, "enable_animation_track", 0.0);
 ```
 
 ### AR模式
+
 ```C
 //开启AR模式
 fuItemSetParamd(1, "enter_ar_mode", 1.0);
@@ -429,9 +493,11 @@ fuItemSetParamd(1, "quit_ar_mode", 1.0);
 //0表示设备未旋转，1表示逆时针旋转90度，2表示逆时针旋转180度，3表示逆时针旋转270度
 fuItemSetParamd(1, "screen_orientation", 0);
 ```
+
 ------
 
 ### Blendshape混合
+
 ```C
 //开启或关闭Blendshape混合：value = 1.0表示开启，value = 0.0表示不开启
 fuItemSetParamd(1, "enable_expression_blend", value);
@@ -449,9 +515,11 @@ for(var i = 0; i<57; i++){
 }
 fuItemSetParamdv(1, "expression_weight0", d);
 ```
+
 ------
 
 ### 眼睛注视相机
+
 ```C
 //开启眼镜注释功能，value = 1.0表示开启，value = 0.0表示不开启
 fuItemSetParamd(1, "enable_fouce_eye_to_camera", value);
@@ -460,9 +528,11 @@ fuItemSetParamd(1, "fouce_eye_to_camera_height_adjust", 30.0); //调整虚拟相
 fuItemSetParamd(1, "fouce_eye_to_camera_distance_adjust", 30.0); //调整虚拟相机相对距离
 fuItemSetParamd(1, "fouce_eye_to_camera_weight", 1.0); //调整注视的影响权重，1.0表示完全启用，0.0表示无影响
 ```
+
 ------
 
 ### Face Processor 面部追踪
+
 ```C
 //1.使用Face Processor 面部追踪前，需要加载ai_face_processor.bundle
 vector<uint8_t> u8_ai_face_processor;
@@ -485,10 +555,13 @@ fuItemSetParamdv(1, "translation_scale_follow_face_processor", [1.6,1.0,2.0]);
 fuItemSetParamdv(1, "translation_offset_follow_face_processor", [0.0, 0.0, -23.0]);
 
 ```
+
 ------
 
 ### Human Processor 身体追踪
+
 ##### 开启或关闭身体追踪
+
 ```C
 //1.使用Human Processor身体追踪前，需要加载ai_human_processor.bundle
 vector<uint8_t> u8_ai_human_processor;
@@ -503,7 +576,9 @@ fuItemSetParamd(1, "enable_human_processor", 1.0);
 fuReleaseAIModel(FUAITYPE::FUAITYPE_HUMAN_PROCESSOR);
 
 ```
+
 ##### 身体追踪参数设置
+
 ```C
 //开启身体追踪前需要设置target_angle，target_scale，target_trans，reset_all参数，来决定角色在追踪失败时的默认位置
 
@@ -526,7 +601,9 @@ fuItemSetParamd(1, "anim_transition_max_time_human_3d_track", 0.5);
 //设置在面部追踪数据和身体追踪数据内的面部数据之间过渡的时间，默认值为1.0（秒）
 fuItemSetParamd(1, "anim_transition_max_time_face_track", 1.0);
 ```
+
 ##### 获取身体追踪的状态
+
 ```C
 //FUAI_HUMAN_NO_BODY = 0,
 //FUAI_HUMAN_HALF_LESS_BODY = 1,
@@ -535,14 +612,18 @@ fuItemSetParamd(1, "anim_transition_max_time_face_track", 1.0);
 //FUAI_HUMAN_FULL_BODY = 4,
 fuItemGetParam(1, "human_status");
 ```
+
 ##### 获取身体追踪时双手手势ID
+
 ```C
 // 返回[x, y], x表示左手手势，y表示右手手势
 fuItemGetParamdv(1, "human_track_gesture_id");
 ```
+
 ------
 
 ### CNN 面部追踪（已废弃）
+
 ```C
 //1.使用CNN 面部追踪前，用户需要通过fuFaceCaptureCreate创建面部追踪模型
 var face_capture = fuFaceCaptureCreate(__pointer data, int sz);
@@ -558,17 +639,22 @@ fuFaceCaptureProcessFrame(face_capture, __pointer img_data, int image_w, int ima
 //5.最后，退出程序前，需要销毁面部追踪模型
 fuFaceCaptureDestory(face_capture)
 ```
+
 ------
 
 ### 捏脸
-##### 进入或者退出捏脸模式 
+
+##### 进入或者退出捏脸模式
+
 ```C
 //进入捏脸模式  
 fuItemSetParamd(1, "enter_facepup_mode", 1);
 //退出捏脸模式
 fuItemSetParamd(1, "quit_facepup_mode", 1);
 ```
-##### 细分部位调整 
+
+##### 细分部位调整
+
 ```C
 //设置捏脸参数，最后保存，保存会将当前参数保存进bundle中
 //参数名为json结构，
@@ -579,7 +665,9 @@ fuItemSetParamd(1, "quit_facepup_mode", 1);
 //数值范围[0, 1]
 fuItemSetParamd(1, "{\"name\":\"facepup\",\"param\":\"Head_Fat\"}", 1.0);
 ```
+
 ##### 获取保存在bundle中的捏脸参数
+
 ```C
 //参数名为json结构，
 {
@@ -594,122 +682,124 @@ fuItemGetParamfv(1, "facepup_expression", (float*)buf, (int)sz);
 ```
 
 ##### 参数表：
-__脸型__：  
 
-| param              | 含义         |
-| ------------------ | ------------ |
-| "HeadBone_wide " |头型变宽  |
-| "Head_narrow " |头型变窄  |
-| "head_shrink " |头部缩短  |
-| "head_stretch " |头部拉长  |
-| "head_fat " |胖  |
-| "head_thin " |瘦  |
-| "cheek_wide " |颊变宽  |
-| "cheekbone_narrow " |颊变短  |
-| "jawbone_Wide " |下颌角向下  |
-| "jawbone_Narrow " |下颌角向下  |
-| "jaw_m_wide " |下颌变宽  |
-| "jaw_M_narrow " |下颌变窄  |
-| "jaw_wide " |下巴变宽  |
-| "jaw_narrow " |下巴变窄  |
-| "jaw_up " |下巴变短  |
-| "jaw_lower " |下巴变长  |
-| "jawTip_forward " |下巴向前  |
-| "jawTip_backward " |下巴向后  |
-| "jawBone_m_up " |下颌中间变窄  |
-| "jawBone_m_down " |下颌中间变宽  |
+__脸型__：
 
-__眼睛__：  
+| param               | 含义     |
+|---------------------|--------|
+| "HeadBone_wide "    | 头型变宽   |
+| "Head_narrow "      | 头型变窄   |
+| "head_shrink "      | 头部缩短   |
+| "head_stretch "     | 头部拉长   |
+| "head_fat "         | 胖      |
+| "head_thin "        | 瘦      |
+| "cheek_wide "       | 颊变宽    |
+| "cheekbone_narrow " | 颊变短    |
+| "jawbone_Wide "     | 下颌角向下  |
+| "jawbone_Narrow "   | 下颌角向下  |
+| "jaw_m_wide "       | 下颌变宽   |
+| "jaw_M_narrow "     | 下颌变窄   |
+| "jaw_wide "         | 下巴变宽   |
+| "jaw_narrow "       | 下巴变窄   |
+| "jaw_up "           | 下巴变短   |
+| "jaw_lower "        | 下巴变长   |
+| "jawTip_forward "   | 下巴向前   |
+| "jawTip_backward "  | 下巴向后   |
+| "jawBone_m_up "     | 下颌中间变窄 |
+| "jawBone_m_down "   | 下颌中间变宽 |
 
-| param                | 含义       |
-| -------------------- | ---------- |
-| "Eye_wide " |眼睛放大  |
-| "Eye_shrink " |眼睛缩小  |
-| "Eye_up " |眼睛向上  |
-| "Eye_down " |眼睛向下  |
-| "Eye_in " |眼睛向里  |
-| "Eye_out " |眼睛向外  |
-| "Eye_close_L " |左眼闭  |
-| "Eye_close_R " |右眼闭  |
-| "Eye_open_L " |左眼睁  |
-| "Eye_open_R " |右眼睁  |
-| "Eye_upper_up_L " |左上眼皮向上  |
-| "Eye_upper_up_R " |右上眼皮向上  |
-| "Eye_upper_down_L " |左上眼皮向下  |
-| "Eye_upper_down_R " |右上眼皮向下  |
-| "Eye_upperBend_in_L " |左上眼皮向里  |
-| "Eye_upperBend_in_R " |右上眼皮向里  |
-| "Eye_upperBend_out_L " |左上眼皮向外  |
-| "Eye_upperBend_out_R " |右上眼皮向外  |
-| "Eye_downer_up_L " |左下眼皮向上  |
-| "Eye_downer_up_R " |右下眼皮向上  |
-| "Eye_downer_dn_L " |左下眼皮向下  |
-| "Eye_downer_dn_R " |右下眼皮向下  |
-| "Eye_downerBend_in_L " |左下眼皮向里  |
-| "Eye_downerBend_in_R " |右下眼皮向里  |
-| "Eye_downerBend_out_L " |左下眼皮向外  |
-| "Eye_downerBend_out_R " |右下眼皮向外  |
-| "Eye_outter_in " |外眼角向里  |
-| "Eye_outter_out " |外眼角向外  |
-| "Eye_outter_up " |外眼角向上  |
-| "Eye_outter_down " |外眼角向下  |
-| "Eye_inner_in " |内眼角向里  |
-| "Eye_inner_out " |内眼角向外  |
-| "Eye_inner_up " |内眼角向上  |
-| "Eye_inner_down " |内眼角向下  |
-| "Eye_forward " |眼睛向前  |
+__眼睛__：
+
+| param                   | 含义     |
+|-------------------------|--------|
+| "Eye_wide "             | 眼睛放大   |
+| "Eye_shrink "           | 眼睛缩小   |
+| "Eye_up "               | 眼睛向上   |
+| "Eye_down "             | 眼睛向下   |
+| "Eye_in "               | 眼睛向里   |
+| "Eye_out "              | 眼睛向外   |
+| "Eye_close_L "          | 左眼闭    |
+| "Eye_close_R "          | 右眼闭    |
+| "Eye_open_L "           | 左眼睁    |
+| "Eye_open_R "           | 右眼睁    |
+| "Eye_upper_up_L "       | 左上眼皮向上 |
+| "Eye_upper_up_R "       | 右上眼皮向上 |
+| "Eye_upper_down_L "     | 左上眼皮向下 |
+| "Eye_upper_down_R "     | 右上眼皮向下 |
+| "Eye_upperBend_in_L "   | 左上眼皮向里 |
+| "Eye_upperBend_in_R "   | 右上眼皮向里 |
+| "Eye_upperBend_out_L "  | 左上眼皮向外 |
+| "Eye_upperBend_out_R "  | 右上眼皮向外 |
+| "Eye_downer_up_L "      | 左下眼皮向上 |
+| "Eye_downer_up_R "      | 右下眼皮向上 |
+| "Eye_downer_dn_L "      | 左下眼皮向下 |
+| "Eye_downer_dn_R "      | 右下眼皮向下 |
+| "Eye_downerBend_in_L "  | 左下眼皮向里 |
+| "Eye_downerBend_in_R "  | 右下眼皮向里 |
+| "Eye_downerBend_out_L " | 左下眼皮向外 |
+| "Eye_downerBend_out_R " | 右下眼皮向外 |
+| "Eye_outter_in "        | 外眼角向里  |
+| "Eye_outter_out "       | 外眼角向外  |
+| "Eye_outter_up "        | 外眼角向上  |
+| "Eye_outter_down "      | 外眼角向下  |
+| "Eye_inner_in "         | 内眼角向里  |
+| "Eye_inner_out "        | 内眼角向外  |
+| "Eye_inner_up "         | 内眼角向上  |
+| "Eye_inner_down "       | 内眼角向下  |
+| "Eye_forward "          | 眼睛向前   |
 
 __嘴巴__：
 
-| param                | 含义         |
-| -------------------- | ------------ |
-| "upperLip_Thick " |上唇变厚  |
-| "upperLipSide_Thick " |上唇两侧变厚  |
-| "lowerLip_Thick " |下唇变厚  |
-| "lowerLipSide_Thin " |下唇两侧变薄  |
-| "lowerLipSide_Thick " |下唇两侧变厚  |
-| "upperLip_Thin " |上唇变薄  |
-| "lowerLip_Thin " |下唇变薄  |
-| "mouth_magnify " |嘴巴放大  |
-| "mouth_shrink " |嘴巴缩小  |
-| "lipCorner_Out " |嘴角向外  |
-| "lipCorner_In " |嘴角向里  |
-| "lipCorner_up " |嘴角向上  |
-| "lipCorner_down " |嘴角向下  |
-| "mouth_m_down " |唇尖向下  |
-| "mouth_m_up " |唇尖向上  |
-| "mouth_Up " |嘴向上  |
-| "mouth_Down " |嘴向下  |
-| "mouth_side_up " |唇线两侧向上  |
-| "mouth_side_down " |唇线两侧向下  |
-| "mouth_forward " |嘴向前  |
-| "mouth_backward " |嘴向后  |
-| "upperLipSide_thin " |上唇两侧变薄  |
+| param                 | 含义     |
+|-----------------------|--------|
+| "upperLip_Thick "     | 上唇变厚   |
+| "upperLipSide_Thick " | 上唇两侧变厚 |
+| "lowerLip_Thick "     | 下唇变厚   |
+| "lowerLipSide_Thin "  | 下唇两侧变薄 |
+| "lowerLipSide_Thick " | 下唇两侧变厚 |
+| "upperLip_Thin "      | 上唇变薄   |
+| "lowerLip_Thin "      | 下唇变薄   |
+| "mouth_magnify "      | 嘴巴放大   |
+| "mouth_shrink "       | 嘴巴缩小   |
+| "lipCorner_Out "      | 嘴角向外   |
+| "lipCorner_In "       | 嘴角向里   |
+| "lipCorner_up "       | 嘴角向上   |
+| "lipCorner_down "     | 嘴角向下   |
+| "mouth_m_down "       | 唇尖向下   |
+| "mouth_m_up "         | 唇尖向上   |
+| "mouth_Up "           | 嘴向上    |
+| "mouth_Down "         | 嘴向下    |
+| "mouth_side_up "      | 唇线两侧向上 |
+| "mouth_side_down "    | 唇线两侧向下 |
+| "mouth_forward "      | 嘴向前    |
+| "mouth_backward "     | 嘴向后    |
+| "upperLipSide_thin "  | 上唇两侧变薄 |
 
 __鼻子__：
 
-| param          | 含义       |
-| -------------- | ---------- |
-| "nostril_Out " |鼻翼变宽  |
-| "nostril_In " |鼻翼变窄  |
-| "noseTip_Up " |鼻尖向上  |
-| "noseTip_Down " |鼻尖向下  |
-| "nose_Up " |鼻子向上  |
-| "nose_tall " |鼻子变高  |
-| "nose_low " |鼻子变矮  |
-| "nose_Down " |鼻子向下  |
-| "noseTip_forward " |鼻尖向前  |
-| "noseTip_backward " |鼻尖向后  |
-| "noseTip_magnify " |鼻尖放大  |
-| "noseTip_shrink " |鼻尖缩小  |
-| "nostril_up " |鼻翼向上  |
-| "nostril_down " |鼻翼向下  |
-| "noseBone_tall " |鼻梁变高  |
-| "noseBone_low " |鼻梁变低  |
-| "nose_wide " |鼻子变宽  |
-| "nose_shrink " |鼻子变窄  |
+| param               | 含义   |
+|---------------------|------|
+| "nostril_Out "      | 鼻翼变宽 |
+| "nostril_In "       | 鼻翼变窄 |
+| "noseTip_Up "       | 鼻尖向上 |
+| "noseTip_Down "     | 鼻尖向下 |
+| "nose_Up "          | 鼻子向上 |
+| "nose_tall "        | 鼻子变高 |
+| "nose_low "         | 鼻子变矮 |
+| "nose_Down "        | 鼻子向下 |
+| "noseTip_forward "  | 鼻尖向前 |
+| "noseTip_backward " | 鼻尖向后 |
+| "noseTip_magnify "  | 鼻尖放大 |
+| "noseTip_shrink "   | 鼻尖缩小 |
+| "nostril_up "       | 鼻翼向上 |
+| "nostril_down "     | 鼻翼向下 |
+| "noseBone_tall "    | 鼻梁变高 |
+| "noseBone_low "     | 鼻梁变低 |
+| "nose_wide "        | 鼻子变宽 |
+| "nose_shrink "      | 鼻子变窄 |
 
 ------
+
 ### 骨骼捏形
 
 ```C
@@ -731,128 +821,129 @@ fuItemGetParamfv(1, "deformationData", (float*)buf, (int)sz);
 
 __身材__：
 
-| param          | 含义       |
-| -------------- | ---------- |
-| "tall" |高  |
-| "short" |矮  |
-| "fat" |胖  |
-| "thin" |瘦  |
+| param   | 含义  |
+|---------|-----|
+| "tall"  | 高   |
+| "short" | 矮   |
+| "fat"   | 胖   |
+| "thin"  | 瘦   |
 
 __脸型__：
 
-| param          | 含义       |
-| -------------- | ---------- |
-| "eye_narrow" | 眼睛窄  |
-| "eye_wide" |  眼睛宽 |
-| "eye_down" | 眼睛下  |
-| "eye_up" |  眼睛上 |
-| "eye_inner" |  眼睛内 |
-| "eye_backward" | 眼睛小  |
-| "eye_forward" | 眼睛大  |
-| "upperLidOut_narrow" | 外上眼皮右  |
-| "upperLidOut_wide" |  外上眼皮左 |
-| "upperLidOut_down" | 外上眼皮左下  |
-| "upperLidOut_up" | 外上眼皮左上  |
-| "upperLidMid_narrow" | 中上眼皮右 |
-| "upperLidMid_wide" |  中上眼皮左 |
-| "upperLidMid_down" |  中上眼皮下 |
-| "upperLidMid_up" |  中上眼皮上 |
-| "upperLidIn_narrow" | 内上眼皮右  |
-| "upperLidIn_wide" |  内上眼皮左 |
-| "upperLidIn_down" | 内上眼皮下 |
-| "upperLidIn_up" |  内上眼皮上下 |
-| "lidInner_narrow" | 内眼角内  |
-| "lidInner_wide" | 内眼角外  |
-| "lidInner_down" | 内眼角下  |
-| "lidInner_up" |  内眼角上 |
-| "lowerLidIn_narrow" | 内下眼皮右 |
-| "lowerLidIn_wide" | 内下眼皮左  |
-| "lowerLidIn_down" |  内下眼皮下 |
-| "lowerLidIn_up" | 内下眼皮上  |
-| "lowerLidMid_narrow" | 中下眼皮右  |
-| "lowerLidMid_wide" | 中下眼皮左  |
-| "lowerLidMid_down" | 中下眼皮下  |
-| "lowerLidMid_up" |  中下眼皮上 |
-| "lowerLidOut_narrow" |  外下眼皮右 |
-| "lowerLidOut_wide" | 外下眼皮左  |
-| "lowerLidOut_down" |  外下眼皮下 |
-| "lowerLidOut_up" | 外下眼皮上  |
-| "lidOuter_narrow" | 外眼角内  |
-| "lidOuter_wide" |  外眼角外 |
-| "lidOuter_down" | 外眼角下  |
-| "lidOuter_up" | 外眼角上  |
-| "nose_down" | 鼻子下  |
-| "nose_up" | 鼻子上  |
-| "nose_backward" | 鼻子后  |
-| "nose_forward" | 鼻子前  |
-| "noseTip_down" |  鼻尖下 |
-| "noseTip_up" | 鼻尖上  |
-| "noseTip_backward" |  鼻尖后 |
-| "noseTip_forward" |  鼻尖前 |
-| "upperHead_narrow" |  脸窄 |
-| "upperHead_wide" |  脸宽 |
-| "upperHead_down" |  上脸短 |
-| "upperHead_up" | 上脸长  |
-| "upperHead_backward" | 上脸后  |
-| "upperHead_forward" | 上脸前  |
-| "lowerHead_down" | 下脸长  |
-| "lowerHead_up" | 下脸短 |
-| "lowerHead_backward" |  下脸后 |
-| "lowerHead_forward" | 下脸前  |
-| "upperJaw_narrow" | 脸颊瘦  |
-| "upperJaw_wide" | 脸颊胖  |
-| "midJaw_narrow" | 下颚瘦 |
-| "midJaw_wide" | 下颚胖 |
-| "midJaw_down" | 下颚下 |
-| "midJaw_up" | 下颚上  |
-| "lowerJaw_narrow" | 腮帮瘦  |
-| "lowerJaw_wide" | 腮帮胖  |
-| "lowerJaw_down" | 腮帮下  |
-| "lowerJaw_up" | 腮帮上  |
-| "jawLine_narrow" |  下颌角窄 |
-| "jawLine_wide" |  下颌角宽 |
-| "jawLine_down" |  下颌角下 |
-| "jawLine_up" |  下颌角上 |
-| "jawTip_narrow" |  下巴瘦 |
-| "jawTip_wide" | 下巴胖  |
-| "jawTip_down" | 下巴下  |
-| "jawTip_up" |  下巴上 |
-| "jawTip_backward" | 下巴后  |
-| "jawTip_forward" | 下巴前  |
-| "jawTip_peak_narrow" | 下巴尖窄  |
-| "jawTip_peak_wide" |  下巴尖宽 |
-| "jawTip_peak_down" |  下巴尖长 |
-| "jawTip_peak_up" |  下巴尖短 |
-| "jawTip_peak_backward" |  下巴尖后 |
-| "jawTip_peak_forward" | 下巴尖前  |
-| "lowerChin_down" |  下巴内侧下 |
-| "lowerChin_up" | 下巴内侧上  |
-| "mouth_narrow" |  嘴巴小 |
-| "mouth_wide" | 嘴巴大  |
-| "mouth_down" | 嘴巴下  |
-| "mouth_up" |  嘴巴上 |
-| "mouth_backward" |  嘴巴后 |
-| "mouth_forward" |  嘴巴前 |
-| "globalBrow_down" |  眉毛下 |
-| "globalBrow_up" |  眉毛上 |
-| "InnerBrow_down" | 内眉毛下  |
-| "InnerBrow_up" | 内眉毛上  |
-| "middleBrow_down" |  中眉毛下 |
-| "middleBrow_up" |  中眉毛上 |
-| "outerBrow_down" |  外眉毛下 |
-| "outerBrow_up" | 外眉毛上  |
-| "ear_narrow" | 耳朵小  |
-| "ear_wide" | 耳朵大  |
-| "ear_down" | 耳朵下  |
-| "ear_up" | 耳朵上  |
-| "upperEar_down" |  上耳朵下 |
-| "upperEar_up" |  上耳朵上 |
+| param                  | 含义     |
+|------------------------|--------|
+| "eye_narrow"           | 眼睛窄    |
+| "eye_wide"             | 眼睛宽    |
+| "eye_down"             | 眼睛下    |
+| "eye_up"               | 眼睛上    |
+| "eye_inner"            | 眼睛内    |
+| "eye_backward"         | 眼睛小    |
+| "eye_forward"          | 眼睛大    |
+| "upperLidOut_narrow"   | 外上眼皮右  |
+| "upperLidOut_wide"     | 外上眼皮左  |
+| "upperLidOut_down"     | 外上眼皮左下 |
+| "upperLidOut_up"       | 外上眼皮左上 |
+| "upperLidMid_narrow"   | 中上眼皮右  |
+| "upperLidMid_wide"     | 中上眼皮左  |
+| "upperLidMid_down"     | 中上眼皮下  |
+| "upperLidMid_up"       | 中上眼皮上  |
+| "upperLidIn_narrow"    | 内上眼皮右  |
+| "upperLidIn_wide"      | 内上眼皮左  |
+| "upperLidIn_down"      | 内上眼皮下  |
+| "upperLidIn_up"        | 内上眼皮上下 |
+| "lidInner_narrow"      | 内眼角内   |
+| "lidInner_wide"        | 内眼角外   |
+| "lidInner_down"        | 内眼角下   |
+| "lidInner_up"          | 内眼角上   |
+| "lowerLidIn_narrow"    | 内下眼皮右  |
+| "lowerLidIn_wide"      | 内下眼皮左  |
+| "lowerLidIn_down"      | 内下眼皮下  |
+| "lowerLidIn_up"        | 内下眼皮上  |
+| "lowerLidMid_narrow"   | 中下眼皮右  |
+| "lowerLidMid_wide"     | 中下眼皮左  |
+| "lowerLidMid_down"     | 中下眼皮下  |
+| "lowerLidMid_up"       | 中下眼皮上  |
+| "lowerLidOut_narrow"   | 外下眼皮右  |
+| "lowerLidOut_wide"     | 外下眼皮左  |
+| "lowerLidOut_down"     | 外下眼皮下  |
+| "lowerLidOut_up"       | 外下眼皮上  |
+| "lidOuter_narrow"      | 外眼角内   |
+| "lidOuter_wide"        | 外眼角外   |
+| "lidOuter_down"        | 外眼角下   |
+| "lidOuter_up"          | 外眼角上   |
+| "nose_down"            | 鼻子下    |
+| "nose_up"              | 鼻子上    |
+| "nose_backward"        | 鼻子后    |
+| "nose_forward"         | 鼻子前    |
+| "noseTip_down"         | 鼻尖下    |
+| "noseTip_up"           | 鼻尖上    |
+| "noseTip_backward"     | 鼻尖后    |
+| "noseTip_forward"      | 鼻尖前    |
+| "upperHead_narrow"     | 脸窄     |
+| "upperHead_wide"       | 脸宽     |
+| "upperHead_down"       | 上脸短    |
+| "upperHead_up"         | 上脸长    |
+| "upperHead_backward"   | 上脸后    |
+| "upperHead_forward"    | 上脸前    |
+| "lowerHead_down"       | 下脸长    |
+| "lowerHead_up"         | 下脸短    |
+| "lowerHead_backward"   | 下脸后    |
+| "lowerHead_forward"    | 下脸前    |
+| "upperJaw_narrow"      | 脸颊瘦    |
+| "upperJaw_wide"        | 脸颊胖    |
+| "midJaw_narrow"        | 下颚瘦    |
+| "midJaw_wide"          | 下颚胖    |
+| "midJaw_down"          | 下颚下    |
+| "midJaw_up"            | 下颚上    |
+| "lowerJaw_narrow"      | 腮帮瘦    |
+| "lowerJaw_wide"        | 腮帮胖    |
+| "lowerJaw_down"        | 腮帮下    |
+| "lowerJaw_up"          | 腮帮上    |
+| "jawLine_narrow"       | 下颌角窄   |
+| "jawLine_wide"         | 下颌角宽   |
+| "jawLine_down"         | 下颌角下   |
+| "jawLine_up"           | 下颌角上   |
+| "jawTip_narrow"        | 下巴瘦    |
+| "jawTip_wide"          | 下巴胖    |
+| "jawTip_down"          | 下巴下    |
+| "jawTip_up"            | 下巴上    |
+| "jawTip_backward"      | 下巴后    |
+| "jawTip_forward"       | 下巴前    |
+| "jawTip_peak_narrow"   | 下巴尖窄   |
+| "jawTip_peak_wide"     | 下巴尖宽   |
+| "jawTip_peak_down"     | 下巴尖长   |
+| "jawTip_peak_up"       | 下巴尖短   |
+| "jawTip_peak_backward" | 下巴尖后   |
+| "jawTip_peak_forward"  | 下巴尖前   |
+| "lowerChin_down"       | 下巴内侧下  |
+| "lowerChin_up"         | 下巴内侧上  |
+| "mouth_narrow"         | 嘴巴小    |
+| "mouth_wide"           | 嘴巴大    |
+| "mouth_down"           | 嘴巴下    |
+| "mouth_up"             | 嘴巴上    |
+| "mouth_backward"       | 嘴巴后    |
+| "mouth_forward"        | 嘴巴前    |
+| "globalBrow_down"      | 眉毛下    |
+| "globalBrow_up"        | 眉毛上    |
+| "InnerBrow_down"       | 内眉毛下   |
+| "InnerBrow_up"         | 内眉毛上   |
+| "middleBrow_down"      | 中眉毛下   |
+| "middleBrow_up"        | 中眉毛上   |
+| "outerBrow_down"       | 外眉毛下   |
+| "outerBrow_up"         | 外眉毛上   |
+| "ear_narrow"           | 耳朵小    |
+| "ear_wide"             | 耳朵大    |
+| "ear_down"             | 耳朵下    |
+| "ear_up"               | 耳朵上    |
+| "upperEar_down"        | 上耳朵下   |
+| "upperEar_up"          | 上耳朵上   |
 
 ------
 
 ## 其他
 
 ### 更新背景道具贴图
+
 ```C
 //背景道具包含背景贴图和画中画贴图
 //更新背景贴图
@@ -860,12 +951,17 @@ fuCreateTexForItem(1, "background_bg_tex", __pointer data, int width, int height
 //更新画中画贴图
 fuCreateTexForItem(1, "background_live_tex", __pointer data, int width, int height)
 ```
+
 ------
+
 ### 隐藏脖子
+
 ```C
 fuItemSetParam(1, "hide_neck", 1.0);
 ```
+
 ------
+
 ### 输入脸部mesh顶点序号获取其在屏幕空间的坐标
 
 ```C
@@ -876,16 +972,23 @@ fuItemGetParamd(1, "query_vert_x");
 //获取坐标y
 fuItemGetParamd(1, "query_vert_y");
 ```
+
 ------
+
 ### 获取serverinfo信息
+
 ```C
 //参数名是json格式，name固定是serverinfo，param是参数名。
 ```
+
 ##### 获取头发分类类别
+
 ```C  
 var ret = fuItemGetParamd(1, "{\"name\":\"serverinfo\", \"param\":\"hair_label\"}");
 ```
+
 ##### 设置道具是否可见(对美妆道具和背景道具不可用)
+
 ```C 
 //参数名为json结构，
 {
@@ -895,7 +998,9 @@ var ret = fuItemGetParamd(1, "{\"name\":\"serverinfo\", \"param\":\"hair_label\"
 // value = 0.0 表示不可见，value = 1.0 表示可见
 fuItemSetParamdv(1, "{\"name\":\"is_visible\",\"UUID\":5}", 1.0);
 ```
+
 ##### 设置美妆道具的合成顺序（只对使用正常混合模式的美妆道具起效）
+
 ```C
 // 是否使用自定义的美妆合成顺序，value = 1.0表示使用自定义的美妆合成顺序，value = 0.0表示使用绑定顺序作为合成顺序。
 fuItemSetParamd(1, "use_facebeauty_order", 1.0);
@@ -903,24 +1008,32 @@ fuItemSetParamd(1, "use_facebeauty_order", 1.0);
 // 例如，有两个handle_id分别为6和7美妆道具，使用下面的合成顺序，视觉上看起来7在6的上方。
 fuItemSetParamdv(1, "facebeauty_order", [6, 7]);
 ```
+
 ##### 设置身体道具各部分的显示列表
+
 ```C
 // 是否使用显示列表显示身体道具，value = 1.0表示使用显示列表，value = 0.0表示使用默认方式
 fuItemSetParamd(1, "use_body_visible_list", 1.0);
 // 设置身体道具各部分的显示列表，例如，使用下面的显示列表，则只显示身体道具中6和7两个部分。
 fuItemSetParamdv(1, "body_visible_list", [6, 7]);
 ```
+
 ##### 返回当前角色在模型空间的包围盒的左下角和右上角的坐标
+
 ```C
 // 返回数组[x0, y0, z0, x1, y1, z1]，[x0, y0, x0]表示左下角坐标，[x1, y1, z1]表示右上角坐标
 fuItemGetParamdv(1, "boundingbox");
 ```
+
 ##### 返回当前角色的中心在屏幕空间的二维坐标
+
 ```C
 //假设屏幕空间的坐标原点在左下角
 fuItemGetParamdv(1, "target_position_in_screen_space");
 ```
+
 ##### 返回当前角色骨骼的屏幕坐标，屏幕坐标的原点在左下角
+
 ```C
 //参数名为json结构
 {
@@ -935,22 +1048,30 @@ fuItemGetParamdv(1, "target_position_in_screen_space");
 //返回屏幕空间的二维坐标
 fuItemGetParamdv(1, "{\"name\":\"get_bone_coordinate_screen\",\"param\":\"Head_M\"}");
 ```
+
 ##### 返回controller的版本号
+
 ```C
 //返回controller版本号的字符串
 fuItemGetParams(1, "version");
 ```
+
 ##### 返回绑定到controller上的道具的类型
+
 ```C
 //返回道具类型的字符串
 fuItemGetParams(1, "{\"name\":\"get_bundle_type\", \"bundle_id\":3}"); 
 ```
+
 ##### 设置低质量灯光
+
 ```C
 //设置是否开启低质量灯光的渲染，value = 1.0代表开启，value=0.0代表不开启
 fuItemSetParamd(1, "low_quality_lighting", 1.0);
 ```
+
 ##### 更新贴图（从RGBA Buffer创建贴图）
+
 ```C
 //参数名为json结构
 {
@@ -961,7 +1082,9 @@ fuItemSetParamd(1, "low_quality_lighting", 1.0);
 
 fuCreateTexForItem(1, "{\"name\":\"update_tex_from_data\", \"UUID\":5, \"dc_name\":\"eyel\"}", __pointer data, int width, int height);
 ```
+
 ##### 更新背景贴图参数
+
 ```C
 //参数名为json结构
 {
@@ -972,18 +1095,22 @@ fuCreateTexForItem(1, "{\"name\":\"update_tex_from_data\", \"UUID\":5, \"dc_name
 }
 fuItemSetParamd(1, "{\"name\":\"global\", \"type\":\"background\", \"param\":\"size_x_tex_live\", \"UUID\":5}", 1.0);
 ```
+
 ##### 对FUAI结果进行处理
+
 ```C
 // 处理FUAI结果，对齐到给fuSetInputCameraMatrix设置的参数，要求input camera tex和input camera buffer对齐
 fuItemSetParamd(1, "fuai_align_input_camera_matrix", 1.0);
 ```
 
 ##### 使用低分辨率贴图资源
+
 ```C
 fuItemSetParamd(1, "use_low_resolution_tex", 1.0);
 ```
 
 ##### 恢复捏脸（只对使用拼脸的捏脸方案有效）
+
 ```C
 fuItemSetParamd(1, "reset_head", 1.0);
 ```

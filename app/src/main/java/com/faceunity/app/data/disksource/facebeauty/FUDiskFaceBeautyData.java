@@ -20,6 +20,8 @@ public class FUDiskFaceBeautyData implements Serializable {
     public double colorIntensity = 0.0;
     /* 红润程度 */
     public double redIntensity = 0.0;
+    /* 清晰程度 */
+    public double clarityIntensity = 0.0;
     /* 锐化程度 */
     public double sharpenIntensity = 0.0;
     /* 亮眼程度 */

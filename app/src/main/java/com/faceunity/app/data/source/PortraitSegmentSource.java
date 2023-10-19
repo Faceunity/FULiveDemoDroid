@@ -1,5 +1,7 @@
 package com.faceunity.app.data.source;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.SharedPreferences;
 
 import com.faceunity.app.DemoApplication;
@@ -15,8 +17,6 @@ import com.faceunity.ui.infe.AbstractPropCustomDataFactory;
 import java.io.File;
 import java.util.ArrayList;
 
-import static android.content.Context.MODE_PRIVATE;
-
 /**
  * DESC：人像分割数据构造
  * Created on 2021/3/28
@@ -28,7 +28,7 @@ public class PortraitSegmentSource {
     /**
      * 缓存自定义添加人像
      *
-     * @param path
+     * @param path String
      */
     public static void saveCachePortraitSegment(String path) {
         SharedPreferences sp = DemoApplication.mApplication.getSharedPreferences(BG_SEG_CUSTOM_FILEPATH, MODE_PRIVATE);
@@ -38,7 +38,7 @@ public class PortraitSegmentSource {
     /**
      * 获取自定义添加人像
      *
-     * @return
+     * @return String
      */
     public static String getCachePortraitSegment() {
         SharedPreferences sp = DemoApplication.mApplication.getSharedPreferences(BG_SEG_CUSTOM_FILEPATH, MODE_PRIVATE);
@@ -49,7 +49,7 @@ public class PortraitSegmentSource {
     /**
      * 构造道具队列
      *
-     * @return
+     * @return ArrayList<PropCustomBean>
      */
     public static ArrayList<PropCustomBean> buildPropBeans() {
         ArrayList<PropCustomBean> propBeans = new ArrayList<>();
@@ -75,13 +75,13 @@ public class PortraitSegmentSource {
     /**
      * 构造自定义人像分割
      *
-     * @param path
-     * @return
+     * @param path String
+     * @return PropCustomBean
      */
     public static PropCustomBean buildPropCustomBean(String path) {
         if (path != null && path.trim().length() > 0 && new File(path).exists()) {
             saveCachePortraitSegment(path);
-            return new PropCustomBean(0, DemoConfig.BUNDLE_BG_SEG_CUSTOM, FunctionEnum.BG_SEG_CUSTOM, 0, path );
+            return new PropCustomBean(0, DemoConfig.BUNDLE_BG_SEG_CUSTOM, FunctionEnum.BG_SEG_CUSTOM, 0, path);
         }
         return null;
 
@@ -91,8 +91,8 @@ public class PortraitSegmentSource {
     /**
      * 构造人像分割线模型
      *
-     * @param path
-     * @return
+     * @param path String
+     * @return HumanOutline
      */
     public static HumanOutline getHumanOutline(String path) {
         HumanOutline humanOutline = new HumanOutline(new FUBundleData(path));

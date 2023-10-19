@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -258,7 +257,7 @@ public class ShowVideoActivity extends BaseActivity {
 
     @Override
     public void bindListener() {
-        mVideoRenderer = new VideoRenderer(mSurfaceView, mVideoPath, mOnGlRendererListener, true,true);
+        mVideoRenderer = new VideoRenderer(mSurfaceView, mVideoPath, mOnGlRendererListener, true, true);
         mVideoPlayHelper = new VideoPlayHelper(mVideoDecoderListener, mSurfaceView, false);
         /* 播放*/
         mPlayView.setOnClickListener((view) -> {
@@ -544,7 +543,6 @@ public class ShowVideoActivity extends BaseActivity {
     //endregion 业务扩展
     //region 回调
     private int mTrackStatus = 1;
-
 
     /*GLRender 回调  */
     private final OnGlRendererListener mOnGlRendererListener = new OnGlRendererListener() {

@@ -8,9 +8,9 @@ import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
+import com.faceunity.ui.databinding.LayoutEffectControlBinding
 import com.faceunity.ui.entity.MusicFilterBean
 import com.faceunity.ui.infe.AbstractMusicFilterDataFactory
-import kotlinx.android.synthetic.main.layout_effect_control.view.*
 
 
 /**
@@ -20,17 +20,23 @@ import kotlinx.android.synthetic.main.layout_effect_control.view.*
  *
  */
 
-class MusicFilterControlView @JvmOverloads constructor(mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class MusicFilterControlView @JvmOverloads constructor(
+    mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     BaseControlView(mContext, attrs, defStyleAttr) {
 
     private lateinit var mDataFactory: AbstractMusicFilterDataFactory
 
     private lateinit var mMusicFilterAdapter: BaseListAdapter<MusicFilterBean>
 
+    private val mBinding: LayoutEffectControlBinding by lazy {
+        LayoutEffectControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
 
     // region  init
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_effect_control, this)
         initView()
         initAdapter()
     }
@@ -49,29 +55,39 @@ class MusicFilterControlView @JvmOverloads constructor(mContext: Context, attrs:
      *  View初始化
      */
     private fun initView() {
-        initHorizontalRecycleView(recycler_view)
+        initHorizontalRecycleView(mBinding.recyclerView)
     }
 
     /**
      *  Adapter初始化
      */
     private fun initAdapter() {
-        mMusicFilterAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<MusicFilterBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, item: MusicFilterBean, position: Int) {
-                helper.setImageResource(R.id.iv_control, item.iconId)
-                helper.itemView.isSelected = position == mDataFactory.currentFilterIndex
-            }
-
-            override fun onItemClickListener(view: View, data: MusicFilterBean, position: Int) {
-                if (mDataFactory.currentFilterIndex != position) {
-                    changeAdapterSelected(mMusicFilterAdapter, mDataFactory.currentFilterIndex, position)
-                    mDataFactory.currentFilterIndex = position
-                    mDataFactory.onMusicFilterSelected(data)
+        mMusicFilterAdapter =
+            BaseListAdapter(ArrayList(), object : BaseDelegate<MusicFilterBean>() {
+                override fun convert(
+                    viewType: Int,
+                    helper: BaseViewHolder,
+                    item: MusicFilterBean,
+                    position: Int
+                ) {
+                    helper.setImageResource(R.id.iv_control, item.iconId)
+                    helper.itemView.isSelected = position == mDataFactory.currentFilterIndex
                 }
 
-            }
-        }, R.layout.list_item_control_image_circle)
-        recycler_view.adapter = mMusicFilterAdapter
+                override fun onItemClickListener(view: View, data: MusicFilterBean, position: Int) {
+                    if (mDataFactory.currentFilterIndex != position) {
+                        changeAdapterSelected(
+                            mMusicFilterAdapter,
+                            mDataFactory.currentFilterIndex,
+                            position
+                        )
+                        mDataFactory.currentFilterIndex = position
+                        mDataFactory.onMusicFilterSelected(data)
+                    }
+
+                }
+            }, R.layout.list_item_control_image_circle)
+        mBinding.recyclerView.adapter = mMusicFilterAdapter
     }
 
 

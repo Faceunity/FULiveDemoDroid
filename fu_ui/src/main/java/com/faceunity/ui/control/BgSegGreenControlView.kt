@@ -1,6 +1,7 @@
 package com.faceunity.ui.control
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
@@ -14,6 +15,7 @@ import com.faceunity.ui.base.BaseDelegate
 import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
 import com.faceunity.ui.circle.RingCircleView
+import com.faceunity.ui.databinding.LayoutBgSegGreenControlBinding
 import com.faceunity.ui.dialog.BaseDialogFragment
 import com.faceunity.ui.dialog.ConfirmDialogFragment
 import com.faceunity.ui.dialog.ToastHelper
@@ -25,7 +27,6 @@ import com.faceunity.ui.entity.uistate.BgSegGreenControlState
 import com.faceunity.ui.infe.AbstractBgSegGreenDataFactory
 import com.faceunity.ui.seekbar.DiscreteSeekBar
 import com.faceunity.ui.utils.DecimalUtils
-import kotlinx.android.synthetic.main.layout_bg_seg_green_control.view.*
 
 
 /**
@@ -34,7 +35,11 @@ import kotlinx.android.synthetic.main.layout_bg_seg_green_control.view.*
  * Created on 2020/12/4
  *
  */
-class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class BgSegGreenControlView @JvmOverloads constructor(
+    private val mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     BaseControlView(mContext, attrs, defStyleAttr) {
 
 
@@ -53,12 +58,15 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     private lateinit var mSafeAreaAdapter: BaseListAdapter<BgSegGreenSafeAreaBean>
 
     //是否展示安全区域这个列表
-    private var isShowSafeAreaRv:Boolean = false
+    private var isShowSafeAreaRv: Boolean = false
+
+    private val mBinding: LayoutBgSegGreenControlBinding by lazy {
+        LayoutBgSegGreenControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
 
     //region 初始化
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_bg_seg_green_control, this)
         initView()
         initAdapter()
         bindListener()
@@ -102,7 +110,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     /**
      * 刷新安全区UI
      */
-    fun updateSafeAreaRc (){
+    fun updateSafeAreaRc() {
         mSafeAreaAdapter.let {
             it.setData(mDataFactory?.bgSegGreenSafeAreas)
         }
@@ -112,25 +120,30 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
      * 收回菜单栏
      */
     fun hideControlView() {
-        check_group.check(View.NO_ID)
+        mBinding.checkGroup.check(View.NO_ID)
     }
 
     private fun initView() {
         isBottomShow = true
-        initHorizontalRecycleView(recycler_view)
-        initHorizontalRecycleView(recycler_view_safe_area)
-        initHorizontalRecycleView(recycler_view_background)
-        iv_palette_green.setFillColor(Color.parseColor("#FF00FF00"))
-        iv_palette_blue.setFillColor(Color.parseColor("#FF0000FF"))
-        iv_palette_white.setFillColor(Color.parseColor("#FFFFFFFF"))
-        iv_palette_pick.setDrawType(RingCircleView.TYPE_PICK_TRANSPARENT)
+        initHorizontalRecycleView(mBinding.recyclerView)
+        initHorizontalRecycleView(mBinding.recyclerViewSafeArea)
+        initHorizontalRecycleView(mBinding.recyclerViewBackground)
+        mBinding.ivPaletteGreen.setFillColor(Color.parseColor("#FF00FF00"))
+        mBinding.ivPaletteBlue.setFillColor(Color.parseColor("#FF0000FF"))
+        mBinding.ivPaletteWhite.setFillColor(Color.parseColor("#FFFFFFFF"))
+        mBinding.ivPalettePick.setDrawType(RingCircleView.TYPE_PICK_TRANSPARENT)
     }
 
 
     private fun initAdapter() {
         //绿幕抠像
         mActionAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<BgSegGreenBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, data: BgSegGreenBean, position: Int) {
+            override fun convert(
+                viewType: Int,
+                helper: BaseViewHolder,
+                data: BgSegGreenBean,
+                position: Int
+            ) {
                 helper.setText(R.id.tv_control, data.desRes)
                 //区分按钮类型
                 if (data.type == BgSegGreenBean.ButtonType.NORMAL1_BUTTON) {
@@ -147,7 +160,10 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                     helper.setImageResource(R.id.iv_control, data.openRes)
                 } else {
                     //安全区域根据安全区域的内容是否选择来确认
-                    helper.setImageResource(R.id.iv_control, if (mDataFactory.isUseTemplate()) data.openRes else data.closeRes)
+                    helper.setImageResource(
+                        R.id.iv_control,
+                        if (mDataFactory.isUseTemplate()) data.openRes else data.closeRes
+                    )
                 }
                 helper.itemView.isSelected = position == mActionIndex
             }
@@ -160,96 +176,136 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                         mActionIndex = position
                         showSeekBar()
                     } else {
-                        ToastHelper.showNormalToast(mContext,mContext.getString(R.string.safe_area_tips))
+                        ToastHelper.showNormalToast(
+                            mContext,
+                            mContext.getString(R.string.safe_area_tips)
+                        )
                         //显示安全区域
-                        ryt_action.visibility = View.GONE
-                        ryt_background.visibility = View.GONE
-                        ryt_safe_area.visibility = View.VISIBLE
+                        mBinding.rytAction.visibility = View.GONE
+                        mBinding.rytBackground.visibility = View.GONE
+                        mBinding.rytSafeArea.visibility = View.VISIBLE
                         isShowSafeAreaRv = true
                     }
                 }
             }
         }, R.layout.list_item_control_title_image_circle)
         //绿幕抠图
-        recycler_view.adapter = mActionAdapter
+        mBinding.recyclerView.adapter = mActionAdapter
 
         //绿幕安全区域
-        mSafeAreaAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<BgSegGreenSafeAreaBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, data: BgSegGreenSafeAreaBean, position: Int) {
-                if (data.iconRes > 0) {
+        mSafeAreaAdapter =
+            BaseListAdapter(ArrayList(), object : BaseDelegate<BgSegGreenSafeAreaBean>() {
+                override fun convert(
+                    viewType: Int,
+                    helper: BaseViewHolder,
+                    data: BgSegGreenSafeAreaBean,
+                    position: Int
+                ) {
+                    if (data.iconRes > 0) {
 //                    helper.setImageResource(R.id.iv_control, data.iconRes)
-                    Glide.with(context).asBitmap().load(data.iconRes).into(helper.getView(R.id.iv_control)!!)
-                } else if (data.filePath != null) {
-                    Glide.with(context).asBitmap().load(data.filePath).centerCrop().into(helper.getView(R.id.iv_control)!!)
+                        Glide.with(context).asBitmap().load(data.iconRes)
+                            .into(helper.getView(R.id.iv_control)!!)
+                    } else if (data.filePath != null) {
+                        Glide.with(context).asBitmap().load(data.filePath).centerCrop()
+                            .into(helper.getView(R.id.iv_control)!!)
+                    }
+                    helper.itemView.isSelected = position == mDataFactory.bgSafeAreaIndex
                 }
-                helper.itemView.isSelected = position == mDataFactory.bgSafeAreaIndex
-            }
 
-            override fun onItemClickListener(view: View, data: BgSegGreenSafeAreaBean, position: Int) {
-                if (position != mDataFactory.bgSafeAreaIndex) {
-                    //根据按钮类型判断
-                    when (data.type) {
-                        BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON -> {
-                            //安全区域普通按钮
-                            changeAdapterSelected(mSafeAreaAdapter, mDataFactory.bgSafeAreaIndex, position)
-                            mDataFactory.bgSafeAreaIndex = position
-                            mDataFactory.onSafeAreaSelected(data)
-                            setRecoverEnable(true)
-                        }
-                        BgSegGreenSafeAreaBean.ButtonType.NORMAL2_BUTTON -> {
-                            //自定义按钮 -> 跳入图片界面选择一个图片
-                            mDataFactory.onSafeAreaAdd()
-                        }
-                        BgSegGreenSafeAreaBean.ButtonType.NONE_BUTTON -> {
-                            changeAdapterSelected(mSafeAreaAdapter, mDataFactory.bgSafeAreaIndex, position)
-                            //不选择
-                            mDataFactory.bgSafeAreaIndex = position
-                            mDataFactory.onSafeAreaSelected(data)
-                            setRecoverEnable(checkActionChanged())
-                        }
-                        else -> {
-                            //显示绿幕抠图功能
-                            ryt_action.visibility = View.VISIBLE
-                            ryt_background.visibility = View.GONE
-                            ryt_safe_area.visibility = View.GONE
-                            isShowSafeAreaRv = false
-                            mActionAdapter.notifyItemChanged(mDataFactory.bgSegGreenActions.size - 1)
+                override fun onItemClickListener(
+                    view: View,
+                    data: BgSegGreenSafeAreaBean,
+                    position: Int
+                ) {
+                    if (position != mDataFactory.bgSafeAreaIndex) {
+                        //根据按钮类型判断
+                        when (data.type) {
+                            BgSegGreenSafeAreaBean.ButtonType.NORMAL1_BUTTON -> {
+                                //安全区域普通按钮
+                                changeAdapterSelected(
+                                    mSafeAreaAdapter,
+                                    mDataFactory.bgSafeAreaIndex,
+                                    position
+                                )
+                                mDataFactory.bgSafeAreaIndex = position
+                                mDataFactory.onSafeAreaSelected(data)
+                                setRecoverEnable(true)
+                            }
+
+                            BgSegGreenSafeAreaBean.ButtonType.NORMAL2_BUTTON -> {
+                                //自定义按钮 -> 跳入图片界面选择一个图片
+                                mDataFactory.onSafeAreaAdd()
+                            }
+
+                            BgSegGreenSafeAreaBean.ButtonType.NONE_BUTTON -> {
+                                changeAdapterSelected(
+                                    mSafeAreaAdapter,
+                                    mDataFactory.bgSafeAreaIndex,
+                                    position
+                                )
+                                //不选择
+                                mDataFactory.bgSafeAreaIndex = position
+                                mDataFactory.onSafeAreaSelected(data)
+                                setRecoverEnable(checkActionChanged())
+                            }
+
+                            else -> {
+                                //显示绿幕抠图功能
+                                mBinding.rytAction.visibility = View.VISIBLE
+                                mBinding.rytBackground.visibility = View.GONE
+                                mBinding.rytSafeArea.visibility = View.GONE
+                                isShowSafeAreaRv = false
+                                mActionAdapter.notifyItemChanged(mDataFactory.bgSegGreenActions.size - 1)
+                            }
                         }
                     }
                 }
-            }
-        }, R.layout.list_item_control_image_square)
+            }, R.layout.list_item_control_image_square)
         //绿幕抠图安全区域
-        recycler_view_safe_area.adapter = mSafeAreaAdapter
+        mBinding.recyclerViewSafeArea.adapter = mSafeAreaAdapter
 
         //绿幕背景
         mBackgroundAdapter = BaseListAdapter(
             ArrayList(), object : BaseDelegate<BgSegGreenBackgroundBean>() {
-                override fun convert(viewType: Int, helper: BaseViewHolder, item: BgSegGreenBackgroundBean, position: Int) {
+                override fun convert(
+                    viewType: Int,
+                    helper: BaseViewHolder,
+                    item: BgSegGreenBackgroundBean,
+                    position: Int
+                ) {
                     helper.setText(R.id.tv_control, item.desRes)
                     helper.setImageResource(R.id.iv_control, item.iconRes)
                     helper.itemView.isSelected = position == mDataFactory.backgroundIndex
                 }
 
-                override fun onItemClickListener(view: View, data: BgSegGreenBackgroundBean, position: Int) {
+                override fun onItemClickListener(
+                    view: View,
+                    data: BgSegGreenBackgroundBean,
+                    position: Int
+                ) {
                     super.onItemClickListener(view, data, position)
                     if (position != mDataFactory.backgroundIndex) {
-                        changeAdapterSelected(mBackgroundAdapter, mDataFactory.backgroundIndex, position)
+                        changeAdapterSelected(
+                            mBackgroundAdapter,
+                            mDataFactory.backgroundIndex,
+                            position
+                        )
                         mDataFactory.backgroundIndex = position
                         mDataFactory.onBackgroundSelected(data)
                     }
                 }
             }, R.layout.list_item_control_title_image_square
         )
-        recycler_view_background.adapter = mBackgroundAdapter
+        mBinding.recyclerViewBackground.adapter = mBackgroundAdapter
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun bindListener() {
-        lyt_bottom_view.setOnTouchListener { _, _ -> true }
+        mBinding.lytBottomView.setOnTouchListener { _, _ -> true }
         bindBottomRadio()
         bindSeekBarListener()
-        lyt_recover.setOnClickListener {
+        mBinding.lytRecover.setOnClickListener {
             val confirmDialogFragment =
                 ConfirmDialogFragment.newInstance(mContext.getString(R.string.dialog_reset_avatar_model),
                     object : BaseDialogFragment.OnClickListener {
@@ -259,12 +315,15 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
 
                         override fun onCancel() {}
                     })
-            confirmDialogFragment.show((mContext as FragmentActivity).supportFragmentManager, "ConfirmDialogFragmentReset")
+            confirmDialogFragment.show(
+                (mContext as FragmentActivity).supportFragmentManager,
+                "ConfirmDialogFragmentReset"
+            )
         }
 
 
-        iv_palette_green.setOnClickListener {
-            if (!iv_palette_green.isSelected) {
+        mBinding.ivPaletteGreen.setOnClickListener {
+            if (!mBinding.ivPaletteGreen.isSelected) {
                 mDataFactory.onColorPickerStateChanged(false, Color.TRANSPARENT)
                 mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 255.0, 0.0))
                 setRecoverEnable(checkActionChanged())
@@ -273,8 +332,8 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                 setPaletteSelected(mColorIndex)
             }
         }
-        iv_palette_blue.setOnClickListener {
-            if (!iv_palette_blue.isSelected) {
+        mBinding.ivPaletteBlue.setOnClickListener {
+            if (!mBinding.ivPaletteBlue.isSelected) {
                 mDataFactory.onColorPickerStateChanged(false, Color.TRANSPARENT)
                 mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 0.0, 255.0))
                 setRecoverEnable(checkActionChanged())
@@ -283,8 +342,8 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                 setPaletteSelected(mColorIndex)
             }
         }
-        iv_palette_white.setOnClickListener {
-            if (!iv_palette_white.isSelected) {
+        mBinding.ivPaletteWhite.setOnClickListener {
+            if (!mBinding.ivPaletteWhite.isSelected) {
                 mDataFactory.onColorPickerStateChanged(false, Color.TRANSPARENT)
                 mDataFactory.onColorRGBChanged(doubleArrayOf(255.0, 255.0, 255.0))
                 setRecoverEnable(checkActionChanged())
@@ -293,9 +352,9 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                 setPaletteSelected(mColorIndex)
             }
         }
-        iv_palette_pick.setOnClickListener {
+        mBinding.ivPalettePick.setOnClickListener {
             mDataFactory.onBgSegGreenEnableChanged(false)
-            iv_palette_pick.setDrawType(RingCircleView.TYPE_TRANSPARENT)
+            mBinding.ivPalettePick.setDrawType(RingCircleView.TYPE_TRANSPARENT)
             setRecoverEnable(true)
             mDataFactory.onColorPickerStateChanged(true, Color.TRANSPARENT)
             mColorIndex = 0
@@ -309,7 +368,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
 
     fun dismissBottomLayout() {
         if (isBottomShow) {
-            check_group.clearCheck()
+            mBinding.checkGroup.clearCheck()
             changeBottomLayoutAnimator(false)
         }
     }
@@ -319,8 +378,13 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
      * 滑动条业务绑定
      */
     private fun bindSeekBarListener() {
-        seek_bar.setOnProgressChangeListener(object : DiscreteSeekBar.OnSimpleProgressChangeListener() {
-            override fun onProgressChanged(seekBar: DiscreteSeekBar?, value: Int, fromUser: Boolean) {
+        mBinding.seekBar.setOnProgressChangeListener(object :
+            DiscreteSeekBar.OnSimpleProgressChangeListener() {
+            override fun onProgressChanged(
+                seekBar: DiscreteSeekBar?,
+                value: Int,
+                fromUser: Boolean
+            ) {
                 if (!fromUser) {
                     return
                 }
@@ -353,8 +417,8 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
                 if (!DecimalUtils.doubleEquals(value, default)) {
                     return true
                 }
-            } else if (it.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON){
-                if (!iv_palette_green.isSelected) {
+            } else if (it.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON) {
+                if (!mBinding.ivPaletteGreen.isSelected) {
                     return true
                 }
             }
@@ -370,7 +434,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
             if (it.type == BgSegGreenBean.ButtonType.NORMAL1_BUTTON) {
                 val default = mModelAttributeRange[it.key]!!.default
                 mDataFactory.updateParamIntensity(it.key, default)
-            } else if (it.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON){
+            } else if (it.type == BgSegGreenBean.ButtonType.NORMAL2_BUTTON) {
                 mDataFactory.onColorRGBChanged(doubleArrayOf(0.0, 255.0, 0.0))
             }
         }
@@ -383,7 +447,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         mSafeAreaAdapter.notifyDataSetChanged()
 
         //绿幕 蓝幕 白慕 还原回绿幕
-        iv_palette_green.performClick()
+        mBinding.ivPaletteGreen.performClick()
 
         setRecoverEnable(false)
     }
@@ -409,16 +473,16 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
      * @param index Int 0：选择器 1绿色 2蓝色
      */
     private fun setPaletteSelected(index: Int) {
-        iv_palette_green.isSelected = false
-        iv_palette_blue.isSelected = false
-        iv_palette_white.isSelected = false
-        iv_palette_pick.isSelected = false
-        iv_palette_pick.setDrawType(RingCircleView.TYPE_PICK_TRANSPARENT)
+        mBinding.ivPaletteGreen.isSelected = false
+        mBinding.ivPaletteBlue.isSelected = false
+        mBinding.ivPaletteWhite.isSelected = false
+        mBinding.ivPalettePick.isSelected = false
+        mBinding.ivPalettePick.setDrawType(RingCircleView.TYPE_PICK_TRANSPARENT)
         when (index) {
-            0 -> iv_palette_pick.isSelected = true
-            1 -> iv_palette_green.isSelected = true
-            2 -> iv_palette_blue.isSelected = true
-            3 -> iv_palette_white.isSelected = true
+            0 -> mBinding.ivPalettePick.isSelected = true
+            1 -> mBinding.ivPaletteGreen.isSelected = true
+            2 -> mBinding.ivPaletteBlue.isSelected = true
+            3 -> mBinding.ivPaletteWhite.isSelected = true
         }
     }
 
@@ -429,13 +493,13 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     private fun showSeekBar() {
         if (mActionIndex > 0) {
             val data = mDataFactory.bgSegGreenActions[mActionIndex]
-            lyt_palette.visibility = View.GONE
-            seek_bar.visibility = View.VISIBLE
+            mBinding.lytPalette.visibility = View.GONE
+            mBinding.seekBar.visibility = View.VISIBLE
             val value = mDataFactory.getParamIntensity(data.key)
-            seek_bar.progress = (value * 100).toInt()
+            mBinding.seekBar.progress = (value * 100).toInt()
         } else {
-            lyt_palette.visibility = View.VISIBLE
-            seek_bar.visibility = View.INVISIBLE
+            mBinding.lytPalette.visibility = View.VISIBLE
+            mBinding.seekBar.visibility = View.INVISIBLE
         }
     }
 
@@ -445,39 +509,41 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
      */
     private fun setRecoverEnable(enable: Boolean) {
         if (enable) {
-            tv_recover.alpha = 1f
-            iv_recover.alpha = 1f
+            mBinding.tvRecover.alpha = 1f
+            mBinding.ivRecover.alpha = 1f
         } else {
-            tv_recover.alpha = 0.6f
-            iv_recover.alpha = 0.6f
+            mBinding.tvRecover.alpha = 0.6f
+            mBinding.ivRecover.alpha = 0.6f
         }
-        lyt_recover.isEnabled = enable
+        mBinding.lytRecover.isEnabled = enable
     }
 
     /**
      * 底部导航栏绑定监听事件，处理RecycleView等相关布局变更
      */
     private fun bindBottomRadio() {
-        check_group.setOnCheckedChangeListener { _, checkedId ->
+        mBinding.checkGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.checkbox_graphic -> {
                     if (isShowSafeAreaRv) {
-                        ryt_action.visibility = View.GONE
-                        ryt_safe_area.visibility = View.VISIBLE
+                        mBinding.rytAction.visibility = View.GONE
+                        mBinding.rytSafeArea.visibility = View.VISIBLE
                     } else {
-                        ryt_action.visibility = View.VISIBLE
-                        ryt_safe_area.visibility = View.GONE
+                        mBinding.rytAction.visibility = View.VISIBLE
+                        mBinding.rytSafeArea.visibility = View.GONE
                     }
 
-                    ryt_background.visibility = View.GONE
+                    mBinding.rytBackground.visibility = View.GONE
                     changeBottomLayoutAnimator(true)
                 }
+
                 R.id.checkbox_background -> {
-                    ryt_action.visibility = View.GONE
-                    ryt_safe_area.visibility = View.GONE
-                    ryt_background.visibility = View.VISIBLE
+                    mBinding.rytAction.visibility = View.GONE
+                    mBinding.rytSafeArea.visibility = View.GONE
+                    mBinding.rytBackground.visibility = View.VISIBLE
                     changeBottomLayoutAnimator(true)
                 }
+
                 View.NO_ID -> {
                     changeBottomLayoutAnimator(false)
                 }
@@ -494,8 +560,10 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         if (isBottomShow == isOpen) {
             return
         }
-        val start = if (isOpen) resources.getDimension(R.dimen.x1).toInt() else resources.getDimension(R.dimen.x269).toInt()
-        val end = if (isOpen) resources.getDimension(R.dimen.x269).toInt() else resources.getDimension(R.dimen.x1).toInt()
+        val start = if (isOpen) resources.getDimension(R.dimen.x1)
+            .toInt() else resources.getDimension(R.dimen.x269).toInt()
+        val end = if (isOpen) resources.getDimension(R.dimen.x269)
+            .toInt() else resources.getDimension(R.dimen.x1).toInt()
 
         if (bottomLayoutAnimator != null && bottomLayoutAnimator!!.isRunning) {
             bottomLayoutAnimator!!.end()
@@ -503,9 +571,9 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
         bottomLayoutAnimator = ValueAnimator.ofInt(start, end).setDuration(150)
         bottomLayoutAnimator!!.addUpdateListener { animation ->
             val height = animation.animatedValue as Int
-            val params = lyt_bottom_view.layoutParams as LinearLayout.LayoutParams
+            val params = mBinding.lytBottomView.layoutParams as LinearLayout.LayoutParams
             params.height = height
-            lyt_bottom_view.layoutParams = params
+            mBinding.lytBottomView.layoutParams = params
             if (onBottomAnimatorChangeListener != null) {
                 val showRate = 1.0f * (height - start) / (end - start)
                 onBottomAnimatorChangeListener?.onBottomAnimatorChangeListener(if (!isOpen) 1 - showRate else showRate)
@@ -522,10 +590,10 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     fun setPalettePickColor(color: Int) {
         val transparent = color == Color.TRANSPARENT
         if (transparent) {
-            iv_palette_pick.setDrawType(RingCircleView.TYPE_PICK_TRANSPARENT)
+            mBinding.ivPalettePick.setDrawType(RingCircleView.TYPE_PICK_TRANSPARENT)
         } else {
-            iv_palette_pick.setDrawType(RingCircleView.TYPE_PICK_COLOR)
-            iv_palette_pick.setFillColor(color)
+            mBinding.ivPalettePick.setDrawType(RingCircleView.TYPE_PICK_COLOR)
+            mBinding.ivPalettePick.setFillColor(color)
         }
     }
 
@@ -535,10 +603,16 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
     }
 
     fun getUIStates(): BgSegGreenControlState {
-        return BgSegGreenControlState(mActionIndex,mColorIndex,mDataFactory.bgSafeAreaIndex,mDataFactory.backgroundIndex,check_group.checkedCheckBoxId)
+        return BgSegGreenControlState(
+            mActionIndex,
+            mColorIndex,
+            mDataFactory.bgSafeAreaIndex,
+            mDataFactory.backgroundIndex,
+            mBinding.checkGroup.checkedCheckBoxId
+        )
     }
 
-    fun updateUIStates(bgSegGreenSafeAreaBean: BgSegGreenControlState?){
+    fun updateUIStates(bgSegGreenSafeAreaBean: BgSegGreenControlState?) {
         if (bgSegGreenSafeAreaBean != null) {
             mActionIndex = bgSegGreenSafeAreaBean.actionIndex
             mColorIndex = bgSegGreenSafeAreaBean.colorIndex
@@ -551,7 +625,7 @@ class BgSegGreenControlView @JvmOverloads constructor(private val mContext: Cont
             showSeekBar()
             setPaletteSelected(mColorIndex)
             setRecoverEnable(checkActionChanged())
-            check_group.check(bgSegGreenSafeAreaBean.rbIndex)
+            mBinding.checkGroup.check(bgSegGreenSafeAreaBean.rbIndex)
         }
     }
 }

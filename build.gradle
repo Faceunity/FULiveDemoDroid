@@ -27,3 +27,13 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+def VERSION_NAME = '8.8.0'
+def UP_VERSION_NAME = '8.8.0'
+ext {
+    namaVersionName = VERSION_NAME
+    compileSdkVersion = 28
+    buildToolsVersion = "28.0.3"
+    minSdkVersion = 19
+    targetSdkVersion = 28
+}

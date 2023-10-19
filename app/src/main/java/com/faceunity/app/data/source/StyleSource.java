@@ -51,9 +51,10 @@ public class StyleSource {
 
     /**
      * 获取默认的美颜beauty
-     * @return
+     *
+     * @return FaceBeauty
      */
-    public static FaceBeauty getDefaultFaceBeauty(){
+    public static FaceBeauty getDefaultFaceBeauty() {
         if (defaultFaceBeauty != null) {
             return defaultFaceBeauty;
         }
@@ -66,9 +67,10 @@ public class StyleSource {
 
     /**
      * 获取默认的美颜beauty
-     * @return
+     *
+     * @return FaceBeauty
      */
-    public static FaceBeauty getNewFaceBeauty(){
+    public static FaceBeauty getNewFaceBeauty() {
         FaceBeauty newFaceBeauty = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
         if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
             setFaceBeautyPropertyMode(newFaceBeauty);
@@ -76,6 +78,11 @@ public class StyleSource {
         return newFaceBeauty;
     }
 
+    /**
+     * 风格数据构造
+     *
+     * @return ArrayList<StyleBean>
+     */
     public static ArrayList<StyleBean> buildStyleBeans() {
         ArrayList<StyleBean> styleBeans = new ArrayList<>();
         styleBeans.add(new StyleBean(null, R.string.beauty_face_style_none, R.mipmap.icon_control_none, R.string.beauty_face_style_none));
@@ -101,6 +108,8 @@ public class StyleSource {
 
     /**
      * 根据风格选中一个角标
+     *
+     * @return int
      */
     public static int styleTypeIndex() {
         int currentStyleIndex;
@@ -168,8 +177,9 @@ public class StyleSource {
     /**
      * 还原单个风格参数
      *
-     * @param styleName
-     * @return
+     * @param faceBeauty FaceBeauty
+     * @param styleName  String
+     * @return StyleData
      */
     public static StyleData resetStyleFaceBeauty(FaceBeauty faceBeauty, String styleName) {
         //先将所有参数项置标准
@@ -184,8 +194,8 @@ public class StyleSource {
     /**
      * 构建推荐的风格配置
      *
-     * @param styleName
-     * @return
+     * @param styleName String
+     * @return StyleData
      */
     public static StyleData buildStyleFaceBeauty(String styleName) {
         StyleData styleData = new StyleData();
@@ -203,6 +213,7 @@ public class StyleSource {
             model.setBlurIntensity(fuDiskStyleData.blurIntensity);
             model.setColorIntensity(fuDiskStyleData.colorIntensity);
             model.setRedIntensity(fuDiskStyleData.redIntensity);
+            model.setClarityIntensity(fuDiskStyleData.clarityIntensity);
             model.setSharpenIntensity(fuDiskStyleData.sharpenIntensity);
             model.setEyeBrightIntensity(fuDiskStyleData.eyeBrightIntensity);
             model.setToothIntensity(fuDiskStyleData.toothIntensity);
@@ -254,9 +265,10 @@ public class StyleSource {
     /**
      * 构建默认的风格参数
      * 嘴唇厚度 眼睛位置 眼睑下至 眉毛上下 眉间距 眉毛粗细
-     * @param styleName
-     * @param model
-     * @return
+     *
+     * @param styleName String
+     * @param model     FaceBeauty
+     * @return StyleData
      */
     public static StyleData buildDefaultStyleParams(String styleName, FaceBeauty model) {
         StyleData styleData = new StyleData();
@@ -328,7 +340,7 @@ public class StyleSource {
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "danyan.bundle"));
             simpleMakeup.setFilterIntensity(0.8);
             simpleMakeup.setMakeupIntensity(0.8);
-        } else if (CONFIG_TEXTURE.equals(styleName)){//质感
+        } else if (CONFIG_TEXTURE.equals(styleName)) {//质感
             model.setBlurIntensity(3.6);
             model.setFaceThreeIntensity(0.4);
             model.setColorIntensity(0.25);
@@ -473,8 +485,8 @@ public class StyleSource {
     /**
      * 获取某项最新的风格配置
      *
-     * @param styleName
-     * @return
+     * @param styleName String
+     * @return StyleData
      */
     public static StyleData getStyleType(String styleName) {
         currentStyle = styleName;
@@ -504,6 +516,11 @@ public class StyleSource {
                         FaceBeautyParam.RED_INTENSITY, R.string.beauty_box_red_level,
                         R.drawable.icon_beauty_skin_red_close_selector, R.drawable.icon_beauty_skin_red_open_selector
                 )
+        );
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.CLARITY, R.string.beauty_box_clarity,
+                        R.drawable.icon_beauty_skin_clarity_close_selector, R.drawable.icon_beauty_skin_clarity_open_selector)
         );
         params.add(
                 new FaceBeautyBean(
@@ -764,6 +781,7 @@ public class StyleSource {
         params.put(FaceBeautyParam.COLOR_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.BLUR_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 6.0));
         params.put(FaceBeautyParam.RED_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(FaceBeautyParam.CLARITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.SHARPEN_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_BRIGHT_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.TOOTH_WHITEN_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
@@ -834,6 +852,8 @@ public class StyleSource {
             if (faceBeauty.getColorIntensity() != styleData.faceBeauty.getColorIntensity())
                 return false;
             if (faceBeauty.getRedIntensity() != styleData.faceBeauty.getRedIntensity())
+                return false;
+            if (faceBeauty.getClarityIntensity() != styleData.faceBeauty.getClarityIntensity())
                 return false;
             if (faceBeauty.getSharpenIntensity() != styleData.faceBeauty.getSharpenIntensity())
                 return false;
@@ -942,7 +962,7 @@ public class StyleSource {
     /**
      * 加载类的时候读取一下硬盘缓存数据
      *
-     * @return
+     * @return HashMap<String, FUDiskStyleData>
      */
     public static HashMap<String, FUDiskStyleData> loadStyleFromDisk() {
         if (fuDiskStyleDataHashMap == null || fuDiskStyleDataHashMap.isEmpty()) {
@@ -968,20 +988,20 @@ public class StyleSource {
 
     /**
      * 将一个sourceFaceBeauty FaceBeauty设置给 targetBeauty FaceBeauty
-     * @param sourceFaceBeauty
-     * @param targetBeauty
-     * @return
+     *
+     * @param sourceFaceBeauty FaceBeauty
+     * @param targetBeauty     FaceBeauty
      */
     public static void setFaceBeauty(FaceBeauty sourceFaceBeauty, FaceBeauty targetBeauty) {
-        setFaceBeautySkin(sourceFaceBeauty,targetBeauty);
-        setFaceBeautyShape(sourceFaceBeauty,targetBeauty);
+        setFaceBeautySkin(sourceFaceBeauty, targetBeauty);
+        setFaceBeautyShape(sourceFaceBeauty, targetBeauty);
     }
 
     /**
      * 将一个sourceFaceBeauty FaceBeauty设置给 targetBeauty FaceBeauty 只设置美肤项目
-     * @param sourceFaceBeauty
-     * @param targetBeauty
-     * @return
+     *
+     * @param sourceFaceBeauty FaceBeauty
+     * @param targetBeauty     FaceBeauty
      */
     public static void setFaceBeautySkin(FaceBeauty sourceFaceBeauty, FaceBeauty targetBeauty) {
         //美肤
@@ -991,6 +1011,8 @@ public class StyleSource {
             targetBeauty.setColorIntensity(sourceFaceBeauty.getColorIntensity());
         if (targetBeauty.getRedIntensity() != sourceFaceBeauty.getRedIntensity())
             targetBeauty.setRedIntensity(sourceFaceBeauty.getRedIntensity());
+        if (targetBeauty.getClarityIntensity() != sourceFaceBeauty.getClarityIntensity())
+            targetBeauty.setClarityIntensity(sourceFaceBeauty.getClarityIntensity());
         if (targetBeauty.getSharpenIntensity() != sourceFaceBeauty.getSharpenIntensity())
             targetBeauty.setSharpenIntensity(sourceFaceBeauty.getSharpenIntensity());
         if (targetBeauty.getEyeBrightIntensity() != sourceFaceBeauty.getEyeBrightIntensity())
@@ -1007,8 +1029,9 @@ public class StyleSource {
 
     /**
      * 将一个sourceFaceBeauty FaceBeauty设置给 targetBeauty FaceBeauty 只设置美型项目
-     * @param sourceFaceBeauty
-     * @param targetBeauty
+     *
+     * @param sourceFaceBeauty FaceBeauty
+     * @param targetBeauty     FaceBeauty
      */
     public static void setFaceBeautyShape(FaceBeauty sourceFaceBeauty, FaceBeauty targetBeauty) {
         //美型

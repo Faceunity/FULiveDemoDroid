@@ -51,6 +51,22 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         void setValue(double value);
     }
 
+    interface FaceBeautySetParamRelevanceInterface {
+        /**
+         * 设置属性值
+         *
+         * @param value
+         */
+        void setValue(boolean value);
+    }
+
+    interface FaceBeautyGetParamRelevanceInterface {
+        /**
+         * 获取属性值
+         */
+        boolean getValue();
+    }
+
     interface FaceBeautyGetParamInterface {
         /**
          * 获取属性值
@@ -59,6 +75,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
          */
         double getValue();
     }
+
 
     /*渲染控制器*/
     private FURenderKit mFURenderKit = FURenderKit.getInstance();
@@ -217,17 +234,17 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         HashMap<String, ModelAttributeData> modelAttributeRange = getModelAttributeRange();
 
         //还原美肤
-        for (FaceBeautyBean faceBeautyBean:skinBeauty) {
+        for (FaceBeautyBean faceBeautyBean : skinBeauty) {
             String key = faceBeautyBean.getKey();
             ModelAttributeData modelAttributeData = modelAttributeRange.get(key);
-            updateParamIntensity(key,modelAttributeData.getStand());
+            updateParamIntensity(key, modelAttributeData.getStand());
         }
 
         //还原美型
-        for (FaceBeautyBean faceBeautyBean:shapeBeauty) {
+        for (FaceBeautyBean faceBeautyBean : shapeBeauty) {
             String key = faceBeautyBean.getKey();
             ModelAttributeData modelAttributeData = modelAttributeRange.get(key);
-            updateParamIntensity(key,modelAttributeData.getStand());
+            updateParamIntensity(key, modelAttributeData.getStand());
         }
 
         //还原滤镜
@@ -250,7 +267,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     /**
      * 设置当前脸型的UI值
      */
-    public void setCurrentFaceShapeUIValue(HashMap<String,Double> hashMap) {
+    public void setCurrentFaceShapeUIValue(HashMap<String, Double> hashMap) {
         CurrentFaceShapeUIValue.currentFaceShapeValue.clear();
         CurrentFaceShapeUIValue.currentFaceShapeValue.putAll(hashMap);
     }
@@ -258,7 +275,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     /**
      * 获取当前脸型的UI值
      */
-    public HashMap<String,Double> getCurrentFaceShapeUIValue() {
+    public HashMap<String, Double> getCurrentFaceShapeUIValue() {
         return CurrentFaceShapeUIValue.currentFaceShapeValue;
     }
 
@@ -286,6 +303,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         defaultFaceBeauty.setFilterIntensity(intensity);
     }
 
+
     /*模型映射设置模型值*/
     private final HashMap<String, FaceBeautySetParamInterface> faceBeautySetMapping = new HashMap<String, FaceBeautySetParamInterface>() {{
         put(FaceBeautyParam.COLOR_INTENSITY, defaultFaceBeauty::setColorIntensity);
@@ -297,6 +315,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         put(FaceBeautyParam.REMOVE_POUCH_INTENSITY, defaultFaceBeauty::setRemovePouchIntensity);
         put(FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, defaultFaceBeauty::setRemoveLawPatternIntensity);
         put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::setFaceThreeIntensity);
+        put(FaceBeautyParam.CLARITY, defaultFaceBeauty::setClarityIntensity);
         /*美型*/
         put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::setFaceShapeIntensity);
         put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, defaultFaceBeauty::setCheekThinningIntensity);
@@ -340,6 +359,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
             put(FaceBeautyParam.REMOVE_POUCH_INTENSITY, defaultFaceBeauty::getRemovePouchIntensity);
             put(FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, defaultFaceBeauty::getRemoveLawPatternIntensity);
             put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::getFaceThreeIntensity);
+            put(FaceBeautyParam.CLARITY, defaultFaceBeauty::getClarityIntensity);
             /*美型*/
             put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::getFaceShapeIntensity);
             put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, defaultFaceBeauty::getCheekThinningIntensity);
@@ -374,6 +394,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
     };
 
 
+
     /**
      * FURenderKit加载当前特效
      */
@@ -381,7 +402,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         mFURenderKit.setFaceBeauty(faceBeauty);
         FUAIKit.getInstance().setMaxFaces(4);
         if (DemoConfig.IS_OPEN_LAND_MARK) {
-            ExpressionRecognition expressionRecognition =  new ExpressionRecognition(new FUBundleData(DemoConfig.BUNDLE_LANDMARKS));
+            ExpressionRecognition expressionRecognition = new ExpressionRecognition(new FUBundleData(DemoConfig.BUNDLE_LANDMARKS));
             expressionRecognition.setLandmarksType(FUAITypeEnum.FUAITYPE_FACELANDMARKS239);
             mFURenderKit.getPropContainer().addProp(expressionRecognition);
         }
@@ -394,6 +415,6 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         /* 当前生效的脸型 */
         public static String currentFaceShape = FaceBeautyParam.CHEEK_V_INTENSITY;
         /* 当前脸型的UI值 */
-        public static HashMap <String,Double> currentFaceShapeValue = new HashMap<>();
+        public static HashMap<String, Double> currentFaceShapeValue = new HashMap<>();
     }
 }

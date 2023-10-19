@@ -4,17 +4,17 @@
 
 [TOC]
 
-
-
 ## 1.Function
 
-Live photo is a technique that uses 2D blendshape technology to create a static photo by user-added features.
+Live photo is a technique that uses 2D blendshape technology to create a static photo by user-added
+features.
 
 ## 2.Interface
 
-The interface of the different graphs is encapsulated in the bundle, and only the set interface of the bundle can be called.
+The interface of the different graphs is encapsulated in the bundle, and only the set interface of
+the bundle can be called.
 
-### 
+###  
 
 ```
 group_type:[],     //An array of input types 0-6 corresponds             		'leye','reye','nose','mouth','lbrow','rbrow','face'
@@ -35,25 +35,26 @@ para：tex_input
 Use the layer interface fuCreateTexForItem to pass the RGBA buffer
 ```
 
+## 3.Generate point
 
+The client calculates the position of the current point according to the rotation, zooming, and
+panning of the facial features. The original proportional point can be obtained according to the get
+interface above. The image coordinate system uses the top left corner of the image as the origin.
 
-## 3.Generate point 
-
-The client calculates the position of the current point according to the rotation, zooming, and panning of the facial features. The original proportional point can be obtained according to the get interface above. The image coordinate system uses the top left corner of the image as the origin.
-
-## 4.Intrinsic template saving 
+## 4.Intrinsic template saving
 
 Need client to save
 
 1. Input picture
 2. the width and height of picture
-3. group_type array 
+3. group_type array
 4. group_points array
 
 This information can be directly set into the bundle at the next load.
 
-## 5.Making template 
+## 5.Making template
 
 1. The closer the eye shape is to the human eye, the better the effect (ellipse)
-2. Do not get too close to each other between the five senses, they will affect each other, and there may be intersections.
+2. Do not get too close to each other between the five senses, they will affect each other, and
+   there may be intersections.
 3. Pay attention to the number of facial features, each of which is limited to 3

@@ -22,6 +22,7 @@ import com.faceunity.ui.base.BaseListAdapter
 import com.faceunity.ui.base.BaseViewHolder
 import com.faceunity.ui.circle.CircleFilledColor
 import com.faceunity.ui.circle.ColorfulCircleView
+import com.faceunity.ui.databinding.LayoutMakeUpControlBinding
 import com.faceunity.ui.dialog.ToastHelper
 import com.faceunity.ui.entity.MakeupCombinationBean
 import com.faceunity.ui.entity.MakeupCustomBean
@@ -30,7 +31,6 @@ import com.faceunity.ui.infe.AbstractMakeupDataFactory
 import com.faceunity.ui.seekbar.DiscreteSeekBar
 import com.faceunity.ui.utils.DecimalUtils
 import com.wuyr.pathlayoutmanager.PathLayoutManager
-import kotlinx.android.synthetic.main.layout_make_up_control.view.*
 import kotlin.math.abs
 
 
@@ -40,7 +40,11 @@ import kotlin.math.abs
  * Created on 2020/12/9
  *
  */
-class MakeupControlView @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+class MakeupControlView @JvmOverloads constructor(
+    private val mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) :
     BaseControlView(mContext, attrs, defStyleAttr) {
 
 
@@ -61,10 +65,12 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
     private lateinit var mCustomColorAdapter: BaseListAdapter<DoubleArray>
 
     private var needUpdateView = true
+    private val mBinding: LayoutMakeUpControlBinding by lazy {
+        LayoutMakeUpControlBinding.inflate(LayoutInflater.from(context), this, true)
+    }
 
     // region  init
     init {
-        LayoutInflater.from(context).inflate(R.layout.layout_make_up_control, this)
         initView()
         initAdapter()
         bindListener()
@@ -88,9 +94,9 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
      *  View初始化
      */
     private fun initView() {
-        initHorizontalRecycleView(recycler_combination)//组合妆容
-        initHorizontalRecycleView(recycler_custom_class)//自定义妆容类别
-        initHorizontalRecycleView(recycler_custom)//自定义妆容项目
+        initHorizontalRecycleView(mBinding.recyclerCombination)//组合妆容
+        initHorizontalRecycleView(mBinding.recyclerCustomClass)//自定义妆容类别
+        initHorizontalRecycleView(mBinding.recyclerCustom)//自定义妆容项目
         initColorRecycleView()//颜色
     }
 
@@ -112,13 +118,13 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
     @SuppressLint("ClickableViewAccessibility")
     private fun bindListener() {
         /*拦截触碰事件*/
-        cyt_combination_makeup.setOnTouchListener { _, _ -> true }
+        mBinding.cytCombinationMakeup.setOnTouchListener { _, _ -> true }
         /*拦截触碰事件*/
-        cyt_custom_makeup.setOnTouchListener { _, _ -> true }
+        mBinding.cytCustomMakeup.setOnTouchListener { _, _ -> true }
         /*滑动条控制*/
         bindSeekBarListener()
         /*开启自定义美妆*/
-        iv_combination_makeup.setOnClickListener {
+        mBinding.ivCombinationMakeup.setOnClickListener {
             mDataFactory.enterCustomMakeup()
             if (needUpdateView) {
                 mCustomClassIndex = 0
@@ -126,22 +132,23 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                 val beans = mDataFactory.makeupCustomItemParams[mCurrentCustomClassKey]!!
                 val current = mDataFactory.getCurrentCustomItemIndex(mCurrentCustomClassKey)
                 mCustomClassAdapter.notifyDataSetChanged()
-                recycler_custom_class.scrollToPosition(mCustomClassIndex)
+                mBinding.recyclerCustomClass.scrollToPosition(mCustomClassIndex)
                 mCustomAdapter.setData(beans)
-                recycler_custom.scrollToPosition(current)
+                mBinding.recyclerCustom.scrollToPosition(current)
                 val data = beans[current]
                 val doubleList = data.doubleArray
-                val intensity = mDataFactory.getCurrentCustomIntensity(mCurrentCustomClassKey, current)
+                val intensity =
+                    mDataFactory.getCurrentCustomIntensity(mCurrentCustomClassKey, current)
                 showCustomSeekBar(current, intensity)
                 showColorRecycleView(doubleList)
                 needUpdateView = false
             } else if (mCustomColorAdapter.itemCount > 0) {
-                cyt_makeup_color.visibility = View.VISIBLE
+                mBinding.cytMakeupColor.visibility = View.VISIBLE
             }
             openCustomBottomAnimator(true)
         }
-        iv_custom_back.setOnClickListener {
-            cyt_makeup_color.visibility = View.GONE
+        mBinding.ivCustomBack.setOnClickListener {
+            mBinding.cytMakeupColor.visibility = View.GONE
             openCustomBottomAnimator(false)
             //1.当选中的是卸妆的时候 返回需要检查是否上了子妆如果上了子妆容 需要将选中状态取消
             //2.当选中的是组合装时，如果组合装发生改变则取消选中
@@ -149,14 +156,15 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                 changeAdapterSelected(mCombinationAdapter, mDataFactory.currentCombinationIndex, -1)
                 mDataFactory.currentCombinationIndex = -1
                 setCustomEnable(false)
-                seek_bar_combination.visibility = View.INVISIBLE
+                mBinding.seekBarCombination.visibility = View.INVISIBLE
             }
         }
     }
 
 
     private fun initColorRecycleView() {
-        (recycler_makeup_color.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
+        (mBinding.recyclerMakeupColor.itemAnimator as SimpleItemAnimator).supportsChangeAnimations =
+            false
         val xOffset = resources.getDimensionPixelSize(R.dimen.x100);
         val path = Path()
         val xAxis = resources.getDimensionPixelSize(R.dimen.x40);
@@ -172,11 +180,11 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
         mPathLayoutManager.setFixingAnimationDuration(250L)
         mPathLayoutManager.setItemScaleRatio(1f, 0f, 1.5f, 0.25f, 2f, 0.5f, 1.5f, 0.75f, 1f, 1f)
         mPathLayoutManager.setOnItemSelectedListener { position ->
-            val layoutManager = recycler_makeup_color.layoutManager as PathLayoutManager
+            val layoutManager = mBinding.recyclerMakeupColor.layoutManager as PathLayoutManager
             layoutManager.setFixingAnimationDuration(250L)
             mDataFactory.updateCustomColor(mCurrentCustomClassKey, position)
         }
-        recycler_makeup_color.layoutManager = mPathLayoutManager
+        mBinding.recyclerMakeupColor.layoutManager = mPathLayoutManager
     }
 
     //endregion  init
@@ -187,58 +195,87 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
      * 组合妆容Adapter
      */
     private fun initCombinationAdapter() {
-        mCombinationAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<MakeupCombinationBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, data: MakeupCombinationBean, position: Int) {
-                helper.setText(R.id.tv_control, data.desRes)
-                helper.setImageResource(R.id.iv_control, data.imageRes)
-                helper.itemView.isSelected = (position == mDataFactory.currentCombinationIndex)
-            }
-
-            override fun onItemClickListener(view: View, data: MakeupCombinationBean, position: Int) {
-                if (position != mDataFactory.currentCombinationIndex) {
-                    needUpdateView = true
-                    changeAdapterSelected(mCombinationAdapter, mDataFactory.currentCombinationIndex, position)
-                    mDataFactory.currentCombinationIndex = position
-                    mDataFactory.onMakeupCombinationSelected(data)
-                    showCombinationSeekBar(data)
+        mCombinationAdapter =
+            BaseListAdapter(ArrayList(), object : BaseDelegate<MakeupCombinationBean>() {
+                override fun convert(
+                    viewType: Int,
+                    helper: BaseViewHolder,
+                    data: MakeupCombinationBean,
+                    position: Int
+                ) {
+                    helper.setText(R.id.tv_control, data.desRes)
+                    helper.setImageResource(R.id.iv_control, data.imageRes)
+                    helper.itemView.isSelected = (position == mDataFactory.currentCombinationIndex)
                 }
-            }
-        }, R.layout.list_item_control_title_image_square)
-        recycler_combination.adapter = mCombinationAdapter
+
+                override fun onItemClickListener(
+                    view: View,
+                    data: MakeupCombinationBean,
+                    position: Int
+                ) {
+                    if (position != mDataFactory.currentCombinationIndex) {
+                        needUpdateView = true
+                        changeAdapterSelected(
+                            mCombinationAdapter,
+                            mDataFactory.currentCombinationIndex,
+                            position
+                        )
+                        mDataFactory.currentCombinationIndex = position
+                        mDataFactory.onMakeupCombinationSelected(data)
+                        showCombinationSeekBar(data)
+                    }
+                }
+            }, R.layout.list_item_control_title_image_square)
+        mBinding.recyclerCombination.adapter = mCombinationAdapter
     }
 
     /**
      * 自定义妆容一级类别Adapter
      */
     private fun initCustomClassAdapter() {
-        mCustomClassAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<MakeupCustomClassBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, data: MakeupCustomClassBean, position: Int) {
-                helper.setText(R.id.tv_control, data.nameRes)
-                helper.setVisible(R.id.iv_indicator, mDataFactory.checkItemIntensity(data.key))
-                helper.itemView.isSelected = (position == mCustomClassIndex)
-            }
+        mCustomClassAdapter =
+            BaseListAdapter(ArrayList(), object : BaseDelegate<MakeupCustomClassBean>() {
+                override fun convert(
+                    viewType: Int,
+                    helper: BaseViewHolder,
+                    data: MakeupCustomClassBean,
+                    position: Int
+                ) {
+                    helper.setText(R.id.tv_control, data.nameRes)
+                    helper.setVisible(R.id.iv_indicator, mDataFactory.checkItemIntensity(data.key))
+                    helper.itemView.isSelected = (position == mCustomClassIndex)
+                }
 
-            override fun onItemClickListener(view: View, data: MakeupCustomClassBean, position: Int) {
-                if (mCustomClassIndex != position) {
-                    changeAdapterSelected(mCustomClassAdapter, mCustomClassIndex, position)
-                    mCustomClassIndex = position
-                    mCurrentCustomClassKey = data.key
-                    val makeupCustomBeans = mDataFactory.makeupCustomItemParams[mCurrentCustomClassKey]!!
-                    mCustomAdapter.setData(makeupCustomBeans)
-                    val current = mDataFactory.getCurrentCustomItemIndex(mCurrentCustomClassKey)
-                    val intensity = mDataFactory.getCurrentCustomIntensity(mCurrentCustomClassKey, current)
-                    showCustomSeekBar(current, intensity)
-                    recycler_custom.scrollToPosition(current)
-                    showColorRecycleView(makeupCustomBeans[current].doubleArray)
+                override fun onItemClickListener(
+                    view: View,
+                    data: MakeupCustomClassBean,
+                    position: Int
+                ) {
+                    if (mCustomClassIndex != position) {
+                        changeAdapterSelected(mCustomClassAdapter, mCustomClassIndex, position)
+                        mCustomClassIndex = position
+                        mCurrentCustomClassKey = data.key
+                        val makeupCustomBeans =
+                            mDataFactory.makeupCustomItemParams[mCurrentCustomClassKey]!!
+                        mCustomAdapter.setData(makeupCustomBeans)
+                        val current = mDataFactory.getCurrentCustomItemIndex(mCurrentCustomClassKey)
+                        val intensity =
+                            mDataFactory.getCurrentCustomIntensity(mCurrentCustomClassKey, current)
+                        showCustomSeekBar(current, intensity)
+                        mBinding.recyclerCustom.scrollToPosition(current)
+                        showColorRecycleView(makeupCustomBeans[current].doubleArray)
 
-                    //根据选中的项弹出提示
-                    if (current > 0 && makeupCustomBeans[current].nameRes > 0) {
-                        ToastHelper.showWhiteTextToast(context, makeupCustomBeans[current].nameRes)
+                        //根据选中的项弹出提示
+                        if (current > 0 && makeupCustomBeans[current].nameRes > 0) {
+                            ToastHelper.showWhiteTextToast(
+                                context,
+                                makeupCustomBeans[current].nameRes
+                            )
+                        }
                     }
                 }
-            }
-        }, R.layout.list_item_control_title)
-        recycler_custom_class.adapter = mCustomClassAdapter
+            }, R.layout.list_item_control_title)
+        mBinding.recyclerCustomClass.adapter = mCustomClassAdapter
     }
 
     /**
@@ -246,9 +283,18 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
      */
     private fun initCustomBeanAdapter() {
         mCustomAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<MakeupCustomBean>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, item: MakeupCustomBean, position: Int) {
-                val requestOptions = RequestOptions().transform(CenterCrop(), RoundedCorners(resources.getDimensionPixelSize(R.dimen.x5)))
-                Glide.with(mContext).applyDefaultRequestOptions(requestOptions).load(item.drawable).into(helper.getView(R.id.iv_control)!!)
+            override fun convert(
+                viewType: Int,
+                helper: BaseViewHolder,
+                item: MakeupCustomBean,
+                position: Int
+            ) {
+                val requestOptions = RequestOptions().transform(
+                    CenterCrop(),
+                    RoundedCorners(resources.getDimensionPixelSize(R.dimen.x5))
+                )
+                Glide.with(mContext).applyDefaultRequestOptions(requestOptions).load(item.drawable)
+                    .into(helper.getView(R.id.iv_control)!!)
                 val current = mDataFactory.getCurrentCustomItemIndex(mCurrentCustomClassKey)
                 helper.itemView.isSelected = position == current
             }
@@ -261,21 +307,29 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
                 if (position != oldIndex) {
                     changeAdapterSelected(mCustomAdapter, oldIndex, position)
                     mDataFactory.onCustomBeanSelected(mCurrentCustomClassKey, position)
-                    val intensity = mDataFactory.getCurrentCustomIntensity(mCurrentCustomClassKey, position)
+                    val intensity =
+                        mDataFactory.getCurrentCustomIntensity(mCurrentCustomClassKey, position)
                     showCustomSeekBar(position, intensity)
                     showColorRecycleView(data.doubleArray)
-                    mCustomClassAdapter.getViewByPosition(mCustomClassIndex)?.findViewById<View>(R.id.iv_indicator)
-                        ?.visibility = if (mDataFactory.checkItemIntensity(mCurrentCustomClassKey)) View.VISIBLE else View.INVISIBLE
+                    mCustomClassAdapter.getViewByPosition(mCustomClassIndex)
+                        ?.findViewById<View>(R.id.iv_indicator)
+                        ?.visibility =
+                        if (mDataFactory.checkItemIntensity(mCurrentCustomClassKey)) View.VISIBLE else View.INVISIBLE
                 }
             }
         }, R.layout.list_item_control_image_square)
-        recycler_custom.adapter = mCustomAdapter
+        mBinding.recyclerCustom.adapter = mCustomAdapter
     }
 
 
     private fun initCustomColorAdapter() {
         mCustomColorAdapter = BaseListAdapter(ArrayList(), object : BaseDelegate<DoubleArray>() {
-            override fun convert(viewType: Int, helper: BaseViewHolder, item: DoubleArray, position: Int) {
+            override fun convert(
+                viewType: Int,
+                helper: BaseViewHolder,
+                item: DoubleArray,
+                position: Int
+            ) {
                 val view = helper.getView<ColorfulCircleView>(R.id.iv_colorful)
                 val circleFillColor = view?.circleFillColor
                 val count = item.size / 4
@@ -320,11 +374,12 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
 
             override fun onItemClickListener(view: View, data: DoubleArray, position: Int) {
                 val current = mDataFactory.getCurrentCustomItemIndex(mCurrentCustomClassKey)
-                val oldIndex = mDataFactory.getCurrentCustomColorIndex(mCurrentCustomClassKey, current)
+                val oldIndex =
+                    mDataFactory.getCurrentCustomColorIndex(mCurrentCustomClassKey, current)
                 if (position < 3 || position >= 8 || oldIndex == position) {
                     return
                 }
-                val layoutManager = recycler_makeup_color.layoutManager as PathLayoutManager
+                val layoutManager = mBinding.recyclerMakeupColor.layoutManager as PathLayoutManager
                 if (abs(oldIndex - position) > 1) {
                     layoutManager.setFixingAnimationDuration(250L)
                 } else {
@@ -335,7 +390,7 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
 
         }, R.layout.list_item_control_colorful_circle)
 
-        recycler_makeup_color.adapter = mCustomColorAdapter
+        mBinding.recyclerMakeupColor.adapter = mCustomColorAdapter
     }
 
 
@@ -345,8 +400,9 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
      *  选中组合妆容，控制强度调节器以及自定义按钮状态变更
      */
     private fun showCombinationSeekBar(data: MakeupCombinationBean) {
-        seek_bar_combination.visibility = if (data.type == MakeupCombinationBean.TypeEnum.TYPE_NONE) View.INVISIBLE else View.VISIBLE
-        seek_bar_combination.progress = (data.intensity * 100).toInt()
+        mBinding.seekBarCombination.visibility =
+            if (data.type == MakeupCombinationBean.TypeEnum.TYPE_NONE) View.INVISIBLE else View.VISIBLE
+        mBinding.seekBarCombination.progress = (data.intensity * 100).toInt()
         setCustomEnable(data.type == MakeupCombinationBean.TypeEnum.TYPE_DAILY || data.type == MakeupCombinationBean.TypeEnum.TYPE_NONE)
     }
 
@@ -354,18 +410,18 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
      *  自定义按钮是否可点击，暂不支持主题妆
      */
     private fun setCustomEnable(enable: Boolean) {
-        iv_combination_makeup.isEnabled = enable
+        mBinding.ivCombinationMakeup.isEnabled = enable
         val alpha = if (enable) 1.0f else 0.6f
-        tv_combination_makeup.alpha = alpha
-        iv_combination_makeup.alpha = alpha
+        mBinding.tvCombinationMakeup.alpha = alpha
+        mBinding.ivCombinationMakeup.alpha = alpha
     }
 
     /**
      * 自定义妆容-变更调节器状态以及数值
      */
     private fun showCustomSeekBar(current: Int, intensity: Double) {
-        seek_bar_custom.visibility = if (current == 0) View.INVISIBLE else View.VISIBLE
-        seek_bar_custom.progress = (intensity * 100).toInt()
+        mBinding.seekBarCustom.visibility = if (current == 0) View.INVISIBLE else View.VISIBLE
+        mBinding.seekBarCustom.progress = (intensity * 100).toInt()
     }
 
 
@@ -375,20 +431,28 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
     private fun showColorRecycleView(doubleList: ArrayList<DoubleArray>?) {
         if (doubleList.isNullOrEmpty()) {
             mCustomColorAdapter.setData(ArrayList())
-            cyt_makeup_color.visibility = View.GONE
+            mBinding.cytMakeupColor.visibility = View.GONE
         } else {
             mCustomColorAdapter.setData(doubleList)
-            cyt_makeup_color.visibility = View.VISIBLE
+            mBinding.cytMakeupColor.visibility = View.VISIBLE
             val current = mDataFactory.getCurrentCustomItemIndex(mCurrentCustomClassKey)
-            val colorIndex = mDataFactory.getCurrentCustomColorIndex(mCurrentCustomClassKey, current)
-            (recycler_makeup_color.layoutManager as PathLayoutManager).scrollToPosition(colorIndex)
+            val colorIndex =
+                mDataFactory.getCurrentCustomColorIndex(mCurrentCustomClassKey, current)
+            (mBinding.recyclerMakeupColor.layoutManager as PathLayoutManager).scrollToPosition(
+                colorIndex
+            )
         }
     }
 
     private fun bindSeekBarListener() {
         /*组合妆容强度变更回调*/
-        seek_bar_combination.setOnProgressChangeListener(object : DiscreteSeekBar.OnSimpleProgressChangeListener() {
-            override fun onProgressChanged(seekBar: DiscreteSeekBar?, value: Int, fromUser: Boolean) {
+        mBinding.seekBarCombination.setOnProgressChangeListener(object :
+            DiscreteSeekBar.OnSimpleProgressChangeListener() {
+            override fun onProgressChanged(
+                seekBar: DiscreteSeekBar?,
+                value: Int,
+                fromUser: Boolean
+            ) {
                 if (!fromUser) {
                     return
                 }
@@ -407,19 +471,31 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
         /**
          * 自定义妆容子项强度变更回调
          */
-        seek_bar_custom.setOnProgressChangeListener(object : DiscreteSeekBar.OnSimpleProgressChangeListener() {
-            override fun onProgressChanged(seekBar: DiscreteSeekBar?, value: Int, fromUser: Boolean) {
+        mBinding.seekBarCustom.setOnProgressChangeListener(object :
+            DiscreteSeekBar.OnSimpleProgressChangeListener() {
+            override fun onProgressChanged(
+                seekBar: DiscreteSeekBar?,
+                value: Int,
+                fromUser: Boolean
+            ) {
                 if (!fromUser) {
                     return
                 }
                 val valueF = 1.0f * (value - seekBar!!.min) / 100
                 val current = mDataFactory.getCurrentCustomItemIndex(mCurrentCustomClassKey)
-                val intensity = mDataFactory.getCurrentCustomIntensity(mCurrentCustomClassKey, current)
+                val intensity =
+                    mDataFactory.getCurrentCustomIntensity(mCurrentCustomClassKey, current)
                 if (!DecimalUtils.doubleEquals(intensity, valueF.toDouble())) {
-                    mDataFactory.updateCustomItemIntensity(mCurrentCustomClassKey, current, valueF.toDouble())
+                    mDataFactory.updateCustomItemIntensity(
+                        mCurrentCustomClassKey,
+                        current,
+                        valueF.toDouble()
+                    )
                 }
-                mCustomClassAdapter.getViewByPosition(mCustomClassIndex)?.findViewById<View>(R.id.iv_indicator)
-                    ?.visibility = if (mDataFactory.checkItemIntensity(mCurrentCustomClassKey)) View.VISIBLE else View.INVISIBLE
+                mCustomClassAdapter.getViewByPosition(mCustomClassIndex)
+                    ?.findViewById<View>(R.id.iv_indicator)
+                    ?.visibility =
+                    if (mDataFactory.checkItemIntensity(mCurrentCustomClassKey)) View.VISIBLE else View.INVISIBLE
             }
         })
     }
@@ -443,13 +519,19 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
         if (combinationAnimator2 != null && combinationAnimator2!!.isRunning) {
             combinationAnimator2!!.cancel()
         }
-        val start = if (isOpenCustom) resources.getDimensionPixelSize(R.dimen.x290) else resources.getDimensionPixelSize(R.dimen.x366)
+        val start =
+            if (isOpenCustom) resources.getDimensionPixelSize(R.dimen.x290) else resources.getDimensionPixelSize(
+                R.dimen.x366
+            )
         val mid = 1
-        val end = if (isOpenCustom) resources.getDimensionPixelSize(R.dimen.x366) else resources.getDimensionPixelSize(R.dimen.x290)
+        val end =
+            if (isOpenCustom) resources.getDimensionPixelSize(R.dimen.x366) else resources.getDimensionPixelSize(
+                R.dimen.x290
+            )
         combinationAnimator1 = ValueAnimator.ofInt(start, mid)
         combinationAnimator1!!.addUpdateListener { animation ->
             val height = animation.animatedValue as Int
-            val view = if (isOpenCustom) cyt_combination_makeup else cyt_custom_makeup
+            val view = if (isOpenCustom) mBinding.cytCombinationMakeup else mBinding.cytCustomMakeup
             val params = view.layoutParams as LayoutParams
             params.height = height
             view.layoutParams = params
@@ -466,7 +548,8 @@ class MakeupControlView @JvmOverloads constructor(private val mContext: Context,
         combinationAnimator2 = ValueAnimator.ofInt(mid, end)
         combinationAnimator2!!.addUpdateListener { animation ->
             val height = animation.animatedValue as Int
-            val view = if (!isOpenCustom) cyt_combination_makeup else cyt_custom_makeup
+            val view =
+                if (!isOpenCustom) mBinding.cytCombinationMakeup else mBinding.cytCustomMakeup
             val params = view.layoutParams as LayoutParams
             params.height = height
             view.layoutParams = params

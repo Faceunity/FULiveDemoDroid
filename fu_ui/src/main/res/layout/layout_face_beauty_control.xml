@@ -37,27 +37,44 @@
         android:background="@color/primary_list"
         android:orientation="vertical">
 
-        <com.faceunity.ui.seekbar.DiscreteSeekBar
-            android:id="@+id/beauty_seek_bar"
-            android:layout_width="@dimen/x528"
-            android:layout_height="@dimen/x48"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/x24"
-            android:layout_marginBottom="@dimen/x15"
-            app:dsb_indicatorColor="@color/main_color"
-            app:dsb_indicatorElevation="0dp"
-            app:dsb_indicatorPopupEnabled="true"
-            app:dsb_max="100"
-            app:dsb_min="0"
-            app:dsb_progressColor="@color/main_color"
-            app:dsb_rippleColor="@color/main_color"
-            app:dsb_scrubberHeight="@dimen/x4"
-            app:dsb_thumbSize="@dimen/x32"
-            app:dsb_trackBaseHeight="@dimen/x16"
-            app:dsb_trackColor="@color/colorWhite"
-            app:dsb_trackHeight="@dimen/x4"
-            app:dsb_value="0" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x107"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
 
+
+            <LinearLayout
+                android:id="@+id/lin_seek_bar"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:paddingLeft="@dimen/x20"
+                android:paddingRight="@dimen/x20">
+
+                <com.faceunity.ui.seekbar.DiscreteSeekBar
+                    android:id="@+id/beauty_seek_bar"
+                    android:layout_width="@dimen/x528"
+                    android:layout_height="@dimen/x48"
+                    app:dsb_indicatorColor="@color/main_color"
+                    app:dsb_indicatorElevation="0dp"
+                    app:dsb_indicatorPopupEnabled="true"
+                    app:dsb_max="100"
+                    app:dsb_min="0"
+                    app:dsb_progressColor="@color/main_color"
+                    app:dsb_rippleColor="@color/main_color"
+                    app:dsb_scrubberHeight="@dimen/x4"
+                    app:dsb_thumbSize="@dimen/x32"
+                    app:dsb_trackBaseHeight="@dimen/x16"
+                    app:dsb_trackColor="@color/colorWhite"
+                    app:dsb_trackHeight="@dimen/x4"
+                    app:dsb_value="0" />
+            </LinearLayout>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
