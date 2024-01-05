@@ -3,7 +3,6 @@ package com.faceunity.app.data;
 import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.HairBeautySource;
 import com.faceunity.core.entity.FUBundleData;
-import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.model.hairBeauty.HairBeautyGradient;

@@ -30,7 +30,6 @@ public class DemoApplication extends Application {
         registerFURender();
         CrashReport.initCrashReport(this, "2fe70385ed", true);
         OkHttpUtils.getInstance().init(this, BuildConfig.DEBUG);
-
 //        DoraemonKit.install(this);
     }
 

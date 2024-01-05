@@ -68,6 +68,7 @@ import java.io.File;
 public abstract class BaseFaceUnityActivity extends BaseActivity implements View.OnClickListener {
     public static boolean needUpdateUI = false;
     private boolean hasPermission = false;//是否已又权限
+
     //region Activity生命周期绑定
     @Override
     public void onResume() {
@@ -133,7 +134,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     @Override
     public void initData() {
         if (checkSelfPermission(permissions)) hasPermission = true;
-        DemoConfig.DEVICE_LEVEL = FuDeviceUtils.judgeDeviceLevelGPU();
+        DemoConfig.DEVICE_LEVEL = FuDeviceUtils.judgeDeviceLevel();
         DemoConfig.DEVICE_NAME = FuDeviceUtils.getDeviceName();
         mMainHandler = new Handler();
         mVideoRecordHelper = new VideoRecordHelper(this, mOnVideoRecordingListener);
@@ -266,9 +267,9 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     protected void configureFURenderKit() {
         mFUAIKit.setFaceDelayLeaveEnable(DemoConfig.FACE_DELAY_LEAVE_ENABLE);
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
-        mFUAIKit.faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
+        mFUAIKit.faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL >= 2 ? 2 : 1);
         //高端机开启小脸检测
-        if (DemoConfig.DEVICE_LEVEL  > FuDeviceUtils.DEVICE_LEVEL_MID)
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
             mFUAIKit.fuFaceProcessorSetDetectSmallFace(true);
     }
 
@@ -374,7 +375,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
         public void onRenderBefore(FURenderInputData inputData) {
             mEnableFaceRender = true;
             checkSpecialDevice(inputData);
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
                 cheekFaceConfidenceScore();
             width = inputData.getWidth();
             height = inputData.getHeight();
@@ -493,7 +494,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     /**
      * 检查是否特殊设备
      */
-    private void checkSpecialDevice(){
+    private void checkSpecialDevice() {
         if (DemoConfig.DEVICE_NAME.equals(FuDeviceUtils.Nexus_6P)) {
             float[] speOriginFoundTexMatrix = {0.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f};
@@ -549,7 +550,8 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     /**
      * 子类实现 更多按钮点击事件
      */
-    public void onSelectPhotoVideoClickBySon() {}
+    public void onSelectPhotoVideoClickBySon() {
+    }
 
     /**
      * 调整拍照按钮对齐方式 默认不改变宽高
@@ -557,7 +559,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
      * @param margin Int
      */
     protected void changeTakePicButtonMargin(int margin) {
-        changeTakePicButtonMargin(margin,0,false);
+        changeTakePicButtonMargin(margin, 0, false);
     }
 
     /**
@@ -566,7 +568,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
      * @param margin Int
      */
     protected void changeTakePicButtonMargin(int margin, int width) {
-        changeTakePicButtonMargin(margin,width,true);
+        changeTakePicButtonMargin(margin, width, true);
     }
 
     /**
@@ -574,7 +576,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
      *
      * @param margin Int
      */
-    protected void changeTakePicButtonMargin(int margin, int width,boolean changeSize) {
+    protected void changeTakePicButtonMargin(int margin, int width, boolean changeSize) {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mTakePicView.getLayoutParams();
         params.bottomMargin = margin;
         if (changeSize) mTakePicView.setDrawWidth(width);
@@ -592,7 +594,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     protected void updateTakePicButton(int width, Float showRate, int margin, int diff, Boolean changeSize) {
         int currentWidth = changeSize ? (int) (width * (1 - showRate * 0.265)) : width;
         int currentMargin = margin + (int) (diff * showRate);
-        changeTakePicButtonMargin(currentMargin, currentWidth,changeSize);
+        changeTakePicButtonMargin(currentMargin, currentWidth, changeSize);
     }
 
 
@@ -847,6 +849,7 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
     private String[] permissions = {Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO};
+
     @Override
     public void checkPermissionResult(boolean permissionResult) {
         if (permissionResult) {

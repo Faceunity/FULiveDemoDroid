@@ -134,4 +134,13 @@ abstract class AbstractStyleDataFactory {
      */
     abstract fun styleTypeIndex()
 
+    /**
+     * 获取关联的radioButton选择项
+     */
+    abstract fun getParamRelevanceSelectedType(key: String): Int
+
+    /**
+     * 更新关联的radioButton选择项
+     */
+    abstract fun updateParamRelevanceType(key: String, type: Int)
 }

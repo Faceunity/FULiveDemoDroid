@@ -343,7 +343,7 @@ public class BgSegGreenDataFactory extends AbstractBgSegGreenDataFactory {
         mBgSegGreenListener.onSafeAreaSelected(mBgSegGreenSafeAreaBeans.get(mCurrentSafeAreaIndex));
     }
 
-    public void release(){
+    public void release() {
         mBgSegGreen = null;
     }
 }

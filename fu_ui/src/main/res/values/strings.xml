@@ -17,6 +17,7 @@
     <string name="fu_base_input_type_double">DualInput</string>
 
     <string name="beauty_box_heavy_blur_fine">Buffing</string>
+    <string name="beauty_box_delspot">Acne Removal</string>
     <string name="beauty_box_color_level">Skin Tone</string>
     <string name="beauty_box_red_level">Rosy</string>
     <string name="beauty_box_clarity">Clarity</string>

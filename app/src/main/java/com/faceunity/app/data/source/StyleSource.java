@@ -59,7 +59,7 @@ public class StyleSource {
             return defaultFaceBeauty;
         }
         defaultFaceBeauty = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
             setFaceBeautyPropertyMode(defaultFaceBeauty);
         }
         return defaultFaceBeauty;
@@ -72,7 +72,7 @@ public class StyleSource {
      */
     public static FaceBeauty getNewFaceBeauty() {
         FaceBeauty newFaceBeauty = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
-        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
             setFaceBeautyPropertyMode(newFaceBeauty);
         }
         return newFaceBeauty;
@@ -167,7 +167,7 @@ public class StyleSource {
 //        FUDiskFaceStyleUtils.removeStyleData();
         Iterator<Map.Entry<String, StyleData>> iterator = styleType.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<String, StyleSource.StyleData> entry = iterator.next();
+            Map.Entry<String, StyleData> entry = iterator.next();
             StyleData styleData = resetStyleFaceBeauty(entry.getValue().faceBeauty, entry.getKey());
             entry.setValue(styleData);
         }
@@ -201,7 +201,7 @@ public class StyleSource {
         StyleData styleData = new StyleData();
         FaceBeauty model = new FaceBeauty(new FUBundleData(DemoConfig.BUNDLE_FACE_BEAUTIFICATION));
         //设置美颜各属性模式
-        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
             setFaceBeautyPropertyMode(model);
         }
         SimpleMakeup simpleMakeup;
@@ -211,6 +211,7 @@ public class StyleSource {
             FUDiskStyleData fuDiskStyleData = fuDiskStyleDataArrayList.get(styleName);
             //美肤
             model.setBlurIntensity(fuDiskStyleData.blurIntensity);
+            model.setDelspotIntensity(fuDiskStyleData.delspotIntensity);
             model.setColorIntensity(fuDiskStyleData.colorIntensity);
             model.setRedIntensity(fuDiskStyleData.redIntensity);
             model.setClarityIntensity(fuDiskStyleData.clarityIntensity);
@@ -248,7 +249,7 @@ public class StyleSource {
             model.setFaceThreeIntensity(fuDiskStyleData.faceThreeIntensity);
             //美妆 + 滤镜
             simpleMakeup = new SimpleMakeup(new FUBundleData(fuDiskStyleData.makeupPath));
-            simpleMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启人脸遮挡
+            simpleMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE);//更新设备等级去设置是否开启人脸遮挡
             simpleMakeup.setFilterIntensity(fuDiskStyleData.filterIntensity);
             simpleMakeup.setMakeupIntensity(fuDiskStyleData.makeupIntensity);
             styleData.faceBeauty = model;
@@ -299,7 +300,7 @@ public class StyleSource {
             model.setNoseIntensity(0.3);
             model.setCheekVIntensity(0.3);
             model.setChinIntensity(0.6);
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
                 model.setLipThickIntensity(0.75);
             }
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "xuejie.bundle"));
@@ -317,7 +318,7 @@ public class StyleSource {
             model.setNoseIntensity(0.3);
             model.setForHeadIntensity(0.15);
             model.setEyeEnlargingIntensity(0.3);
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
                 model.setLipThickIntensity(0.65);
                 model.setEyeLidIntensity(0.75);
             }
@@ -334,7 +335,7 @@ public class StyleSource {
             model.setEyeEnlargingIntensity(0.3);
             model.setCheekSmallIntensity(0.2);
             model.setNoseIntensity(0.2);
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
                 model.setLipThickIntensity(0.7);
             }
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "danyan.bundle"));
@@ -354,7 +355,7 @@ public class StyleSource {
             model.setNoseIntensity(0.35);
             model.setForHeadIntensity(0.15);
             model.setSmileIntensity(0.4);
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
                 model.setLipThickIntensity(0.65);
             }
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "zhigan.bundle"));
@@ -372,7 +373,7 @@ public class StyleSource {
             model.setNoseIntensity(0.25);
             model.setForHeadIntensity(0.2);
             model.setCheekNarrowIntensity(0.3);
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
                 model.setLipThickIntensity(0.65);
             }
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "hanguoxuemei.bundle"));
@@ -391,7 +392,7 @@ public class StyleSource {
             model.setCheekNarrowIntensity(0.1);
             model.setCheekThinningIntensity(0.35);
             model.setChinIntensity(0.8);
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID) {
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
                 model.setLipThickIntensity(0.65);
             }
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "ailing.bundle"));
@@ -476,7 +477,7 @@ public class StyleSource {
             simpleMakeup.setFilterIntensity(0.8);
             simpleMakeup.setMakeupIntensity(0.8);
         }
-        simpleMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启人脸遮挡
+        simpleMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE);//更新设备等级去设置是否开启人脸遮挡
         styleData.faceBeauty = model;
         styleData.simpleMakeup = simpleMakeup;
         return styleData;
@@ -505,10 +506,17 @@ public class StyleSource {
                         R.drawable.icon_beauty_skin_buffing_close_selector, R.drawable.icon_beauty_skin_buffing_open_selector
                 )
         );
+        params.add(new FaceBeautyBean(
+                        FaceBeautyParam.DELSPOT, R.string.beauty_box_delspot,
+                        R.drawable.icon_beauty_skin_delspot_close_selector, R.drawable.icon_beauty_skin_delspot_open_selector, DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_THREE && !FuDeviceUtils.judgeFunctionInBlackList(FaceBeautyParam.DELSPOT)
+                )
+        );
         params.add(
                 new FaceBeautyBean(
                         FaceBeautyParam.COLOR_INTENSITY, R.string.beauty_box_color_level,
-                        R.drawable.icon_beauty_skin_color_close_selector, R.drawable.icon_beauty_skin_color_open_selector
+                        R.drawable.icon_beauty_skin_color_close_selector, R.drawable.icon_beauty_skin_color_open_selector, true,
+                        FaceBeautyParam.ENABLE_SKIN_SEG, true, DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_FOUR,
+                        R.string.beauty_skin_seg_type_overall, R.string.beauty_skin_seg_type_skin, R.string.beauty_skin_seg_type_tips
                 )
         );
         params.add(
@@ -675,7 +683,7 @@ public class StyleSource {
                 new FaceBeautyBean(
                         FaceBeautyParam.INTENSITY_LIP_THICK, R.string.beauty_lip_thick,
                         R.drawable.icon_beauty_shape_lip_thick_close_selector, R.drawable.icon_beauty_shape_lip_thick_open_selector,
-                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
+                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
         );
 
         //眼睛位置
@@ -683,7 +691,7 @@ public class StyleSource {
                 new FaceBeautyBean(
                         FaceBeautyParam.INTENSITY_EYE_HEIGHT, R.string.beauty_eye_height,
                         R.drawable.icon_beauty_shape_eye_height_close_selector, R.drawable.icon_beauty_shape_eye_height_open_selector,
-                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
+                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
         );
 
         //开眼角
@@ -699,7 +707,7 @@ public class StyleSource {
                 new FaceBeautyBean(
                         FaceBeautyParam.INTENSITY_EYE_LID, R.string.beauty_eye_lid,
                         R.drawable.icon_beauty_shape_eye_lid_close_selector, R.drawable.icon_beauty_shape_eye_lid_open_selector,
-                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
+                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
         );
 
         //眼距
@@ -747,7 +755,7 @@ public class StyleSource {
                 new FaceBeautyBean(
                         FaceBeautyParam.BROW_HEIGHT_INTENSITY, R.string.beauty_brow_height,
                         R.drawable.icon_beauty_shape_brow_height_close_selector, R.drawable.icon_beauty_shape_brow_height_open_selector,
-                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID
+                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE
                 )
         );
 
@@ -756,7 +764,7 @@ public class StyleSource {
                 new FaceBeautyBean(
                         FaceBeautyParam.BROW_SPACE_INTENSITY, R.string.beauty_brow_space,
                         R.drawable.icon_beauty_shape_brow_space_close_selector, R.drawable.icon_beauty_shape_brow_space_open_selector,
-                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID
+                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE
                 )
         );
 
@@ -765,7 +773,7 @@ public class StyleSource {
                 new FaceBeautyBean(
                         FaceBeautyParam.INTENSITY_BROW_THICK, R.string.beauty_brow_thick,
                         R.drawable.icon_beauty_shape_brow_thick_close_selector, R.drawable.icon_beauty_shape_brow_thick_open_selector,
-                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
+                        DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
         );
         return params;
     }
@@ -780,6 +788,7 @@ public class StyleSource {
         /*美肤*/
         params.put(FaceBeautyParam.COLOR_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.BLUR_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 6.0));
+        params.put(FaceBeautyParam.DELSPOT, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.RED_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CLARITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.SHARPEN_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
@@ -848,6 +857,8 @@ public class StyleSource {
                 return false;
             //美肤
             if (faceBeauty.getBlurIntensity() != styleData.faceBeauty.getBlurIntensity())
+                return false;
+            if (faceBeauty.getDelspotIntensity() != styleData.faceBeauty.getDelspotIntensity())
                 return false;
             if (faceBeauty.getColorIntensity() != styleData.faceBeauty.getColorIntensity())
                 return false;
@@ -1007,6 +1018,8 @@ public class StyleSource {
         //美肤
         if (targetBeauty.getBlurIntensity() != sourceFaceBeauty.getBlurIntensity())
             targetBeauty.setBlurIntensity(sourceFaceBeauty.getBlurIntensity());
+        if (targetBeauty.getDelspotIntensity() != sourceFaceBeauty.getDelspotIntensity())
+            targetBeauty.setDelspotIntensity(sourceFaceBeauty.getDelspotIntensity());
         if (targetBeauty.getColorIntensity() != sourceFaceBeauty.getColorIntensity())
             targetBeauty.setColorIntensity(sourceFaceBeauty.getColorIntensity());
         if (targetBeauty.getRedIntensity() != sourceFaceBeauty.getRedIntensity())

@@ -1,5 +1,17 @@
 package com.faceunity.app.data;
 
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_BLUSHER;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_BROW;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_LASH;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_LINER;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_PUPIL;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_SHADOW;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_FOUNDATION;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_HIGH_LIGHT;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_LIP_STICK;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_SHADOW;
+import static com.faceunity.app.data.source.MakeupSource.buildFUColorRGBData;
+
 import androidx.annotation.NonNull;
 
 import com.faceunity.app.DemoConfig;
@@ -25,18 +37,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_BLUSHER;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_BROW;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_LASH;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_LINER;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_PUPIL;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_EYE_SHADOW;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_FOUNDATION;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_HIGH_LIGHT;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_LIP_STICK;
-import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_SHADOW;
-import static com.faceunity.app.data.source.MakeupSource.buildFUColorRGBData;
 
 /**
  * DESC：美妆业务工厂
@@ -426,7 +426,7 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
 
             }
         }
-        currentMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID);//更新设备等级去设置是否开启人脸遮挡
+        currentMakeup.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE);//更新设备等级去设置是否开启人脸遮挡
     }
 
 

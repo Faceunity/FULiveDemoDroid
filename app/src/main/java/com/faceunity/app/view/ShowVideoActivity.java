@@ -463,9 +463,9 @@ public class ShowVideoActivity extends BaseActivity {
 
     private void configureFURenderKit() {
         FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
-        FUAIKit.getInstance().faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
+        FUAIKit.getInstance().faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL >= 2 ? 2 : 1);
         //高端机开启小脸检测
-        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
             FUAIKit.getInstance().fuFaceProcessorSetDetectSmallFace(true);
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
             mFaceBeautyDataFactory.bindCurrentRenderer();
@@ -567,7 +567,7 @@ public class ShowVideoActivity extends BaseActivity {
 
         @Override
         public void onRenderBefore(FURenderInputData inputData) {
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
                 cheekFaceConfidenceScore();
         }
 

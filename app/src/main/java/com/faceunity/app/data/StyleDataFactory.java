@@ -142,6 +142,8 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             value = mFaceBeauty.getColorIntensity();
         else if (FaceBeautyParam.BLUR_INTENSITY.equals(key))
             value = mFaceBeauty.getBlurIntensity();
+        else if (FaceBeautyParam.DELSPOT.equals(key))
+            value = mFaceBeauty.getDelspotIntensity();
         else if (FaceBeautyParam.RED_INTENSITY.equals(key))
             value = mFaceBeauty.getRedIntensity();
         else if (FaceBeautyParam.CLARITY.equals(key))
@@ -231,6 +233,8 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             mFaceBeauty.setColorIntensity(value);
         else if (FaceBeautyParam.BLUR_INTENSITY.equals(key))
             mFaceBeauty.setBlurIntensity(value);
+        else if (FaceBeautyParam.DELSPOT.equals(key))
+            mFaceBeauty.setDelspotIntensity(value);
         else if (FaceBeautyParam.RED_INTENSITY.equals(key))
             mFaceBeauty.setRedIntensity(value);
         else if (FaceBeautyParam.CLARITY.equals(key))
@@ -334,6 +338,33 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             mSimpleMakeup.setMakeupIntensity(value);
     }
 
+    @Override
+    public int getParamRelevanceSelectedType(@NonNull String key) {
+        if (faceBeautyRelevanceGetMapping != null && faceBeautyRelevanceGetMapping.containsKey(key)) {
+            return faceBeautyRelevanceGetMapping.get(key).getValue() ? 1 : 0;
+        }
+        return 0;
+    }
+
+    @Override
+    public void updateParamRelevanceType(@NonNull String key, int type) {
+        if (faceBeautyRelevanceSetMapping.containsKey(key)) {
+            faceBeautyRelevanceSetMapping.get(key).setValue(type == 1);
+        }
+    }
+
+    /*模型映射获取模型值*/
+    HashMap<String, FaceBeautyDataFactory.FaceBeautyGetParamRelevanceInterface> faceBeautyRelevanceGetMapping = new HashMap<String, FaceBeautyDataFactory.FaceBeautyGetParamRelevanceInterface>() {
+        {
+            put(FaceBeautyParam.ENABLE_SKIN_SEG, mFaceBeauty::getEnableSkinSeg);
+        }
+    };
+
+    HashMap<String, FaceBeautyDataFactory.FaceBeautySetParamRelevanceInterface> faceBeautyRelevanceSetMapping = new HashMap<String, FaceBeautyDataFactory.FaceBeautySetParamRelevanceInterface>() {
+        {
+            put(FaceBeautyParam.ENABLE_SKIN_SEG, mFaceBeauty::setEnableSkinSeg);
+        }
+    };
 
     /**
      * 获取滤镜强度
