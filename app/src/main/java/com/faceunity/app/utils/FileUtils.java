@@ -525,6 +525,7 @@ public class FileUtils {
 
     /**
      * 遍历一个文件夹获取改文件夹下所有文件名
+     *
      * @param path
      * @return
      */
@@ -566,7 +567,7 @@ public class FileUtils {
      * @param path String
      * @return Boolean
      */
-    public static Boolean checkIsVideo(Context context,String path) {
+    public static Boolean checkIsVideo(Context context, String path) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
             retriever.setDataSource(context, Uri.fromFile(new File(path)));

@@ -16,6 +16,8 @@ public class FUDiskFaceBeautyData implements Serializable {
     public int blurType = FaceBeautyBlurTypeEnum.FineSkin;
     /* 磨皮程度 */
     public double blurIntensity = 0.0;
+    /* 祛斑痘程度 */
+    public double delspotIntensity = 0.0;
     /* 美白程度 */
     public double colorIntensity = 0.0;
     /* 红润程度 */

@@ -72,7 +72,10 @@ public class DemoConfig {
 
     //设备等级默认为中级
 
-    public static int DEVICE_LEVEL = FuDeviceUtils.DEVICE_LEVEL_MID;
+    public static int DEVICE_LEVEL = FuDeviceUtils.DEVICE_LEVEL_TWO;
+
+    //功能对应的机型黑名单
+    public static String BLACK_LIST = "others" + File.separator + "blackList.json";
 
     //人脸置信度 标准
     public static float FACE_CONFIDENCE_SCORE = 0.95f;
@@ -105,7 +108,7 @@ public class DemoConfig {
     public static boolean OPEN_FACE_BEAUTY_TO_FILE = true;
 
     //获取缓存路径
-    public static String cacheFilePath(Application application){
+    public static String cacheFilePath(Application application) {
         return FileUtils.getCacheFileDir(application).getPath() + File.separator + "attribute";
     }
 

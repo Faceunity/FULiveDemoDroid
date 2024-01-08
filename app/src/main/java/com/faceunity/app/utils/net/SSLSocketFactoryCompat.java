@@ -12,7 +12,12 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-public class SSLSocketFactoryCompat extends SSLSocketFactory{
+/**
+ * 道具下载 缓存
+ *
+ * @author Richie on 2021.03.03
+ */
+public class SSLSocketFactoryCompat extends SSLSocketFactory {
     private static final String[] TLS_V12_ONLY = {"TLSv1.2"};
 
     private final SSLSocketFactory delegate;
@@ -29,7 +34,7 @@ public class SSLSocketFactoryCompat extends SSLSocketFactory{
         }
         this.delegate = delegate;
     }
-    
+
     @Override
     public String[] getDefaultCipherSuites() {
         return delegate.getDefaultCipherSuites();

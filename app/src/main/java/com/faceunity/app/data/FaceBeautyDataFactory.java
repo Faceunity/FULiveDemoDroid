@@ -217,6 +217,9 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         if (faceBeautySetMapping.containsKey(key)) {
             faceBeautySetMapping.get(key).setValue(value);
         }
+        if (faceBeautyRelevanceSetMapping.containsKey(key)) {
+            faceBeautyRelevanceSetMapping.get(key).setValue(value == 1);
+        }
     }
 
     /**
@@ -303,6 +306,20 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         defaultFaceBeauty.setFilterIntensity(intensity);
     }
 
+    @Override
+    public int getParamRelevanceSelectedType(@NonNull String key) {
+        if (faceBeautyRelevanceGetMapping != null && faceBeautyRelevanceGetMapping.containsKey(key)) {
+            return faceBeautyRelevanceGetMapping.get(key).getValue() ? 1 : 0;
+        }
+        return 0;
+    }
+
+    @Override
+    public void updateParamRelevanceType(@NonNull String key, int type) {
+        if (faceBeautyRelevanceSetMapping.containsKey(key)) {
+            faceBeautyRelevanceSetMapping.get(key).setValue(type == 1);
+        }
+    }
 
     /*模型映射设置模型值*/
     private final HashMap<String, FaceBeautySetParamInterface> faceBeautySetMapping = new HashMap<String, FaceBeautySetParamInterface>() {{
@@ -316,6 +333,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         put(FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, defaultFaceBeauty::setRemoveLawPatternIntensity);
         put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::setFaceThreeIntensity);
         put(FaceBeautyParam.CLARITY, defaultFaceBeauty::setClarityIntensity);
+        put(FaceBeautyParam.DELSPOT, defaultFaceBeauty::setDelspotIntensity);
         /*美型*/
         put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::setFaceShapeIntensity);
         put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, defaultFaceBeauty::setCheekThinningIntensity);
@@ -360,6 +378,7 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
             put(FaceBeautyParam.REMOVE_NASOLABIAL_FOLDS_INTENSITY, defaultFaceBeauty::getRemoveLawPatternIntensity);
             put(FaceBeautyParam.FACE_THREED, defaultFaceBeauty::getFaceThreeIntensity);
             put(FaceBeautyParam.CLARITY, defaultFaceBeauty::getClarityIntensity);
+            put(FaceBeautyParam.DELSPOT, defaultFaceBeauty::getDelspotIntensity);
             /*美型*/
             put(FaceBeautyParam.FACE_SHAPE_INTENSITY, defaultFaceBeauty::getFaceShapeIntensity);
             put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, defaultFaceBeauty::getCheekThinningIntensity);
@@ -393,6 +412,19 @@ public class FaceBeautyDataFactory extends AbstractFaceBeautyDataFactory {
         }
     };
 
+
+    /*模型映射获取模型值*/
+    HashMap<String, FaceBeautyGetParamRelevanceInterface> faceBeautyRelevanceGetMapping = new HashMap<String, FaceBeautyGetParamRelevanceInterface>() {
+        {
+            put(FaceBeautyParam.ENABLE_SKIN_SEG, defaultFaceBeauty::getEnableSkinSeg);
+        }
+    };
+
+    HashMap<String, FaceBeautySetParamRelevanceInterface> faceBeautyRelevanceSetMapping = new HashMap<String, FaceBeautySetParamRelevanceInterface>() {
+        {
+            put(FaceBeautyParam.ENABLE_SKIN_SEG, defaultFaceBeauty::setEnableSkinSeg);
+        }
+    };
 
 
     /**

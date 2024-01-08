@@ -27,8 +27,8 @@ public class BgSegGreenSource {
     private static final String GREEN_SAFE_AREA_CUSTOM = "green_safe_area_custom";
 
     private static double SIMILARITY = 0.5;//相似度
-    private static double SMOOTHNESS = 0.3;//平滑度
-    private static double TRANSPARENCY = 0.66;//透明度
+    private static double SMOOTHNESS = 0.5;//平滑度
+    private static double TRANSPARENCY = 1.0;//透明度
 
     /**
      * 构造绿幕抠像对象

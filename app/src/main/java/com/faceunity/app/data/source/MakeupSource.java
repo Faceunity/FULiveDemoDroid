@@ -102,7 +102,7 @@ public class MakeupSource {
 
         makeupModel.setMakeupIntensity(bean.getIntensity());
         //更新设备等级去设置是否开启人脸遮挡
-        makeupModel.setMachineLevel(DemoConfig.DEVICE_LEVEL == FuDeviceUtils.DEVICE_LEVEL_HIGH);
+        makeupModel.setMachineLevel(DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE);
 
         if (bean.getJsonPathParams() == null) {
             bean.setJsonPathParams(getLocalParams(bean.getJsonPath()));

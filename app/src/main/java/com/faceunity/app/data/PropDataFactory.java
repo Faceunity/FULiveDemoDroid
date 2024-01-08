@@ -126,6 +126,8 @@ public class PropDataFactory extends AbstractPropDataFactory {
             case FunctionEnum.GESTURE_RECOGNITION:
                 prop = new GestureRecognition(new FUBundleData(path));
                 break;
+            default:
+                break;
         }
         mFURenderKit.getPropContainer().replaceProp(currentProp, prop);
         currentProp = prop;

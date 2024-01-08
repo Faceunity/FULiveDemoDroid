@@ -111,6 +111,7 @@ class StyleControlView @JvmOverloads constructor(
             //视图变化
             when (checkedId) {
                 R.id.beauty_radio_skin_beauty -> {
+                    showRelevanceRadioButton(false)
                     mBinding.beautyRadioSkinBeauty.isEnabled = false
                     mBinding.beautyRadioFaceShape.isEnabled = true
                     //选中美颜
@@ -122,6 +123,7 @@ class StyleControlView @JvmOverloads constructor(
                         val value = mDataFactory.getParamIntensity(data.key)
                         val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
                         val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
+                        checkRelevanceRadioGroup(data)
                         seekToSeekBar(mBinding.beautySeekBar, value, stand, maxRange)
                     } else {
                         mBinding.beautySeekBar.visibility = View.INVISIBLE
@@ -129,6 +131,7 @@ class StyleControlView @JvmOverloads constructor(
                 }
 
                 R.id.beauty_radio_face_shape -> {
+                    showRelevanceRadioButton(false)
                     mBinding.beautyRadioSkinBeauty.isEnabled = true
                     mBinding.beautyRadioFaceShape.isEnabled = false
                     //选中美型
@@ -141,6 +144,7 @@ class StyleControlView @JvmOverloads constructor(
                         val value = mDataFactory.getParamIntensity(data.key)
                         val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
                         val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
+                        checkRelevanceRadioGroup(data)
                         seekToSeekBar(mBinding.beautySeekBar, value, stand, maxRange)
                     } else {
                         mBinding.beautySeekBar.visibility = View.INVISIBLE
@@ -258,6 +262,7 @@ class StyleControlView @JvmOverloads constructor(
             //选中美肤
             mDataFactory.enableFaceBeautySkin(isChecked)
             mSkinIndex = -1
+            showRelevanceRadioButton(false)
             mBinding.beautySeekBar.visibility = View.INVISIBLE
             //刷新数据
             mBeautyAdapter.notifyDataSetChanged()
@@ -277,6 +282,7 @@ class StyleControlView @JvmOverloads constructor(
             //选中美型
             mDataFactory.enableFaceBeautyShape(isChecked)
             mShapeIndex = -1
+            showRelevanceRadioButton(false)
             mBinding.beautySeekBar.visibility = View.INVISIBLE
             //刷新数据
             mBeautyAdapter.notifyDataSetChanged()
@@ -395,8 +401,10 @@ class StyleControlView @JvmOverloads constructor(
             val value = mDataFactory.getParamIntensity(data.key)
             val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
             val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
+            checkRelevanceRadioGroup(data)
             seekToSeekBar(mBinding.beautySeekBar, value, stand, maxRange)
         } else {
+            showRelevanceRadioButton(false)
             mBinding.beautySeekBar.visibility = INVISIBLE
         }
         if (mBeautyAdapter.itemCount <= 0)
@@ -470,6 +478,7 @@ class StyleControlView @JvmOverloads constructor(
                 if ((isShinSelected && position == mSkinIndex) || (!isShinSelected && position == mShapeIndex)) {
                     return
                 }
+                checkRelevanceRadioGroup(data)
                 val value = mDataFactory.getParamIntensity(data.key)
                 val stand = mDataFactory.modelAttributeRange[data.key]!!.stand
                 val maxRange = mDataFactory.modelAttributeRange[data.key]!!.maxRange
@@ -487,6 +496,69 @@ class StyleControlView @JvmOverloads constructor(
         isSubInit = true
     }
 
+    private fun checkRelevanceRadioGroup(data: FaceBeautyBean) {
+        mBinding.linBeautyRelevance.visibility = if (data.showRadioButton) VISIBLE else GONE
+        if (data.showRadioButton) {
+            (mBinding.beautySeekBar.layoutParams as LinearLayout.LayoutParams).weight = 1.0f
+            mBinding.beautySeekBar.requestLayout()
+            mBinding.rbLeftBeautyRelevance.text = resources.getString(data.leftRadioButtonDesRes)
+            mBinding.rbRightBeautyRelevance.text = resources.getString(data.rightRadioButtonDesRes)
+            if (mDataFactory.getParamRelevanceSelectedType(data.relevanceKey) == 0) {
+                mBinding.rbLeftBeautyRelevance.isSelected = true
+                mBinding.rbRightBeautyRelevance.isSelected = false
+            } else {
+                mBinding.rbLeftBeautyRelevance.isSelected = false
+                mBinding.rbRightBeautyRelevance.isSelected = true
+            }
+            if (!data.enableRadioButton) {
+                if (mBinding.rbLeftBeautyRelevance.isSelected) {
+                    mBinding.rbRightBeautyRelevance.setOnClickListener {
+                        ToastHelper.showNormalToast(
+                            mContext, mContext.getString(
+                                R.string.face_beauty_function_tips,
+                                mContext.getString(data.enableRadioButtonDesRes)
+                            )
+                        )
+                    }
+                }
+                if (mBinding.rbRightBeautyRelevance.isSelected) {
+                    mBinding.rbLeftBeautyRelevance.setOnClickListener {
+                        ToastHelper.showNormalToast(
+                            mContext, mContext.getString(
+                                R.string.face_beauty_function_tips,
+                                mContext.getString(data.enableRadioButtonDesRes)
+                            )
+                        )
+                    }
+                }
+            } else {
+                mBinding.rbLeftBeautyRelevance.setOnClickListener {
+                    mDataFactory.updateParamRelevanceType(data.relevanceKey, 0)
+                    mBinding.rbLeftBeautyRelevance.isSelected = true
+                    mBinding.rbRightBeautyRelevance.isSelected = false
+                }
+                mBinding.rbRightBeautyRelevance.setOnClickListener {
+                    mDataFactory.updateParamRelevanceType(data.relevanceKey, 1)
+                    mBinding.rbLeftBeautyRelevance.isSelected = false
+                    mBinding.rbRightBeautyRelevance.isSelected = true
+                }
+            }
+        } else {
+            (mBinding.beautySeekBar.layoutParams as LinearLayout.LayoutParams).weight = 0f
+            mBinding.beautySeekBar.layoutParams.width = resources.getDimension(R.dimen.x528).toInt()
+            mBinding.beautySeekBar.requestLayout()
+        }
+    }
+
+    private fun showRelevanceRadioButton(show: Boolean) {
+        mBinding.linBeautyRelevance.visibility = if (show) View.VISIBLE else View.GONE
+        (mBinding.beautySeekBar.layoutParams as LinearLayout.LayoutParams).weight =
+            if (show) 1.0f else 0f
+        if (!show) {
+            mBinding.beautySeekBar.layoutParams.width = resources.getDimension(R.dimen.x528).toInt()
+        }
+        mBinding.beautySeekBar.requestLayout()
+    }
 
     /**
      * 更新风格那个seekbar 美妆 滤镜

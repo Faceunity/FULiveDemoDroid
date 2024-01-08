@@ -44,6 +44,45 @@
             android:gravity="center_vertical"
             >
 
+            <LinearLayout
+                android:id="@+id/lin_beauty_relevance"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/x48"
+                android:minWidth="@dimen/x220"
+                android:layout_marginStart="@dimen/x26"
+                android:background="@drawable/bg_popup_skin_seg"
+                android:visibility="gone"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/rb_left_beauty_relevance"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_radio_skin_seg_left_selector"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:maxLines="2"
+                    android:checked="true"
+                    android:gravity="center"
+                    android:textSize="@dimen/text_size_22"
+                    android:textColor="@color/beauty_radio_color" />
+
+
+                <TextView
+                    android:id="@+id/rb_right_beauty_relevance"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_radio_skin_seg_right_selector"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:maxLines="2"
+                    android:gravity="center"
+                    android:textSize="@dimen/text_size_22"
+                    android:textColor="@color/beauty_radio_color" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/lin_seek_bar"
@@ -57,8 +96,10 @@
 
                 <com.faceunity.ui.seekbar.DiscreteSeekBar
                     android:id="@+id/beauty_seek_bar"
-                    android:layout_width="@dimen/x528"
+                    android:layout_width="0dp"
                     android:layout_height="@dimen/x48"
+                    android:layout_weight="1"
+                    android:maxWidth="@dimen/x528"
                     app:dsb_indicatorColor="@color/main_color"
                     app:dsb_indicatorElevation="0dp"
                     app:dsb_indicatorPopupEnabled="true"

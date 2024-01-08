@@ -427,9 +427,9 @@ public class ShowPhotoActivity extends BaseActivity {
         FUAIKit.getInstance().loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         FUAIKit.getInstance().faceProcessorSetDetectMode(FUFaceProcessorDetectModeEnum.IMAGE);
         FUAIKit.getInstance().setHumanProcessorDetectMode(FUHumanProcessorDetectModeEnum.IMAGE);
-        FUAIKit.getInstance().faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL);
+        FUAIKit.getInstance().faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL >= 2 ? 2 : 1);
         //高端机开启小脸检测
-        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID)
+        if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
             FUAIKit.getInstance().fuFaceProcessorSetDetectSmallFace(true);
         if (mFunctionType == FunctionEnum.FACE_BEAUTY) {
             mFaceBeautyDataFactory.bindCurrentRenderer();
@@ -458,7 +458,7 @@ public class ShowPhotoActivity extends BaseActivity {
         } else if (mFunctionType == FunctionEnum.STYLE) {
             mStyleDataFactory.bindCurrentRenderer();
             if (isOncreate) {
-                runOnUiThread(()->mStyleControlView.updateUIStates(StyleActivity.mStyleControlState));
+                runOnUiThread(() -> mStyleControlView.updateUIStates(StyleActivity.mStyleControlState));
                 isOncreate = false;
             }
         }
@@ -553,7 +553,7 @@ public class ShowPhotoActivity extends BaseActivity {
 
         @Override
         public void onRenderBefore(FURenderInputData inputData) {
-            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_MID && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE && getFURenderKitTrackingType() == FUAIProcessorEnum.FACE_PROCESSOR)//高性能设备 并且 人脸场景 -> 才会走磨皮策略
                 cheekFaceConfidenceScore();
         }
 
