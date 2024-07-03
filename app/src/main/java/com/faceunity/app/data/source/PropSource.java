@@ -1,7 +1,9 @@
 package com.faceunity.app.data.source;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.R;
 import com.faceunity.app.entity.FunctionEnum;
+import com.faceunity.app.utils.FuDeviceUtils;
 import com.faceunity.ui.entity.PropBean;
 
 import java.util.ArrayList;

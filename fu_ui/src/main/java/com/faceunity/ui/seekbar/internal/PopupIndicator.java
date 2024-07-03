@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.os.IBinder;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,7 @@ import com.faceunity.ui.seekbar.internal.drawable.MarkerDrawable;
  * @see #showIndicator(View, Rect)
  * @see #dismiss()
  * @see #dismissComplete()
- * @see Floater
+ * @see PopupIndicator.Floater
  */
 public class PopupIndicator {
 
@@ -51,6 +52,7 @@ public class PopupIndicator {
     }
 
     public void updateSizes(String maxValue) {
+        Log.e("排查", "updateSizes: ");
         dismissComplete();
         if (mPopupView != null) {
             mPopupView.mMarker.resetSizes(maxValue);
@@ -238,6 +240,7 @@ public class PopupIndicator {
             if (mListener != null) {
                 mListener.onClosingComplete();
             }
+            Log.e("排查", "onClosingComplete: ");
             dismissComplete();
         }
 
