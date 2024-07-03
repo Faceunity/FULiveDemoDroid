@@ -3,6 +3,7 @@
     <string name="camera_dialog_title">警告</string>
     <string name="sorry_no_permission">抱歉，你所使用的证书权限或SDK不包括该功能。</string>
     <string name="camera_dialog_message">相机权限被禁用或者相机被别的应用占用！</string>
+    <string name="device_level_function_tip">该功能仅支持在高端机型上使用</string>
     <string name="camera_dialog_open">重试</string>
     <string name="camera_dialog_back">退出</string>
 

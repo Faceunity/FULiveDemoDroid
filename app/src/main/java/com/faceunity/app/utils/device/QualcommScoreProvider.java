@@ -1,9 +1,12 @@
 package com.faceunity.app.utils.device;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -51,16 +54,9 @@ public class QualcommScoreProvider implements DeviceScoreProvider {
         if (TextUtils.isEmpty(glRenderer) || !glRenderer.startsWith("Adreno")) {
             return 65;
         }
-        int GPUVersion;
         String GPUVersionStr = glRenderer.substring(glRenderer.lastIndexOf(" ") + 1);
-        try {
-            GPUVersion = Integer.parseInt(GPUVersionStr);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            //可能是后面还包含了非数字的东西，那么截取三位
-            String GPUVersionStrNew = GPUVersionStr.substring(0, 3);
-            GPUVersion = Integer.parseInt(GPUVersionStrNew);
-        }
+        int GPUVersion = getGpuVersion(GPUVersionStr);
+
         if (GPUVersion < 506) {
             return 65;
         }
@@ -77,5 +73,28 @@ public class QualcommScoreProvider implements DeviceScoreProvider {
             return 95 - MathUtils.getScore(GPUVersion, 740, 10, 20);
         }
         return 95 + (GPUVersion - 740) / 20;
+    }
+
+    private int getGpuVersion(String GPUVersionStr) {
+        int GPUVersion;
+        try {
+            GPUVersion = Integer.parseInt(GPUVersionStr);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            //可能是后面还包含了非数字的东西，那么截取三位
+            String GPUVersionStrNew = extractLeadingDigits(GPUVersionStr);
+            GPUVersion = Integer.parseInt(GPUVersionStrNew);
+        }
+        return GPUVersion;
+    }
+
+    private String extractLeadingDigits(String input) {
+        Pattern pattern = Pattern.compile("^\\d{1,3}");
+        Matcher matcher = pattern.matcher(input);
+        if (matcher.find()) {
+            return matcher.group();
+        } else {
+            return "0"; // 如果没有找到数字，返回0
+        }
     }
 }

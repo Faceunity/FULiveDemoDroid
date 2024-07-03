@@ -1,27 +1,8 @@
 package com.faceunity.app.entity;
 
-import static com.faceunity.app.entity.FunctionEnum.ACTION_RECOGNITION;
-import static com.faceunity.app.entity.FunctionEnum.ANIMOJI;
-import static com.faceunity.app.entity.FunctionEnum.AR_MASK;
-import static com.faceunity.app.entity.FunctionEnum.AVATAR;
-import static com.faceunity.app.entity.FunctionEnum.BG_SEG_GREEN;
-import static com.faceunity.app.entity.FunctionEnum.BIG_HEAD;
-import static com.faceunity.app.entity.FunctionEnum.BODY_BEAUTY;
-import static com.faceunity.app.entity.FunctionEnum.EXPRESSION_RECOGNITION;
-import static com.faceunity.app.entity.FunctionEnum.FACE_BEAUTY;
-import static com.faceunity.app.entity.FunctionEnum.FACE_WARP;
-import static com.faceunity.app.entity.FunctionEnum.FINE_STICKER;
-import static com.faceunity.app.entity.FunctionEnum.GESTURE_RECOGNITION;
-import static com.faceunity.app.entity.FunctionEnum.HAIR_BEAUTY;
-import static com.faceunity.app.entity.FunctionEnum.LIGHT_MAKEUP;
-import static com.faceunity.app.entity.FunctionEnum.MAKE_UP;
-import static com.faceunity.app.entity.FunctionEnum.MUSIC_FILTER;
-import static com.faceunity.app.entity.FunctionEnum.PORTRAIT_SEGMENT;
-import static com.faceunity.app.entity.FunctionEnum.POSTER_CHANGE;
-import static com.faceunity.app.entity.FunctionEnum.STICKER;
-import static com.faceunity.app.entity.FunctionEnum.STYLE;
-
 import java.util.HashMap;
+
+import static com.faceunity.app.entity.FunctionEnum.*;
 
 /**
  * DESC：更多控制菜单

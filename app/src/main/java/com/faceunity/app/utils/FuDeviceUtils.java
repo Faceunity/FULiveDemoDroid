@@ -27,10 +27,13 @@ public class FuDeviceUtils {
 
     public static final int DEVICE_LEVEL_TWO = 2;
     public static final int DEVICE_LEVEL_ONE = 1;
+    public static final int DEVICE_LEVEL_MINUS_ONE = -1;
+    public static final int DEVICE_LEVEL_EMPTY = -100;
 
     public static final double DEVICE_SCORE_FOUR = 85.0;
     public static final double DEVICE_SCORE_THREE = 78.0;
     public static final double DEVICE_SCORE_TWO = 69.0;
+    public static final double DEVICE_SCORE_ONE = 64.0;
 
     public static final String[] levelFourDevices = {};
     public static final String[] levelThreeDevices = {};
@@ -76,17 +79,20 @@ public class FuDeviceUtils {
     public static int judgeDeviceLevel(boolean ignoreCache) {
         if (!ignoreCache) {
             int cacheDeviceLevel = getCacheDeviceLevel();
-            if (cacheDeviceLevel > -1) {
+            if (cacheDeviceLevel > DEVICE_LEVEL_EMPTY) {
                 return cacheDeviceLevel;
             }
         }
         //有一些设备不符合下述的判断规则，则走一个机型判断模式
         int specialDevice = judgeDeviceLevelInDeviceName();
-        if (specialDevice >= 0) {
+        if (specialDevice > DEVICE_LEVEL_EMPTY) {
             return specialDevice;
         }
         double score = DeviceScoreUtils.getDeviceScore();
-        int level = DEVICE_LEVEL_ONE;
+        int level = DEVICE_LEVEL_MINUS_ONE;
+        if (score > DEVICE_SCORE_ONE) {
+            level = DEVICE_LEVEL_ONE;
+        }
         if (score > DEVICE_SCORE_TWO) {
             level = DEVICE_LEVEL_TWO;
         }
@@ -128,7 +134,7 @@ public class FuDeviceUtils {
                 return DEVICE_LEVEL_ONE;
             }
         }
-        return -1;
+        return DEVICE_LEVEL_EMPTY;
     }
 
     /**
@@ -162,6 +168,6 @@ public class FuDeviceUtils {
      */
     public static int getCacheDeviceLevel() {
         SharedPreferences sp = DemoApplication.mApplication.getSharedPreferences(DEVICE_LEVEL, MODE_PRIVATE);
-        return sp.getInt(DEVICE_LEVEL, -1);
+        return sp.getInt(DEVICE_LEVEL, DEVICE_LEVEL_EMPTY);
     }
 }
