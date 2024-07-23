@@ -1,5 +1,6 @@
 package com.faceunity.app.data;
 
+import com.faceunity.app.DemoConfig;
 import com.faceunity.app.data.source.PortraitSegmentSource;
 import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.entity.FUBundleData;

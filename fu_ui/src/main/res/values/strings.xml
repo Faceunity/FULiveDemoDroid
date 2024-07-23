@@ -2,6 +2,7 @@
     <string name="camera_dialog_title">Warning</string>
     <string name="camera_dialog_message">Camera permissions are disabled or the camera is occupied by another app!</string>
     <string name="sorry_no_permission">Sorry ,your license is not supported for these functions.</string>
+    <string name="device_level_function_tip">This function is only supported on high-performance mobile phones</string>
     <string name="camera_dialog_open">Retry</string>
     <string name="camera_dialog_back">quit</string>
 

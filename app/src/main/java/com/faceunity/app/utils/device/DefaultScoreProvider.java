@@ -8,6 +8,8 @@ import java.util.Collections;
  * Created on 2021/3/12
  */
 public class DefaultScoreProvider implements DeviceScoreProvider {
+
+    public static final String[] badOtherGPUDevices = {"PowerVR Rogue GE"};
     @Override
     public double getCpuScore(String cpuName) {
         int cpuCores = Runtime.getRuntime().availableProcessors();
@@ -42,6 +44,12 @@ public class DefaultScoreProvider implements DeviceScoreProvider {
 
     @Override
     public double getGpuScore(String glRenderer) {
+        // 处理个别低端设备
+        for (String badDevice : badOtherGPUDevices){
+            if (glRenderer.startsWith(badDevice)){
+                return 55;
+            }
+        }
         return 65;
     }
 }

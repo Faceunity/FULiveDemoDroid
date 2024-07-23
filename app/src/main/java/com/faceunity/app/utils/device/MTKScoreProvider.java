@@ -1,5 +1,6 @@
 package com.faceunity.app.utils.device;
 
+import android.os.Build;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import java.util.Collections;
  * Created on 2021/3/12
  */
 public class MTKScoreProvider implements DeviceScoreProvider {
+
+    public static final String[] badMTKGPUDevices = {"Mali-T830","Mali-G51"};
     @Override
     public double getCpuScore(String cpuName) {
         DeviceScoreUtils.CPUFrequencies.clear();
@@ -67,6 +70,12 @@ public class MTKScoreProvider implements DeviceScoreProvider {
         if (TextUtils.isEmpty(glRenderer)) {
             return 65;
         }
+        // 处理个别低端设备
+        for (String badDevice : badMTKGPUDevices){
+            if (glRenderer.startsWith(badDevice)){
+                return 55;
+            }
+        }
         if (glRenderer.startsWith("Mali")) {
             glRenderer = glRenderer.split(" ")[0];
             String GPUVersionStr = glRenderer.substring(glRenderer.indexOf("-") + 1);
@@ -103,5 +112,19 @@ public class MTKScoreProvider implements DeviceScoreProvider {
             return 85;
         }
         return 65;
+    }
+
+    private boolean isARMv7() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (String abi : Build.SUPPORTED_ABIS) {
+                if (abi.equals("armeabi-v7a")) {
+                    return true;
+                }
+            }
+        } else {
+            // For devices running below API Level 21
+            return Build.CPU_ABI.equals("armeabi-v7a") || Build.CPU_ABI2.equals("armeabi-v7a");
+        }
+        return false;
     }
 }

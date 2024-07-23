@@ -2,11 +2,11 @@ package com.faceunity.app.view;
 
 import android.os.Handler;
 
+import com.faceunity.app.data.FaceBeautyDataFactory;
+import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.app.R;
 import com.faceunity.app.base.BaseFaceUnityActivity;
-import com.faceunity.app.data.FaceBeautyDataFactory;
 import com.faceunity.app.data.MusicFilterDataFactory;
-import com.faceunity.app.entity.FunctionEnum;
 import com.faceunity.core.media.midea.MediaPlayerHelper;
 import com.faceunity.core.model.musicFilter.MusicFilter;
 import com.faceunity.ui.control.MusicFilterControlView;

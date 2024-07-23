@@ -42,6 +42,7 @@ import com.faceunity.core.enumeration.CameraFacingEnum;
 import com.faceunity.core.enumeration.FUAIProcessorEnum;
 import com.faceunity.core.enumeration.FUAITypeEnum;
 import com.faceunity.core.enumeration.FUTransformMatrixEnum;
+import com.faceunity.core.faceunity.AICommonData;
 import com.faceunity.core.faceunity.FUAIKit;
 import com.faceunity.core.faceunity.FURenderKit;
 import com.faceunity.core.listener.OnGlRendererListener;
@@ -266,8 +267,31 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
      */
     protected void configureFURenderKit() {
         mFUAIKit.setFaceDelayLeaveEnable(DemoConfig.FACE_DELAY_LEAVE_ENABLE);
+        // 低端机关闭这几个内容
+        /**
+         * 设置算法人脸模块的加载策略，是否关闭一些模块的加载。可提高加载速度。
+         * FUAIFACE_ENABLE_ALL = 0,
+         *   FUAIFACE_DISABLE_FACE_OCCU = 1 << 0, //关闭全脸遮挡分割
+         *   FUAIFACE_DISABLE_SKIN_SEG = 1 << 1,  //关闭美白皮肤分割
+         *   FUAIFACE_DISABLE_DEL_SPOT = 1 << 2,  //关闭去斑痘
+         *   FUAIFACE_DISABLE_ARMESHV2 = 1 << 3,  //关闭ARMESHV2
+         */
+        switch (DemoConfig.DEVICE_LEVEL) {
+            case FuDeviceUtils.DEVICE_LEVEL_MINUS_ONE:
+            case FuDeviceUtils.DEVICE_LEVEL_ONE:
+                mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_FACE_OCCU | AICommonData.FUAIFACE_DISABLE_SKIN_SEG | AICommonData.FUAIFACE_DISABLE_DEL_SPOT | AICommonData.FUAIFACE_DISABLE_ARMESHV2);
+                break;
+            case FuDeviceUtils.DEVICE_LEVEL_TWO:
+                mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_SKIN_SEG | AICommonData.FUAIFACE_DISABLE_DEL_SPOT | AICommonData.FUAIFACE_DISABLE_ARMESHV2);
+                break;
+            case FuDeviceUtils.DEVICE_LEVEL_THREE:
+                mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_SKIN_SEG);
+                break;
+        }
+
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
         mFUAIKit.faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL >= 2 ? 2 : 1);
+        mFURenderKit.setDynamicQualityControl(DemoConfig.DEVICE_LEVEL <= FuDeviceUtils.DEVICE_LEVEL_ONE);
         //高端机开启小脸检测
         if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
             mFUAIKit.fuFaceProcessorSetDetectSmallFace(true);

@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -79,7 +80,7 @@ public class DiscreteSeekBar extends View {
      * value seen by the user
      *
      * @see #setIndicatorFormatter(String)
-     * @see #setNumericTransformer(NumericTransformer)
+     * @see #setNumericTransformer(DiscreteSeekBar.NumericTransformer)
      */
     public static abstract class NumericTransformer {
         /**
@@ -291,7 +292,7 @@ public class DiscreteSeekBar extends View {
      *
      * @param formatter
      * @see String#format(String, Object...)
-     * @see #setNumericTransformer(NumericTransformer)
+     * @see #setNumericTransformer(DiscreteSeekBar.NumericTransformer)
      */
     public void setIndicatorFormatter(@Nullable String formatter) {
         mIndicatorFormatter = formatter;
@@ -299,7 +300,7 @@ public class DiscreteSeekBar extends View {
     }
 
     /**
-     * Sets the current {@link NumericTransformer}
+     * Sets the current {@link DiscreteSeekBar.NumericTransformer}
      *
      * @param transformer
      * @see #getNumericTransformer()
@@ -312,7 +313,7 @@ public class DiscreteSeekBar extends View {
     }
 
     /**
-     * Retrieves the current {@link NumericTransformer}
+     * Retrieves the current {@link DiscreteSeekBar.NumericTransformer}
      *
      * @return NumericTransformer
      * @see #setNumericTransformer
@@ -415,7 +416,7 @@ public class DiscreteSeekBar extends View {
      * provides notifications of when the DiscreteSeekBar shows/hides the bubble indicator.
      *
      * @param listener The seek bar notification listener
-     * @see OnProgressChangeListener
+     * @see DiscreteSeekBar.OnProgressChangeListener
      */
     public void setOnProgressChangeListener(@Nullable OnProgressChangeListener listener) {
         mPublicChangeListener = listener;
@@ -561,7 +562,7 @@ public class DiscreteSeekBar extends View {
      * When the {@link DiscreteSeekBar} value changes this method is called
      * <p>
      * Subclasses may override this to add functionality around this event
-     * without having to specify a {@link OnProgressChangeListener}
+     * without having to specify a {@link DiscreteSeekBar.OnProgressChangeListener}
      * </p>
      */
     protected void onValueChanged(int value) {
@@ -591,6 +592,7 @@ public class DiscreteSeekBar extends View {
         if (changed) {
             removeCallbacks(mShowIndicatorRunnable);
             if (!isInEditMode()) {
+                Log.e("排查", "seek-bar onLayout: " );
                 mIndicator.dismissComplete();
             }
             updateFromDrawableState();

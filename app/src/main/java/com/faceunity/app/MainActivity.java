@@ -92,7 +92,7 @@ public class MainActivity extends BaseActivity {
             public void onItemClickListener(View view, HomeFunctionModuleData data, int position) {
                 if (data.type == FunctionType.Model || data.type == FunctionType.ModelLottie) {
                     if (!data.enable && data.type == FunctionType.Model) {
-                        ToastHelper.showNormalToast(MainActivity.this, R.string.sorry_no_permission);
+                        ToastHelper.showNormalToast(MainActivity.this, data.errorRes);
                         return;
                     }
                     onFunctionClick(data);
@@ -196,7 +196,7 @@ public class MainActivity extends BaseActivity {
     private static void filterByModuleCode(List<HomeFunctionModuleData> homeFunctionModuleData) {
         int moduleCode0 = FURenderKit.getInstance().getModuleCode(0);
         int moduleCode1 = FURenderKit.getInstance().getModuleCode(1);
-        for (HomeFunctionModuleData moduleEntity : homeFunctionModuleData) {
+//        for (HomeFunctionModuleData moduleEntity : homeFunctionModuleData) {
 //            if (moduleEntity.authCode != null) {
 //                String[] codeStr = moduleEntity.authCode.split("-");
 //                if (codeStr.length == 2) {
@@ -205,8 +205,8 @@ public class MainActivity extends BaseActivity {
 //                    moduleEntity.enable = (code0 & moduleCode0) > 0 || (code1 & moduleCode1) > 0;
 //                }
 //            }
-            moduleEntity.enable = true;
-        }
+//            moduleEntity.enable = true;
+//        }
     }
 
     /**
