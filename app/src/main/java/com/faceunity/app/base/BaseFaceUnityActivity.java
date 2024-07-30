@@ -287,6 +287,9 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
             case FuDeviceUtils.DEVICE_LEVEL_THREE:
                 mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_SKIN_SEG);
                 break;
+            case FuDeviceUtils.DEVICE_LEVEL_FOUR:
+                mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_ENABLE_ALL);
+                break;
         }
 
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
