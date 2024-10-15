@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -275,14 +276,16 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
          *   FUAIFACE_DISABLE_SKIN_SEG = 1 << 1,  //关闭美白皮肤分割
          *   FUAIFACE_DISABLE_DEL_SPOT = 1 << 2,  //关闭去斑痘
          *   FUAIFACE_DISABLE_ARMESHV2 = 1 << 3,  //关闭ARMESHV2
+         *   FUAIFACE_DISABLE_RACE = 1 << 4,  //关闭人种分类
+         *   AFUAIFACE_DISABLE_LANDMARK_HP_OCCU = 1 << 5,  //关闭人脸点位
          */
         switch (DemoConfig.DEVICE_LEVEL) {
             case FuDeviceUtils.DEVICE_LEVEL_MINUS_ONE:
             case FuDeviceUtils.DEVICE_LEVEL_ONE:
-                mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_FACE_OCCU | AICommonData.FUAIFACE_DISABLE_SKIN_SEG | AICommonData.FUAIFACE_DISABLE_DEL_SPOT | AICommonData.FUAIFACE_DISABLE_ARMESHV2);
+                mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_FACE_OCCU | AICommonData.FUAIFACE_DISABLE_SKIN_SEG | AICommonData.FUAIFACE_DISABLE_DEL_SPOT | AICommonData.FUAIFACE_DISABLE_ARMESHV2 | AICommonData.FUAIFACE_DISABLE_RACE | AICommonData.FUAIFACE_DISABLE_LANDMARK_HP_OCCU);
                 break;
             case FuDeviceUtils.DEVICE_LEVEL_TWO:
-                mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_SKIN_SEG | AICommonData.FUAIFACE_DISABLE_DEL_SPOT | AICommonData.FUAIFACE_DISABLE_ARMESHV2);
+                mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_SKIN_SEG | AICommonData.FUAIFACE_DISABLE_DEL_SPOT | AICommonData.FUAIFACE_DISABLE_ARMESHV2 | AICommonData.FUAIFACE_DISABLE_RACE);
                 break;
             case FuDeviceUtils.DEVICE_LEVEL_THREE:
                 mFUAIKit.fuSetFaceAlgorithmConfig(AICommonData.FUAIFACE_DISABLE_SKIN_SEG);
@@ -292,8 +295,13 @@ public abstract class BaseFaceUnityActivity extends BaseActivity implements View
                 break;
         }
 
+        long startTime = System.currentTimeMillis();
         mFUAIKit.loadAIProcessor(DemoConfig.BUNDLE_AI_FACE, FUAITypeEnum.FUAITYPE_FACEPROCESSOR);
+        Log.e("加载耗时", "AI驱动加载耗时 " + (System.currentTimeMillis() - startTime));
+        // 高精度 2 级以上
         mFUAIKit.faceProcessorSetFaceLandmarkQuality(DemoConfig.DEVICE_LEVEL >= 2 ? 2 : 1);
+        // 高精度增强遮挡 先关闭，开的时候也是 2 级以上 同步 fuSetFaceAlgorithmConfig AICommonData.FUAIFACE_DISABLE_LANDMARK_HP_OCCU
+        mFUAIKit.fuFaceProcessorSetFaceLandmarkHpOccu(0);
         mFURenderKit.setDynamicQualityControl(DemoConfig.DEVICE_LEVEL <= FuDeviceUtils.DEVICE_LEVEL_ONE);
         //高端机开启小脸检测
         if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE)
