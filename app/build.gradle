@@ -33,8 +33,8 @@ android {
 
 dependencies {
     //核心库
-    implementation 'com.faceunity:core:8.11.1'
-    implementation 'com.faceunity:model:8.11.1'
+    implementation 'com.faceunity:core:8.12.0'
+    implementation 'com.faceunity:model:8.12.0'
     //UI库
     implementation project(path: ':fu_ui')
 
