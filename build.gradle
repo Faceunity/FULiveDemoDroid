@@ -28,8 +28,8 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-def VERSION_NAME = '8.12.0'
-def UP_VERSION_NAME = '8.12.0'
+def VERSION_NAME = '8.13.0'
+def UP_VERSION_NAME = '8.13.0'
 ext {
     namaVersionName = VERSION_NAME
     compileSdkVersion = 28
