@@ -560,6 +560,7 @@ public class ShowPhotoActivity extends BaseActivity {
 
         @Override
         public void onRenderAfter(@NotNull FURenderOutputData outputData, @NotNull FURenderFrameData frameData) {
+            mFURenderKit.enableWarpAntiAlias(DemoConfig.BUNDLE_FACE_BEAUTIFICATION, DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE);
             recordingData(outputData, frameData.getTexMatrix());
         }
 

@@ -549,6 +549,7 @@ public class ShowVideoActivity extends BaseActivity {
     private final OnGlRendererListener mOnGlRendererListener = new OnGlRendererListener() {
         @Override
         public void onRenderAfter(@NotNull FURenderOutputData outputData, @NotNull FURenderFrameData frameData) {
+            mFURenderKit.enableWarpAntiAlias(DemoConfig.BUNDLE_FACE_BEAUTIFICATION, DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE);
             mVideoWidth = outputData.getTexture().getWidth();
             mVideoHeight = outputData.getTexture().getHeight();
             if (isSendRecordingData) {
