@@ -19,7 +19,9 @@
     <string name="fu_base_input_type_double">双输入</string>
 
     <string name="beauty_box_heavy_blur_fine">磨皮</string>
+    <string name="beauty_box_heavy_blur_fine_body">全身磨皮</string>
     <string name="beauty_box_delspot">祛斑痘</string>
+    <string name="beauty_box_facial_plumping">面部丰盈</string>
     <string name="beauty_box_color_level">美白</string>
     <string name="beauty_box_red_level">红润</string>
     <string name="beauty_box_clarity">清晰</string>
@@ -38,6 +40,7 @@
     <string name="beauty_box_cheek_short">短脸</string>
     <string name="beauty_box_cheek_small">小脸</string>
     <string name="beauty_box_intensity_chin">下巴</string>
+    <string name="beauty_box_intensity_eye_pupil">瞳孔大小</string>
     <string name="beauty_box_intensity_forehead">额头</string>
     <string name="beauty_box_intensity_nose">瘦鼻</string>
     <string name="beauty_box_intensity_mouth">嘴型</string>
@@ -178,6 +181,9 @@
     <string name="style_zyfz">智雅</string>
     <string name="style_alz">爱凌</string>
     <string name="style_temperament">气质</string>
+    <string name="style_danzhuang">白开水</string>
+    <string name="style_segulamei">甜心派</string>
+    <string name="style_hunxuebaby">混血baby</string>
     <string name="style_milk_feroucious">奶凶</string>
     <string name="style_texture">质感</string>
 
@@ -316,6 +322,7 @@
     <string name="beautify_hip_slim">美臀</string>
     <string name="beautify_head_slim">小头</string>
     <string name="beautify_leg_thin_slim">瘦腿</string>
+    <string name="beautify_breast">丰胸</string>
     <string name="toast_not_detect_body">未检测到人体</string>
     <string name="pta_human_full_body">全身驱动</string>
     <string name="pta_human_half_body">半身驱动</string>

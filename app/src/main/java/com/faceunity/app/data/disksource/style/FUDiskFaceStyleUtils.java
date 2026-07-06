@@ -38,8 +38,12 @@ public class FUDiskFaceStyleUtils {
             fuDiskStyleData.blurType = faceBeauty.getBlurType();
             /* 磨皮程度 */
             fuDiskStyleData.blurIntensity = faceBeauty.getBlurIntensity();
+            /* 全身磨皮程度 */
+            fuDiskStyleData.bodyBlurIntensity = faceBeauty.getBodyBlurIntensity();
             /* 祛斑痘程度 */
             fuDiskStyleData.delspotIntensity = faceBeauty.getDelspotIntensity();
+            /* 面部丰盈 */
+            fuDiskStyleData.facialPlumpingIntensity = faceBeauty.getFacialPlumpingIntensity();
             /* 美白程度 */
             fuDiskStyleData.colorIntensity = faceBeauty.getColorIntensity();
             /* 红润程度 */
@@ -145,9 +149,15 @@ public class FUDiskFaceStyleUtils {
             /* 磨皮程度 */
             if (FUDiskFaceBeautyData.blurIntensity != faceBeauty.getBlurIntensity())
                 faceBeauty.setBlurIntensity(FUDiskFaceBeautyData.blurIntensity);
+            /* 全身磨皮程度 */
+            if (FUDiskFaceBeautyData.bodyBlurIntensity != faceBeauty.getBodyBlurIntensity())
+                faceBeauty.setBodyBlurIntensity(FUDiskFaceBeautyData.bodyBlurIntensity);
             /* 祛斑痘程度 */
             if (FUDiskFaceBeautyData.delspotIntensity != faceBeauty.getDelspotIntensity())
                 faceBeauty.setDelspotIntensity(FUDiskFaceBeautyData.delspotIntensity);
+            /* 面部丰盈 */
+            if (FUDiskFaceBeautyData.facialPlumpingIntensity != faceBeauty.getFacialPlumpingIntensity())
+                faceBeauty.setFacialPlumpingIntensity(FUDiskFaceBeautyData.facialPlumpingIntensity);
             /* 美白程度 */
             if (FUDiskFaceBeautyData.colorIntensity != faceBeauty.getColorIntensity())
                 faceBeauty.setColorIntensity(FUDiskFaceBeautyData.colorIntensity);

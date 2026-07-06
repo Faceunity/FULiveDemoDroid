@@ -25,6 +25,11 @@ import java.util.Map;
  * Created on 2022/11/08
  */
 public class StyleSource {
+
+    public static final String CONFIG_DANZHUANG = "danzhuang";// 白开水
+    public static final String CONFIG_SEGULAMEI = "segulamei";// 甜心派
+    public static final String CONFIG_HUNXUEBABY = "hunxuebaby";// 混血baby
+
     public static final String CONFIG_TEMPERAMENT = "temperament";//气质
     public static final String CONFIG_SENIOR_SISTER = "senior_sister";//学姐
     public static final String CONFIG_ZYFZ = "zyfz";//智雅
@@ -44,7 +49,7 @@ public class StyleSource {
     public static final String makeupBundleDir = DemoConfig.MAKEUP_RESOURCE_COMBINATION_BUNDLE_DIR;
 
     //当前选中的风格
-    public static final String defaultStyle = CONFIG_TEMPERAMENT;
+    public static final String defaultStyle = CONFIG_DANZHUANG;
     public static String currentStyle = defaultStyle;
 
     private static FaceBeauty defaultFaceBeauty;
@@ -86,6 +91,9 @@ public class StyleSource {
     public static ArrayList<StyleBean> buildStyleBeans() {
         ArrayList<StyleBean> styleBeans = new ArrayList<>();
         styleBeans.add(new StyleBean(null, R.string.beauty_face_style_none, R.mipmap.icon_control_none, R.string.beauty_face_style_none));
+        styleBeans.add(new StyleBean(CONFIG_DANZHUANG, R.string.style_danzhuang, R.mipmap.icon_style_danzhuang, R.string.style_danzhuang));// 白开水
+        styleBeans.add(new StyleBean(CONFIG_SEGULAMEI, R.string.style_segulamei, R.mipmap.icon_style_shegulamei, R.string.style_segulamei));// 甜心派
+        styleBeans.add(new StyleBean(CONFIG_HUNXUEBABY, R.string.style_hunxuebaby, R.mipmap.icon_style_hunxuebaby, R.string.style_hunxuebaby));// 混血baby
         styleBeans.add(new StyleBean(CONFIG_TEMPERAMENT, R.string.style_temperament, R.mipmap.icon_style_temperament, R.string.style_temperament));//气质
         styleBeans.add(new StyleBean(CONFIG_SENIOR_SISTER, R.string.style_senior_sister, R.mipmap.icon_style_senior_sister, R.string.style_senior_sister));//学姐
         styleBeans.add(new StyleBean(CONFIG_ZYFZ, R.string.style_zyfz, R.mipmap.icon_style_zyfz, R.string.style_zyfz));//智雅
@@ -113,28 +121,34 @@ public class StyleSource {
      */
     public static int styleTypeIndex() {
         int currentStyleIndex;
-        if (StyleSource.CONFIG_TEMPERAMENT.equals(StyleSource.currentStyle)) {//气质
+        if (StyleSource.CONFIG_DANZHUANG.equals(StyleSource.currentStyle)) {// 白开水
             currentStyleIndex = 1;
-        } else if (StyleSource.CONFIG_SENIOR_SISTER.equals(StyleSource.currentStyle)) {//学姐
+        } else if (StyleSource.CONFIG_SEGULAMEI.equals(StyleSource.currentStyle)) {// 甜心派
             currentStyleIndex = 2;
-        } else if (StyleSource.CONFIG_ZYFZ.equals(StyleSource.currentStyle)) {//智雅
+        } else if (StyleSource.CONFIG_HUNXUEBABY.equals(StyleSource.currentStyle)) {// 混血baby
             currentStyleIndex = 3;
-        } else if (StyleSource.CONFIG_PALE_COMPLEXION.equals(StyleSource.currentStyle)) {//淡颜
+        } else if (StyleSource.CONFIG_TEMPERAMENT.equals(StyleSource.currentStyle)) {//气质
             currentStyleIndex = 4;
-        } else if (StyleSource.CONFIG_TEXTURE.equals(StyleSource.currentStyle)) {//质感
+        } else if (StyleSource.CONFIG_SENIOR_SISTER.equals(StyleSource.currentStyle)) {//学姐
             currentStyleIndex = 5;
-        } else if (StyleSource.CONFIG_KOREAN_SCHOOLGIRLS.equals(StyleSource.currentStyle)) {//韩国学妹
+        } else if (StyleSource.CONFIG_ZYFZ.equals(StyleSource.currentStyle)) {//智雅
             currentStyleIndex = 6;
-        } else if (StyleSource.CONFIG_ALZ.equals(StyleSource.currentStyle)) {//爱凌
+        } else if (StyleSource.CONFIG_PALE_COMPLEXION.equals(StyleSource.currentStyle)) {//淡颜
             currentStyleIndex = 7;
-        } else if (StyleSource.CONFIG_PRIMITIVE.equals(StyleSource.currentStyle)) {//原生
+        } else if (StyleSource.CONFIG_TEXTURE.equals(StyleSource.currentStyle)) {//质感
             currentStyleIndex = 8;
-        } else if (StyleSource.CONFIG_CLASSIC.equals(StyleSource.currentStyle)) {//经典
+        } else if (StyleSource.CONFIG_KOREAN_SCHOOLGIRLS.equals(StyleSource.currentStyle)) {//韩国学妹
             currentStyleIndex = 9;
-        } else if (StyleSource.CONFIG_GODDESS.equals(StyleSource.currentStyle)) {//女神
+        } else if (StyleSource.CONFIG_ALZ.equals(StyleSource.currentStyle)) {//爱凌
             currentStyleIndex = 10;
-        } else if (StyleSource.CONFIG_MALE_DEITY.equals(StyleSource.currentStyle)) {//男神
+        } else if (StyleSource.CONFIG_PRIMITIVE.equals(StyleSource.currentStyle)) {//原生
             currentStyleIndex = 11;
+        } else if (StyleSource.CONFIG_CLASSIC.equals(StyleSource.currentStyle)) {//经典
+            currentStyleIndex = 12;
+        } else if (StyleSource.CONFIG_GODDESS.equals(StyleSource.currentStyle)) {//女神
+            currentStyleIndex = 13;
+        } else if (StyleSource.CONFIG_MALE_DEITY.equals(StyleSource.currentStyle)) {//男神
+            currentStyleIndex = 14;
         } else {
             currentStyleIndex = 0;
         }
@@ -146,6 +160,9 @@ public class StyleSource {
      */
     public static HashMap<String, StyleData> styleType = new HashMap<String, StyleData>() {
         {
+            put(CONFIG_DANZHUANG, buildStyleFaceBeauty(CONFIG_DANZHUANG));// 白开水
+            put(CONFIG_SEGULAMEI, buildStyleFaceBeauty(CONFIG_SEGULAMEI));// 甜心派
+            put(CONFIG_HUNXUEBABY, buildStyleFaceBeauty(CONFIG_HUNXUEBABY));// 混血baby
             put(CONFIG_TEMPERAMENT, buildStyleFaceBeauty(CONFIG_TEMPERAMENT));//气质
             put(CONFIG_SENIOR_SISTER, buildStyleFaceBeauty(CONFIG_SENIOR_SISTER));//学姐
             put(CONFIG_ZYFZ, buildStyleFaceBeauty(CONFIG_ZYFZ));//智雅
@@ -167,7 +184,7 @@ public class StyleSource {
 //        FUDiskFaceStyleUtils.removeStyleData();
         Iterator<Map.Entry<String, StyleData>> iterator = styleType.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<String, StyleSource.StyleData> entry = iterator.next();
+            Map.Entry<String, StyleData> entry = iterator.next();
             StyleData styleData = resetStyleFaceBeauty(entry.getValue().faceBeauty, entry.getKey());
             entry.setValue(styleData);
         }
@@ -211,7 +228,9 @@ public class StyleSource {
             FUDiskStyleData fuDiskStyleData = fuDiskStyleDataArrayList.get(styleName);
             //美肤
             model.setBlurIntensity(fuDiskStyleData.blurIntensity);
+            model.setBodyBlurIntensity(fuDiskStyleData.bodyBlurIntensity);
             model.setDelspotIntensity(fuDiskStyleData.delspotIntensity);
+            model.setFacialPlumpingIntensity(fuDiskStyleData.facialPlumpingIntensity);
             model.setColorIntensity(fuDiskStyleData.colorIntensity);
             model.setRedIntensity(fuDiskStyleData.redIntensity);
             model.setClarityIntensity(fuDiskStyleData.clarityIntensity);
@@ -274,7 +293,86 @@ public class StyleSource {
     public static StyleData buildDefaultStyleParams(String styleName, FaceBeauty model) {
         StyleData styleData = new StyleData();
         SimpleMakeup simpleMakeup;
-        if (CONFIG_TEMPERAMENT.equals(styleName)) {//气质
+        if (CONFIG_DANZHUANG.equals(styleName)) {// 白开水
+            // 美型
+            model.setCheekThinningIntensity(0.16);// 瘦脸 16
+            model.setCheekVIntensity(0.14);// V脸 14
+            model.setCheekNarrowIntensity(0.04);// 窄脸 4
+            model.setCheekShortIntensity(0.16);// 短脸 16
+            model.setCheekSmallIntensity(0.24);// 小脸 24
+            model.setCheekBonesIntensity(0.95);// 瘦颧骨 95
+            model.setLowerJawIntensity(0.34);// 瘦下颌骨 34
+            model.setEyeCircleIntensity(0.25);// 圆眼 25
+            model.setForHeadIntensity(0);// 额头 -50
+            model.setNoseIntensity(0.5);// 瘦鼻 50
+            model.setCanthusIntensity(0.28);// 开眼角 28
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
+                model.setEyeLidIntensity(0.23);// 眼睑下至 23
+            }
+            // 美肤
+            model.setBlurIntensity(3.0);// 磨皮 50
+            model.setColorIntensity(0.41);// 美白 41
+            model.setSharpenIntensity(0.25);// 锐化 25
+            model.setFaceThreeIntensity(0.61);// 五官立体 61
+            model.setRemovePouchIntensity(1);// 祛黑眼圈 100
+            model.setRemoveLawPatternIntensity(0.7);// 祛法令纹 70
+            simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "baikaishui.bundle"));
+            simpleMakeup.setFilterIntensity(1);// 滤镜程度
+//            simpleMakeup.setMakeupIntensity(0.8);// 美妆整体强度
+        } else if (CONFIG_SEGULAMEI.equals(styleName)) {// 甜心派
+            // 美型
+            model.setCheekThinningIntensity(0.18);// 瘦脸 18
+            model.setCheekVIntensity(0.09);// V脸 9
+            model.setCheekSmallIntensity(0.15);// 小脸 15
+            model.setCheekNarrowIntensity(0.39);// 窄脸 39
+            model.setCheekShortIntensity(0.19);// 短脸 19
+            model.setCheekBonesIntensity(0.07);// 瘦颧骨 7
+            model.setLowerJawIntensity(0.11);// 瘦下颌骨 11
+            model.setEyeEnlargingIntensity(0.14);// 大眼 14
+            model.setForHeadIntensity(0.11);// 额头 -11
+            model.setNoseIntensity(0.9);// 瘦鼻 90
+            model.setMouthIntensity(0.09);// 嘴型：-9
+            model.setPhiltrumIntensity(0.25);// 缩人中：-10
+            // 美肤
+            model.setBlurIntensity(1.68);// 磨皮 28
+            model.setDelspotIntensity(0.24);// 祛斑祛痘：24
+            model.setColorIntensity(0.38);// 美白 19
+            model.setRedIntensity(0.82);// 红润：41
+            model.setFaceThreeIntensity(0.32);// 五官立体 32
+            model.setEyeBrightIntensity(0.35);// 亮眼：35
+            model.setRemovePouchIntensity(0.28);// 祛黑眼圈 28
+            model.setRemoveLawPatternIntensity(0.23);// 祛法令纹 23
+            simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "tianxinpai.bundle"));
+            simpleMakeup.setFilterIntensity(1);// 滤镜程度
+//            simpleMakeup.setMakeupIntensity(0.8);
+        } else if (CONFIG_HUNXUEBABY.equals(styleName)) {// 混血baby
+            // 美型
+            model.setCheekThinningIntensity(0.16);// 瘦脸 16
+            model.setCheekVIntensity(0.14);// V脸 14
+            model.setCheekNarrowIntensity(0.04);// 窄脸 4
+            model.setCheekShortIntensity(0.16);// 短脸 16
+            model.setCheekSmallIntensity(0.26);// 小脸 26
+            model.setCheekBonesIntensity(0.95);// 瘦颧骨 95
+            model.setLowerJawIntensity(0.47);// 瘦下颌骨 47
+            model.setEyeCircleIntensity(0.25);// 圆眼 25
+            model.setChinIntensity(0.35);// 下巴 -35
+            model.setForHeadIntensity(0);// 额头 -50
+            model.setNoseIntensity(0.5);// 瘦鼻 50
+            model.setCanthusIntensity(0.28);// 开眼角 28
+            if (DemoConfig.DEVICE_LEVEL > FuDeviceUtils.DEVICE_LEVEL_ONE) {
+                model.setEyeLidIntensity(0.23);// 眼睑下至 23
+            }
+            // 美肤
+            model.setBlurIntensity(3.3);// 磨皮 55
+            model.setColorIntensity(0.41);// 美白 41
+            model.setSharpenIntensity(0.25);// 锐化 25
+            model.setFaceThreeIntensity(0.61);// 五官立体 61
+            model.setRemovePouchIntensity(1);// 祛黑眼圈 100
+            model.setRemoveLawPatternIntensity(0.7);// 祛法令纹 70
+            simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "hunxuebaby.bundle"));
+            simpleMakeup.setFilterIntensity(1);// 滤镜程度
+//            simpleMakeup.setMakeupIntensity(0.8);
+        } else if (CONFIG_TEMPERAMENT.equals(styleName)) {//气质
             model.setBlurIntensity(3.0);
             model.setEyeBrightIntensity(0.2);
             model.setColorIntensity(0.3);
@@ -507,8 +605,19 @@ public class StyleSource {
                 )
         );
         params.add(new FaceBeautyBean(
+                        FaceBeautyParam.BODY_BLUR_INTENSITY, R.string.beauty_box_heavy_blur_fine_body,
+                        R.drawable.icon_beauty_skin_buffing_close_selector, R.drawable.icon_beauty_skin_buffing_open_selector
+                        , DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_FOUR && !FuDeviceUtils.judgeFunctionInBlackList(FaceBeautyParam.BODY_BLUR_INTENSITY)
+                )
+        );
+        params.add(new FaceBeautyBean(
                         FaceBeautyParam.DELSPOT, R.string.beauty_box_delspot,
                         R.drawable.icon_beauty_skin_delspot_close_selector, R.drawable.icon_beauty_skin_delspot_open_selector, DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_THREE && !FuDeviceUtils.judgeFunctionInBlackList(FaceBeautyParam.DELSPOT)
+                )
+        );
+        params.add(new FaceBeautyBean(
+                        FaceBeautyParam.FACIAL_PLUMPING, R.string.beauty_box_facial_plumping,
+                        R.drawable.icon_beauty_skin_plumping_close_selector, R.drawable.icon_beauty_skin_plumping_open_selector, DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_THREE && !FuDeviceUtils.judgeFunctionInBlackList(FaceBeautyParam.FACIAL_PLUMPING)
                 )
         );
         params.add(
@@ -643,6 +752,14 @@ public class StyleSource {
                 new FaceBeautyBean(
                         FaceBeautyParam.EYE_CIRCLE_INTENSITY, R.string.beauty_box_eye_circle,
                         R.drawable.icon_beauty_shape_round_eye_close_selector, R.drawable.icon_beauty_shape_round_eye_open_selector
+                )
+        );
+
+        //瞳孔大小
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.EYE_PUPIL_INTENSITY, R.string.beauty_box_intensity_eye_pupil,
+                        R.drawable.icon_beauty_shape_pupil_close_selector, R.drawable.icon_beauty_shape_pupil_open_selector
                 )
         );
 
@@ -788,7 +905,9 @@ public class StyleSource {
         /*美肤*/
         params.put(FaceBeautyParam.COLOR_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.BLUR_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 6.0));
+        params.put(FaceBeautyParam.BODY_BLUR_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 6.0));
         params.put(FaceBeautyParam.DELSPOT, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(FaceBeautyParam.FACIAL_PLUMPING, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.RED_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CLARITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.SHARPEN_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
@@ -811,6 +930,7 @@ public class StyleSource {
         params.put(FaceBeautyParam.EYE_ENLARGING_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CHIN_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
+        params.put(FaceBeautyParam.EYE_PUPIL_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.FOREHEAD_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.NOSE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.MOUTH_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
@@ -858,7 +978,11 @@ public class StyleSource {
             //美肤
             if (faceBeauty.getBlurIntensity() != styleData.faceBeauty.getBlurIntensity())
                 return false;
+            if (faceBeauty.getBodyBlurIntensity() != styleData.faceBeauty.getBodyBlurIntensity())
+                return false;
             if (faceBeauty.getDelspotIntensity() != styleData.faceBeauty.getDelspotIntensity())
+                return false;
+            if (faceBeauty.getFacialPlumpingIntensity() != styleData.faceBeauty.getFacialPlumpingIntensity())
                 return false;
             if (faceBeauty.getColorIntensity() != styleData.faceBeauty.getColorIntensity())
                 return false;
@@ -1018,8 +1142,12 @@ public class StyleSource {
         //美肤
         if (targetBeauty.getBlurIntensity() != sourceFaceBeauty.getBlurIntensity())
             targetBeauty.setBlurIntensity(sourceFaceBeauty.getBlurIntensity());
+        if (targetBeauty.getBodyBlurIntensity() != sourceFaceBeauty.getBodyBlurIntensity())
+            targetBeauty.setBodyBlurIntensity(sourceFaceBeauty.getBodyBlurIntensity());
         if (targetBeauty.getDelspotIntensity() != sourceFaceBeauty.getDelspotIntensity())
             targetBeauty.setDelspotIntensity(sourceFaceBeauty.getDelspotIntensity());
+        if (targetBeauty.getFacialPlumpingIntensity() != sourceFaceBeauty.getFacialPlumpingIntensity())
+            targetBeauty.setFacialPlumpingIntensity(sourceFaceBeauty.getFacialPlumpingIntensity());
         if (targetBeauty.getColorIntensity() != sourceFaceBeauty.getColorIntensity())
             targetBeauty.setColorIntensity(sourceFaceBeauty.getColorIntensity());
         if (targetBeauty.getRedIntensity() != sourceFaceBeauty.getRedIntensity())

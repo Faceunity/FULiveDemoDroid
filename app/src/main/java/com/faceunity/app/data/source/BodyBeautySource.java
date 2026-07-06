@@ -29,6 +29,7 @@ public class BodyBeautySource {
         params.add(new BodyBeautyBean(BodyBeautyParam.HIP_SLIM_INTENSITY, R.string.beautify_hip_slim, R.drawable.icon_body_hip_close_selector, R.drawable.icon_body_hip_open_selector));
         params.add(new BodyBeautyBean(BodyBeautyParam.HEAD_SLIM_INTENSITY, R.string.beautify_head_slim, R.drawable.icon_body_little_head_close_selector, R.drawable.icon_body_little_head_open_selector));
         params.add(new BodyBeautyBean(BodyBeautyParam.LEG_SLIM_INTENSITY, R.string.beautify_leg_thin_slim, R.drawable.icon_body_thin_leg_close_selector, R.drawable.icon_body_thin_leg_open_selector));
+        params.add(new BodyBeautyBean(BodyBeautyParam.BREAST_INTENSITY, R.string.beautify_breast, R.drawable.icon_body_breast_close_selector, R.drawable.icon_body_breast_open_selector));
         return params;
     }
 
@@ -46,6 +47,7 @@ public class BodyBeautySource {
         params.put(BodyBeautyParam.HIP_SLIM_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(BodyBeautyParam.HEAD_SLIM_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(BodyBeautyParam.LEG_SLIM_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(BodyBeautyParam.BREAST_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         return params;
     }
 }

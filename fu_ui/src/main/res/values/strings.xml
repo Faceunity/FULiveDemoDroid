@@ -18,7 +18,9 @@
     <string name="fu_base_input_type_double">DualInput</string>
 
     <string name="beauty_box_heavy_blur_fine">Buffing</string>
+    <string name="beauty_box_heavy_blur_fine_body">Body Buffing</string>
     <string name="beauty_box_delspot">Acne Removal</string>
+    <string name="beauty_box_facial_plumping">Facial Plumping</string>
     <string name="beauty_box_color_level">Skin Tone</string>
     <string name="beauty_box_red_level">Rosy</string>
     <string name="beauty_box_clarity">Clarity</string>
@@ -39,6 +41,7 @@
     <string name="beauty_box_cheek_short">Short Face</string>
     <string name="beauty_box_cheek_small">Size Face</string>
     <string name="beauty_box_intensity_chin">Chin Length</string>
+    <string name="beauty_box_intensity_eye_pupil">Eye Pupil</string>
     <string name="beauty_box_intensity_forehead">Hairline</string>
     <string name="beauty_box_intensity_nose">Nose Size</string>
     <string name="beauty_box_intensity_mouth">Mouth Size</string>
@@ -94,6 +97,9 @@
     <string name="style_zyfz">Jiah</string>
     <string name="style_alz">Eileen</string>
     <string name="style_temperament">Temperament</string>
+    <string name="style_danzhuang">Baikaishui</string>
+    <string name="style_segulamei">Tianxinpai</string>
+    <string name="style_hunxuebaby">HunXueBaby</string>
     <string name="style_milk_feroucious">milk_feroucious</string>
     <string name="style_texture">Quality</string>
 
@@ -314,6 +320,7 @@
     <string name="beautify_hip_slim">Hips</string>
     <string name="beautify_head_slim">Head</string>
     <string name="beautify_leg_thin_slim">Legs Width</string>
+    <string name="beautify_breast">BREAST</string>
     <string name="toast_not_detect_body">No body detected</string>
     <string name="pta_human_full_body">Whole Body</string>
     <string name="pta_human_half_body">Up-Body</string>

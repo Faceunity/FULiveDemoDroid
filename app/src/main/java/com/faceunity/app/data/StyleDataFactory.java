@@ -142,8 +142,12 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             value = mFaceBeauty.getColorIntensity();
         else if (FaceBeautyParam.BLUR_INTENSITY.equals(key))
             value = mFaceBeauty.getBlurIntensity();
+        else if (FaceBeautyParam.BODY_BLUR_INTENSITY.equals(key))
+            value = mFaceBeauty.getBodyBlurIntensity();
         else if (FaceBeautyParam.DELSPOT.equals(key))
             value = mFaceBeauty.getDelspotIntensity();
+        else if (FaceBeautyParam.FACIAL_PLUMPING.equals(key))
+            value = mFaceBeauty.getFacialPlumpingIntensity();
         else if (FaceBeautyParam.RED_INTENSITY.equals(key))
             value = mFaceBeauty.getRedIntensity();
         else if (FaceBeautyParam.CLARITY.equals(key))
@@ -199,6 +203,8 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             value = mFaceBeauty.getFaceThreeIntensity();
         else if (FaceBeautyParam.CHIN_INTENSITY.equals(key))
             value = mFaceBeauty.getChinIntensity();
+        else if (FaceBeautyParam.EYE_PUPIL_INTENSITY.equals(key))
+            value = mFaceBeauty.getEyePupilIntensity();
         else if (FaceBeautyParam.FOREHEAD_INTENSITY.equals(key))
             value = mFaceBeauty.getForHeadIntensity();
         else if (FaceBeautyParam.NOSE_INTENSITY.equals(key))
@@ -233,8 +239,12 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             mFaceBeauty.setColorIntensity(value);
         else if (FaceBeautyParam.BLUR_INTENSITY.equals(key))
             mFaceBeauty.setBlurIntensity(value);
+        else if (FaceBeautyParam.BODY_BLUR_INTENSITY.equals(key))
+            mFaceBeauty.setBodyBlurIntensity(value);
         else if (FaceBeautyParam.DELSPOT.equals(key))
             mFaceBeauty.setDelspotIntensity(value);
+        else if (FaceBeautyParam.FACIAL_PLUMPING.equals(key))
+            mFaceBeauty.setFacialPlumpingIntensity(value);
         else if (FaceBeautyParam.RED_INTENSITY.equals(key))
             mFaceBeauty.setRedIntensity(value);
         else if (FaceBeautyParam.CLARITY.equals(key))
@@ -290,6 +300,8 @@ public class StyleDataFactory extends AbstractStyleDataFactory {
             mFaceBeauty.setFaceThreeIntensity(value);
         else if (FaceBeautyParam.CHIN_INTENSITY.equals(key))
             mFaceBeauty.setChinIntensity(value);
+        else if (FaceBeautyParam.EYE_PUPIL_INTENSITY.equals(key))
+            mFaceBeauty.setEyePupilIntensity(value);
         else if (FaceBeautyParam.FOREHEAD_INTENSITY.equals(key))
             mFaceBeauty.setForHeadIntensity(value);
         else if (FaceBeautyParam.NOSE_INTENSITY.equals(key))
