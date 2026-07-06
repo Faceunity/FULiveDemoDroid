@@ -4,11 +4,11 @@ buildscript {
     repositories {
         maven { url 'https://maven.faceunity.com/repository/maven-public/' }
         google()
-        jcenter()
+        mavenCentral()
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.1'
+        classpath 'com.android.tools.build:gradle:4.1.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -20,16 +20,16 @@ allprojects {
     repositories {
         maven { url 'https://maven.faceunity.com/repository/maven-public/' }
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+def VERSION_NAME = '9.0.0'
+def UP_VERSION_NAME = '9.0.0' // OSS上传用
 
-def VERSION_NAME = '8.13.0'
-def UP_VERSION_NAME = '8.13.0'
 ext {
     namaVersionName = VERSION_NAME
     compileSdkVersion = 28
@@ -37,3 +37,4 @@ ext {
     minSdkVersion = 19
     targetSdkVersion = 28
 }
+

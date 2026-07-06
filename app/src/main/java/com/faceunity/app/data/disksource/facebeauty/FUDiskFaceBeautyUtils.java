@@ -29,8 +29,12 @@ public class FUDiskFaceBeautyUtils {
             fuDiskFaceBeautyData.blurType = faceBeauty.getBlurType();
             /* 磨皮程度 */
             fuDiskFaceBeautyData.blurIntensity = faceBeauty.getBlurIntensity();
+            /* 全身磨皮程度 */
+            fuDiskFaceBeautyData.bodyBlurIntensity = faceBeauty.getBodyBlurIntensity();
             /* 祛斑痘程度 */
             fuDiskFaceBeautyData.delspotIntensity = faceBeauty.getDelspotIntensity();
+            /* 面部丰盈 */
+            fuDiskFaceBeautyData.facialPlumpingIntensity = faceBeauty.getFacialPlumpingIntensity();
             /* 美白程度 */
             fuDiskFaceBeautyData.colorIntensity = faceBeauty.getColorIntensity();
             /* 红润程度 */
@@ -104,8 +108,8 @@ public class FUDiskFaceBeautyUtils {
 
             /* 滤镜相关 */
             if (filterList != null) {
-                for (FaceBeautyFilterBean filterBean:filterList) {
-                    fuDiskFaceBeautyData.filterMap.put(filterBean.getKey(),filterBean.getIntensity());
+                for (FaceBeautyFilterBean filterBean : filterList) {
+                    fuDiskFaceBeautyData.filterMap.put(filterBean.getKey(), filterBean.getIntensity());
                 }
             }
             /* 滤镜名称 */
@@ -134,9 +138,15 @@ public class FUDiskFaceBeautyUtils {
             /* 磨皮程度 */
             if (fuDiskFaceBeautyData.blurIntensity != faceBeauty.getBlurIntensity())
                 faceBeauty.setBlurIntensity(fuDiskFaceBeautyData.blurIntensity);
+            /* 全身磨皮程度 */
+            if (fuDiskFaceBeautyData.bodyBlurIntensity != faceBeauty.getBodyBlurIntensity())
+                faceBeauty.setBodyBlurIntensity(fuDiskFaceBeautyData.bodyBlurIntensity);
             /* 祛斑痘程度 */
             if (fuDiskFaceBeautyData.delspotIntensity != faceBeauty.getDelspotIntensity())
                 faceBeauty.setDelspotIntensity(fuDiskFaceBeautyData.delspotIntensity);
+            /* 面部丰盈 */
+            if (fuDiskFaceBeautyData.facialPlumpingIntensity != faceBeauty.getFacialPlumpingIntensity())
+                faceBeauty.setFacialPlumpingIntensity(fuDiskFaceBeautyData.facialPlumpingIntensity);
             /* 美白程度 */
             if (fuDiskFaceBeautyData.colorIntensity != faceBeauty.getColorIntensity())
                 faceBeauty.setColorIntensity(fuDiskFaceBeautyData.colorIntensity);
@@ -261,7 +271,7 @@ public class FUDiskFaceBeautyUtils {
      * @param fuDiskFaceBeautyData
      */
     public static void saveFaceBeautyData2File(FUDiskFaceBeautyData fuDiskFaceBeautyData, FaceBeauty faceBeauty, ArrayList<FaceBeautyFilterBean> filterList) {
-        buildFaceBeautyData(fuDiskFaceBeautyData,faceBeauty,filterList);
+        buildFaceBeautyData(fuDiskFaceBeautyData, faceBeauty, filterList);
         saveFaceBeautyData2File(fuDiskFaceBeautyData);
     }
 

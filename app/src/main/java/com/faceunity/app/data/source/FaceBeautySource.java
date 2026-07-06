@@ -125,10 +125,23 @@ public class FaceBeautySource {
                         R.drawable.icon_beauty_skin_buffing_close_selector, R.drawable.icon_beauty_skin_buffing_open_selector
                 )
         );
+        // 全身磨皮
+        params.add(new FaceBeautyBean(
+                        FaceBeautyParam.BODY_BLUR_INTENSITY, R.string.beauty_box_heavy_blur_fine_body,
+                        R.drawable.icon_beauty_body_blur_close_selector, R.drawable.icon_beauty_body_blur_open_selector
+                        , DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_FOUR && !FuDeviceUtils.judgeFunctionInBlackList(FaceBeautyParam.BODY_BLUR_INTENSITY)
+                )
+        );
         //祛斑痘
         params.add(new FaceBeautyBean(
                         FaceBeautyParam.DELSPOT, R.string.beauty_box_delspot,
                         R.drawable.icon_beauty_skin_delspot_close_selector, R.drawable.icon_beauty_skin_delspot_open_selector, DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_THREE && !FuDeviceUtils.judgeFunctionInBlackList(FaceBeautyParam.DELSPOT)
+                )
+        );
+        // 面部丰盈
+        params.add(new FaceBeautyBean(
+                        FaceBeautyParam.FACIAL_PLUMPING, R.string.beauty_box_facial_plumping,
+                        R.drawable.icon_beauty_skin_plumping_close_selector, R.drawable.icon_beauty_skin_plumping_open_selector, DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_THREE && !FuDeviceUtils.judgeFunctionInBlackList(FaceBeautyParam.FACIAL_PLUMPING)
                 )
         );
         //美白
@@ -290,6 +303,15 @@ public class FaceBeautySource {
                 new FaceBeautyBean(
                         FaceBeautyParam.EYE_CIRCLE_INTENSITY, R.string.beauty_box_eye_circle,
                         R.drawable.icon_beauty_shape_round_eye_close_selector, R.drawable.icon_beauty_shape_round_eye_open_selector,
+                        DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_ONE
+                )
+        );
+
+        //瞳孔大小
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.EYE_PUPIL_INTENSITY, R.string.beauty_box_intensity_eye_pupil,
+                        R.drawable.icon_beauty_shape_pupil_close_selector, R.drawable.icon_beauty_shape_pupil_open_selector,
                         DemoConfig.DEVICE_LEVEL >= FuDeviceUtils.DEVICE_LEVEL_ONE
                 )
         );
@@ -519,6 +541,7 @@ public class FaceBeautySource {
         params.put(FaceBeautyParam.COLOR_INTENSITY, new ModelAttributeData(0.4, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.ENABLE_SKIN_SEG, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.BLUR_INTENSITY, new ModelAttributeData(3.3, 0.0, 0.0, 6.0));
+        params.put(FaceBeautyParam.BODY_BLUR_INTENSITY, new ModelAttributeData(3.3, 0.0, 0.0, 6.0));
         params.put(FaceBeautyParam.RED_INTENSITY, new ModelAttributeData(0.3, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.SHARPEN_INTENSITY, new ModelAttributeData(0.6, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_BRIGHT_INTENSITY, new ModelAttributeData(0.3, 0.0, 0.0, 1.0));
@@ -528,6 +551,7 @@ public class FaceBeautySource {
         params.put(FaceBeautyParam.FACE_THREED, new ModelAttributeData(0.4, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CLARITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.DELSPOT, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(FaceBeautyParam.FACIAL_PLUMPING, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         /*美型*/
         params.put(FaceBeautyParam.FACE_SHAPE_INTENSITY, new ModelAttributeData(1.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
@@ -542,6 +566,7 @@ public class FaceBeautySource {
         params.put(FaceBeautyParam.EYE_ENLARGING_INTENSITY, new ModelAttributeData(0.4, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CHIN_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
+        params.put(FaceBeautyParam.EYE_PUPIL_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.FOREHEAD_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.NOSE_INTENSITY, new ModelAttributeData(0.5, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.MOUTH_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
@@ -585,6 +610,7 @@ public class FaceBeautySource {
         params.put(FaceBeautyParam.COLOR_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.ENABLE_SKIN_SEG, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.BLUR_INTENSITY, new ModelAttributeData(3.6, 0.0, 0.0, 6.0));
+        params.put(FaceBeautyParam.BODY_BLUR_INTENSITY, new ModelAttributeData(3.6, 0.0, 0.0, 6.0));
         params.put(FaceBeautyParam.RED_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.SHARPEN_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_BRIGHT_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
@@ -594,6 +620,7 @@ public class FaceBeautySource {
         params.put(FaceBeautyParam.FACE_THREED, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CLARITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.DELSPOT, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(FaceBeautyParam.FACIAL_PLUMPING, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         /*美型*/
         params.put(FaceBeautyParam.FACE_SHAPE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CHEEK_THINNING_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
@@ -608,6 +635,7 @@ public class FaceBeautySource {
         params.put(FaceBeautyParam.EYE_ENLARGING_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CHIN_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
+        params.put(FaceBeautyParam.EYE_PUPIL_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.FOREHEAD_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.NOSE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.MOUTH_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
@@ -740,6 +768,7 @@ public class FaceBeautySource {
         cloneFaceBeauty.setFilterIntensity(faceBeauty.getFilterIntensity());
         /*美肤*/
         cloneFaceBeauty.setBlurIntensity(faceBeauty.getBlurIntensity());
+        cloneFaceBeauty.setBodyBlurIntensity(faceBeauty.getBodyBlurIntensity());
         cloneFaceBeauty.setEnableHeavyBlur(faceBeauty.getEnableHeavyBlur());
         cloneFaceBeauty.setEnableSkinDetect(faceBeauty.getEnableSkinDetect());
         cloneFaceBeauty.setEnableSkinSeg(faceBeauty.getEnableSkinSeg());
@@ -756,6 +785,7 @@ public class FaceBeautySource {
         cloneFaceBeauty.setFaceThreeIntensity(faceBeauty.getFaceThreeIntensity());
         cloneFaceBeauty.setClarityIntensity(faceBeauty.getClarityIntensity());
         cloneFaceBeauty.setDelspotIntensity(faceBeauty.getDelspotIntensity());
+        cloneFaceBeauty.setFacialPlumpingIntensity(faceBeauty.getFacialPlumpingIntensity());
         /*美型*/
         cloneFaceBeauty.setFaceShape(faceBeauty.getFaceShape());
         cloneFaceBeauty.setFaceShapeIntensity(faceBeauty.getFaceShapeIntensity());
