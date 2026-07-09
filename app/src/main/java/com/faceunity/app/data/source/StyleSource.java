@@ -317,8 +317,8 @@ public class StyleSource {
             model.setRemovePouchIntensity(1);// 祛黑眼圈 100
             model.setRemoveLawPatternIntensity(0.7);// 祛法令纹 70
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "baikaishui.bundle"));
-            simpleMakeup.setFilterIntensity(1);// 滤镜程度
-//            simpleMakeup.setMakeupIntensity(0.8);// 美妆整体强度
+            simpleMakeup.setFilterIntensity(1);// 滤镜程度 100
+            simpleMakeup.setMakeupIntensity(1);// 美妆整体强度 100
         } else if (CONFIG_SEGULAMEI.equals(styleName)) {// 甜心派
             // 美型
             model.setCheekThinningIntensity(0.18);// 瘦脸 18
@@ -343,8 +343,8 @@ public class StyleSource {
             model.setRemovePouchIntensity(0.28);// 祛黑眼圈 28
             model.setRemoveLawPatternIntensity(0.23);// 祛法令纹 23
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "tianxinpai.bundle"));
-            simpleMakeup.setFilterIntensity(1);// 滤镜程度
-//            simpleMakeup.setMakeupIntensity(0.8);
+            simpleMakeup.setFilterIntensity(0.6);// 滤镜程度 60
+            simpleMakeup.setMakeupIntensity(0.7);// 妆容 70
         } else if (CONFIG_HUNXUEBABY.equals(styleName)) {// 混血baby
             // 美型
             model.setCheekThinningIntensity(0.16);// 瘦脸 16
@@ -370,8 +370,8 @@ public class StyleSource {
             model.setRemovePouchIntensity(1);// 祛黑眼圈 100
             model.setRemoveLawPatternIntensity(0.7);// 祛法令纹 70
             simpleMakeup = new SimpleMakeup(new FUBundleData(makeupBundleDir + "hunxuebaby.bundle"));
-            simpleMakeup.setFilterIntensity(1);// 滤镜程度
-//            simpleMakeup.setMakeupIntensity(0.8);
+            simpleMakeup.setFilterIntensity(0.8);// 滤镜程度 80
+            simpleMakeup.setMakeupIntensity(0.8);// 妆容 80
         } else if (CONFIG_TEMPERAMENT.equals(styleName)) {//气质
             model.setBlurIntensity(3.0);
             model.setEyeBrightIntensity(0.2);
