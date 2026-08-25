@@ -10,6 +10,7 @@ import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_FOUNDA
 import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_HIGH_LIGHT;
 import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_LIP_STICK;
 import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_SHADOW;
+import static com.faceunity.app.data.source.MakeupSource.FACE_MAKEUP_TYPE_WOCAN;
 import static com.faceunity.app.data.source.MakeupSource.buildFUColorRGBData;
 
 import androidx.annotation.NonNull;
@@ -206,6 +207,8 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             currentMakeup.setShadowIntensity(intensity);
         } else if (key.equals(FACE_MAKEUP_TYPE_EYE_PUPIL)) {
             currentMakeup.setPupilIntensity(intensity);
+        } else if (key.equals(FACE_MAKEUP_TYPE_WOCAN)) {
+            currentMakeup.setWocanIntensity(intensity);
         }
         mCustomIntensityMap.put(key + "_" + current, intensity);
     }
@@ -398,6 +401,22 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
                 }
                 updateCustomColor(key, colorIndex);
             }
+        } else if (key.equals(FACE_MAKEUP_TYPE_WOCAN)) {
+            if (index == 0) {
+                currentMakeup.setWocanIntensity(0.0);
+            } else {
+                currentMakeup.setWocanBundle(new FUBundleData(itemDir + "mu_style_wocan_0" + index + ".bundle"));
+                double intensity = 1.0;
+                if (mCustomIntensityMap.containsKey(FACE_MAKEUP_TYPE_WOCAN + "_" + index)) {
+                    intensity = mCustomIntensityMap.get(FACE_MAKEUP_TYPE_WOCAN + "_" + index);
+                }
+                currentMakeup.setWocanIntensity((intensity));
+                int colorIndex = 3;
+                if (mCustomColorIndexMap.containsKey(FACE_MAKEUP_TYPE_WOCAN + "_" + index)) {
+                    colorIndex = mCustomColorIndexMap.get(FACE_MAKEUP_TYPE_WOCAN + "_" + index);
+                }
+                updateCustomColor(key, colorIndex);
+            }
         } else if (key.equals(FACE_MAKEUP_TYPE_EYE_PUPIL)) {
             if (index == 0) {
                 currentMakeup.setPupilIntensity(0.0);
@@ -480,6 +499,11 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             double[] color = mMakeUpColorMap.get("color_mu_style_eyepupil_01").get(index);
             currentMakeup.setPupilColor(buildFUColorRGBData(color));
         }
+//        else if (key.equals(FACE_MAKEUP_TYPE_WOCAN)) {
+//            mCustomColorIndexMap.put(FACE_MAKEUP_TYPE_WOCAN + "_" + current, index);
+//            double[] color = mMakeUpColorMap.get("color_mu_style_wocan_0" + current).get(index);
+//            currentMakeup.setWocanColor(buildFUColorRGBData(color));
+//        }
     }
 
 
@@ -526,6 +550,8 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             currentMakeup.setShadowIntensity(currentMakeup.getShadowIntensity() * enterMakeupIntensity);
             /* 美瞳*/
             currentMakeup.setPupilIntensity(currentMakeup.getPupilIntensity() * enterMakeupIntensity);
+            /* 卧蚕*/
+            currentMakeup.setWocanIntensity(currentMakeup.getWocanIntensity() * enterMakeupIntensity);
             /* 再将美妆强度设置为1 */
             currentMakeup.setMakeupIntensity(1.0);
             return;
@@ -823,6 +849,29 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
                 mCustomIntensityMap.put(FACE_MAKEUP_TYPE_EYE_PUPIL + "_" + current, intensity);
             }
         }
+        /* 卧蚕*/
+        if (currentMakeup.getWocanIntensity() != 0.0 && currentMakeup.getWocanBundle() != null) {
+            double intensity = currentMakeup.getWocanIntensity() * enterMakeupIntensity;
+            currentMakeup.setWocanIntensity(intensity);
+            String path = currentMakeup.getWocanBundle().getPath();
+            int current = 0;
+            if (path.endsWith("mu_style_wocan_01.bundle")) {
+                current = 1;
+            } else if (path.endsWith("mu_style_wocan_02.bundle")) {
+                current = 2;
+            } else if (path.endsWith("mu_style_wocan_03.bundle")) {
+                current = 3;
+            } else if (path.endsWith("mu_style_wocan_04.bundle")) {
+                current = 4;
+            } else if (path.endsWith("mu_style_wocan_05.bundle")) {
+                current = 5;
+            }
+            mCustomIndexMap.put(FACE_MAKEUP_TYPE_WOCAN, current);
+            if (current != 0) {
+                mCustomIntensityMap.put(FACE_MAKEUP_TYPE_WOCAN + "_" + current, intensity);
+            }
+        }
+
         currentMakeup.setMakeupIntensity(1.0);
     }
 
@@ -994,6 +1043,8 @@ public class MakeupDataFactory extends AbstractMakeupDataFactory {
             intensity = currentMakeup.getShadowIntensity();
         } else if (key.equals(FACE_MAKEUP_TYPE_EYE_PUPIL)) {
             intensity = currentMakeup.getPupilIntensity();
+        } else if (key.equals(FACE_MAKEUP_TYPE_WOCAN)) {
+            intensity = currentMakeup.getWocanIntensity();
         }
         if (intensity != 0) {
             return true;

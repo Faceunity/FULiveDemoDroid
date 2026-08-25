@@ -25,6 +25,7 @@ public class BodyBeautySource {
         params.add(new BodyBeautyBean(BodyBeautyParam.BODY_SLIM_INTENSITY, R.string.slimming, R.drawable.icon_body_slimming_close_selector, R.drawable.icon_body_slimming_open_selector));
         params.add(new BodyBeautyBean(BodyBeautyParam.LEG_STRETCH_INTENSITY, R.string.long_legs, R.drawable.icon_body_stovepipe_close_selector, R.drawable.icon_body_stovepipe_open_selector));
         params.add(new BodyBeautyBean(BodyBeautyParam.WAIST_SLIM_INTENSITY, R.string.thin_waist, R.drawable.icon_body_waist_close_selector, R.drawable.icon_body_waist_open_selector));
+        params.add(new BodyBeautyBean(BodyBeautyParam.SWAN_INTENSITY, R.string.beautify_swan, R.drawable.icon_body_swan_close_selector, R.drawable.icon_body_swan_open_selector));
         params.add(new BodyBeautyBean(BodyBeautyParam.SHOULDER_SLIM_INTENSITY, R.string.beautify_shoulder, R.drawable.icon_body_shoulder_close_selector, R.drawable.icon_body_shoulder_open_selector));
         params.add(new BodyBeautyBean(BodyBeautyParam.HIP_SLIM_INTENSITY, R.string.beautify_hip_slim, R.drawable.icon_body_hip_close_selector, R.drawable.icon_body_hip_open_selector));
         params.add(new BodyBeautyBean(BodyBeautyParam.HEAD_SLIM_INTENSITY, R.string.beautify_head_slim, R.drawable.icon_body_little_head_close_selector, R.drawable.icon_body_little_head_open_selector));
@@ -43,6 +44,7 @@ public class BodyBeautySource {
         params.put(BodyBeautyParam.BODY_SLIM_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(BodyBeautyParam.LEG_STRETCH_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(BodyBeautyParam.WAIST_SLIM_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(BodyBeautyParam.SWAN_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(BodyBeautyParam.SHOULDER_SLIM_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(BodyBeautyParam.HIP_SLIM_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(BodyBeautyParam.HEAD_SLIM_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));

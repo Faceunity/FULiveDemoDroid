@@ -32,6 +32,8 @@ public class HairBeautySource {
         hairBeans.add(new HairBeautyBean(R.mipmap.icon_hair_hairsalon_06, 1, 5));
         hairBeans.add(new HairBeautyBean(R.mipmap.icon_hair_hairsalon_07, 1, 6));
         hairBeans.add(new HairBeautyBean(R.mipmap.icon_hair_hairsalon_08, 1, 7));
+        // 黑色
+        hairBeans.add(new HairBeautyBean(R.mipmap.icon_hair_hairsalon_09, 1, 8));
         return hairBeans;
     }
 

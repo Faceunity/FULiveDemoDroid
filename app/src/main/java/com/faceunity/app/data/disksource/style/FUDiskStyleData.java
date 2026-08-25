@@ -58,6 +58,10 @@ public class FUDiskStyleData implements Serializable {
     public double cheekBonesIntensity = 0.0;
     /* 瘦下颌骨 */
     public double lowerJawIntensity = 0.0;
+    /* 面部提拉 */
+    public double faceLiftIntensity = 0.0;
+    /* 小头 */
+    public double smallHeadIntensity = 0.0;
     /* 大眼程度 */
     public double eyeEnlargingIntensity = 0.0;
     /* 圆眼程度 */
