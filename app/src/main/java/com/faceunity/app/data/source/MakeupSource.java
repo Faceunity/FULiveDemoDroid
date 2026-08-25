@@ -35,7 +35,6 @@ import java.util.Map;
  */
 public class MakeupSource {
 
-
     //region 组合妆容
 
     /**
@@ -155,6 +154,7 @@ public class MakeupSource {
         map.put(MakeupParam.FOUNDATION_INTENSITY, 0.0);
         map.put(MakeupParam.HIGHLIGHT_INTENSITY, 0.0);
         map.put(MakeupParam.SHADOW_INTENSITY, 0.0);
+        map.put(MakeupParam.WOCAN_INTENSITY, 0.0);
         LinkedHashMap<String, Object> jsonParam = FileUtils.INSTANCE.loadParamsFromLocal(DemoApplication.mApplication, jsonPath);
         for (Map.Entry<String, Object> entry : jsonParam.entrySet()) {
             if (entry.getKey().startsWith("tex_")) {
@@ -201,6 +201,7 @@ public class MakeupSource {
             put(MakeupParam.FOUNDATION_INTENSITY, (makeup, value) -> makeup.setFoundationIntensity((double) value));
             put(MakeupParam.HIGHLIGHT_INTENSITY, (makeup, value) -> makeup.setHeightLightIntensity((double) value));
             put(MakeupParam.SHADOW_INTENSITY, (makeup, value) -> makeup.setShadowIntensity((double) value));
+            put(MakeupParam.WOCAN_INTENSITY, (makeup, value) -> makeup.setWocanIntensity((double) value));
             /*子项妆容贴图*/
             put(MakeupParam.TEX_LIP, (makeup, value) -> makeup.setLipBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
             put(MakeupParam.TEX_EYE_BROW, (makeup, value) -> makeup.setEyeBrowBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
@@ -216,6 +217,7 @@ public class MakeupSource {
             put(MakeupParam.TEX_FOUNDATION, (makeup, value) -> makeup.setFoundationBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
             put(MakeupParam.TEX_HIGH_LIGHT, (makeup, value) -> makeup.setHighLightBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
             put(MakeupParam.TEX_SHADOW, (makeup, value) -> makeup.setShadowBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
+            put(MakeupParam.TEX_WOCAN, (makeup, value) -> makeup.setWocanBundle(((String) value).endsWith(".bundle") ? new FUBundleData((String) value) : null));
             /*子项妆容颜色*/
             put(MakeupParam.MAKEUP_LIP_COLOR, (makeup, value) -> makeup.setLipColor(buildFUColorRGBData(value)));
             put(MakeupParam.MAKEUP_LIP_COLOR_V2, (makeup, value) -> makeup.setLipColorV2(buildFUColorRGBData(value)));
@@ -233,6 +235,7 @@ public class MakeupSource {
             put(MakeupParam.MAKEUP_EYE_SHADOW_COLOR2, (makeup, value) -> makeup.setEyeShadowColor2(buildFUColorRGBData(value)));
             put(MakeupParam.MAKEUP_EYE_SHADOW_COLOR3, (makeup, value) -> makeup.setEyeShadowColor3(buildFUColorRGBData(value)));
             put(MakeupParam.MAKEUP_EYE_SHADOW_COLOR4, (makeup, value) -> makeup.setEyeShadowColor4(buildFUColorRGBData(value)));
+            put(MakeupParam.MAKEUP_WOCAN_COLOR, (makeup, value) -> makeup.setWocanColor(buildFUColorRGBData(value)));
             /* 图层混合模式 */
             put(MakeupParam.BLEND_TEX_EYE_SHADOW, (makeup, value) -> makeup.setEyeShadowTexBlend((int) value));
             put(MakeupParam.BLEND_TEX_EYE_SHADOW2, (makeup, value) -> makeup.setEyeShadowTexBlend2((int) value));
@@ -286,6 +289,8 @@ public class MakeupSource {
     public static String FACE_MAKEUP_TYPE_SHADOW = "SHADOW";
     /* 美瞳 */
     public static String FACE_MAKEUP_TYPE_EYE_PUPIL = "EYE_PUPIL";
+    /* 卧蚕 */
+    public static String FACE_MAKEUP_TYPE_WOCAN = "WOCAN";
 
     /**
      * 构造美妆子项类别
@@ -299,6 +304,7 @@ public class MakeupSource {
         classes.add(new MakeupCustomClassBean(R.string.makeup_radio_eye_shadow, FACE_MAKEUP_TYPE_EYE_SHADOW));
         classes.add(new MakeupCustomClassBean(R.string.makeup_radio_eye_liner, FACE_MAKEUP_TYPE_EYE_LINER));
         classes.add(new MakeupCustomClassBean(R.string.makeup_radio_eyelash, FACE_MAKEUP_TYPE_EYE_LASH));
+        classes.add(new MakeupCustomClassBean(R.string.makeup_radio_contact_wocan, FACE_MAKEUP_TYPE_WOCAN));
         classes.add(new MakeupCustomClassBean(R.string.makeup_radio_highlight, FACE_MAKEUP_TYPE_HIGH_LIGHT));
         classes.add(new MakeupCustomClassBean(R.string.makeup_radio_shadow, FACE_MAKEUP_TYPE_SHADOW));
         classes.add(new MakeupCustomClassBean(R.string.makeup_radio_contact_lens, FACE_MAKEUP_TYPE_EYE_PUPIL));
@@ -323,7 +329,6 @@ public class MakeupSource {
             makeupItems.add(new MakeupCustomBean(0, drawable));
         }
         mCustomItems.put(FACE_MAKEUP_TYPE_FOUNDATION, makeupItems);
-
 
         /*口红*/
         mCustomItems.put(FACE_MAKEUP_TYPE_LIP_STICK, new ArrayList<MakeupCustomBean>() {
@@ -396,6 +401,18 @@ public class MakeupSource {
             }
         });
 
+        /* 卧蚕 */
+        mCustomItems.put(FACE_MAKEUP_TYPE_WOCAN, new ArrayList<MakeupCustomBean>() {
+            {
+                add(new MakeupCustomBean(R.string.makeup_radio_remove, getDrawable(R.mipmap.icon_control_none)));
+                add(new MakeupCustomBean(R.string.makeup_radio_contact_wocan1, getDrawable(R.mipmap.icon_makeup_wocan_01)));
+                add(new MakeupCustomBean(R.string.makeup_radio_contact_wocan2, getDrawable(R.mipmap.icon_makeup_wocan_02)));
+                add(new MakeupCustomBean(R.string.makeup_radio_contact_wocan3, getDrawable(R.mipmap.icon_makeup_wocan_03)));
+                add(new MakeupCustomBean(R.string.makeup_radio_contact_wocan4, getDrawable(R.mipmap.icon_makeup_wocan_04)));
+                add(new MakeupCustomBean(R.string.makeup_radio_contact_wocan5, getDrawable(R.mipmap.icon_makeup_wocan_05)));
+            }
+        });
+
         /*高光*/
         mCustomItems.put(FACE_MAKEUP_TYPE_HIGH_LIGHT, new ArrayList<MakeupCustomBean>() {
             {
@@ -425,6 +442,7 @@ public class MakeupSource {
                 add(new MakeupCustomBean(R.string.makeup_pupil_8, getDrawable(R.mipmap.icon_makeup_eyepupil_09), null));
             }
         });
+
         return mCustomItems;
     }
 

@@ -247,6 +247,8 @@ public class StyleSource {
             model.setCheekSmallIntensity(fuDiskStyleData.cheekSmallIntensity);
             model.setCheekBonesIntensity(fuDiskStyleData.cheekBonesIntensity);
             model.setLowerJawIntensity(fuDiskStyleData.lowerJawIntensity);
+            model.setFaceLiftIntensity(fuDiskStyleData.faceLiftIntensity);
+            model.setSmallHeadIntensity(fuDiskStyleData.smallHeadIntensity);
             model.setEyeEnlargingIntensity(fuDiskStyleData.eyeEnlargingIntensity);
             model.setEyeCircleIntensity(fuDiskStyleData.eyeCircleIntensity);
             model.setChinIntensity(fuDiskStyleData.chinIntensity);
@@ -723,6 +725,15 @@ public class StyleSource {
                         R.drawable.icon_beauty_shape_face_little_close_selector, R.drawable.icon_beauty_shape_face_little_open_selector
                 )
         );
+
+        // 小头
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.INTENSITY_SMALL_HEAD_INTENSITY, R.string.beauty_box_small_head,
+                        R.drawable.icon_beauty_shape_small_head_close_selector, R.drawable.icon_beauty_shape_small_head_open_selector
+                )
+        );
+
         //瘦颧骨
         params.add(
                 new FaceBeautyBean(
@@ -738,6 +749,14 @@ public class StyleSource {
                         R.drawable.icon_beauty_shape_lower_jaw_close_selector, R.drawable.icon_beauty_shape_lower_jaw_open_selector
                 )
         );
+
+//        // 面部提拉
+//        params.add(
+//                new FaceBeautyBean(
+//                        FaceBeautyParam.INTENSITY_FACE_LIFT_INTENSITY, R.string.beauty_box_face_lift,
+//                        R.drawable.icon_beauty_shape_face_lift_close_selector, R.drawable.icon_beauty_shape_face_lift_open_selector
+//                )
+//        );
 
         //大眼
         params.add(
@@ -787,6 +806,14 @@ public class StyleSource {
                 )
         );
 
+        // 鼻翼
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.NOSE_ALAR_INTENSITY, R.string.beauty_box_intensity_nose_alar,
+                        R.drawable.icon_beauty_shape_nose_alar_close_selector, R.drawable.icon_beauty_shape_nose_alar_open_selector
+                )
+        );
+
         //嘴型
         params.add(
                 new FaceBeautyBean(
@@ -794,6 +821,14 @@ public class StyleSource {
                         R.drawable.icon_beauty_shape_mouth_close_selector, R.drawable.icon_beauty_shape_mouth_open_selector
                 )
         );
+
+//        // 嘴巴宽度
+//        params.add(
+//                new FaceBeautyBean(
+//                        FaceBeautyParam.MOUTH_WIDTH_INTENSITY, R.string.beauty_box_intensity_mouth_width,
+//                        R.drawable.icon_beauty_shape_mouth_width_close_selector, R.drawable.icon_beauty_shape_mouth_width_open_selector
+//                )
+//        );
 
         //嘴唇厚度
         params.add(
@@ -816,6 +851,14 @@ public class StyleSource {
                 new FaceBeautyBean(
                         FaceBeautyParam.CANTHUS_INTENSITY, R.string.beauty_micro_canthus,
                         R.drawable.icon_beauty_shape_open_eyes_close_selector, R.drawable.icon_beauty_shape_open_eyes_open_selector
+                )
+        );
+
+        // 外眼角
+        params.add(
+                new FaceBeautyBean(
+                        FaceBeautyParam.EYE_OUTTER_INTENSITY, R.string.beauty_box_intensity_eye_outter,
+                        R.drawable.icon_beauty_shape_eye_outter_close_selector, R.drawable.icon_beauty_shape_eye_outter_open_selector
                 )
         );
 
@@ -927,10 +970,15 @@ public class StyleSource {
         params.put(FaceBeautyParam.CHEEK_SMALL_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.INTENSITY_CHEEKBONES_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.INTENSITY_LOW_JAW_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(FaceBeautyParam.INTENSITY_FACE_LIFT_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
+        params.put(FaceBeautyParam.INTENSITY_SMALL_HEAD_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_ENLARGING_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_CIRCLE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.CHIN_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.EYE_PUPIL_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
+        params.put(FaceBeautyParam.EYE_OUTTER_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
+        params.put(FaceBeautyParam.MOUTH_WIDTH_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
+        params.put(FaceBeautyParam.NOSE_ALAR_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.FOREHEAD_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
         params.put(FaceBeautyParam.NOSE_INTENSITY, new ModelAttributeData(0.0, 0.0, 0.0, 1.0));
         params.put(FaceBeautyParam.MOUTH_INTENSITY, new ModelAttributeData(0.5, 0.5, 0.0, 1.0));
@@ -1014,6 +1062,10 @@ public class StyleSource {
             if (faceBeauty.getCheekBonesIntensity() != styleData.faceBeauty.getCheekBonesIntensity())
                 return false;
             if (faceBeauty.getLowerJawIntensity() != styleData.faceBeauty.getLowerJawIntensity())
+                return false;
+            if (faceBeauty.getFaceLiftIntensity() != styleData.faceBeauty.getFaceLiftIntensity())
+                return false;
+            if (faceBeauty.getSmallHeadIntensity() != styleData.faceBeauty.getSmallHeadIntensity())
                 return false;
             if (faceBeauty.getEyeEnlargingIntensity() != styleData.faceBeauty.getEyeEnlargingIntensity())
                 return false;
@@ -1190,6 +1242,10 @@ public class StyleSource {
             targetBeauty.setCheekBonesIntensity(sourceFaceBeauty.getCheekBonesIntensity());
         if (targetBeauty.getLowerJawIntensity() != sourceFaceBeauty.getLowerJawIntensity())
             targetBeauty.setLowerJawIntensity(sourceFaceBeauty.getLowerJawIntensity());
+        if (targetBeauty.getFaceLiftIntensity() != sourceFaceBeauty.getFaceLiftIntensity())
+            targetBeauty.setFaceLiftIntensity(sourceFaceBeauty.getFaceLiftIntensity());
+        if (targetBeauty.getSmallHeadIntensity() != sourceFaceBeauty.getSmallHeadIntensity())
+            targetBeauty.setSmallHeadIntensity(sourceFaceBeauty.getSmallHeadIntensity());
         if (targetBeauty.getEyeEnlargingIntensity() != sourceFaceBeauty.getEyeEnlargingIntensity())
             targetBeauty.setEyeEnlargingIntensity(sourceFaceBeauty.getEyeEnlargingIntensity());
         if (targetBeauty.getEyeCircleIntensity() != sourceFaceBeauty.getEyeCircleIntensity())

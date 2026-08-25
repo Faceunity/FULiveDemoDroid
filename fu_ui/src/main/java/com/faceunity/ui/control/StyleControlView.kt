@@ -5,12 +5,16 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
+import android.os.Build
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import com.faceunity.ui.R
 import com.faceunity.ui.base.BaseDelegate
@@ -63,6 +67,7 @@ class StyleControlView @JvmOverloads constructor(
         bindListener()
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @SuppressLint("ClickableViewAccessibility")
     private fun bindListener() {
         mBinding.cytMain.setOnTouchListener { _, _ -> true }
@@ -83,7 +88,8 @@ class StyleControlView @JvmOverloads constructor(
         /*还原参数*/
         mBinding.ivRecover.setOnClickListener {
             val confirmDialogFragment =
-                ConfirmDialogFragment.newInstance(mContext.getString(R.string.dialog_style_reset),
+                ConfirmDialogFragment.newInstance(
+                    mContext.getString(R.string.dialog_style_reset),
                     object : BaseDialogFragment.OnClickListener {
                         override fun onConfirm() { // recover params
                             mDataFactory.recoverStyleAllParams()
@@ -162,6 +168,18 @@ class StyleControlView @JvmOverloads constructor(
             //更新风格还原按钮
             checkStyleRecover()
         }
+
+        // 视图inflate完成后调用
+        val config: Configuration = resources.configuration
+        val isJapanese = config.locales[0].language == "ja"
+        val params = mBinding.styleSeekBar.layoutParams
+// 日语：@dimen/x450，其它语言：@dimen/x528
+        params.width = if (isJapanese) {
+            resources.getDimensionPixelSize(R.dimen.x450)
+        } else {
+            resources.getDimensionPixelSize(R.dimen.x528)
+        }
+        mBinding.styleSeekBar.layoutParams = params
 
         mBinding.styleSeekBar.setOnProgressChangeListener(object :
             DiscreteSeekBar.OnProgressChangeListener {

@@ -35,6 +35,8 @@
     <string name="beauty_box_cheek_round_face">Round face</string>
     <string name="beauty_box_cheekbones">Cheek</string>
     <string name="beauty_box_lower_jaw">Jaw</string>
+    <string name="beauty_box_face_lift">Face Lift</string>
+    <string name="beauty_box_small_head">Small Head</string>
     <string name="beauty_box_cheek_thinning">Lower Width</string>
     <string name="beauty_box_cheek_v">V Shape</string>
     <string name="beauty_box_cheek_narrow">Upper Width</string>
@@ -42,6 +44,9 @@
     <string name="beauty_box_cheek_small">Size Face</string>
     <string name="beauty_box_intensity_chin">Chin Length</string>
     <string name="beauty_box_intensity_eye_pupil">Eye Pupil</string>
+    <string name="beauty_box_intensity_eye_outter">Eye Outter</string>
+    <string name="beauty_box_intensity_mouth_width">Mouth Width</string>
+    <string name="beauty_box_intensity_nose_alar">Nose Alar</string>
     <string name="beauty_box_intensity_forehead">Hairline</string>
     <string name="beauty_box_intensity_nose">Nose Size</string>
     <string name="beauty_box_intensity_mouth">Mouth Size</string>
@@ -55,6 +60,12 @@
     <string name="makeup_radio_eye_liner">Eyeliner</string>
     <string name="makeup_radio_eyelash">Eyelash</string>
     <string name="makeup_radio_contact_lens">Pupil</string>
+    <string name="makeup_radio_contact_wocan">Silkworm</string>
+    <string name="makeup_radio_contact_wocan1">Silkworm I</string>
+    <string name="makeup_radio_contact_wocan2">Silkworm II</string>
+    <string name="makeup_radio_contact_wocan3">Silkworm III</string>
+    <string name="makeup_radio_contact_wocan4">Silkworm IV</string>
+    <string name="makeup_radio_contact_wocan5">Silkworm V</string>
     <string name="makeup_radio_foundation">Foundation</string>
     <string name="makeup_radio_highlight">Highlight</string>
     <string name="makeup_radio_shadow">Shadow</string>
@@ -161,6 +172,10 @@
     <string name="heibai_2">Fade 2</string>
     <string name="heibai_3">Fade 3</string>
     <string name="heibai_4">Fade 4</string>
+    <string name="rouguang">Rouguanglengzi</string>
+    <string name="weibao">Weibao</string>
+    <string name="lengbaipi">Lengbaipi</string>
+    <string name="qingtou">Qingtou</string>
     <string name="ziran_1">Nature 1</string>
     <string name="ziran_2">Nature 2</string>
     <string name="ziran_3">Nature 3</string>
@@ -321,6 +336,7 @@
     <string name="beautify_head_slim">Head</string>
     <string name="beautify_leg_thin_slim">Legs Width</string>
     <string name="beautify_breast">BREAST</string>
+    <string name="beautify_swan">Swan Neck</string>
     <string name="toast_not_detect_body">No body detected</string>
     <string name="pta_human_full_body">Whole Body</string>
     <string name="pta_human_half_body">Up-Body</string>

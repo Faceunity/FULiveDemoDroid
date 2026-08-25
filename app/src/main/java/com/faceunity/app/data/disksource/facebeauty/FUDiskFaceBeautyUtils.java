@@ -67,6 +67,10 @@ public class FUDiskFaceBeautyUtils {
             fuDiskFaceBeautyData.cheekBonesIntensity = faceBeauty.getCheekBonesIntensity();
             /* 瘦下颌骨 */
             fuDiskFaceBeautyData.lowerJawIntensity = faceBeauty.getLowerJawIntensity();
+            /* 面部提拉 */
+            fuDiskFaceBeautyData.faceLiftIntensity = faceBeauty.getFaceLiftIntensity();
+            /* 小头 */
+            fuDiskFaceBeautyData.smallHeadIntensity = faceBeauty.getSmallHeadIntensity();
             /* 大眼程度 */
             fuDiskFaceBeautyData.eyeEnlargingIntensity = faceBeauty.getEyeEnlargingIntensity();
             /* 圆眼程度 */
@@ -195,6 +199,12 @@ public class FUDiskFaceBeautyUtils {
             /* 瘦下颌骨 */
             if (fuDiskFaceBeautyData.lowerJawIntensity != faceBeauty.getLowerJawIntensity())
                 faceBeauty.setLowerJawIntensity(fuDiskFaceBeautyData.lowerJawIntensity);
+            /* 面部提拉 */
+            if (fuDiskFaceBeautyData.faceLiftIntensity != faceBeauty.getFaceLiftIntensity())
+                faceBeauty.setFaceLiftIntensity(fuDiskFaceBeautyData.faceLiftIntensity);
+            /* 小头 */
+            if (fuDiskFaceBeautyData.smallHeadIntensity != faceBeauty.getSmallHeadIntensity())
+                faceBeauty.setSmallHeadIntensity(fuDiskFaceBeautyData.smallHeadIntensity);
             /* 大眼程度 */
             if (fuDiskFaceBeautyData.eyeEnlargingIntensity != faceBeauty.getEyeEnlargingIntensity())
                 faceBeauty.setEyeEnlargingIntensity(fuDiskFaceBeautyData.eyeEnlargingIntensity);
